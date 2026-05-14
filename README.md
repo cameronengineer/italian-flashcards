@@ -1239,28 +1239,62 @@ The system should generate article-based noun phrases.
 
 ## 18. Articulated preposition generation
 
-Italian combines many common prepositions with definite articles.
+Italian nouns need special handling because articles and prepositions combine into a large, rule-driven grid.
 
-The system should generate these combinations for each noun in both singular and plural where appropriate.
+For this system, every noun should be expanded into both singular and plural noun phrases, and then each of those noun phrases should be combined with the relevant preposition/article combinations.
 
-Core prepositions to include:
+This means the noun workflow is not simply:
 
-1. a
-2. di
-3. da
-4. in
-5. con
-6. su
-7. per
-8. tra / fra
+> noun → singular card → plural card
 
-Some prepositions form mandatory contractions with definite articles. Others often remain separate.
+It is closer to:
+
+> noun → singular/plural forms → correct articles → preposition + article grid → phrase cards
+
+The important point is that the system should not manually store every phrase. It should generate the grid from a smaller set of grammatical metadata.
 
 ---
 
-### 18.1 Main articulated preposition grid
+### 18.1 Required noun metadata
 
-The core grid should be generated from the noun’s correct definite article.
+Before generating article/preposition cards, the system needs to know the noun’s article class in both singular and plural.
+
+For each noun, the system should store:
+
+| Field                       | Purpose                      | Example for cane | Example for casa | Example for amico |
+| --------------------------- | ---------------------------- | ---------------- | ---------------- | ----------------- |
+| singular                    | Base singular form           | cane             | casa             | amico             |
+| plural                      | Base plural form             | cani             | case             | amici             |
+| gender                      | Determines article family    | masculine        | feminine         | masculine         |
+| singular definite article   | Used for singular grid       | il               | la               | l’                |
+| plural definite article     | Used for plural grid         | i                | le               | gli               |
+| singular indefinite article | Used for basic article cards | un               | una              | un                |
+| article class               | Determines contractions      | il/i             | la/le            | l’/gli            |
+
+Once this metadata exists, the rest of the grid can be generated programmatically.
+
+---
+
+### 18.2 Definite article grid
+
+The system should first generate the correct singular and plural definite noun phrases.
+
+| Noun     | Singular definite | Plural definite |
+| -------- | ----------------- | --------------- |
+| cane     | il cane           | i cani          |
+| casa     | la casa           | le case         |
+| amico    | l’amico           | gli amici       |
+| studente | lo studente       | gli studenti    |
+| zaino    | lo zaino          | gli zaini       |
+| scuola   | la scuola         | le scuole       |
+
+These forms become the input to the preposition/article generator.
+
+---
+
+### 18.3 Core contracted preposition/article grid
+
+The main articulated-preposition grid combines five prepositions with seven definite articles.
 
 | Preposition | il  | lo    | l’    | la    | i   | gli   | le    |
 | ----------- | --- | ----- | ----- | ----- | --- | ----- | ----- |
@@ -1270,37 +1304,275 @@ The core grid should be generated from the noun’s correct definite article.
 | in          | nel | nello | nell’ | nella | nei | negli | nelle |
 | su          | sul | sullo | sull’ | sulla | sui | sugli | sulle |
 
-For a noun like cane, the system should generate:
+For each noun, the system should select only the two relevant article columns:
 
-| Meaning       | Italian  |
-| ------------- | -------- |
-| to the dog    | al cane  |
-| of the dog    | del cane |
-| from the dog  | dal cane |
-| in the dog    | nel cane |
-| on the dog    | sul cane |
-| to the dogs   | ai cani  |
-| of the dogs   | dei cani |
-| from the dogs | dai cani |
-| in the dogs   | nei cani |
-| on the dogs   | sui cani |
+1. The noun’s singular definite article
+2. The noun’s plural definite article
+
+Then it should generate every row for those two columns.
+
+For example, cane uses:
+
+* singular article: il
+* plural article: i
+
+So the system generates:
+
+| Preposition | Singular phrase | Plural phrase |
+| ----------- | --------------- | ------------- |
+| a           | al cane         | ai cani       |
+| di          | del cane        | dei cani      |
+| da          | dal cane        | dai cani      |
+| in          | nel cane        | nei cani      |
+| su          | sul cane        | sui cani      |
+
+For casa, the system uses:
+
+* singular article: la
+* plural article: le
+
+So it generates:
+
+| Preposition | Singular phrase | Plural phrase |
+| ----------- | --------------- | ------------- |
+| a           | alla casa       | alle case     |
+| di          | della casa      | delle case    |
+| da          | dalla casa      | dalle case    |
+| in          | nella casa      | nelle case    |
+| su          | sulla casa      | sulle case    |
+
+For amico, the system uses:
+
+* singular article: l’
+* plural article: gli
+
+So it generates:
+
+| Preposition | Singular phrase | Plural phrase |
+| ----------- | --------------- | ------------- |
+| a           | all’amico       | agli amici    |
+| di          | dell’amico      | degli amici   |
+| da          | dall’amico      | dagli amici   |
+| in          | nell’amico      | negli amici   |
+| su          | sull’amico      | sugli amici   |
 
 ---
 
-### 18.2 Non-contracted preposition cards
+### 18.4 Non-contracted preposition/article phrases
 
-Some common prepositions usually do not contract with articles in modern standard Italian.
+Some common prepositions normally do not contract with the article in modern Italian.
 
-These can still be generated as phrase cards.
+The system should still generate cards for them, but they should be treated as separate phrase cards rather than articulated-preposition cards.
 
-| Preposition | Singular example | Plural example |
-| ----------- | ---------------- | -------------- |
-| con         | con il cane      | con i cani     |
-| per         | per il cane      | per i cani     |
-| tra         | tra il cane      | tra i cani     |
-| fra         | fra il cane      | fra i cani     |
+Core non-contracted prepositions:
 
-Optional note: older or literary forms like col, coi, pel, pei may exist, but they should probably be excluded from the first version unless the goal is comprehensive recognition.
+| Preposition | Meaning              |
+| ----------- | -------------------- |
+| con         | with                 |
+| per         | for / through        |
+| tra         | between / among / in |
+| fra         | between / among / in |
+
+These combine as:
+
+> preposition + definite article + noun
+
+For cane:
+
+| Preposition | Singular phrase | Plural phrase |
+| ----------- | --------------- | ------------- |
+| con         | con il cane     | con i cani    |
+| per         | per il cane     | per i cani    |
+| tra         | tra il cane     | tra i cani    |
+| fra         | fra il cane     | fra i cani    |
+
+For casa:
+
+| Preposition | Singular phrase | Plural phrase |
+| ----------- | --------------- | ------------- |
+| con         | con la casa     | con le case   |
+| per         | per la casa     | per le case   |
+| tra         | tra la casa     | tra le case   |
+| fra         | fra la casa     | fra le case   |
+
+Optional older forms such as col, coi, pel, pei should be excluded from the MVP unless the deck is intended to support literary or advanced recognition.
+
+---
+
+### 18.5 Noun phrase generation matrix
+
+For each noun, the system should generate a matrix of phrase outputs.
+
+At minimum, each noun generates:
+
+| Category                           | Singular |                Plural |
+| ---------------------------------- | -------: | --------------------: |
+| Bare noun                          |        1 |                     1 |
+| Definite article phrase            |        1 |                     1 |
+| Indefinite article phrase          |        1 | usually 0 or optional |
+| Contracted preposition phrases     |        5 |                     5 |
+| Non-contracted preposition phrases |        4 |                     4 |
+
+This means a normal noun produces at least:
+
+* 1 bare singular card item
+* 1 bare plural card item
+* 1 indefinite singular phrase
+* 1 definite singular phrase
+* 1 definite plural phrase
+* 10 contracted preposition phrases
+* 8 non-contracted preposition phrases
+
+That is 22 Italian phrase items before bidirectional expansion.
+
+Because cards are bidirectional, this becomes approximately:
+
+> 22 phrase items × 2 directions = 44 flashcards per noun
+
+The exact number may vary depending on whether the system includes indefinite plural forms, optional phrase cards, image cards, and advanced forms.
+
+---
+
+### 18.6 Generator logic
+
+The articulated-preposition generator should work like this:
+
+1. Receive noun metadata.
+2. Identify singular noun form.
+3. Identify plural noun form.
+4. Identify singular definite article.
+5. Identify plural definite article.
+6. Look up the contracted form for each core preposition and article.
+7. Combine the contracted form with the noun.
+8. Generate singular phrase items.
+9. Generate plural phrase items.
+10. Generate card labels.
+11. Send all phrase items to the bidirectional flashcard generator.
+
+Pseudo-logic:
+
+```text
+for noun in nouns:
+    singular_article = noun.definite_article.singular
+    plural_article = noun.definite_article.plural
+
+    singular_form = noun.singular
+    plural_form = noun.plural
+
+    for preposition in [a, di, da, in, su]:
+        singular_contracted = contracted_grid[preposition][singular_article]
+        plural_contracted = contracted_grid[preposition][plural_article]
+
+        generate_phrase(singular_contracted + " " + singular_form)
+        generate_phrase(plural_contracted + " " + plural_form)
+
+    for preposition in [con, per, tra, fra]:
+        generate_phrase(preposition + " " + singular_article + " " + singular_form)
+        generate_phrase(preposition + " " + plural_article + " " + plural_form)
+```
+
+Apostrophe forms need spacing rules:
+
+| Form type    | Correct output | Incorrect output |
+| ------------ | -------------- | ---------------- |
+| l’ + noun    | l’amico        | l’ amico         |
+| all’ + noun  | all’amico      | all’ amico       |
+| dell’ + noun | dell’amico     | dell’ amico      |
+| dall’ + noun | dall’amico     | dall’ amico      |
+| nell’ + noun | nell’amico     | nell’ amico      |
+| sull’ + noun | sull’amico     | sull’ amico      |
+
+---
+
+### 18.7 Labels for generated noun/preposition cards
+
+Each generated card should include labels that make the grammar visible without long explanations.
+
+Examples:
+
+| Phrase      | Labels                                                     |
+| ----------- | ---------------------------------------------------------- |
+| il cane     | noun, masculine, singular, definite article                |
+| i cani      | noun, masculine, plural, definite article                  |
+| al cane     | noun, masculine, singular, articulated preposition, a + il |
+| ai cani     | noun, masculine, plural, articulated preposition, a + i    |
+| della casa  | noun, feminine, singular, articulated preposition, di + la |
+| nelle case  | noun, feminine, plural, articulated preposition, in + le   |
+| con il cane | noun, masculine, singular, preposition phrase, con + il    |
+
+---
+
+### 18.8 Flashcard examples from the grid
+
+For the noun:
+
+> casa
+
+Generated phrase item:
+
+> alla casa
+
+Italian-to-English card:
+
+| Section | Content                                                   |
+| ------- | --------------------------------------------------------- |
+| Front   | alla casa                                                 |
+| Labels  | noun, feminine, singular, articulated preposition, a + la |
+| Back    | to the house                                              |
+
+English-to-Italian card:
+
+| Section | Content                                                   |
+| ------- | --------------------------------------------------------- |
+| Front   | to the house                                              |
+| Labels  | noun, feminine, singular, articulated preposition, a + la |
+| Back    | alla casa                                                 |
+
+For the noun:
+
+> amici
+
+Generated phrase item:
+
+> degli amici
+
+Italian-to-English card:
+
+| Section | Content                                                    |
+| ------- | ---------------------------------------------------------- |
+| Front   | degli amici                                                |
+| Labels  | noun, masculine, plural, articulated preposition, di + gli |
+| Back    | of the friends / some friends                              |
+
+Note: di + article forms can sometimes overlap with partitive meanings. The system should allow notes or alternate meanings where needed.
+
+---
+
+### 18.9 Recommended MVP handling
+
+For the MVP, every noun should generate:
+
+1. Bare singular
+2. Bare plural
+3. Indefinite singular
+4. Definite singular
+5. Definite plural
+6. a + definite article, singular and plural
+7. di + definite article, singular and plural
+8. da + definite article, singular and plural
+9. in + definite article, singular and plural
+10. su + definite article, singular and plural
+11. con + definite article, singular and plural
+12. per + definite article, singular and plural
+13. tra + definite article, singular and plural
+14. fra + definite article, singular and plural
+
+Each phrase item then produces:
+
+1. Italian-to-English card
+2. English-to-Italian card
+
+This makes the noun workflow highly generative, consistent, and easy to extend to other languages later.
 
 ---
 
@@ -1317,46 +1589,73 @@ flowchart TD
     E --> F[Identify singular form]
     E --> G[Identify plural form]
     E --> H[Identify gender]
-    E --> I[Identify article class]
-    E --> J[Identify English meaning]
+    E --> I[Identify singular article]
+    E --> J[Identify plural article]
+    E --> K[Identify English meaning]
 
-    F --> K[Generate base noun cards]
-    G --> K
-    H --> K
-    I --> K
-    J --> K
+    F --> L[Noun metadata record]
+    G --> L
+    H --> L
+    I --> L
+    J --> L
+    K --> L
 
-    I --> L[Generate article phrases]
-    L --> M[Indefinite singular]
-    L --> N[Definite singular]
-    L --> O[Definite plural]
+    L --> M[Generate basic noun phrase items]
+    M --> M1[Bare singular]
+    M --> M2[Bare plural]
+    M --> M3[Indefinite singular]
+    M --> M4[Definite singular]
+    M --> M5[Definite plural]
 
-    N --> P[Generate articulated preposition grid]
-    O --> P
+    L --> N[Generate contracted preposition grid]
+    N --> N1[Use singular article column]
+    N --> N2[Use plural article column]
 
-    P --> Q[a + article forms]
-    P --> R[di + article forms]
-    P --> S[da + article forms]
-    P --> T[in + article forms]
-    P --> U[su + article forms]
+    N1 --> O1[a + article + singular noun]
+    N1 --> O2[di + article + singular noun]
+    N1 --> O3[da + article + singular noun]
+    N1 --> O4[in + article + singular noun]
+    N1 --> O5[su + article + singular noun]
 
-    P --> V[Generate non-contracted preposition phrases]
-    V --> W[con + article]
-    V --> X[per + article]
-    V --> Y[tra/fra + article]
+    N2 --> P1[a + article + plural noun]
+    N2 --> P2[di + article + plural noun]
+    N2 --> P3[da + article + plural noun]
+    N2 --> P4[in + article + plural noun]
+    N2 --> P5[su + article + plural noun]
 
-    K --> Z[Flashcard formatting]
-    Q --> Z
-    R --> Z
-    S --> Z
-    T --> Z
-    U --> Z
-    W --> Z
-    X --> Z
-    Y --> Z
+    L --> Q[Generate non-contracted preposition phrases]
+    Q --> Q1[con + article + noun]
+    Q --> Q2[per + article + noun]
+    Q --> Q3[tra + article + noun]
+    Q --> Q4[fra + article + noun]
+    Q1 --> R[Generate singular and plural forms]
+    Q2 --> R
+    Q3 --> R
+    Q4 --> R
 
-    Z --> AA[Validation and deduplication]
-    AA --> AB[Export to Anki-compatible format]
+    M1 --> S[Phrase item list]
+    M2 --> S
+    M3 --> S
+    M4 --> S
+    M5 --> S
+    O1 --> S
+    O2 --> S
+    O3 --> S
+    O4 --> S
+    O5 --> S
+    P1 --> S
+    P2 --> S
+    P3 --> S
+    P4 --> S
+    P5 --> S
+    R --> S
+
+    S --> T[Add labels]
+    T --> U[Generate Italian to English cards]
+    T --> V[Generate English to Italian cards]
+    U --> W[Validation and deduplication]
+    V --> W
+    W --> X[Export to Anki-compatible format]
 ```
 
 ---
@@ -1449,7 +1748,132 @@ Examples of edge cases:
 
 ---
 
-## 22. Future expansion
+## 22. SQLite database design
+
+The system should use an SQLite database as the main storage layer.
+
+A key design requirement is that the original frequency-list word and the analysed language item should not be treated as the same thing.
+
+One input word can produce one or more valid linguistic analyses.
+
+For example, an Italian surface form may be:
+
+* a noun
+* a conjugated verb
+* an adjective
+* a preposition
+* both a noun and a verb
+* both a past participle and an adjective
+* ambiguous until reviewed
+
+Therefore, the database should separate:
+
+1. The raw input word from the frequency dictionary.
+2. The AI-generated classification results.
+3. The generated word-specific language data.
+4. The final flashcard outputs.
+
+---
+
+### 22.1 Core principle
+
+The input word table should store each original word once.
+
+The classification table should allow multiple analyses per input word.
+
+This avoids a problem where a word that is both a noun and a verb gets forced into only one category.
+
+Example:
+
+> ballo
+
+Possible analyses:
+
+| Surface word | Analysis type | Explanation                      |
+| ------------ | ------------- | -------------------------------- |
+| ballo        | noun          | a dance / ball                   |
+| ballo        | verb          | io ballo = I dance, from ballare |
+
+The system should keep both analyses.
+
+---
+
+## 23. Table 1: input_words
+
+This table stores every word from the frequency dictionary.
+
+Each input word appears once.
+
+### Purpose
+
+* Preserve the original frequency dictionary.
+* Store the surface form exactly as provided.
+* Track frequency rank and source metadata.
+* Provide the starting point for classification.
+
+### Suggested schema
+
+```sql
+CREATE TABLE input_words (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    surface_word TEXT NOT NULL,
+    normalised_word TEXT NOT NULL,
+    language TEXT NOT NULL DEFAULT 'Italian',
+    frequency_rank INTEGER,
+    frequency_value REAL,
+    source_dictionary TEXT,
+    processing_status TEXT DEFAULT 'pending',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(language, normalised_word, source_dictionary)
+);
+```
+
+### Example row
+
+| id | surface_word | normalised_word | language | frequency_rank | processing_status |
+| -: | ------------ | --------------- | -------- | -------------: | ----------------- |
+|  1 | ballo        | ballo           | Italian  |            742 | classified        |
+
+---
+
+## 24. Table 2: word_analyses
+
+This is one of the most important tables in the system.
+
+It stores the AI classification results for each input word.
+
+One input word can have many analyses.
+
+### Purpose
+
+* Store the word type identified by AI.
+* Allow multiple classifications per word.
+* Store confidence scores.
+* Store language-specific fields such as infinitive or gender.
+* Flag ambiguity for manual review.
+
+### Defined word-type groups
+
+The classification engine should use a controlled list of word types.
+
+Recommended MVP word types:
+
+| Word type    | Description                                             | Example                |
+| ------------ | ------------------------------------------------------- | ---------------------- |
+| verb         | Infinitive, conjugated verb, participle, or verbal form | parlare, parlo, fatto  |
+| noun         | Person, place, thing, concept                           | casa, cane, ballo      |
+| adjective    | Descriptive word                                        | bello, grande          |
+| adverb       | Modifies verb/adjective/sentence                        | bene, sempre           |
+| preposition  | Relationship word                                       | a, di, da, in, con, su |
+| article      | Definite or indefinite article                          | il, lo, la, un         |
+| pronoun      | Replaces noun or noun phrase                            | io, mi, lo, questo     |
+| conjunction  | Connects words or clauses                               | e, ma, perché          |
+| interjection | Exclamation or discourse marker                         | ciao, ah, boh          |
+| numeral      | Number word                                             | uno, due, primo        |
+| determiner   | Demonstratives, possessives, quantifiers, etc.          | questo, mio, ogni      |
+| phrase       | Multi-word expression, if source allows it              | per favore             |
+| unknown      | Could not clas                                          |                        |
 
 This project creates a generalisable language-learning pipeline that starts with frequency-ranked words and produces structured flashcard decks.
 
