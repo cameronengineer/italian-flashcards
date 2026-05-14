@@ -73,10 +73,15 @@ Source columns:
 
 Import rules:
 
-- Use `subtlex_id` from the CSV `id` column as the idempotency key.
-- Insert rows that do not exist yet; skip rows already present for `subtlex_id`.
+- Use `input_words.id = md5(utf8(wordform))`, based on the exact CSV `wordform` value.
+- Use `subtlex_id` from the CSV `id` column as the source row identifier.
+- Import and retain only the first 20,000 frequency-ranked input words by default.
+- Insert rows that do not exist yet; skip rows already present for the wordform hash.
+- Trim existing `input_words` rows beyond the first 20,000 whenever the import script is rerun.
+- Duplicate source rows with the same `wordform` collapse to the first imported/frequency-ranked row.
 - Normalize `zipf` from comma decimal to normal decimal before storing.
 - Keep the raw POS and lemma columns because they are useful hints for the word analysis AI.
+- Use `dom_pos` and `dom_lemma` when creating `word_entries`. Do not create entries from secondary/rare `all_pos_lemma` analyses.
 - Rows with punctuation, symbols, malformed wordforms, or `<unknown>` lemmas should usually become `word_type = other`.
 
 ## SUBTLEX POS Mapping
@@ -187,7 +192,7 @@ Raw frequency-list rows.
 
 ```sql
 CREATE TABLE input_words (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY,                      -- md5(utf8(wordform))
     subtlex_id INTEGER NOT NULL UNIQUE,       -- CSV column: id
     wordform TEXT NOT NULL,                  -- CSV column: wordform
     normalized_word TEXT NOT NULL,
@@ -218,8 +223,8 @@ The resolved dictionary item for an input word. One input can have multiple entr
 
 ```sql
 CREATE TABLE word_entries (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    input_word_id INTEGER NOT NULL,
+    id TEXT PRIMARY KEY,                      -- md5(utf8(lemma))
+    input_word_id TEXT NOT NULL,
     word_type TEXT NOT NULL,                 -- approved English word_type from Word Analysis Groups
     lemma TEXT NOT NULL,                     -- parlare, casa, buono
     english TEXT,
@@ -233,7 +238,9 @@ CREATE TABLE word_entries (
 
     -- Noun fields, used when word_type = 'noun'
     singular TEXT,
+    singular_english TEXT,
     plural TEXT,
+    plural_english TEXT,
     gender TEXT,                             -- masculine, feminine, both, unknown
     definite_singular TEXT,                  -- il, lo, l', la
     definite_plural TEXT,                    -- i, gli, le
@@ -246,7 +253,12 @@ CREATE TABLE word_entries (
 CREATE INDEX idx_word_entries_input_word_id ON word_entries(input_word_id);
 CREATE INDEX idx_word_entries_type ON word_entries(word_type);
 CREATE INDEX idx_word_entries_lemma ON word_entries(lemma);
+CREATE UNIQUE INDEX idx_word_entries_type_lemma ON word_entries(word_type, lemma);
 ```
+
+Each `input_words` row maps to at most one `word_entries` row, based on its dominant `dom_pos` and `dom_lemma`. `word_entries` are still deduplicated by `word_type` and canonical `lemma`; when the same dominant lemma appears in multiple `input_words` rows, link the entry to the first frequency-ranked `input_words.id` that produced it. This avoids paying the AI repeatedly for duplicate lemmas while preserving a relationship back to the frequency source.
+
+Reruns should use existing `word_entries` rows as the processing marker. A complete existing row must not be sent to the AI again. If a row exists but is missing required fields for its `word_type`, recompute that row and update it in place.
 
 ### 3. verb_forms
 
@@ -255,7 +267,7 @@ Generated verb forms.
 ```sql
 CREATE TABLE verb_forms (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    word_entry_id INTEGER NOT NULL,
+    word_entry_id TEXT NOT NULL,
     tense TEXT NOT NULL,                     -- presente, passato_prossimo, imperfetto, imperativo
     person TEXT,                             -- io, tu, lui_lei, noi, voi, loro, Lei
     polarity TEXT NOT NULL DEFAULT 'positive',
@@ -277,7 +289,7 @@ Generated noun forms, article phrases, and preposition phrases.
 ```sql
 CREATE TABLE noun_phrases (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    word_entry_id INTEGER NOT NULL,
+    word_entry_id TEXT NOT NULL,
     phrase_type TEXT NOT NULL,               -- bare, definite, indefinite, articulated_preposition, preposition_phrase
     number TEXT NOT NULL,                    -- singular, plural
     preposition TEXT,                        -- a, di, da, in, su, con, per, tra, fra
@@ -398,28 +410,55 @@ Resolve these fields on `word_entries` for nouns:
 | Field | Example |
 | --- | --- |
 | `singular` | casa |
+| `singular_english` | house |
 | `plural` | case |
+| `plural_english` | houses |
 | `gender` | feminine |
 | `definite_singular` | la |
 | `definite_plural` | le |
 | `indefinite_singular` | una |
 | `english` | house |
 
-Generate these noun phrases:
+### Noun Phrases per Card
 
-| Phrase type | Example |
-| --- | --- |
-| `bare` | casa |
-| `bare` plural | case |
-| `indefinite` | una casa |
-| `definite` | la casa |
-| `definite` plural | le case |
-| `articulated_preposition` | alla casa, della casa, nella casa |
-| `preposition_phrase` | con la casa, per la casa |
+Each noun generates exactly **4 cards**:
+
+1. **Definite singular** — "the friend" → "la amico"
+2. **Definite plural** — "the friends" → "le amiche"
+3. **One variant singular** — deterministically selected from 13 options
+4. **One variant plural** — same variant as #3, conjugated for plural
+
+### Variant Options (13 total)
+
+Deterministically select ONE from these 13 options using MD5 hash of singular+plural:
+
+**Articulated Prepositions (5):**
+- a (to) → "al amico", "ai amici"
+- di (of) → "del amico", "dei amici"
+- da (from) → "dal amico", "dai amici"
+- in (in) → "nel amico", "nei amici"
+- su (on) → "sul amico", "sui amici"
+
+**Demonstratives (2):**
+- questo (this) → "questo amico", "questi amici"
+- quello (that) → "quel amico", "quei amici"
+
+**Possessives (6):**
+- mio (my) → "mio amico", "miei amici"
+- tuo (your) → "tuo amico", "tuoi amici"
+- suo (his/her) → "suo amico", "suoi amici"
+- nostro (our) → "nostro amico", "nostri amici"
+- vostro (your pl) → "vostro amico", "vostri amici"
+- loro (their) → "loro amico", "loro amici"
+
+Hash calculation:
+```
+hash = md5(singular + "|" + plural)
+value = int(hash[:8], 16) % 13
+selected_option = PHRASE_OPTIONS[value]
+```
 
 ### Articulated Preposition Grid
-
-Use this rule table in code:
 
 | Prep | il | lo | l' | la | i | gli | le |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -429,26 +468,39 @@ Use this rule table in code:
 | in | nel | nello | nell' | nella | nei | negli | nelle |
 | su | sul | sullo | sull' | sulla | sui | sugli | sulle |
 
-Non-contracted prepositions:
+### Demonstratives
 
-```text
-con, per, tra, fra
-```
+| Demo | il/lo/l' | la | i/gli | le |
+| --- | --- | --- | --- | --- |
+| questo | questo | questa | questi | queste |
+| quello | quel/quello | quella | quei/quegli | quelle |
+
+### Possessives
+
+| Poss | il/lo/l' | la | i/gli | le |
+| --- | --- | --- | --- | --- |
+| mio | mio | mia | miei | mie |
+| tuo | tuo | tua | tuoi | tue |
+| suo | suo | sua | suoi | sue |
+| nostro | nostro | nostra | nostri | nostre |
+| vostro | vostro | vostra | vostri | vostre |
+| loro | loro | loro | loro | loro |
 
 Rules:
 
 - For audio, set `card_items.audio_text = noun_phrases.italian`.
-- For images, usually set `card_items.image_text = word_entries.singular` so noun variants share one image.
-- For phrase-specific images, set `image_text = noun_phrases.italian`.
+- For images, set `card_items.image_text = word_entries.singular` so all variants share one image.
 - Use apostrophe articles with no extra space: `l'amico`, `all'amico`, `dell'amico`.
+- Deterministic selection ensures reproducibility: **the same noun always generates the same variant**.
 
-Example:
+Example (noun: "amico", plural: "amici"):
 
-| front_text | back_highlight | audio_text | image_text |
-| --- | --- | --- | --- |
-| the house | la casa | la casa | casa |
-| to the house | alla casa | alla casa | casa |
-| with the houses | con le case | con le case | casa |
+| Card # | front_text | back_highlight | phrase_type | Audio |
+| --- | --- | --- | --- | --- |
+| 1 | the friend | la amico | definite | la amico |
+| 2 | the friends | gli amici | definite | gli amici |
+| 3 | to the friend | al amico | articulated_preposition (a) | al amico |
+| 4 | to the friends | ai amici | articulated_preposition (a) | ai amici |
 
 ## Card Export
 
@@ -479,16 +531,32 @@ During `.apkg` creation:
 
 ## Implementation Order
 
-1. Create the six SQLite tables.
-2. Import `freqdic/subtlex-it.csv` into `input_words`, skipping rows already present by `subtlex_id`.
-3. Classify words and insert `word_entries`.
-4. Generate `verb_forms` for the MVP tenses.
-5. Generate `noun_phrases` from article/preposition rules.
-6. Convert generated rows into `card_items` with `audio_text` and `image_text` set correctly.
-7. Render `anki_cards` from `card_items`.
-8. Export CSV using the `../italiananki` columns.
-9. Generate media files using MD5 filenames from `audio_text` and `image_text`.
-10. Build `.apkg` once CSV + media are working.
+1. Run `scripts/1_import_subtlex_it.py` to create the six SQLite tables and import the first 20,000 frequency-ranked rows from `freqdic/subtlex-it.csv` into `input_words`, skipping rows already present by `md5(wordform)` and trimming rows beyond that cap.
+2. Run `scripts/2_create_verb_word_entries.py` to create the first verb `word_entries` from dominant `dom_pos`/`dom_lemma` values.
+3. Run `scripts/3_create_noun_word_entries.py` to create the first noun `word_entries` from dominant `dom_pos`/`dom_lemma` values.
+4. Run `scripts/4_create_verb_forms.py` to generate `verb_forms` for the MVP tenses.
+5. Run `scripts/5_create_noun_phrases.py` to generate `noun_phrases` from article/preposition rules.
+6. Add later scripts to classify remaining word types and insert additional `word_entries`.
+7. Convert generated rows into `card_items` with `audio_text` and `image_text` set correctly.
+8. Render `anki_cards` from `card_items`.
+9. Export CSV using the `../italiananki` columns.
+10. Generate media files using MD5 filenames from `audio_text` and `image_text`.
+11. Build `.apkg` once CSV + media are working.
+
+### Current scripts
+
+Run scripts from the repository root with the virtual environment activated:
+
+```sh
+source .venv/bin/activate
+python scripts/1_import_subtlex_it.py
+python scripts/2_create_verb_word_entries.py
+python scripts/3_create_noun_word_entries.py
+python scripts/4_create_verb_forms.py
+python scripts/5_create_noun_phrases.py
+```
+
+`scripts/1_import_subtlex_it.py` creates `database.sqlite`, imports unique `input_words` rows, and keeps only the first 20,000 by default. `scripts/2_create_verb_word_entries.py` uses OpenRouter structured output, reads the `.openrouter` key file, processes only the first 100 unique verb lemmas by default, and skips lemmas already present in `word_entries`. `scripts/3_create_noun_word_entries.py` does the same for the first 100 unique noun/proper-noun lemmas. `scripts/4_create_verb_forms.py` generates the configured verb tenses for verb entries without existing forms. `scripts/5_create_noun_phrases.py` generates noun phrases for noun entries without existing phrases. Use `--dry-run` to preview candidates without calling the AI.
 
 ## Done Criteria
 
