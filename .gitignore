@@ -1,0 +1,25 @@
+# Local secret files
+.openai
+.openrouter
+.elevenlabs
+
+# Local Python environment
+.venv/
+__pycache__/
+*.pyc
+
+# Generated databases
+database.sqlite
+*.sqlite
+*.sqlite3
+*.db
+
+# macOS
+.DS_Store
+.kilo
+
+# Generated Anki decks
+*.apkg
+
+# Audio files
+*.mp3
