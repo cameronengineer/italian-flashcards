@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create Anki decks (.apkg files) from anki_cards."""
+"""Create Anki decks (.apkg files) from anki_cards with audio and image support."""
 
 from __future__ import annotations
 
@@ -14,6 +14,12 @@ import genanki
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB_PATH = PROJECT_ROOT / "database.sqlite"
 DECKS_DIR = PROJECT_ROOT / "decks"
+
+# Media directories
+AUDIO_DIR = PROJECT_ROOT / "media" / "audio_compressed"
+AUDIO_DIR_FALLBACK = PROJECT_ROOT / "media" / "audio"
+IMAGE_DIR = PROJECT_ROOT / "media" / "images_compressed"
+IMAGE_DIR_FALLBACK = PROJECT_ROOT / "media" / "images"
 
 # Stable model ID (must be consistent across runs)
 MODEL_ID = 1944521879
@@ -35,7 +41,7 @@ def deck_id_for(deck_key: str) -> int:
 
 
 def build_model() -> genanki.Model:
-    """Build the Anki card model."""
+    """Build the Anki card model with audio and image support."""
     css = """
 .card {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -100,6 +106,18 @@ def build_model() -> genanki.Model:
   line-height: 1.5;
 }
 
+.card-image {
+  margin-top: 14px;
+}
+
+.card-image img {
+  max-height: 540px;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+}
+
 hr#answer {
   border: 0;
   border-top: 1px solid #ddd;
@@ -109,6 +127,7 @@ hr#answer {
 
     qfmt = """
 <div class="card-container">
+  {{#Image}}<div class="card-image">{{Image}}</div>{{/Image}}
   {{FrontLabels}}
   <div class="front-text">{{FrontText}}</div>
 </div>
@@ -119,7 +138,8 @@ hr#answer {
 <hr id="answer">
 <div class="card-container">
   {{#BackHighlight}}<div class="back-highlight">{{BackHighlight}}</div>{{/BackHighlight}}
-  {{#BackText}}<div class="back-text">{{BackText}}</div>{{/BackText}}
+  <div class="back-text">{{BackText}}</div>
+  {{Audio}}
 </div>
 """
 
@@ -131,6 +151,8 @@ hr#answer {
             {"name": "FrontLabels"},
             {"name": "BackHighlight"},
             {"name": "BackText"},
+            {"name": "Audio"},
+            {"name": "Image"},
         ],
         templates=[
             {
@@ -141,6 +163,53 @@ hr#answer {
         ],
         css=css,
     )
+
+
+def audio_filename(text: str) -> str:
+    """MD5-hash filename for audio."""
+    digest = hashlib.md5(text.encode("utf-8")).hexdigest()
+    return f"{digest}.mp3"
+
+
+def image_filename(key: str, ext: str = "jpg") -> str:
+    """MD5-hash filename for image."""
+    digest = hashlib.md5(key.encode("utf-8")).hexdigest()
+    return f"{digest}.{ext}"
+
+
+def resolve_audio(text: str) -> tuple[Path, str] | None:
+    """Return (path, filename) for audio, preferring compressed version."""
+    if not text or not text.strip():
+        return None
+    
+    fname = audio_filename(text)
+    compressed = AUDIO_DIR / fname
+    if compressed.exists() and compressed.stat().st_size > 0:
+        return compressed, fname
+    
+    original = AUDIO_DIR_FALLBACK / fname
+    if original.exists() and original.stat().st_size > 0:
+        return original, fname
+    
+    return None
+
+
+def resolve_image(key: str) -> tuple[Path, str] | None:
+    """Return (path, filename) for image, preferring compressed .jpg."""
+    if not key or not key.strip():
+        return None
+    
+    jpg_name = image_filename(key, "jpg")
+    jpg_path = IMAGE_DIR / jpg_name
+    if jpg_path.exists() and jpg_path.stat().st_size > 0:
+        return jpg_path, jpg_name
+    
+    png_name = image_filename(key, "png")
+    png_path = IMAGE_DIR_FALLBACK / png_name
+    if png_path.exists() and png_path.stat().st_size > 0:
+        return png_path, png_name
+    
+    return None
 
 
 def labels_html(front_labels: str) -> str:
@@ -163,10 +232,14 @@ def labels_html(front_labels: str) -> str:
 
 def build_deck(
     deck_key: str, deck_name: str, model: genanki.Model, connection: sqlite3.Connection
-) -> tuple[genanki.Deck, int]:
-    """Build a deck from anki_cards in the database."""
+) -> tuple[genanki.Deck, list[str], int, int, int]:
+    """Build a deck from anki_cards in the database with audio and image support.
+    
+    Returns: (deck, media_files, notes_added, missing_audio, missing_image)
+    """
     deck_id = deck_id_for(deck_key)
     deck = genanki.Deck(deck_id, deck_name)
+    media_files: list[str] = []
     
     rows = connection.execute(
         """
@@ -175,6 +248,8 @@ def build_deck(
             front_labels,
             back_highlight,
             back_text,
+            audio_text,
+            image_text,
             guid
         FROM anki_cards
         WHERE deck = ?
@@ -184,8 +259,37 @@ def build_deck(
     ).fetchall()
     
     notes_added = 0
+    missing_audio = 0
+    missing_image = 0
+    
     for row in rows:
         guid = row["guid"]
+        
+        # Resolve audio
+        if row["audio_text"]:
+            result = resolve_audio(row["audio_text"])
+            if result:
+                audio_path, fname = result
+                audio_field = f"[sound:{fname}]"
+                media_files.append(str(audio_path))
+            else:
+                audio_field = ""
+                missing_audio += 1
+        else:
+            audio_field = ""
+        
+        # Resolve image
+        if row["image_text"]:
+            result = resolve_image(row["image_text"])
+            if result:
+                img_path, fname = result
+                image_field = f'<img src="{fname}">'
+                media_files.append(str(img_path))
+            else:
+                image_field = ""
+                missing_image += 1
+        else:
+            image_field = ""
         
         note = genanki.Note(
             model=model,
@@ -195,16 +299,18 @@ def build_deck(
                 labels_html(row["front_labels"]),
                 row["back_highlight"],
                 row["back_text"] or "",
+                audio_field,
+                image_field,
             ],
         )
         deck.add_note(note)
         notes_added += 1
     
-    return deck, notes_added
+    return deck, media_files, notes_added, missing_audio, missing_image
 
 
 def print_banner() -> None:
-    title = "9 Create Anki decks"
+    title = "14 Create Anki decks"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 
@@ -212,7 +318,7 @@ def print_banner() -> None:
 def main() -> None:
     print_banner()
     parser = argparse.ArgumentParser(
-        description="Create Anki .apkg files from anki_cards."
+        description="Create Anki .apkg files from anki_cards with audio and image support."
     )
     parser.add_argument("--db", type=Path, default=DEFAULT_DB_PATH)
     args = parser.parse_args()
@@ -232,6 +338,10 @@ def main() -> None:
     
     model = build_model()
     
+    total_notes = 0
+    total_missing_audio = 0
+    total_missing_image = 0
+    
     for deck_key in deck_keys:
         deck_name = DECK_NAMES.get(deck_key, deck_key.replace("_", " ").title())
         output_path = DECKS_DIR / f"{deck_key}.apkg"
@@ -240,14 +350,28 @@ def main() -> None:
             connection.row_factory = sqlite3.Row
             connection.execute("PRAGMA foreign_keys = ON")
             
-            deck, notes_added = build_deck(deck_key, deck_name, model, connection)
+            deck, media_files, notes_added, missing_audio, missing_image = build_deck(
+                deck_key, deck_name, model, connection
+            )
         
         package = genanki.Package(deck)
+        package.media_files = media_files
         package.write_to_file(str(output_path))
         
-        print(f"  {deck_name:<40} {notes_added:>5} notes → {output_path.name}")
+        total_notes += notes_added
+        total_missing_audio += missing_audio
+        total_missing_image += missing_image
+        
+        print(f"  {deck_name:<40} {notes_added:>5} notes"
+              f"  ({missing_audio} missing audio)"
+              f"  ({missing_image} missing image)"
+              f"  → {output_path.name}")
     
-    print(f"\nDone. Decks saved to {DECKS_DIR}")
+    print(f"\nDone."
+          f"\n  Total notes written       : {total_notes}"
+          f"\n  Total missing audio       : {total_missing_audio}"
+          f"\n  Total missing image       : {total_missing_image}"
+          f"\n  Output dir                : {DECKS_DIR}")
 
 
 if __name__ == "__main__":

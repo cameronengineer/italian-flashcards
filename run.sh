@@ -10,5 +10,9 @@ python scripts/4_create_verb_forms.py
 python scripts/5_create_noun_phrases.py
 python scripts/6_create_card_items.py
 python scripts/7_create_anki_cards.py
-# python scripts/8_generate_images.py
-# python scripts/9_create_decks.py
+python scripts/8_sort_anki_cards.py
+python scripts/9_randomize_anki_cards.py
+python scripts/10_generate_images.py
+python scripts/11_generate_audio.py --limit 500
+python scripts/13_compress_media.py
+python scripts/14_create_decks.py
