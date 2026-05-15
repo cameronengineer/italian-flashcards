@@ -13,8 +13,9 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
+from common import DEFAULT_DB_PATH, load_api_key
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DB_PATH = PROJECT_ROOT / "database.sqlite"
 API_KEY_FILE = PROJECT_ROOT / ".openrouter"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "~google/gemini-flash-latest"
@@ -37,12 +38,12 @@ DEMONSTRATIVES = {
 }
 
 POSSESSIVES = {
-    "mio": {"il": "il mio", "lo": "lo mio", "l'": "l' mio", "la": "la mia", "i": "i miei", "gli": "gli miei", "le": "le mie"},
-    "tuo": {"il": "il tuo", "lo": "lo tuo", "l'": "l' tuo", "la": "la tua", "i": "i tuoi", "gli": "gli tuoi", "le": "le tue"},
-    "suo": {"il": "il suo", "lo": "lo suo", "l'": "l' suo", "la": "la sua", "i": "i suoi", "gli": "gli suoi", "le": "le sue"},
-    "nostro": {"il": "il nostro", "lo": "lo nostro", "l'": "l' nostro", "la": "la nostra", "i": "i nostri", "gli": "gli nostri", "le": "le nostre"},
-    "vostro": {"il": "il vostro", "lo": "lo vostro", "l'": "l' vostro", "la": "la vostra", "i": "i vostri", "gli": "gli vostri", "le": "le vostre"},
-    "loro": {"il": "il loro", "lo": "lo loro", "l'": "l' loro", "la": "la loro", "i": "i loro", "gli": "gli loro", "le": "le loro"},
+    "mio": {"il": "il mio", "lo": "lo mio", "l'": "il mio", "l'f": "la mia", "la": "la mia", "i": "i miei", "gli": "gli miei", "le": "le mie"},
+    "tuo": {"il": "il tuo", "lo": "lo tuo", "l'": "il tuo", "l'f": "la tua", "la": "la tua", "i": "i tuoi", "gli": "gli tuoi", "le": "le tue"},
+    "suo": {"il": "il suo", "lo": "lo suo", "l'": "il suo", "l'f": "la sua", "la": "la sua", "i": "i suoi", "gli": "gli suoi", "le": "le sue"},
+    "nostro": {"il": "il nostro", "lo": "lo nostro", "l'": "il nostro", "l'f": "la nostra", "la": "la nostra", "i": "i nostri", "gli": "gli nostri", "le": "le nostre"},
+    "vostro": {"il": "il vostro", "lo": "lo vostro", "l'": "il vostro", "l'f": "la vostra", "la": "la vostra", "i": "i vostri", "gli": "gli vostri", "le": "le vostre"},
+    "loro": {"il": "il loro", "lo": "lo loro", "l'": "il loro", "l'f": "la loro", "la": "la loro", "i": "i loro", "gli": "gli loro", "le": "le loro"},
 }
 
 INDEFINITE_ARTICLES = {
@@ -143,15 +144,6 @@ class NounEntry:
     definite_singular: str
     definite_plural: str
     indefinite_singular: str
-
-
-def load_api_key() -> str:
-    if not API_KEY_FILE.exists():
-        raise FileNotFoundError(f"OpenRouter API key file not found: {API_KEY_FILE}")
-    api_key = API_KEY_FILE.read_text(encoding="utf-8").strip()
-    if not api_key:
-        raise ValueError(f"OpenRouter API key file is empty: {API_KEY_FILE}")
-    return api_key
 
 
 def load_entries(connection: sqlite3.Connection, limit: int) -> list[NounEntry]:
@@ -276,13 +268,17 @@ def deterministic_phrases(entry: NounEntry) -> list[dict[str, str]]:
             )
     elif phrase_type == "possessive":
         poss_map = POSSESSIVES[phrase_key]
-        if entry.definite_singular in poss_map and entry.singular:
+        # For nouns taking l', look up by gender: l'f for feminine, l' for masculine
+        poss_key = entry.definite_singular
+        if poss_key == "l'" and entry.gender == "feminine":
+            poss_key = "l'f"
+        if poss_key in poss_map and entry.singular:
             phrases.append(
                 {
                     "phrase_type": "possessive",
                     "number": "singular",
                     "preposition": phrase_key,
-                    "italian": phrase_join(poss_map[entry.definite_singular], entry.singular),
+                    "italian": phrase_join(poss_map[poss_key], entry.singular),
                     "labels": f"phrase: possessive | preposition: {phrase_key} | number: singular",
                 }
             )
@@ -327,6 +323,7 @@ def deterministic_phrases(entry: NounEntry) -> list[dict[str, str]]:
             )
     elif phrase_type == "possessive":
         poss_map = POSSESSIVES[phrase_key]
+        # Plural definite articles are i/gli/le — no l' ambiguity, no gender lookup needed
         if entry.definite_plural in poss_map and entry.plural:
             phrases.append(
                 {
@@ -463,7 +460,7 @@ def insert_phrases(connection: sqlite3.Connection, items: list[dict]) -> int:
 
 
 def print_banner() -> None:
-    title = "5 Generate noun_phrases"
+    title = "6 Generate noun_phrases"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 
@@ -498,16 +495,6 @@ def main() -> None:
                 )
                 for phrase in phrases:
                     print(f"  {phrase['phrase_type']} {phrase['number']}: {phrase['italian']}")
-            return
-
-        noun_entry_count = connection.execute(
-            "SELECT COUNT(*) as count FROM word_entries WHERE word_type = 'noun'"
-        ).fetchone()["count"]
-        noun_phrase_count = connection.execute(
-            "SELECT COUNT(*) as count FROM noun_phrases"
-        ).fetchone()["count"]
-        if noun_phrase_count > 0 and noun_entry_count > 0:
-            print(f"Already have {noun_phrase_count} noun_phrases for {noun_entry_count} noun entries. Exiting.")
             return
 
         api_key = load_api_key()

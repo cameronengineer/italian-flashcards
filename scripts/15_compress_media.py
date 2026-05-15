@@ -8,7 +8,7 @@ Images:  PNG → JPEG, max 512×512, quality 75. Produces ~90% size reduction.
 Audio:   MP3 re-encoded to 48kbps mono via ffmpeg (must be on PATH).
 
 Originals in media/images/ and media/audio/ are never modified.
-12_create_decks.py reads from the compressed folders preferentially,
+16_create_decks.py reads from the compressed folders preferentially,
 falling back to originals if compressed versions don't exist.
 
 Based on ../italiananki/builder/3_compress_media.py
@@ -159,7 +159,7 @@ def compress_audio() -> None:
 
 
 def print_banner() -> None:
-    title = "13 Compress media"
+    title = "15 Compress media"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

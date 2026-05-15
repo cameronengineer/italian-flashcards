@@ -310,7 +310,7 @@ def build_deck(
 
 
 def print_banner() -> None:
-    title = "14 Create Anki decks"
+    title = "16 Create Anki decks"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

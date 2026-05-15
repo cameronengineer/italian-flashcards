@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import base64
-import hashlib
 import sqlite3
 import threading
 import time
@@ -14,8 +13,9 @@ from pathlib import Path
 
 import requests
 
+from common import DEFAULT_DB_PATH, load_api_key, image_filename
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DB_PATH = PROJECT_ROOT / "database.sqlite"
 API_KEY_FILE = PROJECT_ROOT / ".openrouter"
 OUTPUT_DIR = PROJECT_ROOT / "media" / "images"
 
@@ -26,22 +26,6 @@ LIMIT = None
 MAX_RETRIES = 2
 RETRY_SLEEP = 5.0
 WORKERS = 10
-
-
-def load_api_key(path: Path) -> str:
-    """Load OpenRouter API key from file."""
-    if not path.exists():
-        raise FileNotFoundError(
-            f"API key file not found: {path}\n"
-            f"Create it with: echo 'your-key-here' > {path}"
-        )
-    return path.read_text(encoding="utf-8").strip()
-
-
-def image_filename(key: str) -> str:
-    """Return the MD5 hash of the image key as a PNG filename."""
-    digest = hashlib.md5(key.encode("utf-8")).hexdigest()
-    return f"{digest}.png"
 
 
 def collect_entries(connection: sqlite3.Connection) -> list[dict]:
@@ -146,10 +130,10 @@ def generate_prompt(api_key: str, entry: dict) -> str | None:
             return None
         
         except requests.HTTPError as exc:
-            pass  # Silent fail, will retry
+            print(f"  [warn] HTTP {exc.response.status_code}: {exc}")
         except Exception as exc:
-            pass  # Silent fail, will retry
-        
+            print(f"  [warn] Unexpected error generating prompt: {exc}")
+
         if attempt <= MAX_RETRIES:
             time.sleep(RETRY_SLEEP)
     
@@ -201,9 +185,9 @@ def generate_image(api_key: str, prompt: str, output_path: Path) -> bool:
             return True
 
         except requests.HTTPError as exc:
-            pass  # Will retry
+            print(f"  [warn] HTTP {exc.response.status_code}: {exc}")
         except Exception as exc:
-            pass  # Will retry
+            print(f"  [warn] Unexpected error generating image: {exc}")
 
         if attempt <= MAX_RETRIES:
             time.sleep(RETRY_SLEEP)
@@ -245,7 +229,7 @@ def run_task(
 
 
 def print_banner() -> None:
-    title = "10 Generate images"
+    title = "12 Generate images"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

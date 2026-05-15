@@ -4,17 +4,18 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import sqlite3
 import time
+import unicodedata
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
+from common import DEFAULT_DB_PATH, load_api_key, lemma_id
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DB_PATH = PROJECT_ROOT / "database.sqlite"
 API_KEY_FILE = PROJECT_ROOT / ".openrouter"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "~google/gemini-flash-latest"
@@ -129,17 +130,26 @@ class NounCandidate:
     existing_word_entry_id: str | None = None
 
 
-def lemma_id(lemma: str) -> str:
-    return hashlib.md5(lemma.strip().lower().encode("utf-8")).hexdigest()
+def is_garbage_lemma(lemma: str) -> bool:
+    """Return True if a dom_lemma is clearly not a usable Italian noun.
 
-
-def load_api_key() -> str:
-    if not API_KEY_FILE.exists():
-        raise FileNotFoundError(f"OpenRouter API key file not found: {API_KEY_FILE}")
-    api_key = API_KEY_FILE.read_text(encoding="utf-8").strip()
-    if not api_key:
-        raise ValueError(f"OpenRouter API key file is empty: {API_KEY_FILE}")
-    return api_key
+    Catches:
+    - Single letters (e.g. 'c', 'x', 'B', 'M')
+    - Lemmas containing non-letter characters: pipe separators (e.g. 'mano|mani'),
+      symbols, punctuation, digits
+    - Pure ASCII uppercase single tokens that look like abbreviation noise
+    """
+    if not lemma:
+        return True
+    # Single character that is just a letter — not a word
+    if len(lemma) == 1 and unicodedata.category(lemma[0]) in ("Lu", "Ll"):
+        return True
+    # Any character that is not a Unicode letter or combining mark (e.g. '|', '#', '<', '>')
+    for ch in lemma:
+        cat = unicodedata.category(ch)
+        if not (cat.startswith("L") or cat.startswith("M")):
+            return True
+    return False
 
 
 def load_candidates(connection: sqlite3.Connection, limit: int) -> list[NounCandidate]:
@@ -147,7 +157,7 @@ def load_candidates(connection: sqlite3.Connection, limit: int) -> list[NounCand
         """
         SELECT id, frequency_rank, wordform, dom_pos, dom_lemma
         FROM input_words
-        WHERE dom_pos IN ('NOM', 'NPR')
+        WHERE dom_pos = 'NOM'
           AND dom_lemma IS NOT NULL
           AND dom_lemma != '<unknown>'
         ORDER BY frequency_rank, id
@@ -213,6 +223,9 @@ def load_candidates(connection: sqlite3.Connection, limit: int) -> list[NounCand
             continue
 
         source_lemma = row["dom_lemma"].strip()
+        if is_garbage_lemma(source_lemma):
+            continue
+
         normalized_lemma = source_lemma.lower()
         if normalized_lemma in seen_lemmas:
             continue
@@ -255,7 +268,7 @@ def build_prompt(candidates: list[NounCandidate]) -> str:
 
     return (
         "You are creating noun dictionary entries for an Italian flashcard database. "
-        "Each item comes from one SUBTLEX-IT input_words row where dom_pos is NOM or NPR. "
+        "Each item comes from one SUBTLEX-IT input_words row where dom_pos is NOM. "
         "Use the dominant dom_lemma value supplied as source_lemma, not normalized_word and not all_pos_lemma. "
         "Do not create entries for secondary or rare analyses from all_pos_lemma. Duplicate source lemmas were already removed before this request.\n\n"
         "For each item, return exactly one output item with the same input_word_id, source_wordform, "
@@ -466,7 +479,7 @@ def insert_word_entries(connection: sqlite3.Connection, items: list[dict]) -> in
 
 
 def print_banner() -> None:
-    title = "3 Create noun word_entries"
+    title = "4 Create noun word_entries"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 
@@ -474,7 +487,7 @@ def print_banner() -> None:
 def main() -> None:
     print_banner()
     parser = argparse.ArgumentParser(
-        description="Analyze the first unique dominant NOM/NPR lemmas and create noun word_entries."
+        description="Analyze the first unique dominant NOM lemmas and create noun word_entries."
     )
     parser.add_argument("--db", type=Path, default=DEFAULT_DB_PATH)
     parser.add_argument("--limit", type=int, default=MAX_NOUNS)

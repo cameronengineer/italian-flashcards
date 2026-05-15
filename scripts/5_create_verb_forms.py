@@ -12,8 +12,9 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
+from common import DEFAULT_DB_PATH, load_api_key
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DB_PATH = PROJECT_ROOT / "database.sqlite"
 API_KEY_FILE = PROJECT_ROOT / ".openrouter"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "~google/gemini-flash-latest"
@@ -89,15 +90,6 @@ class VerbEntry:
     auxiliary: str
     past_participle: str
     is_reflexive: bool
-
-
-def load_api_key() -> str:
-    if not API_KEY_FILE.exists():
-        raise FileNotFoundError(f"OpenRouter API key file not found: {API_KEY_FILE}")
-    api_key = API_KEY_FILE.read_text(encoding="utf-8").strip()
-    if not api_key:
-        raise ValueError(f"OpenRouter API key file is empty: {API_KEY_FILE}")
-    return api_key
 
 
 def load_entries(connection: sqlite3.Connection, limit: int) -> list[VerbEntry]:
@@ -248,7 +240,7 @@ def insert_forms(connection: sqlite3.Connection, items: list[dict]) -> int:
 
 
 def print_banner() -> None:
-    title = "4 Generate verb_forms"
+    title = "5 Generate verb_forms"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import sqlite3
 import time
@@ -13,8 +12,9 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
+from common import DEFAULT_DB_PATH, load_api_key, lemma_id
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DB_PATH = PROJECT_ROOT / "database.sqlite"
 API_KEY_FILE = PROJECT_ROOT / ".openrouter"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "~google/gemini-flash-latest"
@@ -109,19 +109,6 @@ class VerbCandidate:
     existing_word_entry_id: str | None = None
 
 
-def lemma_id(lemma: str) -> str:
-    return hashlib.md5(lemma.strip().lower().encode("utf-8")).hexdigest()
-
-
-def load_api_key() -> str:
-    if not API_KEY_FILE.exists():
-        raise FileNotFoundError(f"OpenRouter API key file not found: {API_KEY_FILE}")
-    api_key = API_KEY_FILE.read_text(encoding="utf-8").strip()
-    if not api_key:
-        raise ValueError(f"OpenRouter API key file is empty: {API_KEY_FILE}")
-    return api_key
-
-
 def migrate_word_entry_id_schema(connection: sqlite3.Connection) -> None:
     word_entry_column = connection.execute("PRAGMA table_info(word_entries)").fetchall()[0]
     input_word_column = connection.execute("PRAGMA table_info(input_words)").fetchall()[0]
@@ -212,7 +199,8 @@ def migrate_word_entry_id_schema(connection: sqlite3.Connection) -> None:
             back_highlight TEXT NOT NULL,
             back_text TEXT,
             audio_text TEXT,
-            image_text TEXT
+            image_text TEXT,
+            UNIQUE(source_type, source_id)
         );
 
         CREATE INDEX IF NOT EXISTS idx_card_items_deck ON card_items(deck);
@@ -523,7 +511,7 @@ def insert_word_entries(connection: sqlite3.Connection, items: list[dict]) -> in
 
 
 def print_banner() -> None:
-    title = "2 Create verb word_entries"
+    title = "3 Create verb word_entries"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 
