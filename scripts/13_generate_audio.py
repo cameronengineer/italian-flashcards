@@ -10,7 +10,6 @@ Based on ../italiananki/builder/1_generate_audio.py
 from __future__ import annotations
 
 import argparse
-import hashlib
 import sqlite3
 import time
 from pathlib import Path
@@ -18,8 +17,9 @@ from pathlib import Path
 from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
 
+from common import DEFAULT_DB_PATH, load_api_key, audio_filename
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DB_PATH = PROJECT_ROOT / "database.sqlite"
 
 API_KEY_FILE = PROJECT_ROOT / ".elevenlabs"
 OUTPUT_DIR = PROJECT_ROOT / "media" / "audio"
@@ -40,22 +40,6 @@ VOICE_SETTINGS = VoiceSettings(
 MAX_RETRIES = 2
 RETRY_SLEEP = 5.0
 CALL_DELAY = 0.5
-
-
-def load_api_key(path: Path) -> str:
-    """Load API key from file."""
-    if not path.exists():
-        raise FileNotFoundError(
-            f"API key file not found: {path}\n"
-            f"Create it with: echo 'your-key-here' > {path}"
-        )
-    return path.read_text(encoding="utf-8").strip()
-
-
-def audio_filename(text: str) -> str:
-    """Return the MD5 hash of the text as an MP3 filename."""
-    digest = hashlib.md5(text.encode("utf-8")).hexdigest()
-    return f"{digest}.mp3"
 
 
 def collect_audio_strings(connection: sqlite3.Connection, limit_per_deck: int | None = None) -> list[str]:
@@ -127,7 +111,7 @@ def generate_audio(client: ElevenLabs, text: str, output_path: Path) -> bool:
 
 
 def print_banner() -> None:
-    title = "11 Generate audio"
+    title = "13 Generate audio"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

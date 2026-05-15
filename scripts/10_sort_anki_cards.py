@@ -147,7 +147,7 @@ def sort_anki_cards_per_deck(connection: sqlite3.Connection) -> tuple[int, dict[
 
 
 def print_banner() -> None:
-    title = "8 Sort anki_cards by frequency"
+    title = "10 Sort anki_cards by frequency"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

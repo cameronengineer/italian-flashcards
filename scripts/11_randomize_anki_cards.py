@@ -166,7 +166,7 @@ def randomize_anki_cards_per_deck(
 
 
 def print_banner() -> None:
-    title = "9 Randomize anki_cards (weighted)"
+    title = "11 Randomize anki_cards (weighted)"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

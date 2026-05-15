@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create card_items from verb_forms and noun_phrases."""
+"""Create card_items from verb_forms and noun_phrases (nouns and verbs only)."""
 
 from __future__ import annotations
 
@@ -178,7 +178,7 @@ def create_noun_card_items(connection: sqlite3.Connection) -> int:
 
 
 def print_banner() -> None:
-    title = "6 Create card_items"
+    title = "8 Create card_items (nouns and verbs)"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 
