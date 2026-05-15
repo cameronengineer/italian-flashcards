@@ -1,0 +1,7 @@
+# Italian Flashcards - Requirements
+
+# Core dependencies
+requests>=2.31.0              # HTTP requests for OpenRouter and ElevenLabs APIs
+genanki>=0.13.0              # Anki deck generation and GUID handling
+Pillow>=10.0.0               # Image processing and compression (PNG to JPEG)
+elevenlabs>=1.0.0            # ElevenLabs Text-to-Speech API client

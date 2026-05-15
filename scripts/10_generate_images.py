@@ -19,8 +19,8 @@ DEFAULT_DB_PATH = PROJECT_ROOT / "database.sqlite"
 API_KEY_FILE = PROJECT_ROOT / ".openrouter"
 OUTPUT_DIR = PROJECT_ROOT / "media" / "images"
 
-PROMPT_MODEL = "~google/gemini-flash-latest"
-IMAGE_MODEL = "sourceful/riverflow-v2-fast"
+PROMPT_MODEL = "~google/gemini-flash-latest"          # text AI for prompt generation (repo default)
+IMAGE_MODEL = "black-forest-labs/flux.2-klein-4b"      # image generation — better quality than riverflow
 
 LIMIT = None
 MAX_RETRIES = 2
@@ -48,56 +48,73 @@ def collect_entries(connection: sqlite3.Connection) -> list[dict]:
     """
     Collect unique image entries from anki_cards.
     Deduplicates by image_text to avoid generating the same image multiple times.
+    Only keeps one representative card per unique image_text for prompt generation.
     """
     rows = connection.execute(
         """
-        SELECT DISTINCT
+        SELECT
             image_text,
             front_text,
+            front_labels,
             back_highlight,
+            back_text,
             deck
         FROM anki_cards
         WHERE image_text IS NOT NULL AND image_text != ''
-        ORDER BY image_text
+        ORDER BY image_text, id
         """
     ).fetchall()
     
+    # Deduplicate by image_text, keeping only the first occurrence
+    seen = set()
     entries = []
     for row in rows:
-        entries.append({
-            "image_key": row["image_text"],
-            "front_text": row["front_text"],
-            "back_highlight": row["back_highlight"],
-            "deck": row["deck"],
-        })
+        image_text = row["image_text"]
+        if image_text not in seen:
+            seen.add(image_text)
+            entries.append({
+                "image_key": image_text,
+                "front_text": row["front_text"],
+                "front_labels": row["front_labels"] or "",
+                "back_highlight": row["back_highlight"],
+                "back_text": row["back_text"] or "",
+                "deck": row["deck"],
+            })
     
     return entries
 
 
 def generate_prompt(api_key: str, entry: dict) -> str | None:
     """
-    Phase 1: Use text AI to generate a good image prompt from the base word/phrase.
-    Given the Italian word and its English meaning, create a specific visual concept.
+    Phase 1: Use text AI to generate a precise image prompt from the full flashcard context.
+    Given the flashcard data, create a specific visual concept that reflects the Italian meaning.
     Returns the prompt string, or None on failure.
     """
     image_key = entry["image_key"]
     front_text = entry["front_text"]
+    front_labels = entry["front_labels"]
     back_highlight = entry["back_highlight"]
+    back_text = entry["back_text"]
+    
+    back_text_line = f"\n- Italian infinitive: {back_text}" if back_text else ""
     
     user_content = (
-        f"English meaning: {front_text}\n"
-        f"Italian word/phrase to illustrate: {image_key}\n\n"
-        f"Create a visual concept prompt."
+        f"- English: {front_text}\n"
+        f"- Type / context: {front_labels}\n"
+        f"- Italian: {back_highlight}"
+        f"{back_text_line}\n\n"
+        f"Write the image generation prompt."
     )
     
     system_content = (
-        "You generate visual concept prompts for Italian language flashcards. "
-        "Given an Italian word or phrase and its English meaning, create a single, "
-        "specific visual concept (2–3 sentences) that represents the Italian meaning clearly. "
-        "The image should be a flat design, minimalist icon-style illustration. "
-        "Focus on the Italian meaning, not the English — use the English only to verify meaning. "
-        "The image must be simple, clear, and immediately recognizable for a language learner. "
+        "You generate image prompts for Italian language flashcard illustrations. "
+        "Given a flashcard's data, write a single specific image generation prompt "
+        "(2–3 sentences) for a flat design, minimalist icon-style illustration. "
+        "The Italian word/phrase takes precedence over the English when the English "
+        "is ambiguous — the image must accurately represent the Italian meaning. "
+        "The image must be simple, clear, and suitable for a language learner. "
         "STRICTLY NO TEXT, letters, numbers, or labels in the image. "
+        "Respond with only the image prompt, nothing else."
         "Respond with only the visual concept prompt, nothing else."
     )
     
@@ -141,8 +158,8 @@ def generate_prompt(api_key: str, entry: dict) -> str | None:
 
 def generate_image(api_key: str, prompt: str, output_path: Path) -> bool:
     """
-    Phase 2: Call OpenRouter with riverflow-v2-fast to generate an image.
-    Returns True on success.
+    Phase 2: Call OpenRouter with FLUX.2 Klein to generate an image from the prompt.
+    Writes PNG to output_path. Returns True on success.
     """
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -165,32 +182,32 @@ def generate_image(api_key: str, prompt: str, output_path: Path) -> bool:
             )
             response.raise_for_status()
             result = response.json()
-            
+
             if not result.get("choices"):
                 return False
-            
+
             message = result["choices"][0]["message"]
             images = message.get("images")
-            
+
             if not images:
                 return False
-            
+
             image_url = images[0]["image_url"]["url"]
             if not image_url.startswith("data:image/"):
                 return False
-            
+
             _, encoded = image_url.split(",", 1)
             output_path.write_bytes(base64.b64decode(encoded))
             return True
-        
+
         except requests.HTTPError as exc:
-            pass  # Silent fail, will retry
+            pass  # Will retry
         except Exception as exc:
-            pass  # Silent fail, will retry
-        
+            pass  # Will retry
+
         if attempt <= MAX_RETRIES:
             time.sleep(RETRY_SLEEP)
-    
+
     return False
 
 
@@ -228,7 +245,7 @@ def run_task(
 
 
 def print_banner() -> None:
-    title = "8 Generate images"
+    title = "10 Generate images"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

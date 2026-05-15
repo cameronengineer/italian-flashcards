@@ -23,3 +23,11 @@ database.sqlite
 
 # Audio files
 *.mp3
+
+# Generated image files
+*.jpg
+*.png
+media/images/
+media/images_compressed/
+media/audio/
+media/audio_compressed/
