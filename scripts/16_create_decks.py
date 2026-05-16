@@ -247,7 +247,7 @@ def build_deck(
     deck = genanki.Deck(deck_id, deck_name)
     media_files: list[str] = []
     
-     rows = connection.execute(
+    rows = connection.execute(
         """
         SELECT
             direction,
