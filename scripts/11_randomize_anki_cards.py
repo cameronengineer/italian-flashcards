@@ -37,13 +37,13 @@ DEFAULT_RANDOM_RANGE = 50
 # Per-deck randomness configuration
 # Each deck can have its own random range for different shuffle intensities
 RANDOM_RANGE_PER_DECK = {
-    "nouns": 25,                      # Half randomness: lighter shuffle
-    "verbs_infinito": 0,              # No randomness: preserve frequency order exactly
-    "verbs_presente": 50,             # Default: moderate shuffle
-    "verbs_passatoprossimo": 50,      # Default: moderate shuffle
-    "verbs_imperfetto": 50,           # Default: moderate shuffle
-    "verbs_imperativo": 50,           # Default: moderate shuffle
-    "numbers": 0,                     # No randomness: preserve numeric order exactly
+    "Italian - Nouns": 25,                          # Half randomness: lighter shuffle
+    "Italian - Verbs Infinitive": 0,                # No randomness: preserve frequency order exactly
+    "Italian - Verbs Presente": 50,                 # Default: moderate shuffle
+    "Italian - Verbs Passato Prossimo": 50,         # Default: moderate shuffle
+    "Italian - Verbs Imperfetto": 50,               # Default: moderate shuffle
+    "Italian - Verbs Imperativo": 50,               # Default: moderate shuffle
+    "Italian - Numbers": 0,                         # No randomness: preserve numeric order exactly
 }
 
 
@@ -87,8 +87,14 @@ def randomize_anki_cards_per_deck(
     connection.execute("DROP TABLE IF EXISTS anki_cards_temp")
     connection.execute("CREATE TEMPORARY TABLE anki_cards_temp AS SELECT * FROM anki_cards")
     
+    # Disable foreign keys temporarily to allow delete
+    connection.execute("PRAGMA foreign_keys = OFF")
+    
     # Delete all rows from anki_cards
     connection.execute("DELETE FROM anki_cards")
+    
+    # Re-enable foreign keys
+    connection.execute("PRAGMA foreign_keys = ON")
     
     # Process each deck independently
     current_id = 1
