@@ -24,19 +24,20 @@ IMAGE_DIR_FALLBACK = PROJECT_ROOT / "media" / "images"
 # Stable model ID (must be consistent across runs)
 MODEL_ID = 1944521879
 
-DECK_NAMES: dict[str, str] = {
-    "nouns": "Italian - Nouns",
-    "verbs_infinito": "Italian - Verbs Infinitive",
-    "verbs_presente": "Italian - Verbs Presente",
-    "verbs_passatoprossimo": "Italian - Verbs Passato Prossimo",
-    "verbs_imperfetto": "Italian - Verbs Imperfetto",
-    "verbs_imperativo": "Italian - Verbs Imperativo",
-}
+
+def deck_filename(deck_name: str) -> str:
+    """Derive a filesystem-safe filename from the deck name.
+
+    E.g. 'Italian - Verbs Passato Prossimo' → 'italian_verbs_passato_prossimo'
+    """
+    slug = deck_name.lower()
+    slug = re.sub(r"[^a-z0-9]+", "_", slug)
+    return slug.strip("_")
 
 
-def deck_id_for(deck_key: str) -> int:
-    """Derive a stable deck ID from the deck key via MD5."""
-    digest = hashlib.md5(deck_key.encode("utf-8")).hexdigest()
+def deck_id_for(deck_name: str) -> int:
+    """Derive a stable deck ID from the deck name via MD5."""
+    digest = hashlib.md5(deck_name.encode("utf-8")).hexdigest()
     return (int(digest[:8], 16) % (1 << 30)) + (1 << 30)
 
 
@@ -84,6 +85,9 @@ def build_model() -> genanki.Model:
 .pill.tense      { background-color: #ede9fe; color: #5b21b6; }
 .pill.subject    { background-color: #fce7f3; color: #9d174d; }
 .pill.phrase     { background-color: #fef3c7; color: #92400e; }
+.pill.number     { background-color: #e0f2fe; color: #075985; }
+.pill.preposition { background-color: #fef9c3; color: #713f12; }
+.pill.type       { background-color: #f3e8ff; color: #6b21a8; }
 
 .front-text {
   font-size: 2em;
@@ -130,6 +134,7 @@ hr#answer {
   {{#Image}}<div class="card-image">{{Image}}</div>{{/Image}}
   {{FrontLabels}}
   <div class="front-text">{{FrontText}}</div>
+  {{FrontAudio}}
 </div>
 """
 
@@ -149,6 +154,7 @@ hr#answer {
         fields=[
             {"name": "FrontText"},
             {"name": "FrontLabels"},
+            {"name": "FrontAudio"},
             {"name": "BackHighlight"},
             {"name": "BackText"},
             {"name": "Audio"},
@@ -231,19 +237,20 @@ def labels_html(front_labels: str) -> str:
 
 
 def build_deck(
-    deck_key: str, deck_name: str, model: genanki.Model, connection: sqlite3.Connection
+    deck_name: str, model: genanki.Model, connection: sqlite3.Connection
 ) -> tuple[genanki.Deck, list[str], int, int, int]:
     """Build a deck from anki_cards in the database with audio and image support.
     
     Returns: (deck, media_files, notes_added, missing_audio, missing_image)
     """
-    deck_id = deck_id_for(deck_key)
+    deck_id = deck_id_for(deck_name)
     deck = genanki.Deck(deck_id, deck_name)
     media_files: list[str] = []
     
-    rows = connection.execute(
+     rows = connection.execute(
         """
         SELECT
+            direction,
             front_text,
             front_labels,
             back_highlight,
@@ -255,7 +262,7 @@ def build_deck(
         WHERE deck = ?
         ORDER BY id
         """,
-        (deck_key,),
+        (deck_name,),
     ).fetchall()
     
     notes_added = 0
@@ -264,6 +271,7 @@ def build_deck(
     
     for row in rows:
         guid = row["guid"]
+        direction = row["direction"]
         
         # Resolve audio
         if row["audio_text"]:
@@ -277,6 +285,11 @@ def build_deck(
                 missing_audio += 1
         else:
             audio_field = ""
+        
+        # For it_to_en cards, audio plays on the front (when Italian is shown)
+        # For en_to_it cards, audio plays on the back (when Italian answer is revealed)
+        front_audio_field = audio_field if direction == "it_to_en" else ""
+        back_audio_field = audio_field if direction == "en_to_it" else ""
         
         # Resolve image
         if row["image_text"]:
@@ -297,9 +310,10 @@ def build_deck(
             fields=[
                 row["front_text"],
                 labels_html(row["front_labels"]),
+                front_audio_field,
                 row["back_highlight"],
                 row["back_text"] or "",
-                audio_field,
+                back_audio_field,
                 image_field,
             ],
         )
@@ -329,12 +343,12 @@ def main() -> None:
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys = ON")
         
-        # Get all unique decks
+        # Get all unique deck names directly from the database
         deck_rows = connection.execute(
             "SELECT DISTINCT deck FROM anki_cards ORDER BY deck"
         ).fetchall()
         
-        deck_keys = [row["deck"] for row in deck_rows]
+        deck_names = [row["deck"] for row in deck_rows]
     
     model = build_model()
     
@@ -342,16 +356,15 @@ def main() -> None:
     total_missing_audio = 0
     total_missing_image = 0
     
-    for deck_key in deck_keys:
-        deck_name = DECK_NAMES.get(deck_key, deck_key.replace("_", " ").title())
-        output_path = DECKS_DIR / f"{deck_key}.apkg"
+    for deck_name in deck_names:
+        output_path = DECKS_DIR / f"{deck_filename(deck_name)}.apkg"
         
         with sqlite3.connect(args.db, timeout=30) as connection:
             connection.row_factory = sqlite3.Row
             connection.execute("PRAGMA foreign_keys = ON")
             
             deck, media_files, notes_added, missing_audio, missing_image = build_deck(
-                deck_key, deck_name, model, connection
+                deck_name, model, connection
             )
         
         package = genanki.Package(deck)

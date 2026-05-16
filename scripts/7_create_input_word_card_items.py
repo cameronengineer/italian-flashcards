@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Create card_items from input word entries (interjections, pronouns, conjunctions).
+"""Create card_items from input word entries (interjections, pronouns, conjunctions, numbers).
 
-These entries are imported by script 2 from the inputs/ CSV files. Each word_entry
-with word_type IN ('interjection', 'pronoun', 'conjunction') gets a single card_item
-in the appropriate deck.
+These entries are imported by scripts 2 and 2b from the inputs/ CSV files. Each word_entry
+with word_type IN ('interjection', 'pronoun', 'conjunction', 'number') gets a single
+card_item in the appropriate deck.
 
 Decks created:
-  - interjections  (word_type = 'interjection')
-  - pronouns       (word_type = 'pronoun')
-  - conjunctions   (word_type = 'conjunction')
+  - Italian - Interjections  (word_type = 'interjection')
+  - Italian - Pronouns       (word_type = 'pronoun')
+  - Italian - Conjunctions   (word_type = 'conjunction')
+  - Italian - Numbers        (word_type = 'number')
 """
 
 from __future__ import annotations
@@ -20,11 +21,12 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB_PATH = PROJECT_ROOT / "database.sqlite"
 
-# Maps word_type → deck key
+# Maps word_type → deck name
 WORD_TYPE_TO_DECK: dict[str, str] = {
-    "interjection": "interjections",
-    "pronoun": "pronouns",
-    "conjunction": "conjunctions",
+    "interjection": "Italian - Interjections",
+    "pronoun": "Italian - Pronouns",
+    "conjunction": "Italian - Conjunctions",
+    "number": "Italian - Numbers",
 }
 
 
@@ -41,7 +43,7 @@ def create_input_word_card_items(connection: sqlite3.Connection) -> dict[str, in
             we.lemma,
             we.english
         FROM word_entries we
-        WHERE we.word_type IN ('interjection', 'pronoun', 'conjunction')
+        WHERE we.word_type IN ('interjection', 'pronoun', 'conjunction', 'number')
           AND NOT EXISTS (
               SELECT 1
               FROM card_items ci
@@ -51,10 +53,14 @@ def create_input_word_card_items(connection: sqlite3.Connection) -> dict[str, in
         """
     ).fetchall()
 
+    # Word types that should not have AI-generated images
+    NO_IMAGE_TYPES = {"number"}
+
     counts: dict[str, int] = {}
     for row in rows:
         deck = WORD_TYPE_TO_DECK.get(row["word_type"], row["word_type"] + "s")
         label = f"type: {row['word_type']}"
+        image_text = None if row["word_type"] in NO_IMAGE_TYPES else row["lemma"]
         cursor = connection.execute(
             """
             INSERT INTO card_items (
@@ -78,7 +84,7 @@ def create_input_word_card_items(connection: sqlite3.Connection) -> dict[str, in
                 row["lemma"],
                 None,
                 row["lemma"],
-                row["lemma"],
+                image_text,
             ),
         )
         if cursor.rowcount:
@@ -87,7 +93,7 @@ def create_input_word_card_items(connection: sqlite3.Connection) -> dict[str, in
 
 
 def print_banner() -> None:
-    title = "7 Create card_items (interjections, pronouns, conjunctions)"
+    title = "7 Create card_items (interjections, pronouns, conjunctions, numbers)"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 
@@ -111,7 +117,7 @@ def main() -> None:
         expected_count = connection.execute(
             """
             SELECT COUNT(*) AS count FROM word_entries
-            WHERE word_type IN ('interjection', 'pronoun', 'conjunction')
+            WHERE word_type IN ('interjection', 'pronoun', 'conjunction', 'number')
             """
         ).fetchone()["count"]
 
@@ -126,7 +132,7 @@ def main() -> None:
         connection.commit()
 
     total = sum(counts.values())
-    for deck in ("interjections", "pronouns", "conjunctions"):
+    for deck in ("Italian - Interjections", "Italian - Pronouns", "Italian - Conjunctions", "Italian - Numbers"):
         n = counts.get(deck, 0)
         if n:
             print(f"  Inserted {n} card_items into '{deck}'")
