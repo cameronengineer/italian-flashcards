@@ -51,8 +51,14 @@ def sort_anki_cards_per_deck(connection: sqlite3.Connection) -> tuple[int, dict[
     total_cards = 0
     deck_counts = {}
     
+    # Disable foreign keys temporarily to allow delete
+    connection.execute("PRAGMA foreign_keys = OFF")
+    
     # Delete all rows from anki_cards
     connection.execute("DELETE FROM anki_cards")
+    
+    # Re-enable foreign keys
+    connection.execute("PRAGMA foreign_keys = ON")
     
     # Process each deck independently
     current_id = 1

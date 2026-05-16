@@ -38,11 +38,12 @@ DEFAULT_RANDOM_RANGE = 50
 # Each deck can have its own random range for different shuffle intensities
 RANDOM_RANGE_PER_DECK = {
     "nouns": 25,                      # Half randomness: lighter shuffle
-    "verbs_infinito": 25,             # Half randomness: lighter shuffle
+    "verbs_infinito": 0,              # No randomness: preserve frequency order exactly
     "verbs_presente": 50,             # Default: moderate shuffle
     "verbs_passatoprossimo": 50,      # Default: moderate shuffle
     "verbs_imperfetto": 50,           # Default: moderate shuffle
     "verbs_imperativo": 50,           # Default: moderate shuffle
+    "numbers": 0,                     # No randomness: preserve numeric order exactly
 }
 
 
@@ -98,6 +99,11 @@ def randomize_anki_cards_per_deck(
         
         # Fetch all anki_cards for this deck and randomize their order
         # Put RANDOM() directly in the SELECT to ensure it's calculated per-row
+        # When deck_random_range is 0, skip randomization to preserve exact order
+        if deck_random_range == 0:
+            sort_expr = f"id * {WEIGHT}"
+        else:
+            sort_expr = f"id * {WEIGHT} + ABS(RANDOM() % {deck_random_range})"
         rows = connection.execute(
             f"""
             SELECT *
@@ -114,7 +120,7 @@ def randomize_anki_cards_per_deck(
                     audio_text,
                     image_text,
                     guid,
-                    id * {WEIGHT} + ABS(RANDOM() % {deck_random_range}) AS sort_order
+                    {sort_expr} AS sort_order
                 FROM anki_cards_temp
                 WHERE deck = ?
             )

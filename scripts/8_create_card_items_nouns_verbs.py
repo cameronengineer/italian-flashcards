@@ -11,14 +11,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB_PATH = PROJECT_ROOT / "database.sqlite"
 
 TENSE_TO_DECK: dict[str, str] = {
-    "presente": "verbs_presente",
-    "passato_prossimo": "verbs_passatoprossimo",
-    "imperfetto": "verbs_imperfetto",
-    "imperativo": "verbs_imperativo",
+    "presente": "Italian - Verbs Presente",
+    "passato_prossimo": "Italian - Verbs Passato Prossimo",
+    "imperfetto": "Italian - Verbs Imperfetto",
+    "imperativo": "Italian - Verbs Imperativo",
 }
 
-NOUN_DECK = "nouns"
-INFINITIVE_VERB_DECK = "verbs_infinito"
+NOUN_DECK = "Italian - Nouns"
+INFINITIVE_VERB_DECK = "Italian - Verbs Infinitive"
 
 
 def create_verb_card_items(connection: sqlite3.Connection) -> int:

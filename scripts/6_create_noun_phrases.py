@@ -153,6 +153,8 @@ def load_entries(connection: sqlite3.Connection, limit: int) -> list[NounEntry]:
                definite_singular, definite_plural, indefinite_singular
         FROM word_entries
         WHERE word_type = 'noun'
+          AND singular IS NOT NULL AND singular != ''
+          AND definite_singular IS NOT NULL AND definite_singular != ''
           AND NOT EXISTS (
               SELECT 1
               FROM noun_phrases
@@ -371,7 +373,7 @@ def build_prompt(entries: list[NounEntry]) -> str:
         "- indefinite: use 'a/an ...' or plural forms (e.g. 'a friend', 'some friends').\n"
         "- articulated_preposition: use natural prepositional prompts (e.g. 'to the house', 'of the friend', 'in the houses').\n"
         "- demonstrative: use 'this ...' for questo or 'that ...' for quello (e.g. 'this friend', 'that friend', 'these friends', 'those friends').\n"
-        "- possessive: use natural possessive prompts (e.g. 'my friend', 'your friend', 'his friend', 'our friend', 'your (pl) friend', 'their friend').\n"
+        "- possessive: use natural possessive prompts (e.g. 'my friend', 'your friend', 'his friend', 'our friend', 'your (pl) friend', 'their friend'). For vostro (2nd person plural), always use 'your (pl) ...' not just 'your ...'.\n"
         "- Return the word_entry_id exactly as provided.\n\n"
         "Input nouns, one JSON object per line:\n"
         + "\n".join(lines)

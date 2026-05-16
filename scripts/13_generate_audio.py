@@ -190,7 +190,6 @@ def main() -> None:
         label = f"\"{text[:50]}{'...' if len(text) > 50 else ''}\""
         
         if output_path.exists() and output_path.stat().st_size > 0:
-            print(f"{label} — already exists, skipping")
             skipped += 1
             continue
         

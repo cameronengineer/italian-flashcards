@@ -33,6 +33,7 @@ PYEOF
 
 python scripts/1_import_subtlex_it.py
 python scripts/2_import_input_words.py
+python scripts/2b_import_numbers.py
 python scripts/3_create_verb_word_entries.py
 python scripts/4_create_noun_word_entries.py
 python scripts/5_create_verb_forms.py
