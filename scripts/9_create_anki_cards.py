@@ -13,12 +13,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB_PATH = PROJECT_ROOT / "database.sqlite"
 
 
-def generate_guid(card_item_id: int, deck: str, front_text: str, back_text: str, direction: str = "en_to_it") -> str:
-    """Generate stable GUID using genanki's method plus card_item_id for uniqueness."""
-    # Include card_item_id to ensure uniqueness for cases where deck/front_text/back_text
-    # might be identical (e.g., multiple noun phrases with same English prompt).
-    # Include direction so en_to_it and it_to_en cards get distinct GUIDs.
-    return genanki.guid_for(deck, front_text, back_text, str(card_item_id), direction)
+def generate_guid(natural_key: str, direction: str) -> str:
+    """Generate stable GUID from the card's natural key and direction.
+
+    natural_key is a content-derived string that does not change across delete/regenerate
+    cycles (unlike the autoincrement card_item_id). direction distinguishes en_to_it from
+    it_to_en cards for the same source item.
+    """
+    return genanki.guid_for(natural_key, direction)
 
 
 def create_anki_cards(connection: sqlite3.Connection) -> int:
@@ -27,6 +29,7 @@ def create_anki_cards(connection: sqlite3.Connection) -> int:
         """
         SELECT
             ci.id,
+            ci.natural_key,
             ci.deck,
             ci.front_text,
             ci.front_labels,
@@ -54,13 +57,7 @@ def create_anki_cards(connection: sqlite3.Connection) -> int:
     inserted = 0
     for row in rows:
         # --- en_to_it card (English prompt → Italian answer) ---
-        guid_en = generate_guid(
-            row["id"],
-            row["deck"],
-            row["front_text"],
-            row["back_text"] or "",
-            "en_to_it",
-        )
+        guid_en = generate_guid(row["natural_key"], "en_to_it")
         cursor = connection.execute(
             """
             INSERT OR IGNORE INTO anki_cards (
@@ -94,13 +91,7 @@ def create_anki_cards(connection: sqlite3.Connection) -> int:
         # --- it_to_en card (Italian prompt → English answer) ---
         # front_text becomes the Italian form; back_highlight becomes the English prompt.
         # Audio and image keys are unchanged — they still reference the Italian text.
-        guid_it = generate_guid(
-            row["id"],
-            row["deck"],
-            row["front_text"],
-            row["back_text"] or "",
-            "it_to_en",
-        )
+        guid_it = generate_guid(row["natural_key"], "it_to_en")
         cursor = connection.execute(
             """
             INSERT OR IGNORE INTO anki_cards (

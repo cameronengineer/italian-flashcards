@@ -66,6 +66,7 @@ def create_input_word_card_items(connection: sqlite3.Connection) -> dict[str, in
             INSERT INTO card_items (
                 source_type,
                 source_id,
+                natural_key,
                 deck,
                 front_text,
                 front_labels,
@@ -73,11 +74,12 @@ def create_input_word_card_items(connection: sqlite3.Connection) -> dict[str, in
                 back_text,
                 audio_text,
                 image_text
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 "input_word",
                 row["word_entry_id"],
+                f"input_word:{row['word_entry_id']}",
                 deck,
                 row["english"],
                 label,
@@ -110,9 +112,14 @@ def main() -> None:
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys = ON")
 
-        # Count existing input_word card_items for early-exit check
+        # Count existing card_items for the types this script manages (not avere_expressions,
+        # which are handled by script 7b).
         existing_count = connection.execute(
-            "SELECT COUNT(*) AS count FROM card_items WHERE source_type = 'input_word'"
+            """
+            SELECT COUNT(*) AS count FROM card_items ci
+            JOIN word_entries we ON ci.source_id = we.id AND ci.source_type = 'input_word'
+            WHERE we.word_type IN ('interjection', 'pronoun', 'conjunction', 'number')
+            """
         ).fetchone()["count"]
         expected_count = connection.execute(
             """

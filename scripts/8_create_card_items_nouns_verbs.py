@@ -18,7 +18,13 @@ TENSE_TO_DECK: dict[str, str] = {
 }
 
 NOUN_DECK = "Italian - Nouns"
+NOUN_PHRASES_DECK = "Italian - Noun Phrases"
 INFINITIVE_VERB_DECK = "Italian - Verbs Infinitive"
+
+# Only definite articles (the dog / the dogs) go into NOUN_DECK.
+# Everything else — indefinite, articulated prepositions, demonstratives,
+# possessives — goes into NOUN_PHRASES_DECK.
+NOUN_DECK_PHRASE_TYPES = {"definite"}
 
 
 def create_verb_card_items(connection: sqlite3.Connection) -> int:
@@ -26,7 +32,10 @@ def create_verb_card_items(connection: sqlite3.Connection) -> int:
         """
         SELECT
             vf.id,
+            vf.word_entry_id,
             vf.tense,
+            vf.person,
+            vf.polarity,
             vf.italian,
             vf.english,
             vf.labels,
@@ -45,11 +54,13 @@ def create_verb_card_items(connection: sqlite3.Connection) -> int:
     inserted = 0
     for row in rows:
         deck = TENSE_TO_DECK.get(row["tense"], f"verbs_{row['tense']}")
+        natural_key = f"verb_form:{row['word_entry_id']}:{row['tense']}:{row['person']}:{row['polarity']}"
         cursor = connection.execute(
             """
             INSERT INTO card_items (
                 source_type,
                 source_id,
+                natural_key,
                 deck,
                 front_text,
                 front_labels,
@@ -57,11 +68,12 @@ def create_verb_card_items(connection: sqlite3.Connection) -> int:
                 back_text,
                 audio_text,
                 image_text
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 "verb_form",
                 row["id"],
+                natural_key,
                 deck,
                 row["english"],
                 row["labels"],
@@ -100,6 +112,7 @@ def create_infinitive_verb_card_items(connection: sqlite3.Connection) -> int:
             INSERT INTO card_items (
                 source_type,
                 source_id,
+                natural_key,
                 deck,
                 front_text,
                 front_labels,
@@ -107,11 +120,12 @@ def create_infinitive_verb_card_items(connection: sqlite3.Connection) -> int:
                 back_text,
                 audio_text,
                 image_text
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 "infinitive_verb",
                 row["word_entry_id"],
+                f"infinitive_verb:{row['word_entry_id']}",
                 INFINITIVE_VERB_DECK,
                 row["english"],
                 "tense: infinitive",
@@ -130,6 +144,10 @@ def create_noun_card_items(connection: sqlite3.Connection) -> int:
         """
         SELECT
             np.id,
+            np.word_entry_id,
+            np.phrase_type,
+            np.number,
+            np.preposition,
             np.italian,
             np.english,
             np.labels,
@@ -147,11 +165,15 @@ def create_noun_card_items(connection: sqlite3.Connection) -> int:
 
     inserted = 0
     for row in rows:
+        preposition = row["preposition"] or ""
+        natural_key = f"noun_phrase:{row['word_entry_id']}:{row['phrase_type']}:{row['number']}:{preposition}"
+        deck = NOUN_DECK if row["phrase_type"] in NOUN_DECK_PHRASE_TYPES else NOUN_PHRASES_DECK
         cursor = connection.execute(
             """
             INSERT INTO card_items (
                 source_type,
                 source_id,
+                natural_key,
                 deck,
                 front_text,
                 front_labels,
@@ -159,12 +181,13 @@ def create_noun_card_items(connection: sqlite3.Connection) -> int:
                 back_text,
                 audio_text,
                 image_text
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 "noun_phrase",
                 row["id"],
-                NOUN_DECK,
+                natural_key,
+                deck,
                 row["english"],
                 row["labels"],
                 row["italian"],
@@ -204,13 +227,19 @@ def main() -> None:
         verb_entry_count = connection.execute(
             "SELECT COUNT(*) as count FROM word_entries WHERE word_type = 'verb'"
         ).fetchone()["count"]
+        # Count only the source types this script is responsible for, so other scripts'
+        # card_items (e.g. input_word items for conjunctions, avere expressions) don't
+        # cause a spurious early exit.
         existing_count = connection.execute(
-            "SELECT COUNT(*) as count FROM card_items"
+            """
+            SELECT COUNT(*) as count FROM card_items
+            WHERE source_type IN ('verb_form', 'noun_phrase', 'infinitive_verb')
+            """
         ).fetchone()["count"]
         expected_count = verb_form_count + noun_phrase_count + verb_entry_count
 
         if existing_count >= expected_count:
-            print(f"Already have {existing_count} card_items (expected: {expected_count}). Exiting.")
+            print(f"Already have {existing_count} verb/noun card_items (expected: {expected_count}). Exiting.")
             return
 
         verb_inserted = create_verb_card_items(connection)

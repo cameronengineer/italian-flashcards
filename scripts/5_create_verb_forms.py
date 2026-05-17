@@ -6,9 +6,11 @@ from __future__ import annotations
 import argparse
 import json
 import sqlite3
+import threading
 import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -18,7 +20,6 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 API_KEY_FILE = PROJECT_ROOT / ".openrouter"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "~google/gemini-flash-latest"
-BATCH_SIZE = 5
 MAX_VERBS = 999999
 MAX_RETRIES = 3
 RETRY_DELAY = 5
@@ -61,12 +62,21 @@ RESPONSE_SCHEMA = {
                                     "type": "string",
                                     "description": "Natural English translation for a flashcard prompt.",
                                 },
+                                "usage_note": {
+                                    "type": "string",
+                                    "description": (
+                                        "Very short register or style label if this specific form is "
+                                        "archaic, formal, vulgar, literary, or regional. "
+                                        "Use 'archaic' for forms no longer in common modern use. "
+                                        "Empty string if nothing noteworthy."
+                                    ),
+                                },
                                 "labels": {
                                     "type": "string",
                                     "description": "Pipe-separated labels, e.g. tense: presente | subject: io.",
                                 },
                             },
-                            "required": ["tense", "person", "polarity", "italian", "english", "labels"],
+                            "required": ["tense", "person", "polarity", "italian", "english", "usage_note", "labels"],
                             "additionalProperties": False,
                         },
                     },
@@ -122,27 +132,23 @@ def load_entries(connection: sqlite3.Connection, limit: int) -> list[VerbEntry]:
     ]
 
 
-def build_prompt(entries: list[VerbEntry]) -> str:
-    lines = []
-    for entry in entries:
-        lines.append(
-            json.dumps(
-                {
-                    "word_entry_id": entry.id,
-                    "lemma": entry.lemma,
-                    "english": entry.english,
-                    "infinitive": entry.infinitive,
-                    "auxiliary": entry.auxiliary,
-                    "past_participle": entry.past_participle,
-                    "is_reflexive": entry.is_reflexive,
-                },
-                ensure_ascii=False,
-            )
-        )
+def build_prompt(entry: VerbEntry) -> str:
+    item = json.dumps(
+        {
+            "word_entry_id": entry.id,
+            "lemma": entry.lemma,
+            "english": entry.english,
+            "infinitive": entry.infinitive,
+            "auxiliary": entry.auxiliary,
+            "past_participle": entry.past_participle,
+            "is_reflexive": entry.is_reflexive,
+        },
+        ensure_ascii=False,
+    )
 
     return (
-        "Generate Italian verb forms for a flashcard database. Return one item per input verb. "
-        "For each verb, generate exactly these forms: presente for io, tu, lui_lei, noi, voi, loro; "
+        "Generate Italian verb forms for a flashcard database. "
+        "Generate exactly these forms: presente for io, tu, lui_lei, noi, voi, loro; "
         "passato_prossimo for io, tu, lui_lei, noi, voi, loro; imperfetto for io, tu, lui_lei, noi, voi, loro; "
         "imperativo for tu, Lei, noi, voi. Do not generate io imperative.\n\n"
         "Rules:\n"
@@ -152,9 +158,9 @@ def build_prompt(entries: list[VerbEntry]) -> str:
         "- polarity is always positive.\n"
         "- labels should be pipe-separated, like 'tense: presente | subject: io'.\n"
         "- english should be a natural prompt, e.g. 'we speak / we are speaking', 'I spoke / I have spoken', 'Speak!'.\n"
+        "- usage_note: add a very short label if this specific conjugated form is archaic, formal, vulgar, literary, or regional. Leave empty for ordinary modern forms.\n"
         "- Return the word_entry_id exactly as provided.\n\n"
-        "Input verbs, one JSON object per line:\n"
-        + "\n".join(lines)
+        f"Input verb:\n{item}"
     )
 
 
@@ -187,21 +193,24 @@ def openrouter_structured_request(prompt: str, api_key: str) -> dict:
     return json.loads(content)
 
 
-def analyze_batch(entries: list[VerbEntry], api_key: str) -> list[dict]:
-    prompt = build_prompt(entries)
+def analyze_one(entry: VerbEntry, api_key: str) -> dict:
+    prompt = build_prompt(entry)
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             parsed = openrouter_structured_request(prompt, api_key)
-            return parsed["items"]
+            items = parsed["items"]
+            if items:
+                return items[0]
+            raise ValueError("Empty items list in response")
         except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as exc:
-            print(f"  [attempt {attempt}/{MAX_RETRIES}] Request error: {exc}")
+            print(f"  [attempt {attempt}/{MAX_RETRIES}] {entry.lemma!r}: Request error: {exc}")
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_DELAY * attempt)
-        except (json.JSONDecodeError, KeyError) as exc:
-            print(f"  [attempt {attempt}/{MAX_RETRIES}] Parse error: {exc}")
+        except (json.JSONDecodeError, KeyError, ValueError) as exc:
+            print(f"  [attempt {attempt}/{MAX_RETRIES}] {entry.lemma!r}: Parse error: {exc}")
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_DELAY)
-    raise RuntimeError("OpenRouter request failed after all retries")
+    raise RuntimeError(f"OpenRouter request failed for {entry.lemma!r}")
 
 
 def insert_forms(connection: sqlite3.Connection, items: list[dict]) -> int:
@@ -211,6 +220,9 @@ def insert_forms(connection: sqlite3.Connection, items: list[dict]) -> int:
         for form in item["forms"]:
             italian = form["italian"].strip()
             english = form["english"].strip()
+            usage_note = form.get("usage_note", "").strip()
+            if usage_note:
+                english = f"{english} [{usage_note}]"
             if not italian or not english:
                 continue
             cursor = connection.execute(
@@ -252,7 +264,8 @@ def main() -> None:
     )
     parser.add_argument("--db", type=Path, default=DEFAULT_DB_PATH)
     parser.add_argument("--limit", type=int, default=MAX_VERBS)
-    parser.add_argument("--batch-size", type=int, default=BATCH_SIZE)
+    parser.add_argument("--workers", type=int, default=10,
+                        help="Number of parallel AI request threads (default: 10).")
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -263,7 +276,7 @@ def main() -> None:
     with sqlite3.connect(args.db, timeout=30) as connection:
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys = ON")
-        
+
         verb_entry_count = connection.execute(
             "SELECT COUNT(*) as count FROM word_entries WHERE word_type = 'verb'"
         ).fetchone()["count"]
@@ -274,32 +287,56 @@ def main() -> None:
         if verb_forms_count >= expected_forms:
             print(f"Already have {verb_forms_count} verb_forms (expected: {expected_forms}). Exiting.")
             return
-        
+
         entries = load_entries(connection, args.limit)
 
-        if args.dry_run:
-            print(f"Found {len(entries)} verb entries without forms.")
-            for entry in entries:
-                print(
-                    f"word_entry_id={entry.id} lemma={entry.lemma!r} "
-                    f"english={entry.english!r} auxiliary={entry.auxiliary!r}"
-                )
-            return
+    if args.dry_run:
+        print(f"Found {len(entries)} verb entries without forms.")
+        for entry in entries:
+            print(
+                f"word_entry_id={entry.id} lemma={entry.lemma!r} "
+                f"english={entry.english!r} auxiliary={entry.auxiliary!r}"
+            )
+        return
 
-        api_key = load_api_key()
-        inserted_total = 0
-        total_batches = (len(entries) + args.batch_size - 1) // args.batch_size
-        for batch_number, start in enumerate(range(0, len(entries), args.batch_size), 1):
-            batch = entries[start : start + args.batch_size]
-            print(f"Batch {batch_number}/{total_batches}: generating forms for {len(batch)} verbs...", flush=True)
-            items = analyze_batch(batch, api_key)
-            inserted = insert_forms(connection, items)
-            connection.commit()
-            inserted_total += inserted
-            expected = len(batch) * EXPECTED_FORM_COUNT
-            print(f"  inserted {inserted} verb_forms (expected up to {expected})")
-            if batch_number < total_batches:
-                time.sleep(1)
+    api_key = load_api_key()
+    db_path = args.db
+    db_lock = threading.Lock()
+    inserted_total = 0
+    total = len(entries)
+
+    def process_one(entry: VerbEntry) -> int:
+        with sqlite3.connect(db_path, timeout=30) as chk:
+            already = chk.execute(
+                "SELECT 1 FROM verb_forms WHERE word_entry_id = ? LIMIT 1",
+                (entry.id,),
+            ).fetchone()
+        if already:
+            print(f"  {entry.lemma!r}: skipped (forms already exist)", flush=True)
+            return 0
+        item = analyze_one(entry, api_key)
+        with db_lock:
+            with sqlite3.connect(db_path, timeout=30) as conn:
+                conn.row_factory = sqlite3.Row
+                conn.execute("PRAGMA foreign_keys = ON")
+                n = insert_forms(conn, [item])
+                conn.commit()
+        print(f"  {entry.lemma!r}: inserted {n} forms", flush=True)
+        return n
+
+    with ThreadPoolExecutor(max_workers=args.workers) as executor:
+        futures = {executor.submit(process_one, e): e for e in entries}
+        done = 0
+        for future in as_completed(futures):
+            done += 1
+            exc = future.exception()
+            if exc:
+                ent = futures[future]
+                print(f"  [error] {ent.lemma!r}: {exc}", flush=True)
+            else:
+                inserted_total += future.result()
+            if done % 50 == 0:
+                print(f"  Progress: {done}/{total}", flush=True)
 
     print(f"Done. Inserted {inserted_total} new verb_forms.")
 

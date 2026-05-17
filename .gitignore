@@ -16,7 +16,8 @@ database.sqlite
 
 # macOS
 .DS_Store
-.kilo
+.kilo/
+!.kilo/*.md
 
 # Generated Anki decks
 *.apkg
@@ -31,3 +32,6 @@ media/images/
 media/images_compressed/
 media/audio/
 media/audio_compressed/
+
+old/
+*progress.json
