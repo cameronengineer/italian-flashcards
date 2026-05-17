@@ -1,0 +1,508 @@
+card_id: 25373
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: these misters
+back_highlight: questi mister
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: questi mister
+expected: questi signori
+explanation: The correct Italian translation of 'these misters' is 'questi signori'; 'mister' is English, not Italian.
+card_id: 23805
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: the alcohols
+back_highlight: gli alcol
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: gli alcol
+expected: gli alcoli
+explanation: Plural of alcol is alcoli; correct definite plural is gli alcoli.
+card_id: 25294
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: our footprint
+back_highlight: l' nostro impronta
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: l' nostro impronta
+expected: la nostra impronta
+explanation: The correct Italian possessive before a feminine singular noun is 'la nostra impronta'; 'l' nostro impronta' incorrectly combines an elided article with the wrong gender/spacing.
+card_id: 21441
+deck: Italian - Verbs Imperfetto
+source_type: verb_form
+front_text: you used to wake up
+back_highlight: svegliavi
+issue_type: WRONG_CONJUGATION
+severity: high
+field: back_highlight
+found: svegliavi
+expected: ti svegliavi
+explanation: Reflexive verb form for 'tu' in imperfect requires the reflexive pronoun before the verb; 'ti svegliavi' is correct.
+card_id: 13743
+deck: Italian - Verbs Passato Prossimo
+source_type: verb_form
+front_text: I exempted / I have exempted
+back_highlight: ho esimere
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: ho esimere
+expected: ho esentato
+explanation: The correct passato prossimo of esentare is esentato; 'ho esimere' uses an infinitive and is not a valid past participle.
+card_id: 19546
+deck: Italian - Verbs Imperfetto
+source_type: verb_form
+front_text: they were rejoicing / they used to rejoice
+back_highlight: beavano
+issue_type: WRONG_CONJUGATION
+severity: high
+field: back_highlight
+found: beavano
+expected: si rallegravano
+explanation: The imperfetto third person plural form for 'rejoice' (loro) should be 'si rallegravano'; 'beavano' is a form of 'bere' (to drink).
+card_id: 17543
+deck: Italian - Verbs Imperfetto
+source_type: verb_form
+front_text: I was making fall in love
+back_highlight: innamoravo
+issue_type: WRONG_ENGLISH
+severity: medium
+field: front_text
+found: I was making fall in love
+expected: I was making someone fall in love
+explanation: The English prompt is ungrammatical; the transitive verb innamorare requires an explicit object (someone) or a better rendering like 'I was making someone fall in love' or 'I was enamoring someone.'
+card_id: 10257
+deck: Italian - Verbs Presente
+source_type: verb_form
+front_text: you are liked / you please
+back_highlight: piaci
+issue_type: INCONSISTENT
+severity: high
+field: front_text
+found: you are liked / you please
+expected: you please / you are pleasing
+explanation: piaci means 'you please' (you are pleasing), so 'you are liked' is not a correct translation for this form.
+card_id: 27042
+deck: Italian - Conjunctions
+source_type: input_word
+front_text: consequently
+back_highlight: per conseguenza
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: per conseguenza
+expected: di conseguenza
+explanation: The common Italian translation for 'consequently' is 'di conseguenza'; 'per conseguenza' is not idiomatic.
+card_id: 23629
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: the fans
+back_highlight: i fan
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: i fan
+expected: i tifosi
+explanation: The standard Italian translation of 'the fans' is 'i tifosi'; 'i fan' is an anglicism and not the conventional term.
+card_id: 9489
+deck: Italian - Verbs Imperativo
+source_type: verb_form
+front_text: Exit! (formal)
+back_highlight: esca
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: esca
+expected: Esca!
+explanation: Lei imperative of uscire should be Esca! (capitalized and with exclamation).
+card_id: 27672
+deck: Italian - Numbers
+source_type: input_word
+front_text: 9127 / nine thousand one hundred and twenty-seven
+back_highlight: novemilacentoventisette
+issue_type: MALFORMED_PHRASE
+severity: low
+field: back_highlight
+found: novemilacentoventisette
+expected: novemila centoventisette
+explanation: back_highlight should have a space between words: 'novemila centoventisette'.
+card_id: 9141
+deck: Italian - Verbs Imperfetto
+source_type: verb_form
+front_text: I was being enough
+back_highlight: bastavo
+issue_type: WRONG_ENGLISH
+severity: medium
+field: front_text
+found: I was being enough
+expected: I was enough
+explanation: The phrase 'I was being enough' is unnatural; the imperfect 'bastavo' translates to 'I was enough' (or 'I used to be enough'), not 'I was being enough'.
+card_id: 21328
+deck: Italian - Verbs Imperfetto
+source_type: verb_form
+front_text: they were being born / used to be born
+back_highlight: nascevano
+issue_type: INCONSISTENT
+severity: high
+field: front_text
+found: they were being born / used to be born
+expected: they were born
+explanation: nascevano means 'they were born' in Italian; 'were being born' does not match the tested verb form.
+card_id: 15131
+deck: Italian - Verbs Passato Prossimo
+source_type: verb_form
+front_text: he/she wanted back / he/she has wanted back
+back_highlight: ha rivoluto
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: ha rivoluto
+expected: ha rivolto
+explanation: Past participle of rivolgere is rivolto; 'rivoluto' is a misspelling.
+
+card_id: 15131
+deck: Italian - Verbs Passato Prossimo
+source_type: verb_form
+front_text: he/she wanted back / he/she has wanted back
+back_highlight: ha rivoluto
+issue_type: INCONSISTENT
+severity: medium
+field: front_text
+found: he/she wanted back / he/she has wanted back
+expected: ha voluto indietro
+explanation: Front English suggests volere (to want) while back_highlight implies rivolgere (to direct); the meanings do not align.
+card_id: 27143
+deck: Italian - Interjections
+source_type: input_word
+front_text: Hey! / Nice one! (slang)
+back_highlight: Bella!
+issue_type: INCONSISTENT
+severity: high
+field: back_highlight
+found: Bella!
+expected: 
+explanation: The two English prompts 'Hey!' and 'Nice one! (slang)' map to different Italian expressions; a single back_highlight 'Bella!' cannot satisfy both prompts.
+card_id: 26465
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: our vairs
+back_highlight: i nostri vai
+issue_type: WRONG_ENGLISH
+severity: high
+field: front_text
+found: our vairs
+expected: 
+explanation: front_text appears not to be a valid English prompt; 'vairs' is not an English word.
+
+card_id: 26465
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: our vairs
+back_highlight: i nostri vai
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: i nostri vai
+expected: 
+explanation: back_highlight is not a valid Italian phrase; 'i nostri' is a possessive determiner but must precede a noun, and 'vai' is a verb, not a noun.
+card_id: 26942
+deck: Italian - Conjunctions
+source_type: input_word
+front_text: that is / meaning / I mean
+back_highlight: cioè
+issue_type: WRONG_ENGLISH
+severity: medium
+field: front_text
+found: that is / meaning / I mean
+expected: that is / I mean
+explanation: The gloss should present two English equivalents; 'meaning' is not a valid translation of cioè.
+card_id: 22369
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: the exceptions
+back_highlight: i salvi
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: i salvi
+expected: le eccezioni
+explanation: The translation of 'the exceptions' is 'le eccezioni', not 'i salvi'.
+card_id: 26822
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: his offer
+back_highlight: l' suo offerta
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: l' suo offerta
+expected: la sua offerta
+explanation: The correct Italian possessive with a feminine singular noun requires 'la sua offerta', not 'l' suo offerta'.
+card_id: 10030
+deck: Italian - Verbs Passato Prossimo
+source_type: verb_form
+front_text: we mattered / we have mattered
+back_highlight: abbiamo importato
+issue_type: WRONG_CONJUGATION
+severity: high
+field: back_highlight
+found: abbiamo importato
+expected: 
+explanation: abbiamo importato means 'we imported' and does not express 'we mattered' in passato prossimo.
+card_id: 18630
+deck: Italian - Verbs Passato Prossimo
+source_type: verb_form
+front_text: we divorced / we have divorced
+back_highlight: abbiamo divorziato
+issue_type: WRONG_AUXILIARY
+severity: high
+field: back_highlight
+found: abbiamo divorziato
+expected: ci siamo divorziati
+explanation: Divorziare/divorziarsi is intransitive and uses essere in passato prossimo; the past participle must agree with noi (ci siamo divorziati/divorziate).
+card_id: 24834
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: the front
+back_highlight: la fronte
+issue_type: INCONSISTENT
+severity: high
+field: front_text
+found: the front
+expected: the forehead
+explanation: front_text translates to 'the forehead' (la fronte) in this card; 'the front' does not align with the back_highlight.
+card_id: 19717
+deck: Italian - Verbs Imperativo
+source_type: verb_form
+front_text: See again! (formal)
+back_highlight: rivedano
+issue_type: WRONG_CONJUGATION
+severity: high
+field: back_highlight
+found: rivedano
+expected: Riveda
+explanation: Lei form of the imperativo (present subjunctive) for 'rivedere' is 'Riveda', not 'rivedano'.
+card_id: 10246
+deck: Italian - Verbs Imperfetto
+source_type: verb_form
+front_text: you (pl.) were liked / you (pl.) used to please
+back_highlight: piacevate
+issue_type: WRONG_ENGLISH
+severity: medium
+field: front_text
+found: you (pl.) were liked / you (pl.) used to please
+expected: you (pl.) liked / you (pl.) used to please
+explanation: piacevate means 'you all liked' or 'you all used to please'; 'were liked' is not a correct translation.
+card_id: 24044
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: in the gaze
+back_highlight: nel guardo
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: nel guardo
+expected: nel sguardo
+explanation: The correct Italian for 'in the gaze' is nel sguardo; 'sguardo' starts with 's' + 'g' and requires the contracted article 'nel'.
+card_id: 21440
+deck: Italian - Verbs Imperfetto
+source_type: verb_form
+front_text: we used to wake up
+back_highlight: svegliavamo
+issue_type: WRONG_CONJUGATION
+severity: high
+field: back_highlight
+found: svegliavamo
+expected: ci svegliavamo
+explanation: For the reflexive verb 'svegliarsi' in imperfetto with noi, the correct form is 'ci svegliavamo' including the reflexive pronoun.
+card_id: 24486
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: this exit
+back_highlight: questo uscita
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: questo uscita
+expected: questa uscita
+explanation: Gender mismatch: 'uscita' is feminine; should be 'questa uscita'.
+card_id: 25228
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: the casing
+back_highlight: il carter
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: il carter
+expected: 
+explanation: The Italian presented ('il carter') is not a valid translation of 'the casing'; the correct noun depends on context (e.g., l'involucro, il rivestimento, il guscio).
+card_id: 23678
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: the DNA
+back_highlight: il dna
+issue_type: WRONG_ITALIAN
+severity: low
+field: back_highlight
+found: il dna
+expected: il DNA
+explanation: Acronyms like DNA are typically written in uppercase in Italian; 'il dna' should be 'il DNA'.
+card_id: 27276
+deck: Italian - Interjections
+source_type: input_word
+front_text: Oh my! / Mum!
+back_highlight: Mamma!
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: Mamma!
+expected: Mamma mia!
+explanation: The Italian translation for 'Oh my!' should be 'Mamma mia!' (not 'Mamma!').
+card_id: 29736
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: the building
+back_highlight: il palazzo
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: il palazzo
+expected: l'edificio
+explanation: The translation of 'the building' is 'l'edificio'; 'il palazzo' means 'the palace'.
+card_id: 13393
+deck: Italian - Verbs Passato Prossimo
+source_type: verb_form
+front_text: he/she sang / has sung
+back_highlight: ha cantato
+issue_type: INCONSISTENT
+severity: high
+field: front_text
+found: he/she sang / has sung
+expected: 
+explanation: Front_text uses 'sang' which corresponds to cantò (passato remoto), not the passato_prossimo form 'ha cantato'.
+card_id: 27673
+deck: Italian - Numbers
+source_type: input_word
+front_text: 9500 / nine thousand five hundred
+back_highlight: novemilacinquecento
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: novemilacinquecento
+expected: novemila cinquecento
+explanation: In Italian, 9,500 is written as 'novemila cinquecento' (two words); the current form concatenates the words.
+card_id: 26908
+deck: Italian - Conjunctions
+source_type: input_word
+front_text: unless / failing that
+back_highlight: a meno di
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: a meno di
+expected: a meno che
+explanation: A meno di means 'less than/under' in measurements, not 'unless'; correct translation for 'unless' is 'a meno che' (subjunctive).
+card_id: 28150
+deck: Italian - Espressioni con Avere
+source_type: input_word
+front_text: he / she has a choice
+back_highlight: ha scelta
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: ha scelta
+expected: ha una scelta
+explanation: In Italian, 'to have a choice' is expressed as 'avere una scelta'; 'ha scelta' is missing the indefinite article.
+card_id: 25715
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: to the types of milk
+back_highlight: ai latti
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: ai latti
+expected: ai tipi di latte
+explanation: Back highlight uses 'ai latti' (to the milks), but the correct translation for 'to the types of milk' is 'ai tipi di latte'.
+card_id: 30119
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: the stops
+back_highlight: i fermi
+issue_type: WRONG_ITALIAN
+severity: medium
+field: back_highlight
+found: i fermi
+expected: le fermate
+explanation: The English prompt 'the stops' should translate to the feminine plural 'le fermate' rather than the masculine 'i fermi'.
+card_id: 24231
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: the opportunities
+back_highlight: le occasioni
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: le occasioni
+expected: le opportunità
+explanation: The natural translation of 'the opportunities' is 'le opportunità'; 'le occasioni' means 'the occasions'.
+card_id: 17549
+deck: Italian - Verbs Passato Prossimo
+source_type: verb_form
+front_text: I made fall in love
+back_highlight: ho innamorato
+issue_type: WRONG_ENGLISH
+severity: medium
+field: front_text
+found: I made fall in love
+expected: I enamored
+explanation: The English prompt should reflect the passato prossimo form 'ho innamorato' (I enamored / I have enamored), not 'I made fall in love' which is ungrammatical.
+card_id: 27676
+deck: Italian - Numbers
+source_type: input_word
+front_text: 9220 / nine thousand two hundred and twenty
+back_highlight: novemiladuecentoventi
+issue_type: MALFORMED_PHRASE
+severity: medium
+field: back_highlight
+found: novemiladuecentoventi
+expected: novemila duecentoventi
+explanation: Italian numbers should be spaced: 'novemila duecentoventi' instead of a single concatenated word.
+card_id: 18612
+deck: Italian - Verbs Presente
+source_type: verb_form
+front_text: they betray / they are betraying
+back_highlight: tradiscono
+issue_type: WRONG_CONJUGATION
+severity: high
+field: back_highlight
+found: tradiscono
+expected: tradiscono
+explanation: 3rd person plural present indicative of tradire should be tradiscono (with -sc- before -iono), not tradiscono.
+card_id: 30013
+deck: Italian - Nouns
+source_type: noun_phrase
+front_text: the habits
+back_highlight: i soliti
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: i soliti
+expected: le abitudini
+explanation: The Italian for 'the habits' is 'le abitudini', not 'i soliti'.
+card_id: 27017
+deck: Italian - Conjunctions
+source_type: input_word
+front_text: while / in the meantime
+back_highlight: nel mentre che
+issue_type: WRONG_ITALIAN
+severity: high
+field: back_highlight
+found: nel mentre che
+expected: mentre
+explanation: The Italian for 'while' is usually 'mentre'. 'nel mentre che' is not standard correct Italian.

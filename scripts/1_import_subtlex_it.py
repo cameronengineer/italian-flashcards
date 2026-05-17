@@ -9,14 +9,13 @@ import hashlib
 import sqlite3
 from pathlib import Path
 
-DEFAULT_CSV_PATH = Path("freqdic/subtlex-it.csv")
+DEFAULT_CSV_PATH = Path("freqdic/subtlex-it.cleaned.cleaned.csv")
 DEFAULT_DB_PATH = Path("database.sqlite")
 DEFAULT_LIMIT = 20_000
 
 INTEGER_COLUMNS = {
     "freq_count",
     "cd_count",
-    "dom_lemma_freq",
     "id",
 }
 REAL_COLUMNS = {
@@ -37,12 +36,6 @@ CREATE TABLE IF NOT EXISTS input_words (
     cd_count INTEGER,
     dom_pos TEXT,
     dom_lemma TEXT,
-    dom_lemma_freq INTEGER,
-    all_pos TEXT,
-    all_lemma TEXT,
-    all_pos_freq TEXT,
-    all_pos_lemma TEXT,
-    all_pos_lemma_freq TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -115,6 +108,7 @@ CREATE TABLE IF NOT EXISTS card_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     source_type TEXT NOT NULL,
     source_id INTEGER,
+    natural_key TEXT,
     deck TEXT NOT NULL,
     front_text TEXT NOT NULL,
     front_labels TEXT,
@@ -126,6 +120,7 @@ CREATE TABLE IF NOT EXISTS card_items (
 
 CREATE INDEX IF NOT EXISTS idx_card_items_deck ON card_items(deck);
 CREATE INDEX IF NOT EXISTS idx_card_items_source ON card_items(source_type, source_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_card_items_natural_key ON card_items(natural_key) WHERE natural_key IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS anki_cards (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -145,6 +140,15 @@ CREATE TABLE IF NOT EXISTS anki_cards (
 CREATE INDEX IF NOT EXISTS idx_anki_cards_deck ON anki_cards(deck);
 CREATE INDEX IF NOT EXISTS idx_anki_cards_direction ON anki_cards(direction);
 """
+
+
+def _detect_encoding(path: Path) -> str:
+    """Return 'utf-8' if the file is valid UTF-8, otherwise 'cp1252'."""
+    try:
+        path.read_bytes().decode("utf-8")
+        return "utf-8"
+    except UnicodeDecodeError:
+        return "cp1252"
 
 
 def hash_text(text: str) -> str:
@@ -181,12 +185,6 @@ def input_word_row(row: dict[str, str], frequency_rank: int) -> tuple[object, ..
         parse_value("cd_count", row["cd_count"]),
         row["dom_pos"] or None,
         row["dom_lemma"] or None,
-        parse_value("dom_lemma_freq", row["dom_lemma_freq"]),
-        row["all_pos"] or None,
-        row["all_lemma"] or None,
-        row["all_pos_freq"] or None,
-        row["all_pos_lemma"] or None,
-        row["all_pos_lemma_freq"] or None,
     )
 
 
@@ -208,51 +206,142 @@ def trim_input_words(connection: sqlite3.Connection, limit: int) -> int:
     return before_count - after_count
 
 
-def import_csv(csv_path: Path, db_path: Path, limit: int) -> tuple[int, int]:
+def upsert_csv(csv_path: Path, db_path: Path, limit: int) -> tuple[int, int, int]:
+    """
+    Import CSV into database, checking each row against existing data.
+    Returns (inserted_count, updated_count, trimmed_count).
+    """
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
     with sqlite3.connect(db_path) as connection:
         create_schema(connection)
 
-        with csv_path.open(newline="", encoding="cp1252") as csv_file:
+        inserted_count = 0
+        updated_count = 0
+
+        with csv_path.open(newline="", encoding=_detect_encoding(csv_path)) as csv_file:
             reader = csv.DictReader(csv_file, delimiter=";")
             if reader.fieldnames is None:
                 raise ValueError(f"No header row found in {csv_path}")
 
-            insert_sql = """
-                INSERT OR IGNORE INTO input_words (
-                    id,
-                    subtlex_id,
-                    wordform,
-                    normalized_word,
-                    frequency_rank,
-                    freq_count,
-                    zipf,
-                    cd_count,
-                    dom_pos,
-                    dom_lemma,
-                    dom_lemma_freq,
-                    all_pos,
-                    all_lemma,
-                    all_pos_freq,
-                    all_pos_lemma,
-                    all_pos_lemma_freq
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """
-            before_count = connection.execute(
-                "SELECT COUNT(*) FROM input_words"
-            ).fetchone()[0]
-            rows = (
-                input_word_row(row, frequency_rank)
-                for frequency_rank, row in enumerate(reader, start=1)
-                if frequency_rank <= limit
-            )
-            connection.executemany(insert_sql, rows)
-            after_count = connection.execute(
-                "SELECT COUNT(*) FROM input_words"
-            ).fetchone()[0]
-            trimmed_count = trim_input_words(connection, limit)
-            return after_count - before_count, trimmed_count
+            for frequency_rank, row in enumerate(reader, start=1):
+                if frequency_rank > limit:
+                    break
+
+                wordform = row["wordform"].strip()
+                subtlex_id = parse_value("id", row["id"])
+                if not wordform or subtlex_id is None:
+                    continue
+
+                row_id = hash_text(wordform)
+                normalized_word = normalize_word(wordform)
+                freq_count = parse_value("freq_count", row["freq_count"])
+                zipf = parse_value("zipf", row["zipf"])
+                cd_count = parse_value("cd_count", row["cd_count"])
+                dom_pos = row["dom_pos"] or None
+                dom_lemma = row["dom_lemma"] or None
+
+                # Check if row exists by wordform hash (primary key)
+                existing = connection.execute(
+                    """
+                    SELECT subtlex_id, wordform, normalized_word, frequency_rank,
+                           freq_count, zipf, cd_count, dom_pos, dom_lemma
+                    FROM input_words
+                    WHERE id = ?
+                    """,
+                    (row_id,),
+                ).fetchone()
+
+                if existing:
+                    # Row exists; check if anything changed
+                    (
+                        existing_subtlex_id,
+                        existing_wordform,
+                        existing_normalized,
+                        existing_rank,
+                        existing_freq,
+                        existing_zipf,
+                        existing_cd,
+                        existing_pos,
+                        existing_lemma,
+                    ) = existing
+
+                    if (
+                        existing_subtlex_id != subtlex_id
+                        or existing_wordform != wordform
+                        or existing_normalized != normalized_word
+                        or existing_rank != frequency_rank
+                        or existing_freq != freq_count
+                        or existing_zipf != zipf
+                        or existing_cd != cd_count
+                        or existing_pos != dom_pos
+                        or existing_lemma != dom_lemma
+                    ):
+                        # Data differs; update
+                        connection.execute(
+                            """
+                            UPDATE input_words
+                            SET subtlex_id = ?,
+                                wordform = ?,
+                                normalized_word = ?,
+                                frequency_rank = ?,
+                                freq_count = ?,
+                                zipf = ?,
+                                cd_count = ?,
+                                dom_pos = ?,
+                                dom_lemma = ?
+                            WHERE id = ?
+                            """,
+                            (
+                                subtlex_id,
+                                wordform,
+                                normalized_word,
+                                frequency_rank,
+                                freq_count,
+                                zipf,
+                                cd_count,
+                                dom_pos,
+                                dom_lemma,
+                                row_id,
+                            ),
+                        )
+                        updated_count += 1
+                else:
+                    # Row doesn't exist; insert
+                    connection.execute(
+                        """
+                        INSERT INTO input_words (
+                            id,
+                            subtlex_id,
+                            wordform,
+                            normalized_word,
+                            frequency_rank,
+                            freq_count,
+                            zipf,
+                            cd_count,
+                            dom_pos,
+                            dom_lemma
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            row_id,
+                            subtlex_id,
+                            wordform,
+                            normalized_word,
+                            frequency_rank,
+                            freq_count,
+                            zipf,
+                            cd_count,
+                            dom_pos,
+                            dom_lemma,
+                        ),
+                    )
+                    inserted_count += 1
+
+        trimmed_count = trim_input_words(connection, limit)
+        connection.commit()
+
+        return inserted_count, updated_count, trimmed_count
 
 
 def print_banner() -> None:
@@ -262,7 +351,6 @@ def print_banner() -> None:
 
 
 def main() -> None:
-    return
     print_banner()
     parser = argparse.ArgumentParser(
         description="Create the MVP SQLite schema and import SUBTLEX-IT input words."
@@ -287,9 +375,11 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    inserted_count, trimmed_count = import_csv(args.csv, args.db, args.limit)
+    inserted_count, updated_count, trimmed_count = upsert_csv(
+        args.csv, args.db, args.limit
+    )
     print(
-        f"Inserted {inserted_count} new rows from {args.csv} into {args.db}:input_words; "
+        f"Inserted {inserted_count} rows, updated {updated_count} rows into {args.db}:input_words; "
         f"trimmed {trimmed_count} rows beyond the first {args.limit}."
     )
 

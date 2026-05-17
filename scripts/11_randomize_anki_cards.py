@@ -1,146 +1,143 @@
 #!/usr/bin/env python3
-"""Apply weighted random reordering to anki_cards after frequency sort, per deck.
+"""Sort anki_cards by zipf frequency then band-shuffle within each deck.
 
-This script adds controlled randomness to the card order while preserving
-the overall frequency-based structure. Uses Option 4: Weighted Random Sort Key.
+Algorithm:
+  1. Sort all cards for a deck by zipf DESC (most common words first).
+  2. Divide the sorted list into consecutive bands of BAND_SIZE cards.
+  3. Fully shuffle (Fisher-Yates) within each band independently.
+  4. Reassign sequential IDs in the new order.
 
-Formula: new_order = original_order * weight + random_offset
+This preserves the broad frequency progression (you learn common words first)
+while producing significant local randomness within each band.
 
-Where:
-- weight (multiplier) = 1 (fixed)
-- random_offset = 0 to RANDOM_RANGE (default 50, tunable)
+Band size controls the trade-off:
+  - Smaller band  → tighter frequency ordering, less randomness
+  - Larger band   → looser frequency ordering, more randomness
 
-This creates a "local shuffle" where:
-- Position 1 gets sort_key between 1-50
-- Position 2 gets sort_key between 2-51
-- Ranges overlap, allowing nearby cards to swap within the range window
-- Randomization is applied per-deck independently
+Decks with no zipf data (Numbers) keep their existing sort order unchanged.
 """
 
 from __future__ import annotations
 
 import argparse
+import random
 import sqlite3
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB_PATH = PROJECT_ROOT / "database.sqlite"
 
-# Multiplier: controls strength of order preservation
-# Using 1 to allow cards to shuffle up to RANDOM_RANGE positions
-WEIGHT = 1
+# Band size: number of cards shuffled together as a group.
+# Cards within the same band are fully randomised relative to each other.
+DEFAULT_BAND_SIZE = 200
 
-# Default randomness range
-# Represents maximum positions a card can move from its original position
-DEFAULT_RANDOM_RANGE = 50
-
-# Per-deck randomness configuration
-# Each deck can have its own random range for different shuffle intensities
-RANDOM_RANGE_PER_DECK = {
-    "Italian - Nouns": 25,                          # Half randomness: lighter shuffle
-    "Italian - Verbs Infinitive": 0,                # No randomness: preserve frequency order exactly
-    "Italian - Verbs Presente": 50,                 # Default: moderate shuffle
-    "Italian - Verbs Passato Prossimo": 50,         # Default: moderate shuffle
-    "Italian - Verbs Imperfetto": 50,               # Default: moderate shuffle
-    "Italian - Verbs Imperativo": 50,               # Default: moderate shuffle
-    "Italian - Numbers": 0,                         # No randomness: preserve numeric order exactly
+# Per-deck overrides. Omitted decks use DEFAULT_BAND_SIZE.
+BAND_SIZE_PER_DECK: dict[str, int] = {
+    "Italian - Verbs Infinitive":       50,   # preserve frequency closely
+    "Italian - Nouns":                  200,  # strong shuffle
+    "Italian - Verbs Presente":         200,
+    "Italian - Verbs Passato Prossimo": 200,
+    "Italian - Verbs Imperfetto":       200,
+    "Italian - Verbs Imperativo":       200,
+    "Italian - Numbers":                0,    # 0 = no shuffle, keep sort order exactly
+    "Italian - Conjunctions":           0,    # small decks — no shuffle needed
+    "Italian - Pronouns":               0,
+    "Italian - Interjections":          0,
+    "Italian - Espressioni con Avere":  0,
 }
+
+
+def band_shuffle(rows: list, band_size: int) -> list:
+    """Sort rows by zipf DESC then shuffle within bands of band_size.
+
+    If band_size is 0, return rows sorted by zipf DESC with no shuffling.
+    """
+    # Sort by zipf descending, then by existing id as stable tiebreak
+    sorted_rows = sorted(rows, key=lambda r: (-r["zipf"], r["id"]))
+
+    if band_size == 0:
+        return sorted_rows
+
+    result = []
+    for start in range(0, len(sorted_rows), band_size):
+        band = list(sorted_rows[start : start + band_size])
+        random.shuffle(band)
+        result.extend(band)
+    return result
 
 
 def randomize_anki_cards_per_deck(
     connection: sqlite3.Connection,
-    random_range: int,
-    random_range_per_deck: dict[str, int] | None = None,
+    default_band_size: int,
+    band_size_per_deck: dict[str, int],
 ) -> tuple[int, dict[str, int], dict[str, int]]:
-    """Apply weighted random reordering to anki_cards, per deck, reassign IDs in new order.
-    
-    Uses the formula: sort_order = original_id * WEIGHT + ABS(RANDOM() % random_range)
-    
-    With WEIGHT=1 and random_range=50, cards can shuffle within ~50 positions
-    of their original order while staying mostly in sequence, per deck.
-    
-    Args:
-        connection: SQLite connection
-        random_range: Default random range if no per-deck config provided
-        random_range_per_deck: Optional dict mapping deck names to their random ranges
-    
-    Returns tuple of (total_cards, dict of deck_name: count, dict of deck_name: random_range_used).
+    """Apply band-shuffle reordering to anki_cards, per deck, reassign IDs.
+
+    Returns (total_cards, deck_counts, deck_band_sizes_used).
     """
-    if random_range_per_deck is None:
-        random_range_per_deck = {}
-    
-    # Get all unique decks
     deck_rows = connection.execute(
         "SELECT DISTINCT deck FROM anki_cards ORDER BY deck"
     ).fetchall()
-    
     deck_names = [row["deck"] for row in deck_rows]
-    
+
     if not deck_names:
         return 0, {}, {}
-    
+
     total_cards = 0
-    deck_counts = {}
-    deck_ranges_used = {}
-    
-    # Create temporary copy to randomize from (preserves current sorted state)
+    deck_counts: dict[str, int] = {}
+    deck_bands_used: dict[str, int] = {}
+
+    # Snapshot current state before any deletions
     connection.execute("DROP TABLE IF EXISTS anki_cards_temp")
-    connection.execute("CREATE TEMPORARY TABLE anki_cards_temp AS SELECT * FROM anki_cards")
-    
-    # Disable foreign keys temporarily to allow delete
+    connection.execute(
+        "CREATE TEMPORARY TABLE anki_cards_temp AS SELECT * FROM anki_cards"
+    )
+
     connection.execute("PRAGMA foreign_keys = OFF")
-    
-    # Delete all rows from anki_cards
     connection.execute("DELETE FROM anki_cards")
-    
-    # Re-enable foreign keys
     connection.execute("PRAGMA foreign_keys = ON")
-    
-    # Process each deck independently
+
     current_id = 1
     for deck_name in deck_names:
-        # Determine random range for this deck
-        deck_random_range = random_range_per_deck.get(deck_name, random_range)
-        deck_ranges_used[deck_name] = deck_random_range
-        
-        # Fetch all anki_cards for this deck and randomize their order
-        # Put RANDOM() directly in the SELECT to ensure it's calculated per-row
-        # When deck_random_range is 0, skip randomization to preserve exact order
-        if deck_random_range == 0:
-            sort_expr = f"id * {WEIGHT}"
-        else:
-            sort_expr = f"id * {WEIGHT} + ABS(RANDOM() % {deck_random_range})"
+        band_size = band_size_per_deck.get(deck_name, default_band_size)
+        deck_bands_used[deck_name] = band_size
+
         rows = connection.execute(
-            f"""
-            SELECT *
-            FROM (
-                SELECT
-                    id,
-                    card_item_id,
-                    direction,
-                    deck,
-                    front_text,
-                    front_labels,
-                    back_highlight,
-                    back_text,
-                    audio_text,
-                    image_text,
-                    guid,
-                    {sort_expr} AS sort_order
-                FROM anki_cards_temp
-                WHERE deck = ?
-            )
-            ORDER BY sort_order, id
+            """
+            SELECT
+                ac.id,
+                ac.card_item_id,
+                ac.direction,
+                ac.deck,
+                ac.front_text,
+                ac.front_labels,
+                ac.back_highlight,
+                ac.back_text,
+                ac.audio_text,
+                ac.image_text,
+                ac.guid,
+                COALESCE(iw.zipf, 0) as zipf
+            FROM anki_cards_temp ac
+            LEFT JOIN card_items ci ON ac.card_item_id = ci.id
+            LEFT JOIN noun_phrases np
+                ON ci.source_type = 'noun_phrase' AND ci.source_id = np.id
+            LEFT JOIN verb_forms vf
+                ON ci.source_type = 'verb_form' AND ci.source_id = vf.id
+            LEFT JOIN word_entries we
+                ON np.word_entry_id = we.id OR vf.word_entry_id = we.id
+            LEFT JOIN input_words iw ON we.input_word_id = iw.id
+            WHERE ac.deck = ?
             """,
             (deck_name,),
         ).fetchall()
 
-        deck_card_count = len(rows)
+        ordered = band_shuffle(rows, band_size)
+
+        deck_card_count = len(ordered)
         deck_counts[deck_name] = deck_card_count
         total_cards += deck_card_count
-        
-        # Reinsert rows with new sequential IDs
-        for row in rows:
+
+        for row in ordered:
             connection.execute(
                 """
                 INSERT INTO anki_cards (
@@ -172,13 +169,13 @@ def randomize_anki_cards_per_deck(
                 ),
             )
             current_id += 1
-    
+
     connection.commit()
-    return total_cards, deck_counts, deck_ranges_used
+    return total_cards, deck_counts, deck_bands_used
 
 
 def print_banner() -> None:
-    title = "11 Randomize anki_cards (weighted)"
+    title = "11 Randomize anki_cards (band shuffle)"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 
@@ -186,62 +183,71 @@ def print_banner() -> None:
 def main() -> None:
     print_banner()
     parser = argparse.ArgumentParser(
-        description="Apply weighted random reordering to anki_cards per deck (Option 4: weighted random sort key).",
-        epilog=f"Multiplier: {WEIGHT} (fixed). Supports per-deck randomness configuration."
+        description=(
+            "Sort anki_cards by zipf then band-shuffle within each deck. "
+            "Band size controls randomness: larger = more shuffled."
+        )
     )
     parser.add_argument("--db", type=Path, default=DEFAULT_DB_PATH)
     parser.add_argument(
-        "--random-range",
+        "--band-size",
         type=int,
-        default=DEFAULT_RANDOM_RANGE,
-        help=f"Default position range for shuffling (default: {DEFAULT_RANDOM_RANGE}). "
-             f"Can be overridden per-deck in RANDOM_RANGE_PER_DECK."
+        default=DEFAULT_BAND_SIZE,
+        help=f"Default band size for decks not listed in BAND_SIZE_PER_DECK "
+             f"(default: {DEFAULT_BAND_SIZE}). Use 0 to disable shuffling.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Optional random seed for reproducible shuffles.",
     )
     args = parser.parse_args()
+
+    if args.seed is not None:
+        random.seed(args.seed)
 
     with sqlite3.connect(args.db, timeout=30) as connection:
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys = ON")
 
-        total, deck_counts, deck_ranges_used = randomize_anki_cards_per_deck(
-            connection, args.random_range, RANDOM_RANGE_PER_DECK
+        total, deck_counts, deck_bands_used = randomize_anki_cards_per_deck(
+            connection, args.band_size, BAND_SIZE_PER_DECK
         )
-        
-        # Show a sample of the new ordering
+
+        print(f"Randomized {total} anki_cards across {len(deck_counts)} decks.")
+        print(f"\nPer-deck configuration (band_size=0 means no shuffle):")
+        for deck in sorted(deck_bands_used.keys()):
+            count = deck_counts.get(deck, 0)
+            band = deck_bands_used[deck]
+            shuffle_note = "no shuffle" if band == 0 else f"band_size={band}"
+            print(f"  {deck:<42} {count:>5} cards  {shuffle_note}")
+
+        # Sample: show first 20 noun cards with their zipf to verify shuffling
         sample = connection.execute(
             """
             SELECT
                 ac.id,
-                ac.deck,
-                ac.front_labels,
                 ac.front_text,
                 ac.back_highlight,
-                COALESCE(iw.zipf, 0) as zipf
+                ROUND(COALESCE(iw.zipf, 0), 2) as zipf
             FROM anki_cards ac
             LEFT JOIN card_items ci ON ac.card_item_id = ci.id
-            LEFT JOIN verb_forms vf ON ci.source_type = 'verb_form' AND ci.source_id = vf.id
-            LEFT JOIN noun_phrases np ON ci.source_type = 'noun_phrase' AND ci.source_id = np.id
-            LEFT JOIN word_entries we ON vf.word_entry_id = we.id OR np.word_entry_id = we.id
+            LEFT JOIN noun_phrases np
+                ON ci.source_type = 'noun_phrase' AND ci.source_id = np.id
+            LEFT JOIN word_entries we ON np.word_entry_id = we.id
             LEFT JOIN input_words iw ON we.input_word_id = iw.id
-            ORDER BY ac.deck, ac.id
+            WHERE ac.deck = 'Italian - Nouns' AND ac.direction = 'en_to_it'
+            ORDER BY ac.id
             LIMIT 20
             """
         ).fetchall()
-        
-        print(f"Randomized {total} anki_cards per deck (weight={WEIGHT}).")
-        print(f"Formula: sort_key = id * {WEIGHT} + ABS(RANDOM() % random_range_per_deck)")
-        
-        print("\nPer-deck configuration:")
-        for deck in sorted(deck_ranges_used.keys()):
-            count = deck_counts.get(deck, 0)
-            range_val = deck_ranges_used[deck]
-            print(f"  {deck:<40} {count:>5} cards  random_range={range_val:>2}")
-        
-        print("\nFirst 20 cards (sample):")
-        print(f"{'ID':<5} {'Deck':<30} {'Zipf':<7} {'Labels':<25} {'Back':<18}")
-        print("-" * 85)
+
+        print("\nFirst 20 noun (en_to_it) cards — zipf should be roughly high→low but shuffled:")
+        print(f"  {'ID':<6} {'Zipf':<6} {'Front':<30} {'Back'}")
+        print("  " + "-" * 70)
         for row in sample:
-            print(f"{row['id']:<5} {row['deck'][:28]:<30} {row['zipf']:<7.2f} {str(row['front_labels'])[:23]:<25} {row['back_highlight'][:16]:<18}")
+            print(f"  {row['id']:<6} {row['zipf']:<6} {row['front_text'][:28]:<30} {row['back_highlight']}")
 
 
 if __name__ == "__main__":

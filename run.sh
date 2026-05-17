@@ -32,13 +32,14 @@ for f in backups:
 PYEOF
 
 python scripts/1_import_subtlex_it.py
-python scripts/2_import_input_words.py
+python scripts/2_import_input_words.py --workers 30
 python scripts/2b_import_numbers.py
-python scripts/3_create_verb_word_entries.py
-python scripts/4_create_noun_word_entries.py
-python scripts/5_create_verb_forms.py
-python scripts/6_create_noun_phrases.py
+python scripts/3_create_verb_word_entries.py --workers 30
+python scripts/4_create_noun_word_entries.py --workers 30
+python scripts/5_create_verb_forms.py --workers 30
+python scripts/6_create_noun_phrases.py --workers 30
 python scripts/7_create_input_word_card_items.py
+python scripts/7b_create_avere_card_items.py
 python scripts/8_create_card_items_nouns_verbs.py
 python scripts/9_create_anki_cards.py
 python scripts/10_sort_anki_cards.py

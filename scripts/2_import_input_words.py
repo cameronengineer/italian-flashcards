@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Import curated word lists from inputs/ directly into word_entries via AI enrichment.
 
-Reads italian_interjections.csv, italian_pronouns.csv, and italian_conjunctions.csv
-from the inputs/ folder. The Italian text from the CSV is stored as-is for the lemma
-(original capitalisation and punctuation preserved, e.g. "Mamma mia!", "né... né...").
+Reads italian_interjections.csv, italian_pronouns.csv, italian_conjunctions.csv, and
+italian_espressioni_con_avere.csv from the inputs/ folder. The Italian text from the
+CSV is stored as-is for the lemma (original capitalisation and punctuation preserved,
+e.g. "Mamma mia!", "né... né...").
 The AI only provides the English gloss, an optional usage note, and a confidence score.
 
 Because these words do not come from SUBTLEX-IT, a synthetic input_words row is
@@ -22,9 +23,11 @@ import csv
 import hashlib
 import json
 import sqlite3
+import threading
 import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -34,19 +37,19 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 INPUTS_DIR = PROJECT_ROOT / "inputs"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "~google/gemini-flash-latest"
-BATCH_SIZE = 30
 MAX_RETRIES = 3
 RETRY_DELAY = 5
 
 # Maps CSV path → (word_type, dom_pos code used in input_words)
 INPUT_FILES: list[tuple[Path, str, str]] = [
-    (INPUTS_DIR / "italian_interjections.csv", "interjection", "INT"),
-    (INPUTS_DIR / "italian_pronouns.csv",       "pronoun",      "PRO"),
-    (INPUTS_DIR / "italian_conjunctions.csv",   "conjunction",  "CON"),
+    (INPUTS_DIR / "italian_interjections.csv",          "interjection",      "INT"),
+    (INPUTS_DIR / "italian_pronouns.csv",               "pronoun",           "PRO"),
+    (INPUTS_DIR / "italian_conjunctions.csv",           "conjunction",       "CON"),
+    (INPUTS_DIR / "italian_espressioni_con_avere.csv",  "avere_expression",  "AVE"),
 ]
 
 # Word types managed by this script — used to identify legacy rows to clean up.
-MANAGED_WORD_TYPES = {"interjection", "pronoun", "conjunction"}
+MANAGED_WORD_TYPES = {"interjection", "pronoun", "conjunction", "avere_expression"}
 
 
 # ---------------------------------------------------------------------------
@@ -93,35 +96,49 @@ RESPONSE_SCHEMA = {
                 "properties": {
                     "row_index": {
                         "type": "integer",
-                        "description": "The row_index value exactly as provided.",
+                        "description": "The row_index value exactly as provided in the input.",
                     },
                     "english": {
                         "type": "string",
                         "description": (
-                            "Concise English gloss suitable for a flashcard back face. "
-                            "For interjections keep natural punctuation, e.g. 'Oh my goodness!'. "
-                            "For pronouns/conjunctions a short definition, e.g. 'although / even though'. "
-                            "Do NOT include register notes like (formal) here — put those in usage_note."
+                            "Concise English gloss for the flashcard back face. "
+                            "For interjections preserve natural punctuation: 'Oh my goodness!'. "
+                            "For pronouns/conjunctions give a short definition: 'although / even though'. "
+                            "When the Italian word is ambiguous with another common word, add a "
+                            "parenthetical to disambiguate: 'to call (by phone)' vs 'to call (by name)'."
+                        ),
+                    },
+                    "disambiguation": {
+                        "type": "string",
+                        "description": (
+                            "Short parenthetical clarifier appended after the English gloss when "
+                            "the Italian word could be confused with another. "
+                            "Example: 'by phone', 'by name', 'time / weather'. "
+                            "Empty string if not needed."
                         ),
                     },
                     "usage_note": {
                         "type": "string",
                         "description": (
-                            "Very short register/dialect label if relevant, e.g. 'vulgar', "
-                            "'formal', 'Sicilian', 'literary', 'Roman slang', 'phone greeting'. "
+                            "Very short register, style, or dialect label if relevant. "
+                            "Use 'archaic' for words no longer in common modern use. "
+                            "Use 'formal' for words restricted to formal or written contexts. "
+                            "Other examples: 'vulgar', 'literary', 'Sicilian', 'Roman slang', 'phone greeting'. "
                             "Empty string if nothing noteworthy."
                         ),
                     },
                     "confidence": {
                         "type": "number",
-                        "description": "Confidence 0.0–1.0 that this is a genuine Italian item of the stated type.",
+                        "minimum": 0.0,
+                        "maximum": 1.0,
+                        "description": "Confidence that this is a genuine Italian item of the stated word_type.",
                     },
                     "valid": {
                         "type": "boolean",
-                        "description": "False only if the entry is clearly erroneous.",
+                        "description": "false only if the entry is clearly erroneous or not Italian.",
                     },
                 },
-                "required": ["row_index", "english", "usage_note", "confidence", "valid"],
+                "required": ["row_index", "english", "disambiguation", "usage_note", "confidence", "valid"],
                 "additionalProperties": False,
             },
         }
@@ -170,7 +187,7 @@ def cleanup_legacy_entries(connection: sqlite3.Connection) -> None:
         FROM word_entries we
         JOIN input_words iw ON iw.id = we.input_word_id
         WHERE iw.subtlex_id < 0
-          AND we.word_type IN ('interjection', 'pronoun', 'conjunction')
+          AND we.word_type IN ('interjection', 'pronoun', 'conjunction', 'avere_expression')
         """
     ).fetchall()
 
@@ -249,10 +266,23 @@ def already_imported_wordforms(connection: sqlite3.Connection) -> set[str]:
         """
         SELECT lemma
         FROM word_entries
-        WHERE word_type IN ('interjection', 'pronoun', 'conjunction')
+        WHERE word_type IN ('interjection', 'pronoun', 'conjunction', 'avere_expression')
         """
     ).fetchall()
     return {row["lemma"] for row in rows}
+
+
+def zero_freq_wordforms(connection: sqlite3.Connection) -> set[str]:
+    """Return normalized wordforms where SUBTLEX marked freq_count = 0.
+
+    These rows were zeroed by script 95 as unreliable / bad data and should
+    not be enriched by script 2.  Synthetic input_words rows created by this
+    script use NULL for freq_count, so they are not affected.
+    """
+    rows = connection.execute(
+        "SELECT normalized_word FROM input_words WHERE freq_count = 0"
+    ).fetchall()
+    return {row["normalized_word"] for row in rows}
 
 
 # ---------------------------------------------------------------------------
@@ -310,9 +340,13 @@ def insert_word_entry(
     if not english:
         return False
 
+    disambiguation = item.get("disambiguation", "").strip()
+    if disambiguation:
+        english = f"{english} ({disambiguation})"
+
     usage_note = item.get("usage_note", "").strip()
     if usage_note:
-        english = f"{english} ({usage_note})"
+        english = f"{english} [{usage_note}]"
 
     confidence = float(item.get("confidence", 1.0))
     word_entry_id = typed_entry_id(entry.word_type, entry.wordform)
@@ -340,31 +374,34 @@ def insert_word_entry(
 # AI
 # ---------------------------------------------------------------------------
 
-def build_prompt(batch: list[InputEntry]) -> str:
-    lines = [json.dumps({
-        "row_index": e.row_index,
-        "word_type": e.word_type,
-        "italian": e.wordform,
-        "english_hint": e.english_hint,
-    }, ensure_ascii=False) for e in batch]
+def build_prompt(entry: InputEntry) -> str:
+    item = json.dumps({
+        "row_index": entry.row_index,
+        "word_type": entry.word_type,
+        "italian": entry.wordform,
+        "english_hint": entry.english_hint,
+    }, ensure_ascii=False)
 
     return (
-        "You are enriching Italian flashcard entries for an Anki deck. "
-        "The entries come from curated CSV files of interjections, pronouns, and conjunctions.\n\n"
+        "You are enriching an Italian flashcard entry for an Anki deck. "
+        "The entry comes from a curated CSV file of interjections, pronouns, conjunctions, "
+        "or avere expressions.\n\n"
         "Word type guidance:\n"
         "  interjection — exclamations, greetings, social phrases, animal sounds, fillers.\n"
         "  pronoun — relative, interrogative, indefinite, demonstrative, quantifier pronouns.\n"
-        "  conjunction — coordinating, subordinating, correlative conjunctions and connective phrases.\n\n"
-        "For each item:\n"
+        "  conjunction — coordinating, subordinating, correlative conjunctions and connective phrases.\n"
+        "  avere_expression — fixed Italian phrases using avere + noun where English uses "
+        "'to be + adjective', 'to need', or another verb (e.g. 'avere fame' = to be hungry).\n\n"
+        "For the item:\n"
         "  - Set english to a concise natural gloss suitable for a flashcard back face.\n"
-        "  - Set usage_note to a very short register/dialect label if relevant "
-        "(e.g. 'vulgar', 'formal', 'Sicilian', 'literary', 'Roman slang', 'phone greeting'). "
-        "Empty string otherwise.\n"
+        "  - Set usage_note to a very short register, style, or dialect label if relevant. "
+        "Use 'archaic' for words no longer in common modern use; 'formal' for words restricted "
+        "to formal or written contexts. Other examples: 'vulgar', 'literary', 'Sicilian', "
+        "'Roman slang', 'phone greeting'. Empty string if nothing noteworthy.\n"
         "  - Set confidence to how confident you are this is a genuine Italian item of the stated type.\n"
         "  - Set valid=false only if the entry is clearly erroneous.\n\n"
-        "Return exactly one output item per input item with the same row_index.\n\n"
-        "Items to process, one JSON object per line:\n"
-        + "\n".join(lines)
+        "Return exactly one output item with the same row_index.\n\n"
+        f"Item to process:\n{item}"
     )
 
 
@@ -397,20 +434,23 @@ def openrouter_structured_request(prompt: str, api_key: str) -> dict:
     return json.loads(content)
 
 
-def analyze_batch(batch: list[InputEntry], api_key: str) -> list[dict]:
-    prompt = build_prompt(batch)
+def analyze_one(entry: InputEntry, api_key: str) -> dict:
+    prompt = build_prompt(entry)
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            return openrouter_structured_request(prompt, api_key)["items"]
+            items = openrouter_structured_request(prompt, api_key)["items"]
+            if items:
+                return items[0]
+            raise ValueError("Empty items list in response")
         except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as exc:
-            print(f"  [attempt {attempt}/{MAX_RETRIES}] Request error: {exc}")
+            print(f"  [attempt {attempt}/{MAX_RETRIES}] {entry.wordform!r}: Request error: {exc}")
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_DELAY * attempt)
-        except (json.JSONDecodeError, KeyError) as exc:
-            print(f"  [attempt {attempt}/{MAX_RETRIES}] Parse error: {exc}")
+        except (json.JSONDecodeError, KeyError, ValueError) as exc:
+            print(f"  [attempt {attempt}/{MAX_RETRIES}] {entry.wordform!r}: Parse error: {exc}")
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_DELAY)
-    raise RuntimeError("OpenRouter request failed after all retries")
+    raise RuntimeError(f"OpenRouter request failed for {entry.wordform!r}")
 
 
 # ---------------------------------------------------------------------------
@@ -429,7 +469,8 @@ def main() -> None:
         description="Import curated CSV word lists (interjections, pronouns, conjunctions) into word_entries."
     )
     parser.add_argument("--db", type=Path, default=DEFAULT_DB_PATH)
-    parser.add_argument("--batch-size", type=int, default=BATCH_SIZE)
+    parser.add_argument("--workers", type=int, default=5,
+                        help="Number of parallel AI request threads (default: 5).")
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -450,11 +491,21 @@ def main() -> None:
             cleanup_legacy_entries(connection)
 
         already_done = already_imported_wordforms(connection)
-        pending = [e for e in entries if e.wordform not in already_done]
+        zero_freq = zero_freq_wordforms(connection)
+        zero_freq_skipped = [
+            e for e in entries
+            if e.wordform not in already_done
+            and e.wordform.strip().lower() in zero_freq
+        ]
+        pending = [
+            e for e in entries
+            if e.wordform not in already_done
+            and e.wordform.strip().lower() not in zero_freq
+        ]
 
         print(
             f"Total entries: {len(entries)} | Already imported: {len(already_done)} | "
-            f"Pending: {len(pending)}"
+            f"Zero-freq skipped: {len(zero_freq_skipped)} | Pending: {len(pending)}"
         )
 
         if not pending:
@@ -467,42 +518,45 @@ def main() -> None:
             return
 
         api_key = load_api_key()
+        db_path = args.db
         inserted_total = 0
         skipped_total = 0
-        total_batches = (len(pending) + args.batch_size - 1) // args.batch_size
+        db_lock = threading.Lock()
+        total = len(pending)
 
-        for batch_number, start in enumerate(range(0, len(pending), args.batch_size), 1):
-            batch = pending[start: start + args.batch_size]
-            print(
-                f"Batch {batch_number}/{total_batches}: enriching {len(batch)} entries "
-                f"({batch[0].word_type} … {batch[-1].word_type})...",
-                flush=True,
-            )
+        def process_one(entry: InputEntry) -> tuple[int, int]:
+            word_entry_id = typed_entry_id(entry.word_type, entry.wordform)
+            with sqlite3.connect(db_path, timeout=30) as chk:
+                already = chk.execute(
+                    "SELECT 1 FROM word_entries WHERE id = ? LIMIT 1", (word_entry_id,)
+                ).fetchone()
+            if already:
+                return 0, 1
+            item = analyze_one(entry, api_key)
+            with db_lock:
+                with sqlite3.connect(db_path, timeout=30) as conn:
+                    conn.row_factory = sqlite3.Row
+                    conn.execute("PRAGMA foreign_keys = ON")
+                    if insert_word_entry(conn, entry, item):
+                        conn.commit()
+                        return 1, 0
+                    return 0, 1
 
-            items = analyze_batch(batch, api_key)
-            item_by_index = {item["row_index"]: item for item in items}
-
-            batch_inserted = 0
-            batch_skipped = 0
-            for entry in batch:
-                item = item_by_index.get(entry.row_index)
-                if item is None:
-                    print(f"  Warning: no AI result for row_index={entry.row_index} ({entry.wordform!r})")
-                    batch_skipped += 1
-                    continue
-
-                if insert_word_entry(connection, entry, item):
-                    batch_inserted += 1
+        with ThreadPoolExecutor(max_workers=args.workers) as executor:
+            futures = {executor.submit(process_one, e): e for e in pending}
+            done = 0
+            for future in as_completed(futures):
+                done += 1
+                exc = future.exception()
+                if exc:
+                    ent = futures[future]
+                    print(f"  [error] {ent.wordform!r}: {exc}", flush=True)
                 else:
-                    batch_skipped += 1
-
-            connection.commit()
-            inserted_total += batch_inserted
-            skipped_total += batch_skipped
-            print(f"  inserted {batch_inserted}, skipped {batch_skipped}")
-
-            if batch_number < total_batches:
-                time.sleep(1)
+                    ins, skp = future.result()
+                    inserted_total += ins
+                    skipped_total += skp
+                    ent = futures[future]
+                    print(f"  [{done}/{total}] {ent.wordform!r}: {'inserted' if ins else 'skipped'}", flush=True)
 
     print(
         f"\nDone. Inserted {inserted_total} new word_entries, "

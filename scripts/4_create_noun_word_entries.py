@@ -6,10 +6,12 @@ from __future__ import annotations
 import argparse
 import json
 import sqlite3
+import threading
 import time
 import unicodedata
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -19,7 +21,6 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 API_KEY_FILE = PROJECT_ROOT / ".openrouter"
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL = "~google/gemini-flash-latest"
-BATCH_SIZE = 20
 MAX_NOUNS = 1000
 MAX_RETRIES = 3
 RETRY_DELAY = 5
@@ -55,6 +56,24 @@ RESPONSE_SCHEMA = {
                     "english": {
                         "type": "string",
                         "description": "Concise English translation of the noun.",
+                    },
+                    "disambiguation": {
+                        "type": "string",
+                        "description": (
+                            "Short parenthetical clarifier when the noun could be confused with another. "
+                            "Example: 'bank (financial)' vs 'bank (river)' for banca/riva. "
+                            "Empty string if not needed."
+                        ),
+                    },
+                    "usage_note": {
+                        "type": "string",
+                        "description": (
+                            "Very short register, style, or dialect label if relevant. "
+                            "Use 'archaic' for nouns no longer in common modern use. "
+                            "Use 'formal' for nouns restricted to formal or written contexts. "
+                            "Other examples: 'vulgar', 'literary', 'regional'. "
+                            "Empty string if nothing noteworthy."
+                        ),
                     },
                     "confidence": {
                         "type": "number",
@@ -101,6 +120,8 @@ RESPONSE_SCHEMA = {
                     "valid",
                     "lemma",
                     "english",
+                    "disambiguation",
+                    "usage_note",
                     "confidence",
                     "singular",
                     "singular_english",
@@ -249,29 +270,25 @@ def load_candidates(connection: sqlite3.Connection, limit: int) -> list[NounCand
     return candidates
 
 
-def build_prompt(candidates: list[NounCandidate]) -> str:
-    lines = []
-    for candidate in candidates:
-        lines.append(
-            json.dumps(
-                {
-                    "input_word_id": candidate.input_word_id,
-                    "frequency_rank": candidate.frequency_rank,
-                    "source_wordform": candidate.wordform,
-                    "source_lemma": candidate.source_lemma,
-                    "dom_pos": candidate.dom_pos,
-                    "existing_word_entry_id": candidate.existing_word_entry_id,
-                },
-                ensure_ascii=False,
-            )
-        )
+def build_prompt(candidate: NounCandidate) -> str:
+    item = json.dumps(
+        {
+            "input_word_id": candidate.input_word_id,
+            "frequency_rank": candidate.frequency_rank,
+            "source_wordform": candidate.wordform,
+            "source_lemma": candidate.source_lemma,
+            "dom_pos": candidate.dom_pos,
+            "existing_word_entry_id": candidate.existing_word_entry_id,
+        },
+        ensure_ascii=False,
+    )
 
     return (
-        "You are creating noun dictionary entries for an Italian flashcard database. "
-        "Each item comes from one SUBTLEX-IT input_words row where dom_pos is NOM. "
+        "You are creating a noun dictionary entry for an Italian flashcard database. "
+        "The item comes from one SUBTLEX-IT input_words row where dom_pos is NOM. "
         "Use the dominant dom_lemma value supplied as source_lemma, not normalized_word and not all_pos_lemma. "
-        "Do not create entries for secondary or rare analyses from all_pos_lemma. Duplicate source lemmas were already removed before this request.\n\n"
-        "For each item, return exactly one output item with the same input_word_id, source_wordform, "
+        "Do not create entries for secondary or rare analyses from all_pos_lemma.\n\n"
+        "Return exactly one output item with the same input_word_id, source_wordform, "
         "and source_lemma. If source_lemma is a valid Italian noun or proper noun, set valid=true and fill "
         "the canonical noun fields. If it is not a noun, is a data artifact, or cannot be resolved safely, "
         "set valid=false, use empty strings for text fields, gender='unknown', and confidence=0.\n\n"
@@ -281,12 +298,13 @@ def build_prompt(candidates: list[NounCandidate]) -> str:
         "- plural_english should translate the plural form, usually without an article, e.g. 'houses'. Leave empty if plural is empty.\n"
         "- For plural-only nouns, put the normal dictionary form in lemma and singular; use gender='unknown' if unsure.\n"
         "- english should be concise, usually without an article, e.g. 'house'.\n"
+        "- disambiguation: add a short parenthetical clarifier when the noun is ambiguous, e.g. banco → 'bench (seat)' vs 'counter (bank)'. Leave empty if not needed.\n"
+        "- usage_note: add a very short label if the noun is archaic, formal, vulgar, literary, or regional. Leave empty for ordinary modern nouns.\n"
         "- definite_singular must be one of il, lo, l', la, or empty if unknown/not applicable.\n"
         "- definite_plural must be one of i, gli, le, or empty if unknown/not applicable.\n"
         "- indefinite_singular must be one of un, uno, una, un', or empty if unknown/not applicable.\n"
         "- confidence must be between 0 and 1.\n\n"
-        "Items to process, one JSON object per line:\n"
-        + "\n".join(lines)
+        f"Item to process:\n{item}"
     )
 
 
@@ -320,21 +338,24 @@ def openrouter_structured_request(prompt: str, api_key: str) -> dict:
     return json.loads(content)
 
 
-def analyze_batch(candidates: list[NounCandidate], api_key: str) -> list[dict]:
-    prompt = build_prompt(candidates)
+def analyze_one(candidate: NounCandidate, api_key: str) -> dict:
+    prompt = build_prompt(candidate)
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             parsed = openrouter_structured_request(prompt, api_key)
-            return parsed["items"]
+            items = parsed["items"]
+            if items:
+                return items[0]
+            raise ValueError("Empty items list in response")
         except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as exc:
-            print(f"  [attempt {attempt}/{MAX_RETRIES}] Request error: {exc}")
+            print(f"  [attempt {attempt}/{MAX_RETRIES}] {candidate.source_lemma!r}: Request error: {exc}")
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_DELAY * attempt)
-        except (json.JSONDecodeError, KeyError) as exc:
-            print(f"  [attempt {attempt}/{MAX_RETRIES}] Parse error: {exc}")
+        except (json.JSONDecodeError, KeyError, ValueError) as exc:
+            print(f"  [attempt {attempt}/{MAX_RETRIES}] {candidate.source_lemma!r}: Parse error: {exc}")
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_DELAY)
-    raise RuntimeError("OpenRouter request failed after all retries")
+    raise RuntimeError(f"OpenRouter request failed for {candidate.source_lemma!r}")
 
 
 def insert_word_entries(connection: sqlite3.Connection, items: list[dict]) -> int:
@@ -380,6 +401,14 @@ def insert_word_entries(connection: sqlite3.Connection, items: list[dict]) -> in
         if not lemma or not singular:
             continue
 
+        english = item["english"].strip()
+        disambiguation = item.get("disambiguation", "").strip()
+        usage_note = item.get("usage_note", "").strip()
+        if disambiguation:
+            english = f"{english} ({disambiguation})"
+        if usage_note:
+            english = f"{english} [{usage_note}]"
+
         word_entry_id = lemma_id(lemma)
         existing_for_input = connection.execute(
             """
@@ -411,7 +440,7 @@ def insert_word_entries(connection: sqlite3.Connection, items: list[dict]) -> in
                 (
                     word_entry_id,
                     lemma,
-                    item["english"].strip(),
+                    english,
                     float(item["confidence"]),
                     singular,
                     item["singular_english"].strip(),
@@ -462,7 +491,7 @@ def insert_word_entries(connection: sqlite3.Connection, items: list[dict]) -> in
                 word_entry_id,
                 input_word_id,
                 lemma,
-                item["english"].strip(),
+                english,
                 float(item["confidence"]),
                 singular,
                 item["singular_english"].strip(),
@@ -491,7 +520,8 @@ def main() -> None:
     )
     parser.add_argument("--db", type=Path, default=DEFAULT_DB_PATH)
     parser.add_argument("--limit", type=int, default=MAX_NOUNS)
-    parser.add_argument("--batch-size", type=int, default=BATCH_SIZE)
+    parser.add_argument("--workers", type=int, default=10,
+                        help="Number of parallel AI request threads (default: 10).")
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -502,7 +532,7 @@ def main() -> None:
     with sqlite3.connect(args.db, timeout=30) as connection:
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys = ON")
-        
+
         existing_noun_count = connection.execute(
             "SELECT COUNT(*) as count FROM word_entries WHERE word_type = 'noun'"
         ).fetchone()["count"]
@@ -524,19 +554,44 @@ def main() -> None:
                 )
             return
 
-        api_key = load_api_key()
-        inserted_total = 0
-        total_batches = (len(candidates) + args.batch_size - 1) // args.batch_size
-        for batch_number, start in enumerate(range(0, len(candidates), args.batch_size), 1):
-            batch = candidates[start : start + args.batch_size]
-            print(f"Batch {batch_number}/{total_batches}: analyzing {len(batch)} unique noun lemmas...", flush=True)
-            items = analyze_batch(batch, api_key)
-            inserted = insert_word_entries(connection, items)
-            connection.commit()
-            inserted_total += inserted
-            print(f"  inserted {inserted} word_entries")
-            if batch_number < total_batches:
-                time.sleep(1)
+    api_key = load_api_key()
+    db_path = args.db
+    db_lock = threading.Lock()
+    inserted_total = 0
+    total = len(candidates)
+
+    def process_one(candidate: NounCandidate) -> int:
+        with sqlite3.connect(db_path, timeout=30) as chk:
+            already = chk.execute(
+                "SELECT 1 FROM word_entries WHERE input_word_id = ? AND word_type = 'noun' LIMIT 1",
+                (candidate.input_word_id,),
+            ).fetchone()
+        if already:
+            print(f"  {candidate.source_lemma!r}: skipped (already exists)", flush=True)
+            return 0
+        item = analyze_one(candidate, api_key)
+        with db_lock:
+            with sqlite3.connect(db_path, timeout=30) as conn:
+                conn.row_factory = sqlite3.Row
+                conn.execute("PRAGMA foreign_keys = ON")
+                n = insert_word_entries(conn, [item])
+                conn.commit()
+        print(f"  {candidate.source_lemma!r}: inserted {n}", flush=True)
+        return n
+
+    with ThreadPoolExecutor(max_workers=args.workers) as executor:
+        futures = {executor.submit(process_one, c): c for c in candidates}
+        done = 0
+        for future in as_completed(futures):
+            done += 1
+            exc = future.exception()
+            if exc:
+                cand = futures[future]
+                print(f"  [error] {cand.source_lemma!r}: {exc}", flush=True)
+            else:
+                inserted_total += future.result()
+            if done % 50 == 0:
+                print(f"  Progress: {done}/{total}", flush=True)
 
     print(f"Done. Inserted {inserted_total} new noun word_entries.")
 

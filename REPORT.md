@@ -1,6 +1,6 @@
 # Italian Flashcards — Code & Data Review Report
 
-**Date:** 2026-05-15  
+**Date:** 2026-05-15 (updated 2026-05-17)  
 **Database:** `database.sqlite`  
 **Scope:** All scripts (`scripts/`), the SQLite database, and pipeline configuration. `freqdic/` excluded.
 
@@ -166,5 +166,161 @@ The docstring in `scripts/13_compress_media.py` says:
 There is no `12_create_decks.py`. The actual deck creation script is `14_create_decks.py`. This is a stale reference from a renumbering of scripts.
 
 **Fix:** Update the docstring to reference `14_create_decks.py`.
+
+---
+
+## Issues Found in Second Audit Pass (2026-05-17)
+
+### A. BUG — `POSSESSIVES` dict produces wrong articles for `gli`-plural and `lo`-singular nouns
+
+**Severity: High — affects 59 card_items / 118 anki_cards**
+
+In `scripts/6_create_noun_phrases.py`, the `POSSESSIVES` dict (line 40–47) has two bugs:
+
+1. **`gli` plural key:** Produces `gli miei accordi`, `gli tuoi spiriti`, etc. — wrong. The correct Italian is `i miei accordi`, `i tuoi spiriti`. When the definite plural is `gli`, the possessive article must change to `i` (not remain `gli`).
+2. **`lo` singular key:** Produces `lo mio spirito`, `lo tuo scherzo`, etc. — wrong. The correct Italian is `il mio spirito`, `il tuo scherzo`. When the definite singular is `lo`, the possessive article must change to `il` (not remain `lo`).
+
+**Affected nouns:** 141 nouns have `definite_plural='gli'`; 31 have both `definite_singular='lo'` and `definite_plural='gli'`. Exception: `saio` (lo/i) has correct noun_phrases since `i` maps correctly.
+
+**Current wrong dict entries (all 6 possessives):**
+```python
+"mio": { ..., "gli": "gli miei", "lo": "lo mio", ... }
+# should be:
+"mio": { ..., "gli": "i miei",   "lo": "il mio",  ... }
+```
+
+**Fix:** Change every `"gli": "gli X"` entry to `"gli": "i X"` and every `"lo": "lo X"` entry to `"lo": "il X"` for all 6 possessives. Then delete all affected `noun_phrases` rows (phrase_type='possessive' for all gli/lo nouns) and re-run `scripts/6_create_noun_phrases.py`.
+
+---
+
+### B. BUG — `accedere` has wrong auxiliary and misspelled past participle
+
+**Severity: High — 6 verb_form rows, 12 anki_cards wrong**
+
+`word_entries` row for `accedere` has:
+- `auxiliary = 'essere'` — wrong; `accedere` takes `avere`
+- `past_participle = 'asceduto'` — wrong; correct is `acceduto`
+
+All 6 passato prossimo verb_forms read `sono asceduto/a`, `sei asceduto/a`, etc. — both the auxiliary and the past participle are wrong.
+
+**Fix:**
+```sql
+UPDATE word_entries SET auxiliary='avere', past_participle='acceduto' WHERE lemma='accedere';
+DELETE FROM verb_forms WHERE word_entry_id = (SELECT id FROM word_entries WHERE lemma='accedere');
+```
+Then re-run `scripts/4_create_verb_forms.py` (or insert correct forms directly) and re-run `scripts/8_create_card_items_nouns_verbs.py` + `scripts/9_create_anki_cards.py`.
+
+---
+
+### C. BUG — `assomigliare` uses `essere` auxiliary (should be `avere`)
+
+**Severity: Medium — 6 verb_form rows wrong**
+
+`assomigliare` (to resemble) takes `avere` in standard Italian: `ho assomigliato a mia madre`. The DB has `auxiliary='essere'`, producing `sono assomigliato/a`, which is incorrect.
+
+**Fix:** Same pattern as accedere — update word_entry, delete verb_forms, regenerate.
+
+---
+
+### D. BUG — `appartenere` uses `essere` auxiliary (should be `avere`)
+
+**Severity: Medium — 6 verb_form rows wrong**
+
+`appartenere` (to belong) takes `avere` in modern standard Italian: `ha appartenuto a noi`. The DB has `auxiliary='essere'`.
+
+**Fix:** Same pattern as accedere.
+
+---
+
+### E. DATA QUALITY — `scattare` uses `essere` (ambiguous)
+
+**Severity: Low — technically debatable**
+
+`scattare` is listed with `essere` in the DB. In intransitive uses meaning "to go off / spring" it can take `essere` in some registers, but `avere` is also widely used. The current entry is defensible but learners may encounter both. No fix needed unless a single auxiliary must be chosen — `avere` is more common in practice.
+
+---
+
+### F. DATA QUALITY — Stub proper-noun entries generating low-quality cards
+
+**Severity: Medium**
+
+Several noun entries are pure proper nouns or personal names with no meaningful flashcard value. Some generate cards like "the Boston → la boston" or "the Bob → il bob":
+
+| lemma | English | card_items |
+|---|---|---|
+| `alice` | Alice | 2 |
+| `bob` | Bob | 2 |
+| `boston` | Boston | 2 |
+| `charlotte` | Charlotte | 2 |
+| `jack` | Jack | 2 |
+| `west` | West | 2 |
+| `henry` | Henry | 0 (no phrases — missing article fields) |
+| `bibbia` | Bible | 2 |
+| `cristo` | Christ | 4 |
+| `dna` | DNA | 4 |
+
+`bibbia` and `cristo` could be kept (religious vocabulary). `dna` and `tv` are useful common loanwords and their cards look reasonable. `alice`, `bob`, `charlotte`, `jack`, `henry`, `boston`, `west` are English proper names that appeared in the frequency corpus as common loanwords/film references; their cards ("the Alice", "the Bob") are not useful Italian vocabulary.
+
+**Fix options:**
+1. Delete the `word_entries` for `alice`, `bob`, `charlotte`, `jack`, `henry`, `boston`, `west` (and cascade-delete noun_phrases/card_items/anki_cards). These 9 entries contribute 14 low-quality cards.
+2. Alternatively, keep `boston` and `west` as they appear in common Italian expressions.
+
+---
+
+### G. DATA QUALITY — `nozze` missing `definite_singular` and `indefinite_singular`
+
+**Severity: Low**
+
+`nozze` is a *pluralia tantum* (used only in plural). The DB has:
+- `definite_singular = NULL` — correct (no singular form exists)
+- `indefinite_singular = NULL` — correct (no singular form exists)
+- `definite_plural = 'le'` ✓
+
+Only 2 noun_phrases exist: `le nozze` (the wedding) and `le sue nozze` (his/her wedding). This is correct behaviour — there is no singular form to generate cards for. **No fix needed.**
+
+---
+
+### H. DATA QUALITY — Awkward `plural_english` values for uncountable or mass nouns
+
+**Severity: Low — cosmetic**
+
+Several nouns have `plural_english` values that read unnaturally in English because the nouns are uncountable, events, or mass nouns. The plural_english appears in possessive plural card backs (e.g. "your listenings", "your golds", "our mornings").
+
+Affected nouns and suggested fixes:
+
+| lemma | current `plural_english` | suggested fix |
+|---|---|---|
+| `ascolto` | listenings | listening sessions |
+| `oro` | golds | gold pieces |
+| `mattina` | mornings | mornings *(OK)* |
+| `mattino` | mornings | mornings *(OK)* |
+| `sera` | evenings | evenings *(OK)* |
+| `serata` | evenings | evenings *(OK)* |
+| `inizio` | beginnings | beginnings *(OK)* |
+| `sentimento` | feelings | feelings *(OK)* |
+| `buonasera` | good evenings | good evening greetings |
+| `buongiorno` | good mornings | good morning greetings |
+| `carter` | casings | casings *(OK)* |
+| `nozze` | weddings | weddings *(OK)* |
+| `significato` | meanings | meanings *(OK)* |
+
+Genuinely awkward: `ascolto` → "listenings", `oro` → "golds", `buonasera` → "good evenings", `buongiorno` → "good mornings".
+
+---
+
+### I. AUXILIARY CORRECTNESS — `costare`, `bastare`, `durare`, `spettare`, `bisognare`
+
+**Severity: Low — these are correct or defensible**
+
+These impersonal/weather-type verbs are listed with `essere`. In standard Italian grammar:
+- `costare` → takes `essere` in intransitive use (`è costato caro`) ✓
+- `bastare` → takes `essere` (`è bastato`) ✓  
+- `durare` → takes `essere` (`è durato`) ✓
+- `spettare` → takes `essere` (`è spettato a lui`) ✓
+- `bisognare` → impersonal, takes `essere` (`è bisognato`) ✓
+- `convenire` → takes `essere` in impersonal use (`è convenuto`) ✓
+- `fallire` → takes `essere` in intransitive "to go bankrupt" ✓
+
+**No fix needed for these verbs.**
 
 ---
