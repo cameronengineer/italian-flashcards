@@ -1,26 +1,22 @@
 #!/usr/bin/env python3
-"""Sort anki_cards by zipf frequency then sliding-window shuffle within each deck.
+"""Sort anki_cards by zipf frequency then word-level sliding-window shuffle within each deck.
 
 Algorithm:
-  1. Sort all cards for a deck by zipf DESC (most common words first).
-  2. Walk through each position i in the sorted list.
-  3. At position i, randomly swap the card there with any card in the forward
-     window [i, min(i + WINDOW_SIZE - 1, N-1)].
-  4. Reassign sequential IDs in the new order.
-
-This is a locality-constrained Fisher-Yates shuffle. Each card's final position
-can deviate from its frequency-sorted position by at most WINDOW_SIZE steps,
-producing smooth mixing rather than hard band boundaries.
-
-Every card participates in up to WINDOW_SIZE swap decisions, so cards near the
-start of the list are shuffled the most (the window is widest relative to
-remaining cards) and the effect tapers naturally toward the end.
+  1. Group cards by card_item_id (all directions of the same word form one group).
+  2. Sort groups by zipf DESC (most common words first).
+  3. Apply Fisher-Yates over word-groups with a forward window of WINDOW_SIZE —
+     each group position i swaps with a random group in [i, i+W-1].
+  4. Emit all groups' "first direction" cards as pass_a, then all groups'
+     "second direction" cards as pass_b: [pass_a... | pass_b...].
+     Each pass contains at most one card per word, so the two directions of
+     the same word can never be adjacent.
 
 Window size controls the trade-off:
   - Smaller window → tighter frequency ordering, less randomness
   - Larger window  → looser frequency ordering, more randomness
 
-Decks with window_size=0 keep their existing sort order unchanged.
+Decks with window_size=0 keep groups in zipf-sorted order but still separate
+directions across two passes.
 """
 
 from __future__ import annotations
@@ -47,12 +43,11 @@ WINDOW_SIZE_PER_DECK: dict[str, int] = {
     "Italian - Verbs Passato Prossimo": 50,
     "Italian - Verbs Imperfetto":       50,
     "Italian - Verbs Imperativo":       50,
-    "Italian - Numbers":                0,    # 0 = no shuffle, keep sort order exactly
-    "Italian - Conjunctions":           0,    # small decks — no shuffle needed
+    "Italian - Numbers":                0,
+    "Italian - Conjunctions":           0,
     "Italian - Pronouns":               0,
     "Italian - Interjections":          0,
     "Italian - Espressioni con Avere":  0,
-    # italki decks — small, keep insertion order
     "Italian - Italki":                         0,
     "Italian - Italki Verbs Infinitive":        50,
     "Italian - Italki Verbs Presente":          50,
@@ -63,37 +58,70 @@ WINDOW_SIZE_PER_DECK: dict[str, int] = {
 
 
 def sliding_window_shuffle(rows: list, window_size: int) -> list:
-    """Sort rows by zipf DESC then apply a sliding-window shuffle.
+    """Sort rows by zipf DESC then apply a word-level sliding-window shuffle.
 
-    The window of size W slides one position at a time from the start to the
-    end of the list. At each position i the slice cards[i : i+W] is fully
-    reshuffled (Fisher-Yates). Cards near the centre of the list are reshuffled
-    up to W times; cards near the ends somewhat fewer times. The result is
-    strong local mixing while preserving the broad frequency ordering — a card
-    can only end up within ~W positions of where frequency-sorting placed it.
+    Cards are first grouped by card_item_id so that all directions of the same
+    word form (e.g. en_to_it and it_to_en) are treated as a single unit.
+    The sliding window operates over these word-groups so that the broad
+    frequency ordering is preserved. After shuffling the word order, the
+    individual direction-cards are emitted in two separate passes so that the
+    two directions of the same word are never placed next to each other.
 
-    Example (W=10, N=100):
-      step 0: shuffle cards[0:10]
-      step 1: shuffle cards[1:11]
-      ...
-      step 90: shuffle cards[90:100]
+    Algorithm:
+      1. Group cards by card_item_id; sort groups by zipf DESC.
+      2. Apply Fisher-Yates over word-groups with the forward window
+         [i, min(i+W-1, N-1)] — groups move as a unit.
+      3. Emit pass_a (one randomly chosen card per group) followed by
+         pass_b (the second card per group, if it exists).
+         Within each pass every card belongs to a different word, so no
+         two cards from the same word can ever be adjacent.
 
-    window_size=0 returns rows sorted by zipf DESC with no shuffling.
+    window_size=0 skips the inter-group shuffle but still separates
+    directions across two passes so same-word cards are not adjacent.
     """
-    cards = sorted(rows, key=lambda r: (-r["zipf"], r["id"]))
+    from collections import defaultdict
 
-    if window_size <= 1:
-        return cards
+    # --- 1. Group cards by card_item_id ---
+    groups: dict[int, list] = defaultdict(list)
+    for row in rows:
+        groups[row["card_item_id"]].append(row)
 
-    n = len(cards)
-    for i in range(n - window_size + 1):
-        # Fully shuffle the window in-place using Fisher-Yates
-        window_end = i + window_size  # exclusive
-        for k in range(window_end - 1, i, -1):
-            j = random.randint(i, k)
-            cards[k], cards[j] = cards[j], cards[k]
+    # Sort groups by zipf DESC (all cards in a group share the same word so
+    # zipf is identical; min id breaks ties deterministically).
+    sorted_groups: list[list] = sorted(
+        groups.values(),
+        key=lambda g: (-max(r["zipf"] for r in g), min(r["id"] for r in g)),
+    )
 
-    return cards
+    # --- 2. Sliding window Fisher-Yates over word-groups ---
+    n = len(sorted_groups)
+    if window_size > 1:
+        for i in range(n):
+            j = random.randint(i, min(i + window_size - 1, n - 1))
+            sorted_groups[i], sorted_groups[j] = sorted_groups[j], sorted_groups[i]
+
+    # --- 3. Separate directions so same-word cards are never adjacent ---
+    # Split each group into two passes: pass_a gets one card per group,
+    # pass_b gets the second card per group (if it exists).
+    # The final sequence is: all of pass_a, then all of pass_b.
+    # Because pass_a and pass_b each contain exactly one card per word,
+    # no two cards from the same word are ever adjacent within a pass.
+    # The seam between pass_a and pass_b can only place the last word of
+    # pass_a next to the first word of pass_b — those are different words.
+    pass_a: list = []
+    pass_b: list = []
+    extras: list = []
+    for group in sorted_groups:
+        shuffled = list(group)
+        random.shuffle(shuffled)
+        if len(shuffled) >= 1:
+            pass_a.append(shuffled[0])
+        if len(shuffled) >= 2:
+            pass_b.append(shuffled[1])
+        if len(shuffled) > 2:
+            extras.extend(shuffled[2:])
+
+    return pass_a + pass_b + extras
 
 
 def randomize_anki_cards_per_deck(

@@ -133,13 +133,18 @@ def reorder_deck(deck_name: str, dry_run: bool) -> dict[str, int]:
         stats["reordered"] = len(sortable)
         return stats
 
-    for position, (_, card_id) in enumerate(sortable, start=1):
-        invoke(
-            "setSpecificValueOfCard",
-            card=card_id,
-            keys=["due"],
-            newValues=[str(position)],
-        )
+    # Build all setSpecificValueOfCard actions and send in batches via multi.
+    # This is orders of magnitude faster than one API call per card.
+    BATCH_SIZE = 500
+    actions = [
+        {
+            "action": "setSpecificValueOfCard",
+            "params": {"card": card_id, "keys": ["due"], "newValues": [position]},
+        }
+        for position, (_, card_id) in enumerate(sortable, start=1)
+    ]
+    for chunk in chunked(actions, BATCH_SIZE):
+        invoke("multi", actions=chunk)
 
     stats["reordered"] = len(sortable)
     return stats
