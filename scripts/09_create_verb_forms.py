@@ -252,7 +252,7 @@ def insert_forms(connection: sqlite3.Connection, items: list[dict]) -> int:
 
 
 def print_banner() -> None:
-    title = "5 Generate verb_forms"
+    title = "09 Generate verb_forms"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

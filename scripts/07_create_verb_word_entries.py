@@ -538,7 +538,7 @@ def insert_word_entries(connection: sqlite3.Connection, items: list[dict]) -> in
 
 
 def print_banner() -> None:
-    title = "3 Create verb word_entries"
+    title = "07 Create verb word_entries"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

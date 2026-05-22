@@ -126,7 +126,7 @@ def create_anki_cards(connection: sqlite3.Connection) -> int:
 
 
 def print_banner() -> None:
-    title = "9 Create anki_cards"
+    title = "15 Create anki_cards"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

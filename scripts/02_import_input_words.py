@@ -458,7 +458,7 @@ def analyze_one(entry: InputEntry, api_key: str) -> dict:
 # ---------------------------------------------------------------------------
 
 def print_banner() -> None:
-    title = "2 Import input word lists into word_entries"
+    title = "02 Import input word lists into word_entries"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

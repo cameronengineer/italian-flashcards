@@ -20,7 +20,7 @@ API_KEY_FILE = PROJECT_ROOT / ".openrouter"
 OUTPUT_DIR = PROJECT_ROOT / "media" / "images"
 
 PROMPT_MODEL = "~google/gemini-flash-latest"          # text AI for prompt generation (repo default)
-IMAGE_MODEL = "black-forest-labs/flux.2-klein-4b"      # image generation — better quality than riverflow
+IMAGE_MODEL = "sourceful/riverflow-v2-fast"           # image AI for image generation
 
 LIMIT = None
 MAX_RETRIES = 2
@@ -229,7 +229,7 @@ def run_task(
 
 
 def print_banner() -> None:
-    title = "12 Generate images"
+    title = "18 Generate images"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

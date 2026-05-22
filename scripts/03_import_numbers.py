@@ -146,7 +146,7 @@ def already_imported(connection: sqlite3.Connection) -> set[str]:
 # ---------------------------------------------------------------------------
 
 def print_banner() -> None:
-    title = "2b Import numbers into word_entries"
+    title = "03 Import numbers into word_entries"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

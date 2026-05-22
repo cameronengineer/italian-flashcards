@@ -95,7 +95,7 @@ def create_input_word_card_items(connection: sqlite3.Connection) -> dict[str, in
 
 
 def print_banner() -> None:
-    title = "7 Create card_items (interjections, pronouns, conjunctions, numbers)"
+    title = "11 Create card_items (interjections, pronouns, conjunctions, numbers)"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

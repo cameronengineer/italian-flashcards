@@ -159,6 +159,7 @@ hr#answer {
             {"name": "BackText"},
             {"name": "Audio"},
             {"name": "Image"},
+            {"name": "SortKey"},
         ],
         templates=[
             {
@@ -250,6 +251,7 @@ def build_deck(
     rows = connection.execute(
         """
         SELECT
+            id,
             direction,
             front_text,
             front_labels,
@@ -315,6 +317,7 @@ def build_deck(
                 row["back_text"] or "",
                 back_audio_field,
                 image_field,
+                str(row["id"]),  # SortKey — hidden field used by reorder script
             ],
         )
         deck.add_note(note)
@@ -324,7 +327,7 @@ def build_deck(
 
 
 def print_banner() -> None:
-    title = "16 Create Anki decks"
+    title = "21 Create Anki decks"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 
