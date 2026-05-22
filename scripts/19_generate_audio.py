@@ -111,7 +111,7 @@ def generate_audio(client: ElevenLabs, text: str, output_path: Path) -> bool:
 
 
 def print_banner() -> None:
-    title = "13 Generate audio"
+    title = "19 Generate audio"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

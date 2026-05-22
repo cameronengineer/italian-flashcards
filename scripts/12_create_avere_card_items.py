@@ -301,7 +301,7 @@ def create_avere_card_items(connection: sqlite3.Connection) -> int:
 
 
 def print_banner() -> None:
-    title = "7b Create card_items (espressioni con avere)"
+    title = "12 Create card_items (espressioni con avere)"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

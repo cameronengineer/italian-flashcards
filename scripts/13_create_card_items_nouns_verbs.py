@@ -201,7 +201,7 @@ def create_noun_card_items(connection: sqlite3.Connection) -> int:
 
 
 def print_banner() -> None:
-    title = "8 Create card_items (nouns and verbs)"
+    title = "13 Create card_items (nouns and verbs)"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

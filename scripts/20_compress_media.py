@@ -159,7 +159,7 @@ def compress_audio() -> None:
 
 
 def print_banner() -> None:
-    title = "15 Compress media"
+    title = "20 Compress media"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

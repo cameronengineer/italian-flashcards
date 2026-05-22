@@ -79,7 +79,7 @@ def sort_anki_cards_per_deck(connection: sqlite3.Connection) -> tuple[int, dict[
                 ac.image_text,
                 ac.guid,
                 COALESCE(iw.zipf, 0) as zipf,
-                COALESCE(we.infinitive, we.singular, ac.back_text, '') as base_form,
+                COALESCE(we.infinitive, we.singular, ac.back_text, ac.back_highlight, '') as base_form,
                 COALESCE(ac.front_labels, '') as labels
             FROM anki_cards_temp ac
             LEFT JOIN card_items ci ON ac.card_item_id = ci.id
@@ -153,7 +153,7 @@ def sort_anki_cards_per_deck(connection: sqlite3.Connection) -> tuple[int, dict[
 
 
 def print_banner() -> None:
-    title = "10 Sort anki_cards by frequency"
+    title = "16 Sort anki_cards by frequency"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

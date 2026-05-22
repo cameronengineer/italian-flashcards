@@ -317,7 +317,7 @@ def insert_phrases(connection: sqlite3.Connection, item: dict) -> int:
 
 
 def print_banner() -> None:
-    title = "6 Generate noun_phrases"
+    title = "10 Generate noun_phrases"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

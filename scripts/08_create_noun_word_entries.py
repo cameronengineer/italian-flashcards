@@ -508,7 +508,7 @@ def insert_word_entries(connection: sqlite3.Connection, items: list[dict]) -> in
 
 
 def print_banner() -> None:
-    title = "4 Create noun word_entries"
+    title = "08 Create noun word_entries"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

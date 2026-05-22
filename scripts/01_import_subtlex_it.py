@@ -345,7 +345,7 @@ def upsert_csv(csv_path: Path, db_path: Path, limit: int) -> tuple[int, int, int
 
 
 def print_banner() -> None:
-    title = "1 Import SUBTLEX-IT input words"
+    title = "01 Import SUBTLEX-IT input words"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 

@@ -1,20 +1,26 @@
 #!/usr/bin/env python3
-"""Sort anki_cards by zipf frequency then band-shuffle within each deck.
+"""Sort anki_cards by zipf frequency then sliding-window shuffle within each deck.
 
 Algorithm:
   1. Sort all cards for a deck by zipf DESC (most common words first).
-  2. Divide the sorted list into consecutive bands of BAND_SIZE cards.
-  3. Fully shuffle (Fisher-Yates) within each band independently.
+  2. Walk through each position i in the sorted list.
+  3. At position i, randomly swap the card there with any card in the forward
+     window [i, min(i + WINDOW_SIZE - 1, N-1)].
   4. Reassign sequential IDs in the new order.
 
-This preserves the broad frequency progression (you learn common words first)
-while producing significant local randomness within each band.
+This is a locality-constrained Fisher-Yates shuffle. Each card's final position
+can deviate from its frequency-sorted position by at most WINDOW_SIZE steps,
+producing smooth mixing rather than hard band boundaries.
 
-Band size controls the trade-off:
-  - Smaller band  → tighter frequency ordering, less randomness
-  - Larger band   → looser frequency ordering, more randomness
+Every card participates in up to WINDOW_SIZE swap decisions, so cards near the
+start of the list are shuffled the most (the window is widest relative to
+remaining cards) and the effect tapers naturally toward the end.
 
-Decks with no zipf data (Numbers) keep their existing sort order unchanged.
+Window size controls the trade-off:
+  - Smaller window → tighter frequency ordering, less randomness
+  - Larger window  → looser frequency ordering, more randomness
+
+Decks with window_size=0 keep their existing sort order unchanged.
 """
 
 from __future__ import annotations
@@ -27,53 +33,77 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB_PATH = PROJECT_ROOT / "database.sqlite"
 
-# Band size: number of cards shuffled together as a group.
-# Cards within the same band are fully randomised relative to each other.
-DEFAULT_BAND_SIZE = 200
+# Window size: how far ahead each card can shift from its frequency-sorted position.
+# At position i, a random card is chosen from [i, min(i + W - 1, N-1)] and swapped in.
+# This is a locality-constrained Fisher-Yates — cards stay roughly in frequency order
+# but are mixed within a moving window of this width.
+DEFAULT_WINDOW_SIZE = 50
 
-# Per-deck overrides. Omitted decks use DEFAULT_BAND_SIZE.
-BAND_SIZE_PER_DECK: dict[str, int] = {
-    "Italian - Verbs Infinitive":       50,   # preserve frequency closely
-    "Italian - Nouns":                  200,  # strong shuffle
-    "Italian - Verbs Presente":         200,
-    "Italian - Verbs Passato Prossimo": 200,
-    "Italian - Verbs Imperfetto":       200,
-    "Italian - Verbs Imperativo":       200,
+# Per-deck overrides. Omitted decks use DEFAULT_WINDOW_SIZE.
+WINDOW_SIZE_PER_DECK: dict[str, int] = {
+    "Italian - Verbs Infinitive":       50,
+    "Italian - Nouns":                  50,
+    "Italian - Verbs Presente":         50,
+    "Italian - Verbs Passato Prossimo": 50,
+    "Italian - Verbs Imperfetto":       50,
+    "Italian - Verbs Imperativo":       50,
     "Italian - Numbers":                0,    # 0 = no shuffle, keep sort order exactly
     "Italian - Conjunctions":           0,    # small decks — no shuffle needed
     "Italian - Pronouns":               0,
     "Italian - Interjections":          0,
     "Italian - Espressioni con Avere":  0,
+    # italki decks — small, keep insertion order
+    "Italian - Italki":                         0,
+    "Italian - Italki Verbs Infinitive":        50,
+    "Italian - Italki Verbs Presente":          50,
+    "Italian - Italki Verbs Passato Prossimo":  50,
+    "Italian - Italki Verbs Imperfetto":        50,
+    "Italian - Italki Verbs Imperativo":        50,
 }
 
 
-def band_shuffle(rows: list, band_size: int) -> list:
-    """Sort rows by zipf DESC then shuffle within bands of band_size.
+def sliding_window_shuffle(rows: list, window_size: int) -> list:
+    """Sort rows by zipf DESC then apply a sliding-window shuffle.
 
-    If band_size is 0, return rows sorted by zipf DESC with no shuffling.
+    The window of size W slides one position at a time from the start to the
+    end of the list. At each position i the slice cards[i : i+W] is fully
+    reshuffled (Fisher-Yates). Cards near the centre of the list are reshuffled
+    up to W times; cards near the ends somewhat fewer times. The result is
+    strong local mixing while preserving the broad frequency ordering — a card
+    can only end up within ~W positions of where frequency-sorting placed it.
+
+    Example (W=10, N=100):
+      step 0: shuffle cards[0:10]
+      step 1: shuffle cards[1:11]
+      ...
+      step 90: shuffle cards[90:100]
+
+    window_size=0 returns rows sorted by zipf DESC with no shuffling.
     """
-    # Sort by zipf descending, then by existing id as stable tiebreak
-    sorted_rows = sorted(rows, key=lambda r: (-r["zipf"], r["id"]))
+    cards = sorted(rows, key=lambda r: (-r["zipf"], r["id"]))
 
-    if band_size == 0:
-        return sorted_rows
+    if window_size <= 1:
+        return cards
 
-    result = []
-    for start in range(0, len(sorted_rows), band_size):
-        band = list(sorted_rows[start : start + band_size])
-        random.shuffle(band)
-        result.extend(band)
-    return result
+    n = len(cards)
+    for i in range(n - window_size + 1):
+        # Fully shuffle the window in-place using Fisher-Yates
+        window_end = i + window_size  # exclusive
+        for k in range(window_end - 1, i, -1):
+            j = random.randint(i, k)
+            cards[k], cards[j] = cards[j], cards[k]
+
+    return cards
 
 
 def randomize_anki_cards_per_deck(
     connection: sqlite3.Connection,
-    default_band_size: int,
-    band_size_per_deck: dict[str, int],
+    default_window_size: int,
+    window_size_per_deck: dict[str, int],
 ) -> tuple[int, dict[str, int], dict[str, int]]:
-    """Apply band-shuffle reordering to anki_cards, per deck, reassign IDs.
+    """Apply sliding-window shuffle reordering to anki_cards, per deck, reassign IDs.
 
-    Returns (total_cards, deck_counts, deck_band_sizes_used).
+    Returns (total_cards, deck_counts, deck_window_sizes_used).
     """
     deck_rows = connection.execute(
         "SELECT DISTINCT deck FROM anki_cards ORDER BY deck"
@@ -85,7 +115,7 @@ def randomize_anki_cards_per_deck(
 
     total_cards = 0
     deck_counts: dict[str, int] = {}
-    deck_bands_used: dict[str, int] = {}
+    deck_windows_used: dict[str, int] = {}
 
     # Snapshot current state before any deletions
     connection.execute("DROP TABLE IF EXISTS anki_cards_temp")
@@ -99,8 +129,8 @@ def randomize_anki_cards_per_deck(
 
     current_id = 1
     for deck_name in deck_names:
-        band_size = band_size_per_deck.get(deck_name, default_band_size)
-        deck_bands_used[deck_name] = band_size
+        band_size = window_size_per_deck.get(deck_name, default_window_size)
+        deck_windows_used[deck_name] = band_size
 
         rows = connection.execute(
             """
@@ -131,7 +161,7 @@ def randomize_anki_cards_per_deck(
             (deck_name,),
         ).fetchall()
 
-        ordered = band_shuffle(rows, band_size)
+        ordered = sliding_window_shuffle(rows, band_size)
 
         deck_card_count = len(ordered)
         deck_counts[deck_name] = deck_card_count
@@ -171,11 +201,11 @@ def randomize_anki_cards_per_deck(
             current_id += 1
 
     connection.commit()
-    return total_cards, deck_counts, deck_bands_used
+    return total_cards, deck_counts, deck_windows_used
 
 
 def print_banner() -> None:
-    title = "11 Randomize anki_cards (band shuffle)"
+    title = "17 Randomize anki_cards (sliding window shuffle)"
     line = "-" * len(title)
     print(f"\n{line}\n{title}\n{line}", flush=True)
 
@@ -184,17 +214,17 @@ def main() -> None:
     print_banner()
     parser = argparse.ArgumentParser(
         description=(
-            "Sort anki_cards by zipf then band-shuffle within each deck. "
-            "Band size controls randomness: larger = more shuffled."
+            "Sort anki_cards by zipf then apply a sliding-window shuffle within each deck. "
+            "Window size controls randomness: larger = more shuffled."
         )
     )
     parser.add_argument("--db", type=Path, default=DEFAULT_DB_PATH)
     parser.add_argument(
-        "--band-size",
+        "--window-size",
         type=int,
-        default=DEFAULT_BAND_SIZE,
-        help=f"Default band size for decks not listed in BAND_SIZE_PER_DECK "
-             f"(default: {DEFAULT_BAND_SIZE}). Use 0 to disable shuffling.",
+        default=DEFAULT_WINDOW_SIZE,
+        help=f"Default window size for decks not listed in WINDOW_SIZE_PER_DECK "
+             f"(default: {DEFAULT_WINDOW_SIZE}). Use 0 to disable shuffling.",
     )
     parser.add_argument(
         "--seed",
@@ -211,16 +241,16 @@ def main() -> None:
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys = ON")
 
-        total, deck_counts, deck_bands_used = randomize_anki_cards_per_deck(
-            connection, args.band_size, BAND_SIZE_PER_DECK
+        total, deck_counts, deck_windows_used = randomize_anki_cards_per_deck(
+            connection, args.window_size, WINDOW_SIZE_PER_DECK
         )
 
         print(f"Randomized {total} anki_cards across {len(deck_counts)} decks.")
-        print(f"\nPer-deck configuration (band_size=0 means no shuffle):")
-        for deck in sorted(deck_bands_used.keys()):
+        print(f"\nPer-deck configuration (window_size=0 means no shuffle):")
+        for deck in sorted(deck_windows_used.keys()):
             count = deck_counts.get(deck, 0)
-            band = deck_bands_used[deck]
-            shuffle_note = "no shuffle" if band == 0 else f"band_size={band}"
+            window = deck_windows_used[deck]
+            shuffle_note = "no shuffle" if window == 0 else f"window_size={window}"
             print(f"  {deck:<42} {count:>5} cards  {shuffle_note}")
 
         # Sample: show first 20 noun cards with their zipf to verify shuffling
