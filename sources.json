@@ -1,0 +1,112 @@
+{
+  "$comment": "Single source-of-truth for every input. Each entry's `path` is relative to inputs/. To add a new source: add an entry here and run ./run.sh. To temporarily disable: set `disabled: true`.",
+  "sources": [
+    {
+      "path": "italian_interjections.csv",
+      "mode": "gloss",
+      "deck": "Italian - Interjections",
+      "front_pill": "type: interjection",
+      "shuffle_window": 0,
+      "prompt_hint": "Italian exclamations, greetings, social phrases, animal sounds, and fillers."
+    },
+    {
+      "path": "italian_pronouns.csv",
+      "mode": "gloss",
+      "deck": "Italian - Pronouns",
+      "front_pill": "type: pronoun",
+      "shuffle_window": 0,
+      "prompt_hint": "Relative, interrogative, indefinite, demonstrative, and quantifier pronouns."
+    },
+    {
+      "path": "italian_conjunctions.csv",
+      "mode": "gloss",
+      "deck": "Italian - Conjunctions",
+      "front_pill": "type: conjunction",
+      "shuffle_window": 0,
+      "prompt_hint": "Coordinating, subordinating, and correlative conjunctions and connective phrases."
+    },
+    {
+      "path": "italian_numbers.csv",
+      "mode": "gloss",
+      "deck": "Italian - Numbers",
+      "enrich": false,
+      "image": false,
+      "front_pill": "type: number",
+      "shuffle_window": 0
+    },
+    {
+      "path": "italian_espressioni_con_avere.csv",
+      "mode": "avere",
+      "deck": "Italian - Espressioni con Avere",
+      "image": false,
+      "shuffle_window": 0,
+      "prompt_hint": "Fixed Italian phrases using avere + noun where English uses 'to be + adjective', 'to need', or another verb (e.g. 'avere fame' = 'to be hungry')."
+    },
+    {
+      "path": "italki/italki.csv",
+      "mode": "gloss",
+      "deck": "Italian - Italki",
+      "label_pill": "source: italki",
+      "front_pill": "type: expression",
+      "shuffle_window": 0,
+      "prompt_hint": "Vocabulary from italki conversation classes: nouns, expressions, phrases, multi-word items, and short sentences."
+    },
+    {
+      "path": "italki/italki_verbs.csv",
+      "mode": "verb",
+      "deck": "Italian - Italki Verbs",
+      "infinitive_deck": "Italian - Italki Verbs Infinitive",
+      "label_pill": "source: italki",
+      "shuffle_window": 0,
+      "prompt_hint": "Verbs recorded during italki conversation classes."
+    },
+    {
+      "path": "cils/cils_a1.csv",
+      "mode": "gloss",
+      "deck": "Italian - CILS A1",
+      "label_pill": "source: CILS",
+      "front_pill": "type: vocabulary",
+      "shuffle_window": 0,
+      "enrich": false
+    },
+    {
+      "path": "cils/cils_a2.csv",
+      "mode": "gloss",
+      "deck": "Italian - CILS A2",
+      "label_pill": "source: CILS",
+      "front_pill": "type: vocabulary",
+      "shuffle_window": 0,
+      "enrich": false
+    },
+    {
+      "path": "cils/cils_b1.csv",
+      "mode": "gloss",
+      "deck": "Italian - CILS B1",
+      "label_pill": "source: CILS",
+      "front_pill": "type: vocabulary",
+      "shuffle_window": 0,
+      "enrich": false
+    },
+    {
+      "path": "cils/cils_b2.csv",
+      "mode": "gloss",
+      "deck": "Italian - CILS B2",
+      "label_pill": "source: CILS",
+      "front_pill": "type: vocabulary",
+      "shuffle_window": 0,
+      "enrich": false
+    },
+    {
+      "path": "freqdic/subtlex-it.cleaned.csv",
+      "mode": "subtlex",
+      "deck": "Italian - Verbs",
+      "infinitive_deck": "Italian - Verbs Infinitive",
+      "noun_deck": "Italian - Nouns",
+      "phrases_deck": "Italian - Noun Phrases",
+      "verb_limit": 400,
+      "noun_limit": 1000,
+      "shuffle_window": 50,
+      "prompt_hint": "Top-frequency Italian word from SUBTLEX-IT extraction."
+    }
+  ]
+}

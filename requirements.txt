@@ -1,7 +1,8 @@
-# Italian Flashcards - Requirements
+# Italian Flashcards — runtime dependencies.
+# Pinned to the versions currently installed in .venv so re-running the
+# pipeline is reproducible. Bump deliberately.
 
-# Core dependencies
-requests>=2.31.0              # HTTP requests for OpenRouter and ElevenLabs APIs
-genanki>=0.13.0              # Anki deck generation and GUID handling
-Pillow>=10.0.0               # Image processing and compression (PNG to JPEG)
-elevenlabs>=1.0.0            # ElevenLabs Text-to-Speech API client
+requests==2.34.1        # HTTP fallback (most calls use urllib in common.py)
+genanki==0.13.1         # .apkg generation + deterministic GUIDs
+Pillow==12.2.0          # PNG → JPEG image compression
+elevenlabs==2.47.0      # ElevenLabs TTS client
