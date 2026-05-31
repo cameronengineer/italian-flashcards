@@ -45,7 +45,7 @@ def cmd_build(args) -> int:
 
 
 def cmd_audio(args) -> int:
-    media.generate_audio(workers=args.workers, limit=args.limit)
+    media.generate_audio(workers=args.workers, limit=args.limit, decks=args.deck or None)
     return 0
 
 
@@ -146,7 +146,8 @@ def cmd_run(args) -> int:
     failed = result.get("failed_sources") or []
     audio_limit = args.audio_limit if args.audio_limit is not None else args.limit
     image_limit = args.image_limit if args.image_limit is not None else args.limit
-    media.generate_audio(workers=audio_w, limit=audio_limit)
+    audio_decks = args.audio_deck or None
+    media.generate_audio(workers=audio_w, limit=audio_limit, decks=audio_decks)
     media.generate_images(workers=image_w, limit=image_limit)
     media.compress(workers=compress_w)
     export.run()
@@ -183,6 +184,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("audio", help="Generate ElevenLabs audio.")
     sp.add_argument("--workers", type=int, default=10)
     sp.add_argument("--limit", type=int, default=None)
+    sp.add_argument("--deck", action="append", metavar="DECK",
+                    help="Only generate audio for this deck (repeatable, e.g. --deck 'Italian - CILS A1').")
     sp.set_defaults(func=cmd_audio)
 
     sp = sub.add_parser("images", help="Generate AI images.")
@@ -221,6 +224,9 @@ def build_parser() -> argparse.ArgumentParser:
                          "(overridden by --audio-limit / --image-limit).")
     sp.add_argument("--audio-limit", type=int, default=None,
                     help="Max audio files to generate this run (default: --limit or unlimited).")
+    sp.add_argument("--audio-deck", action="append", metavar="DECK",
+                    help="Only generate audio for this deck (repeatable). "
+                         "e.g. --audio-deck 'Italian - CILS A1' --audio-deck 'Italian - CILS A2'")
     sp.add_argument("--image-limit", type=int, default=None,
                     help="Max images to generate this run (default: --limit or unlimited).")
     sp.add_argument("--no-sync", action="store_true",

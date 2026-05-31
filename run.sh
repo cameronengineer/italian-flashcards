@@ -29,7 +29,7 @@ python -m flashcards run \
     --audio-workers 5 \
     --image-workers 100 \
     --compress-workers 8 \
-    --audio-limit 10 \
+    --audio-limit 1 \
     --image-limit 10 \
     --allow-orphan-delete \
     "$@"

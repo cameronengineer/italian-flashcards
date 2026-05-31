@@ -41,3 +41,6 @@ media/audio_compressed/
 
 old/
 *progress.json
+
+# Generated AI audit reports
+audit_reports/
