@@ -1,60 +1,35 @@
 #!/bin/bash
-set -e
+# Full pipeline. Equivalent to `python -m flashcards run`.
+#
+# To add a new source: append an entry to sources.json (path is relative to
+# inputs/) and re-run this script. No code changes needed.
+#
+# This script bootstraps .venv on first run, validates sources.json, then
+# delegates to `python -m flashcards run`.
+set -euo pipefail
 
-source .venv/bin/activate
+HERE="$(cd "$(dirname "$0")" && pwd)"
 
-# Backup the database before making any changes
-DB="database.sqlite"
-BACKUP_DIR="backups"
-mkdir -p "$BACKUP_DIR"
+# shellcheck disable=SC1091
+source "$HERE/scripts/_venv.sh"
+ensure_venv "$HERE"
 
-BACKUP="$BACKUP_DIR/database.backup.$(date +%Y%m%d_%H%M%S).sqlite"
-if [ -f "$DB" ]; then
-    cp "$DB" "$BACKUP"
-    echo "Backup created: $BACKUP"
-fi
+# Gate the pipeline on sources.json being well-formed. `discover` exits non-zero
+# (and prints what's wrong) if the manifest is missing, malformed, or fails
+# validation — that catches typos before any AI calls are made.
+echo "[run] validating sources.json"
+python -m flashcards discover > /dev/null
 
-# Deduplicate backup files: keep the oldest copy of any identical database
-# backup, remove newer duplicates. Uses shasum (built into macOS).
-# Written without associative arrays to stay compatible with bash 3.2 (macOS default).
-echo "Deduplicating database backups..."
-if ls "$BACKUP_DIR"/database.backup.*.sqlite 1>/dev/null 2>&1; then
-    _seen_hashes_file=$(mktemp)
-    while IFS= read -r _backup; do
-        _hash=$(shasum -a 256 "$_backup" | awk '{print $1}')
-        if grep -qF "$_hash" "$_seen_hashes_file" 2>/dev/null; then
-            rm "$_backup"
-            echo "  Removed duplicate: $_backup"
-        else
-            echo "$_hash" >> "$_seen_hashes_file"
-            echo "  Kept:    $_backup"
-        fi
-    done < <(ls -rt "$BACKUP_DIR"/database.backup.*.sqlite)  # -rt = oldest first
-    rm -f "$_seen_hashes_file"
-    unset _seen_hashes_file _backup _hash
-fi
-
-python scripts/01_import_subtlex_it.py
-python scripts/02_import_input_words.py --workers 30
-python scripts/03_import_numbers.py
-python scripts/04_italki_import_verbs.py --workers 10
-python scripts/05_italki_import_expressions.py --workers 10
-python scripts/06_italki_create_verb_forms.py --workers 10
-python scripts/07_create_verb_word_entries.py --workers 30
-python scripts/08_create_noun_word_entries.py --workers 30
-python scripts/09_create_verb_forms.py --workers 30
-python scripts/10_create_noun_phrases.py --workers 30
-python scripts/11_create_input_word_card_items.py
-python scripts/12_create_avere_card_items.py
-python scripts/13_create_card_items_nouns_verbs.py
-python scripts/14_italki_create_card_items.py
-python scripts/15_create_anki_cards.py
-python scripts/16_sort_anki_cards.py
-python scripts/17_randomize_anki_cards.py
-python scripts/18_generate_images.py
-python scripts/19_generate_audio.py --limit 500
-python scripts/20_compress_media.py
-python scripts/21_create_decks.py
-python scripts/22_import_anki_decks.py
-python scripts/23_delete_orphan_anki_cards.py
-python scripts/24_reorder_anki_cards.py
+# Per-phase concurrency. Pass --build-workers / --audio-workers / etc. to
+# override individual phases, or --workers N to override all at once.
+# Audio is capped at 5 to match ElevenLabs' concurrent-request limit.
+# Per-phase limits cap how many new media files each stage generates per run.
+python -m flashcards run \
+    --build-workers 100 \
+    --audio-workers 5 \
+    --image-workers 100 \
+    --compress-workers 8 \
+    --audio-limit 10 \
+    --image-limit 10 \
+    --allow-orphan-delete \
+    "$@"
