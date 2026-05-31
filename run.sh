@@ -5,7 +5,10 @@ source .venv/bin/activate
 
 # Backup the database before making any changes
 DB="database.sqlite"
-BACKUP="database.backup.$(date +%Y%m%d_%H%M%S).sqlite"
+BACKUP_DIR="backups"
+mkdir -p "$BACKUP_DIR"
+
+BACKUP="$BACKUP_DIR/database.backup.$(date +%Y%m%d_%H%M%S).sqlite"
 if [ -f "$DB" ]; then
     cp "$DB" "$BACKUP"
     echo "Backup created: $BACKUP"
@@ -15,7 +18,7 @@ fi
 # backup, remove newer duplicates. Uses shasum (built into macOS).
 # Written without associative arrays to stay compatible with bash 3.2 (macOS default).
 echo "Deduplicating database backups..."
-if ls database.backup.*.sqlite 1>/dev/null 2>&1; then
+if ls "$BACKUP_DIR"/database.backup.*.sqlite 1>/dev/null 2>&1; then
     _seen_hashes_file=$(mktemp)
     while IFS= read -r _backup; do
         _hash=$(shasum -a 256 "$_backup" | awk '{print $1}')
@@ -26,7 +29,7 @@ if ls database.backup.*.sqlite 1>/dev/null 2>&1; then
             echo "$_hash" >> "$_seen_hashes_file"
             echo "  Kept:    $_backup"
         fi
-    done < <(ls -rt database.backup.*.sqlite)  # -rt = oldest first
+    done < <(ls -rt "$BACKUP_DIR"/database.backup.*.sqlite)  # -rt = oldest first
     rm -f "$_seen_hashes_file"
     unset _seen_hashes_file _backup _hash
 fi
