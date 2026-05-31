@@ -45,10 +45,19 @@ IMAGE_QUALITY = 75
 AUDIO_BITRATE = "48k"
 
 
-def _audio_texts(conn) -> list[str]:
-    rows = conn.execute(
-        "SELECT DISTINCT audio_text FROM cards WHERE audio_text IS NOT NULL AND audio_text != ''"
-    ).fetchall()
+def _audio_texts(conn, decks: list[str] | None = None) -> list[str]:
+    if decks:
+        placeholders = ",".join("?" * len(decks))
+        rows = conn.execute(
+            f"SELECT DISTINCT audio_text FROM cards"
+            f" WHERE audio_text IS NOT NULL AND audio_text != ''"
+            f" AND deck IN ({placeholders})",
+            decks,
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT DISTINCT audio_text FROM cards WHERE audio_text IS NOT NULL AND audio_text != ''"
+        ).fetchall()
     return sorted({r["audio_text"] for r in rows})
 
 
@@ -92,19 +101,22 @@ def _gen_audio(client: ElevenLabs, text: str, dest: Path) -> None:
     tmp.replace(dest)
 
 
-def generate_audio(workers: int = 10, limit: int | None = None) -> dict:
+def generate_audio(workers: int = 10, limit: int | None = None, decks: list[str] | None = None) -> dict:
     print_banner("media: generate audio (ElevenLabs)")
     ensure_dirs()
     with connect() as conn:
-        texts = _audio_texts(conn)
-    pending = [
+        texts = _audio_texts(conn, decks=decks)
+    pending_all = [
         t for t in texts
         if not ((AUDIO_DIR / audio_filename(t)).exists()
                 and (AUDIO_DIR / audio_filename(t)).stat().st_size > 0)
     ]
-    if limit is not None:
-        pending = pending[:limit]
-    print(f"  {len(texts)} unique audio strings; {len(pending)} pending.")
+    pending = pending_all[:limit] if limit is not None else pending_all
+    done_count = len(texts) - len(pending_all)
+    done_pct = (done_count / len(texts) * 100) if texts else 0
+    pend_pct = (len(pending_all) / len(texts) * 100) if texts else 0
+    limit_note = f"; processing {len(pending)} this run" if limit is not None and len(pending_all) > len(pending) else ""
+    print(f"  {len(texts)} unique audio strings; {done_count} generated ({done_pct:.1f}%), {len(pending_all)} pending ({pend_pct:.1f}%){limit_note}.")
     if not pending:
         return {"generated": 0, "failed": 0}
     api_key = load_key_file(ELEVENLABS_KEY_FILE)
@@ -205,14 +217,22 @@ def generate_images(workers: int = 10, limit: int | None = None) -> dict:
     ensure_dirs()
     with connect() as conn:
         jobs = _image_jobs(conn)
-    pending = [
+    pending_all = [
         j for j in jobs
-        if not (IMAGE_DIR / image_filename(j["image_key"])).exists()
-        or (IMAGE_DIR / image_filename(j["image_key"])).stat().st_size == 0
+        if not (
+            (IMAGE_DIR_COMPRESSED / image_filename(j["image_key"], "jpg")).exists()
+            and (IMAGE_DIR_COMPRESSED / image_filename(j["image_key"], "jpg")).stat().st_size > 0
+        ) and not (
+            (IMAGE_DIR / image_filename(j["image_key"])).exists()
+            and (IMAGE_DIR / image_filename(j["image_key"])).stat().st_size > 0
+        )
     ]
-    if limit is not None:
-        pending = pending[:limit]
-    print(f"  {len(jobs)} unique images; {len(pending)} pending.")
+    pending = pending_all[:limit] if limit is not None else pending_all
+    done_count = len(jobs) - len(pending_all)
+    done_pct = (done_count / len(jobs) * 100) if jobs else 0
+    pend_pct = (len(pending_all) / len(jobs) * 100) if jobs else 0
+    limit_note = f"; processing {len(pending)} this run" if limit is not None and len(pending_all) > len(pending) else ""
+    print(f"  {len(jobs)} unique images; {done_count} generated ({done_pct:.1f}%), {len(pending_all)} pending ({pend_pct:.1f}%){limit_note}.")
     if not pending:
         return {"generated": 0, "failed": 0}
     api_key = load_key_file(OPENROUTER_KEY_FILE)
