@@ -25,11 +25,11 @@ python -m flashcards discover > /dev/null
 # Audio is capped at 5 to match ElevenLabs' concurrent-request limit.
 # Per-phase limits cap how many new media files each stage generates per run.
 python -m flashcards run \
-    --build-workers 100 \
+    --build-workers 200 \
     --audio-workers 5 \
-    --image-workers 100 \
+    --image-workers 200 \
     --compress-workers 8 \
     --audio-limit 1 \
-    --image-limit 10 \
+    --image-limit 300 \
     --allow-orphan-delete \
     "$@"
