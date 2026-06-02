@@ -11,20 +11,54 @@ swap.
 from __future__ import annotations
 
 # ── Verb tenses ─────────────────────────────────────────────────────────────
-TENSES = ("presente", "passato_prossimo", "imperfetto", "imperativo")
+TENSES = (
+    "presente",
+    "presente_progressivo",
+    "passato_prossimo",
+    "imperfetto",
+    "futuro_semplice",
+    "imperativo",
+    "condizionale_presente",
+    "condizionale_passato",
+)
 
 #: Display strings appended to ``source.deck`` to build per-tense deck names.
 #:   ``"Italian - Verbs" + " " + "Presente" = "Italian - Verbs Presente"``
+#:
+#: ``presente_progressivo`` is the Italian present continuous (``stare`` in the
+#: present + gerundio, e.g. ``sto parlando``).
+#: ``futuro_semplice`` is the simple future (e.g. ``parlerò``).
+#: ``condizionale_passato`` is the Italian conditional perfect (auxiliary in
+#: the present conditional + past participle, e.g. ``avrei parlato``).
 TENSE_DISPLAY: dict[str, str] = {
     "presente": "Presente",
+    "presente_progressivo": "Presente Progressivo",
     "passato_prossimo": "Passato Prossimo",
     "imperfetto": "Imperfetto",
+    "futuro_semplice": "Futuro Semplice",
     "imperativo": "Imperativo",
+    "condizionale_presente": "Condizionale Presente",
+    "condizionale_passato": "Condizionale Passato",
 }
 
 #: Personal pronouns accepted in verb_forms.person. ``Lei`` is the formal-you
 #: imperative.
 VERB_PERSONS = ("io", "tu", "lui_lei", "noi", "voi", "loro", "Lei")
+
+#: Persons we generate per tense. Every non-imperative tense uses the full
+#: indicative/conditional set; ``imperativo`` has no ``io`` form and uses the
+#: formal-you ``Lei`` instead of ``lui_lei``.
+_INDIC_PERSONS = ("io", "tu", "lui_lei", "noi", "voi", "loro")
+TENSE_PERSONS: dict[str, tuple[str, ...]] = {
+    "presente": _INDIC_PERSONS,
+    "presente_progressivo": _INDIC_PERSONS,
+    "passato_prossimo": _INDIC_PERSONS,
+    "imperfetto": _INDIC_PERSONS,
+    "futuro_semplice": _INDIC_PERSONS,
+    "condizionale_presente": _INDIC_PERSONS,
+    "condizionale_passato": _INDIC_PERSONS,
+    "imperativo": ("tu", "Lei", "noi", "voi"),
+}
 
 
 # ── Avere expression conjugation ────────────────────────────────────────────

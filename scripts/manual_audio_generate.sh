@@ -13,6 +13,8 @@ ROOT="$(cd "$HERE/.." && pwd)"
 source "$HERE/_venv.sh"
 ensure_venv "$ROOT"
 
+# Generate ALL missing audio for the core decks. Args from the command line
+# (e.g. --limit N) are forwarded to this call only.
 python -m flashcards audio \
     --workers 5 \
     --deck 'Italian - CILS A1' \
@@ -26,5 +28,20 @@ python -m flashcards audio \
     --deck 'Italian - Italki Verbs Infinitive' \
     --deck 'Italian - Italki Verbs Passato Prossimo' \
     --deck 'Italian - Italki Verbs Presente' \
+    --deck 'Italian - Italki Verbs Presente Progressivo' \
     --deck 'Italian - Oral Exam Prep' \
     "$@"
+
+# Cap each Condizionale deck at 300 files per run. The audio command sorts
+# texts alphabetically and skips ones already on disk, so this picks up the
+# next batch of 300 alphabetically each time it's run until both decks are
+# fully covered.
+python -m flashcards audio \
+    --workers 5 \
+    --limit 300 \
+    --deck 'Italian - Italki Verbs Condizionale Presente'
+
+python -m flashcards audio \
+    --workers 5 \
+    --limit 300 \
+    --deck 'Italian - Italki Verbs Condizionale Passato'

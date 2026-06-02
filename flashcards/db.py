@@ -66,7 +66,7 @@ CREATE INDEX IF NOT EXISTS idx_entries_deck ON entries(deck);
 CREATE TABLE IF NOT EXISTS verb_forms (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     entry_id     TEXT NOT NULL,
-    tense        TEXT NOT NULL,            -- presente|passato_prossimo|imperfetto|imperativo
+    tense        TEXT NOT NULL,            -- presente|presente_progressivo|passato_prossimo|imperfetto|futuro_semplice|imperativo|condizionale_presente|condizionale_passato
     person       TEXT NOT NULL,            -- io|tu|lui_lei|noi|voi|loro|Lei
     polarity     TEXT NOT NULL DEFAULT 'positive',
     italian      TEXT NOT NULL,
