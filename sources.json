@@ -97,6 +97,14 @@
       "enrich": false
     },
     {
+      "path": "examprep/examprep.csv",
+      "mode": "gloss",
+      "deck": "Italian - Oral Exam Prep",
+      "front_pill": "type: exam prep",
+      "shuffle_window": 0,
+      "prompt_hint": "Vocabulary and useful spoken phrases for the Italian oral exam (CILS/CELI/PLIDA A1-B1), from 'La nuova Prova orale 1' and italki conversation lessons: photo description phrases, self-introduction, family, home, music, sport, shopping, family/marriage, weather and environment, plus adjectives, nouns, and verb infinitives."
+    },
+    {
       "path": "freqdic/subtlex-it.cleaned.csv",
       "mode": "subtlex",
       "deck": "Italian - Verbs",

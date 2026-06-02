@@ -21,4 +21,4 @@ ROOT="$(cd "$HERE/.." && pwd)"
 source "$HERE/_venv.sh"
 ensure_venv "$ROOT"
 
-python "$HERE/04_audit_cards.py" --limit 100 --workers 200 "$@"
+python "$HERE/04_audit_cards.py" --workers 500 "$@"

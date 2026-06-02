@@ -7,10 +7,11 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
+ROOT="$(cd "$HERE/.." && pwd)"
 
 # shellcheck disable=SC1091
-source "$HERE/scripts/_venv.sh"
-ensure_venv "$HERE"
+source "$HERE/_venv.sh"
+ensure_venv "$ROOT"
 
 python -m flashcards audio \
     --workers 5 \
@@ -25,4 +26,5 @@ python -m flashcards audio \
     --deck 'Italian - Italki Verbs Infinitive' \
     --deck 'Italian - Italki Verbs Passato Prossimo' \
     --deck 'Italian - Italki Verbs Presente' \
+    --deck 'Italian - Oral Exam Prep' \
     "$@"
