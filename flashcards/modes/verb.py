@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 
 from .. import csvio
-from ..grammar import TENSE_DISPLAY
+from ..grammar import TENSE_DISPLAY, TENSE_PERSONS, TENSES
 from ..openrouter import (
     SCHEMA_VERB,
     SCHEMA_VERB_FORMS,
@@ -49,72 +49,99 @@ class VerbMode:
             ).fetchall()
         }
         pending = [r for r in rows if r.italian.strip().lower() not in existing]
-        if not pending:
-            return 0
-
-        api_key = ctx.api_key()
-        db_lock = ctx.db_lock
-
-        def work(r: csvio.CsvRow) -> dict:
-            return cached_structured(
-                conn=ctx.conn,
-                db_lock=db_lock,
-                prompt=self._meta_prompt(source, r),
-                schema_name="verb_meta",
-                schema=SCHEMA_VERB,
-                api_key=api_key,
-            )
 
         inserted = 0
-        for r, result in run_pool(
-            pending, work,
-            workers=ctx.workers,
-            label=f"verb-meta/{source.id}",
-            describe=lambda r: r.italian,
-        ):
-            if isinstance(result, Exception):
-                continue
-            with db_lock:
-                inserted += self._insert_entry(ctx.conn, source, r, item=result)
-                ctx.conn.commit()
+        if pending:
+            api_key = ctx.api_key()
+            db_lock = ctx.db_lock
 
-        # Second pass: fill verb_forms for any entry without rows.
+            def work(r: csvio.CsvRow) -> dict:
+                return cached_structured(
+                    conn=ctx.conn,
+                    db_lock=db_lock,
+                    prompt=self._meta_prompt(source, r),
+                    schema_name="verb_meta",
+                    schema=SCHEMA_VERB,
+                    api_key=api_key,
+                )
+
+            for r, result in run_pool(
+                pending, work,
+                workers=ctx.workers,
+                label=f"verb-meta/{source.id}",
+                describe=lambda r: r.italian,
+            ):
+                if isinstance(result, Exception):
+                    continue
+                with db_lock:
+                    inserted += self._insert_entry(ctx.conn, source, r, item=result)
+                    ctx.conn.commit()
+
+        # Second pass: fill verb_forms for any entry missing one or more
+        # tenses. Must run even when `pending` is empty so that re-runs
+        # after a new tense is added to ``TENSES`` will backfill the
+        # existing entries instead of being short-circuited.
         self._fill_forms(source, ctx)
         return inserted
 
     def _fill_forms(self, source: Source, ctx) -> None:
+        """Backfill any (entry, tense) pairs that aren't yet in ``verb_forms``.
+
+        We only ask the AI for the tenses that are actually missing for each
+        entry, which means newly-added tenses (e.g. ``presente_progressivo``,
+        ``condizionale_presente``, ``condizionale_passato``) get conjugated for
+        verbs that were ingested before those tenses existed, without paying
+        for the 22 already-stored forms again. The AI cache is per-prompt, so
+        partial-tense requests get their own cache entries.
+        """
         sp = str(source.path.resolve())
-        entries = ctx.conn.execute(
+        # IMPORTANT: filter on ``mode = 'verb'``. The SUBTLEX source inserts
+        # both verb and noun entries under the same ``source_path``; without
+        # this filter, ``_fill_forms`` would happily ask the AI to conjugate
+        # nouns (``benzina``, ``isola``, …) as if they were verbs and burn
+        # through credits in parallel.
+        rows = ctx.conn.execute(
             """
             SELECT e.id, e.italian, e.english, e.infinitive, e.auxiliary,
-                   e.past_participle, e.is_reflexive
+                   e.past_participle, e.is_reflexive,
+                   COALESCE(GROUP_CONCAT(DISTINCT vf.tense), '') AS have_tenses
             FROM entries e
-            WHERE e.source_path = ?
-              AND NOT EXISTS (SELECT 1 FROM verb_forms vf WHERE vf.entry_id = e.id)
+            LEFT JOIN verb_forms vf ON vf.entry_id = e.id
+            WHERE e.source_path = ? AND e.mode = 'verb'
+            GROUP BY e.id
             """,
             (sp,),
         ).fetchall()
-        if not entries:
+
+        targets: list[tuple[object, list[str]]] = []
+        for row in rows:
+            have = {t for t in (row["have_tenses"] or "").split(",") if t}
+            missing = [t for t in TENSES if t not in have]
+            if missing:
+                targets.append((row, missing))
+        if not targets:
             return
+
         api_key = ctx.api_key()
         db_lock = ctx.db_lock
 
-        def work(row) -> dict:
+        def work(payload) -> dict:
+            row, missing = payload
             return cached_structured(
                 conn=ctx.conn,
                 db_lock=db_lock,
-                prompt=self._forms_prompt(row),
+                prompt=self._forms_prompt(row, missing),
                 schema_name="verb_forms",
                 schema=SCHEMA_VERB_FORMS,
                 api_key=api_key,
                 timeout=90,
             )
 
-        for row, result in run_pool(
-            list(entries), work,
+        for (row, _missing), result in run_pool(
+            targets, work,
             workers=ctx.workers,
             label=f"verb-forms/{source.id}",
-            describe=lambda r: r["italian"],
+            describe=lambda p: p[0]["italian"],
         ):
             if isinstance(result, Exception):
                 continue
@@ -204,7 +231,7 @@ class VerbMode:
             f"Item:\n{payload}"
         )
 
-    def _forms_prompt(self, e) -> str:
+    def _forms_prompt(self, e, tenses: list[str]) -> str:
         payload = json.dumps(
             {
                 "lemma": e["italian"],
@@ -216,16 +243,36 @@ class VerbMode:
             },
             ensure_ascii=False,
         )
+        # Render the "generate exactly these (tense, persons)" specification
+        # from the requested subset so backfill calls only ask for missing
+        # tenses. Each line is unambiguous so the cache key for a partial
+        # request differs from a full request.
+        spec_lines = []
+        for t in tenses:
+            persons = ", ".join(TENSE_PERSONS[t])
+            spec_lines.append(f"  - {t}: {persons}")
+        spec = "\n".join(spec_lines)
         return (
-            "Generate Italian verb forms for a flashcard database.\n"
-            "Generate exactly these forms: presente, passato_prossimo, imperfetto "
-            "for io, tu, lui_lei, noi, voi, loro; imperativo for tu, Lei, noi, voi. "
-            "No io imperative.\n\n"
+            "Generate Italian verb forms for a flashcard database.\n\n"
+            "Generate exactly the following (tense, persons) pairs and NOTHING else:\n"
+            f"{spec}\n\n"
             "Rules:\n"
+            "  - presente_progressivo: Italian present continuous = stare in the presente +\n"
+            "    gerundio of this verb (e.g. 'sto parlando', 'sta andando'). For reflexives,\n"
+            "    the reflexive pronoun is typically proclitic on stare ('mi sto lavando').\n"
             "  - Use the supplied auxiliary and past participle for passato_prossimo.\n"
+            "  - futuro_semplice: simple future (e.g. 'parlerò', 'andrò', 'sarò'). Respect\n"
+            "    irregular future stems (avrò, sarò, andrò, vedrò, farò, dirò, etc.).\n"
+            "  - condizionale_presente: present conditional (e.g. 'parlerei', 'andrei').\n"
+            "  - condizionale_passato: conditional perfect — the supplied auxiliary in the\n"
+            "    present conditional + past participle (e.g. 'avrei parlato', 'sarei andato').\n"
+            "    For essere verbs, agree the past participle with the subject's gender/number;\n"
+            "    when gender is ambiguous use the masculine form.\n"
+            "  - imperativo has no io form; use Lei for the formal-you imperative.\n"
             "  - Reflexive verbs include the correct reflexive pronouns.\n"
             "  - labels: pipe-separated, e.g. 'tense: presente | subject: io'.\n"
-            "  - english: natural prompt, e.g. 'we speak / we are speaking', 'Speak!'.\n"
+            "  - english: natural prompt, e.g. 'we speak / we are speaking', 'Speak!',\n"
+            "    'I am speaking', 'I will speak', 'I would speak', 'I would have spoken'.\n"
             "  - usage_note: very short label if archaic/formal/vulgar/literary/regional; else empty.\n\n"
             f"Input verb:\n{payload}"
         )

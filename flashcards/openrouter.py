@@ -254,7 +254,16 @@ SCHEMA_VERB_FORMS = {
                 "properties": {
                     "tense": {
                         "type": "string",
-                        "enum": ["presente", "passato_prossimo", "imperfetto", "imperativo"],
+                        "enum": [
+                            "presente",
+                            "presente_progressivo",
+                            "passato_prossimo",
+                            "imperfetto",
+                            "futuro_semplice",
+                            "imperativo",
+                            "condizionale_presente",
+                            "condizionale_passato",
+                        ],
                     },
                     "person": {
                         "type": "string",
