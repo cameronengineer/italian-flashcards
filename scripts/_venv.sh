@@ -1,19 +1,17 @@
 #!/bin/bash
-# Shared venv bootstrap. Sourced by run.sh and scripts/*.sh.
+# Shared venv bootstrap, sourced by run.sh and fc.sh.
 #
-# Usage:
 #   source "$HERE/scripts/_venv.sh"
 #   ensure_venv "$HERE"
 #
-# ensure_venv creates a fresh .venv at $1/.venv if missing, installs
-# requirements.txt into it, and activates it. Idempotent: if .venv exists and
-# requirements.txt hasn't changed since last install, it just activates.
-
+# Creates $1/.venv if missing, installs the project (pyproject.toml) into it
+# in editable mode, and activates it. Re-installs only when pyproject.toml
+# changes.
 ensure_venv() {
     local root="${1:?ensure_venv: project root required}"
     local venv="$root/.venv"
-    local reqs="$root/requirements.txt"
-    local stamp="$venv/.requirements.sha"
+    local project="$root/pyproject.toml"
+    local stamp="$venv/.pyproject.sha"
 
     if [ ! -d "$venv" ]; then
         echo "[venv] creating $venv"
@@ -23,16 +21,13 @@ ensure_venv() {
     # shellcheck disable=SC1091
     source "$venv/bin/activate"
 
-    if [ -f "$reqs" ]; then
-        local current
-        current="$(shasum -a 256 "$reqs" | awk '{print $1}')"
-        local previous=""
-        [ -f "$stamp" ] && previous="$(cat "$stamp")"
-        if [ "$current" != "$previous" ]; then
-            echo "[venv] installing requirements (changed since last run)"
-            pip install --quiet --upgrade pip
-            pip install --quiet -r "$reqs"
-            echo "$current" > "$stamp"
-        fi
+    local current previous=""
+    current="$(shasum -a 256 "$project" | awk '{print $1}')"
+    [ -f "$stamp" ] && previous="$(cat "$stamp")"
+    if [ "$current" != "$previous" ]; then
+        echo "[venv] installing project (pyproject.toml changed since last run)"
+        pip install --quiet --upgrade pip
+        pip install --quiet -e "$root"
+        echo "$current" > "$stamp"
     fi
 }

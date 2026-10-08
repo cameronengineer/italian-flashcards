@@ -1,31 +1,30 @@
 """``noun`` mode — full noun-phrase pipeline.
 
-Per row:
-  1. AI lookup of canonical singular/plural, gender, articles → entry.
-  2. AI generation of definite phrases (always) + one randomly-picked extra
-     phrase family (articulated preposition / demonstrative / possessive /
-     indefinite) → noun_phrases.
+Ingest: CSV row → AI metadata (gender, singular/plural, articles) →
+``entries``; then definite phrases (always) plus one extra phrase family
+picked deterministically per noun (indefinite, articulated preposition,
+demonstrative or possessive) → ``noun_phrases``.
 
-Materialise:
-  Definite phrases → ``source.deck``; everything else → ``source.phrases_deck``.
+Cards: definite phrases → ``deck``; everything else → ``phrases_deck``.
+The fun fact goes on the definite singular card.
 """
 
 from __future__ import annotations
 
 import hashlib
-import json
+import sqlite3
+from typing import Iterable
 
 from .. import csvio
+from ..cards import Card, join_details, labels, with_article
 from ..grammar import NOUN_PHRASE_OPTIONS
-from ..openrouter import (
-    SCHEMA_NOUN,
-    SCHEMA_NOUN_PHRASES,
-    cached_structured,
-    merge_english,
-)
-from ..pool import run_pool
 from ..sources import Source
-from ..util import entry_id
+from ..tasks import NOUN_META, NOUN_PHRASES
+from ..util import clean_text
+from .base import Mode
+from .verb import _lemma
+
+GENDER_LABEL = {"masculine": "masculine", "feminine": "feminine", "both": "masculine / feminine"}
 
 
 def _select_phrase(singular: str, plural: str) -> tuple[str, str]:
@@ -35,176 +34,71 @@ def _select_phrase(singular: str, plural: str) -> tuple[str, str]:
     return NOUN_PHRASE_OPTIONS[idx]
 
 
-class NounMode:
+class NounMode(Mode):
     name = "noun"
+    meta = NOUN_META
+    default_hint = "Italian noun."
 
-    def ingest(self, source: Source, ctx) -> int:
-        rows = csvio.read(source.path)
-        if not rows:
-            return 0
-        return self._ingest_rows(source, rows, ctx)
+    # ── Ingest hooks ──────────────────────────────────────────────────────
+    def row_key(self, row: csvio.CsvRow) -> str:
+        return row.italian.strip().lower()
 
-    def _ingest_rows(self, source, rows: list, ctx) -> int:
-        sp = str(source.path.resolve())
-        # natural_id is stored as the lowercased lemma; see _insert_entry.
-        existing = {
-            r["natural_id"]
-            for r in ctx.conn.execute(
-                "SELECT natural_id FROM entries WHERE source_path = ?", (sp,)
-            ).fetchall()
+    def resolve(self, row, result) -> str | None:
+        return _lemma(result, row) if result is not None else self.row_key(row)
+
+    def columns(self, row, result, natural_id: str) -> dict:
+        singular = clean_text(result["singular"], natural_id).lower() or natural_id
+        return {
+            "singular": singular,
+            "plural": clean_text(result["plural"], singular).lower(),
+            "gender": result["gender"],
+            "definite_singular": clean_text(result["definite_singular"]).lower(),
+            "definite_plural": clean_text(result["definite_plural"]).lower(),
+            "indefinite_singular": clean_text(result["indefinite_singular"]).lower(),
         }
-        pending = [r for r in rows if r.italian.strip().lower() not in existing]
-        inserted_entries = 0
 
-        if pending:
-            api_key = ctx.api_key()
-            db_lock = ctx.db_lock
-
-            def meta_work(r: csvio.CsvRow) -> dict:
-                return cached_structured(
-                    conn=ctx.conn,
-                    db_lock=db_lock,
-                    prompt=self._meta_prompt(source, r),
-                    schema_name="noun_meta",
-                    schema=SCHEMA_NOUN,
-                    api_key=api_key,
-                )
-
-            for r, result in run_pool(
-                pending, meta_work,
-                workers=ctx.workers,
-                label=f"noun-meta/{source.id}",
-                describe=lambda r: r.italian,
-            ):
-                if isinstance(result, Exception):
-                    continue
-                with db_lock:
-                    inserted_entries += self._insert_entry(ctx.conn, source, r, item=result)
-                    ctx.conn.commit()
-
-        # Second pass: fill noun_phrases for any entry without rows. This
-        # always runs (idempotent) so a previous failed AI run can resume.
-        self._fill_phrases(source, ctx)
-        return inserted_entries
-
-    def _fill_phrases(self, source: Source, ctx) -> None:
-        sp = str(source.path.resolve())
+    def children(self, source: Source, ctx) -> None:
+        """Generate phrases for every live noun that has none yet."""
         entries = ctx.conn.execute(
             """
             SELECT e.id, e.italian, e.english, e.singular, e.plural, e.gender,
                    e.definite_singular, e.definite_plural, e.indefinite_singular
             FROM entries e
-            WHERE e.source_path = ?
+            WHERE e.source_path = ? AND e.mode = 'noun' AND e.retired = 0
               AND e.singular IS NOT NULL AND e.singular != ''
               AND e.definite_singular IS NOT NULL AND e.definite_singular != ''
               AND NOT EXISTS (SELECT 1 FROM noun_phrases p WHERE p.entry_id = e.id)
             """,
-            (sp,),
+            (source.key,),
         ).fetchall()
-        if not entries:
-            return
-        api_key = ctx.api_key()
-        db_lock = ctx.db_lock
-
-        def phrase_work(row) -> dict:
-            return cached_structured(
-                conn=ctx.conn,
-                db_lock=db_lock,
-                prompt=self._phrases_prompt(row),
-                schema_name="noun_phrases",
-                schema=SCHEMA_NOUN_PHRASES,
-                api_key=api_key,
-                timeout=90,
-            )
-
-        for row, result in run_pool(
-            list(entries), phrase_work,
-            workers=ctx.workers,
+        self.generate(
+            ctx,
             label=f"noun-phrases/{source.id}",
-            describe=lambda r: r["italian"],
-        ):
-            if isinstance(result, Exception):
-                continue
-            with db_lock:
-                self._insert_phrases(ctx.conn, row["id"], result)
-                ctx.conn.commit()
-
-    # ── Materialise ───────────────────────────────────────────────────────
-    def materialise(self, source: Source, ctx) -> int:
-        sp = str(source.path.resolve())
-        rows = ctx.conn.execute(
-            """
-            SELECT p.id AS phrase_id, p.entry_id, p.phrase_type, p.number,
-                   p.preposition, p.italian, p.english, p.labels, e.singular
-            FROM noun_phrases p
-            JOIN entries e ON p.entry_id = e.id
-            WHERE e.source_path = ?
-            ORDER BY e.rowid, p.phrase_type, p.number
-            """,
-            (sp,),
-        ).fetchall()
-        inserted = 0
-        for r in rows:
-            deck = source.deck if r["phrase_type"] == "definite" else (
-                source.phrases_deck or source.deck
-            )
-            labels = r["labels"]
-            if source.label_pill:
-                labels = f"{labels} | {source.label_pill}" if labels else source.label_pill
-            inserted += ctx.add_card_pair(
-                entry_id=r["entry_id"],
-                natural_key=f"noun_phrase:{r['phrase_id']}",
-                deck=deck,
-                front_text=r["english"],
-                back_highlight=r["italian"],
-                back_text=None,
-                front_labels=labels,
-                audio_text=r["italian"] if source.audio else None,
-                image_text=(r["singular"] if source.image else None),
-            )
-        return inserted
-
-    # ── Helpers ───────────────────────────────────────────────────────────
-    def _meta_prompt(self, source: Source, r: csvio.CsvRow) -> str:
-        hint = source.prompt_hint or "Italian noun."
-        payload = json.dumps({"italian": r.italian, "english_hint": r.english}, ensure_ascii=False)
-        return (
-            "Enrich an Italian noun entry.\n\n"
-            f"Context: {hint}\n\n"
-            "Rules:\n"
-            "  - lemma and singular: canonical singular (lowercase).\n"
-            "  - singular_english / plural_english: bare translations ('house' / 'houses').\n"
-            "  - english: concise gloss, usually without article.\n"
-            "  - definite_singular ∈ {il, lo, l', la, ''}.\n"
-            "  - definite_plural ∈ {i, gli, le, ''}.\n"
-            "  - indefinite_singular ∈ {un, uno, una, un', ''}.\n"
-            "  - valid=false only if clearly not a real Italian noun.\n\n"
-            f"Item:\n{payload}"
+            items=list(entries),
+            make_task=self._phrases_task,
+            store=lambda conn, e, result: self._insert_phrases(conn, e["id"], result),
+            describe=lambda e: e["italian"],
         )
 
-    def _phrases_prompt(self, e) -> str:
-        phrase_type, phrase_key = _select_phrase(e["singular"] or "", e["plural"] or "")
+    def _phrases_task(self, e):
+        phrase_type, key = _select_phrase(e["singular"] or "", e["plural"] or "")
         has_plural = bool(e["plural"])
-        phrases_needed = ["1. definite singular — e.g. 'il cane', 'la casa'"]
+        needed = ["definite singular (e.g. 'il cane', 'la casa')"]
         if has_plural:
-            phrases_needed.append("2. definite plural — e.g. 'i cani', 'le case'")
-        if phrase_type == "indefinite":
-            phrases_needed.append("3. indefinite singular — e.g. 'un cane', 'una casa'")
-            if has_plural:
-                phrases_needed.append("4. indefinite plural — e.g. 'dei cani', 'delle case'")
-        elif phrase_type == "articulated_preposition":
-            phrases_needed.append(f"3. articulated preposition '{phrase_key}' singular")
-            if has_plural:
-                phrases_needed.append(f"4. articulated preposition '{phrase_key}' plural")
-        elif phrase_type == "demonstrative":
-            phrases_needed.append(f"3. demonstrative '{phrase_key}' singular")
-            if has_plural:
-                phrases_needed.append(f"4. demonstrative '{phrase_key}' plural")
-        elif phrase_type == "possessive":
-            phrases_needed.append(f"3. possessive '{phrase_key}' singular")
-            if has_plural:
-                phrases_needed.append(f"4. possessive '{phrase_key}' plural")
-        payload = json.dumps(
+            needed.append("definite plural (e.g. 'i cani', 'le case')")
+        extra = {
+            "indefinite": "indefinite {n} (e.g. 'un cane' / 'dei cani')",
+            "articulated_preposition": f"articulated preposition '{key}' {{n}}",
+            "demonstrative": f"demonstrative '{key}' {{n}}",
+            "possessive": f"possessive '{key}' {{n}}",
+        }[phrase_type]
+        needed.append(extra.format(n="singular"))
+        if has_plural:
+            needed.append(extra.format(n="plural"))
+        spec = f"Build exactly these {len(needed)} phrase(s):\n" + "\n".join(
+            f"      {i}. {p}" for i, p in enumerate(needed, start=1)
+        )
+        return NOUN_PHRASES.task(
             {
                 "lemma": e["italian"],
                 "english": e["english"],
@@ -215,77 +109,65 @@ class NounMode:
                 "definite_plural": e["definite_plural"] if has_plural else None,
                 "indefinite_singular": e["indefinite_singular"],
             },
-            ensure_ascii=False,
+            rules=(spec,),
         )
-        return (
-            "Generate Italian noun phrases for a flashcard database.\n"
-            f"Build EXACTLY these {len(phrases_needed)} phrase(s):\n\n"
-            + "\n".join(phrases_needed)
-            + "\n\nRules:\n"
-            "  - Use correct articles for the noun's gender / starting sound.\n"
-            "  - For nouns with no plural, only generate singular phrases.\n"
-            "  - definite: 'the …'; indefinite: 'a/an …' or 'some …'.\n"
-            "  - articulated_preposition: natural prepositional phrase.\n"
-            "  - demonstrative: 'this/these …' for questo, 'that/those …' for quello.\n"
-            "  - possessive: my / your / his / her / our / your (pl) / their.\n"
-            "  - labels: pipe-separated, e.g. 'phrase: definite | number: singular'.\n"
-            "  - usage_note: empty unless archaic/formal/vulgar/literary/regional.\n\n"
-            f"Input noun:\n{payload}"
-        )
-
-    def _insert_entry(self, conn, source: Source, r: csvio.CsvRow, *, item: dict) -> int:
-        if not item.get("valid", True):
-            return 0
-        lemma = (item["lemma"] or "").strip().lower() or r.italian.strip().lower()
-        singular = (item["singular"] or "").strip().lower() or lemma
-        if not lemma:
-            return 0
-        english = merge_english(item) or r.english
-        if not english:
-            return 0
-        sp = str(source.path.resolve())
-        eid = entry_id(sp, lemma)
-        cursor = conn.execute(
-            """
-            INSERT OR IGNORE INTO entries (
-                id, source_path, natural_id, mode, deck, italian, english,
-                confidence, singular, plural, gender,
-                definite_singular, definite_plural, indefinite_singular
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                eid, sp, lemma, source.mode, source.deck, lemma, english,
-                float(item.get("confidence", 1.0)), singular,
-                (item["plural"] or "").strip().lower(),
-                item["gender"],
-                (item["definite_singular"] or "").strip().lower(),
-                (item["definite_plural"] or "").strip().lower(),
-                (item["indefinite_singular"] or "").strip().lower(),
-            ),
-        )
-        return cursor.rowcount
 
     def _insert_phrases(self, conn, entry_id_value: str, result: dict) -> int:
         inserted = 0
         for phrase in result.get("phrases", []):
-            italian = (phrase.get("italian") or "").strip()
-            english = (phrase.get("english") or "").strip()
+            italian = clean_text(phrase.get("italian"))
+            english = clean_text(phrase.get("english"))
             if not italian or not english:
                 continue
-            usage_note = (phrase.get("usage_note") or "").strip()
+            usage_note = clean_text(phrase.get("usage_note"))
             if usage_note:
                 english = f"{english} [{usage_note}]"
-            preposition = (phrase.get("preposition") or "").strip() or None
+            preposition = clean_text(phrase.get("preposition")) or None
+            card_key = (
+                f"noun_phrase:{entry_id_value}:{phrase['phrase_type']}:"
+                f"{phrase['number']}:{preposition or ''}"
+            )
             cursor = conn.execute(
                 """
                 INSERT OR IGNORE INTO noun_phrases (
-                    entry_id, phrase_type, number, preposition, italian, english, labels
+                    entry_id, phrase_type, number, preposition, italian, english, card_key
                 ) VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
-                (
-                    entry_id_value, phrase["phrase_type"], phrase["number"],
-                    preposition, italian, english, (phrase.get("labels") or "").strip(),
-                ),
+                (entry_id_value, phrase["phrase_type"], phrase["number"],
+                 preposition, italian, english, card_key),
             )
             inserted += cursor.rowcount
         return inserted
+
+    # ── Cards ─────────────────────────────────────────────────────────────
+    def cards(self, source: Source, conn: sqlite3.Connection) -> Iterable[Card]:
+        for r in conn.execute(
+            """
+            SELECT p.card_key, p.entry_id, p.phrase_type, p.number, p.preposition,
+                   p.italian, p.english, e.singular, e.gender, e.definite_singular
+            FROM noun_phrases p
+            JOIN entries e ON p.entry_id = e.id
+            WHERE e.source_path = ? AND e.mode = 'noun' AND e.retired = 0
+            ORDER BY e.rowid, p.phrase_type, p.number
+            """,
+            (source.key,),
+        ):
+            definite = r["phrase_type"] == "definite"
+            base = with_article(r["definite_singular"], r["singular"])
+            is_base_card = definite and r["number"] == "singular"
+            yield Card(
+                entry_id=r["entry_id"],
+                natural_key=r["card_key"],
+                deck=source.deck if definite else (source.phrases_deck or source.deck),
+                english=r["english"],
+                italian=r["italian"],
+                labels=labels(type="noun", phrase=r["phrase_type"], preposition=r["preposition"],
+                              number=r["number"], extra=source.label_pill),
+                details=join_details(
+                    GENDER_LABEL.get(r["gender"] or ""),
+                    None if is_base_card else base,
+                ),
+                audio_text=r["italian"],
+                image_text=r["singular"],
+                fact_word=r["singular"] if is_base_card else None,
+            )

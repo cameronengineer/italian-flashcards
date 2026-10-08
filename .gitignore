@@ -44,3 +44,5 @@ old/
 
 # Generated AI audit reports
 audit_reports/
+# Editable install metadata (pip install -e .)
+*.egg-info/

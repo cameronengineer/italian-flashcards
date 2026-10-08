@@ -1,0 +1,177 @@
+"""Central settings, loaded from ``settings.toml`` at the repo root.
+
+Defaults live here; the TOML file overrides them. Unknown keys are an
+error so a typo can't silently fall back to a default. Read settings with
+``from .settings import settings`` — the object is loaded once per process.
+"""
+
+from __future__ import annotations
+
+import os
+import tomllib
+from dataclasses import dataclass, field, fields, is_dataclass, replace
+from pathlib import Path
+
+from .paths import PROJECT_ROOT
+
+
+@dataclass(frozen=True)
+class AISettings:
+    """Text / JSON AI — always Claude, via `claude -p` on your subscription."""
+
+    #: Claude Code model alias or name ("opus", "sonnet", …).
+    model: str = "opus"
+    #: Claude Code effort level: low | medium | high | xhigh | max.
+    effort: str = "medium"
+    #: Seconds before one AI call is abandoned.
+    timeout: int = 600
+    #: Max AI calls in flight at once (each Claude Code call is a process).
+    concurrency: int = 4
+    #: While Claude is unavailable (usage limit, logged out, network down)
+    #: all AI work pauses and retries this often.
+    unavailable_retry_minutes: float = 5
+    #: Claude Code executable.
+    claude_cli: str = "claude"
+    #: task name → model; see ``flashcards/tasks.py`` for task names.
+    task_models: dict = field(default_factory=dict)
+
+    def model_for(self, task: str) -> str:
+        return self.task_models.get(task, self.model)
+
+
+@dataclass(frozen=True)
+class FactSettings:
+    enabled: bool = True
+    min_confidence: float = 0.75
+    #: Words per AI request.
+    batch_size: int = 25
+
+
+@dataclass(frozen=True)
+class AudioSettings:
+    voice_id: str = "HuK8QKF35exsCh2e7fLT"
+    model: str = "eleven_multilingual_v2"
+    format: str = "mp3_44100_128"
+    language: str = "it"
+    stability: float = 0.5
+    similarity_boost: float = 1.0
+    style: float = 1.0
+    speed: float = 0.7
+    compressed_bitrate: str = "48k"
+
+
+@dataclass(frozen=True)
+class ImageSettings:
+    """Image generation — the only thing that uses OpenRouter."""
+
+    model: str = "sourceful/riverflow-v2-fast"
+    #: Retries for transient OpenRouter errors (429 / 5xx / timeouts).
+    max_retries: int = 3
+    retry_delay: int = 5
+    compressed_max_px: int = 512
+    compressed_quality: int = 75
+
+
+@dataclass(frozen=True)
+class RunSettings:
+    build_workers: int = 20
+    audio_workers: int = 5
+    image_workers: int = 10
+    compress_workers: int = 8
+    audio_limit: int | None = None
+    image_limit: int | None = None
+
+
+@dataclass(frozen=True)
+class SyncSettings:
+    orphan_ratio_limit: float = 0.10
+    orphan_absolute_limit: int = 200
+
+
+@dataclass(frozen=True)
+class AnkiSettings:
+    url: str = "http://127.0.0.1:8765"
+
+
+@dataclass(frozen=True)
+class BackupSettings:
+    keep_last: int = 10
+    mirror_dir: str = ""
+
+
+@dataclass(frozen=True)
+class ReviewSettings:
+    min_confidence: float = 0.7
+
+
+@dataclass(frozen=True)
+class AuditSettings:
+    workers: int = 6
+
+
+@dataclass(frozen=True)
+class PracticeSettings:
+    words: int = 50
+    sentences: int = 10
+    length: str = "medium"
+    no_subjunctive: bool = False
+
+
+@dataclass(frozen=True)
+class LeechSettings:
+    threshold: int = 5
+    relearn_steps: list = field(default_factory=lambda: [10])
+
+
+@dataclass(frozen=True)
+class Settings:
+    ai: AISettings = field(default_factory=AISettings)
+    facts: FactSettings = field(default_factory=FactSettings)
+    audio: AudioSettings = field(default_factory=AudioSettings)
+    images: ImageSettings = field(default_factory=ImageSettings)
+    run: RunSettings = field(default_factory=RunSettings)
+    sync: SyncSettings = field(default_factory=SyncSettings)
+    anki: AnkiSettings = field(default_factory=AnkiSettings)
+    backups: BackupSettings = field(default_factory=BackupSettings)
+    review: ReviewSettings = field(default_factory=ReviewSettings)
+    audit: AuditSettings = field(default_factory=AuditSettings)
+    practice: PracticeSettings = field(default_factory=PracticeSettings)
+    leech: LeechSettings = field(default_factory=LeechSettings)
+
+
+SETTINGS_PATH = Path(os.environ.get("FLASHCARDS_SETTINGS") or PROJECT_ROOT / "settings.toml")
+
+
+def _merge(obj, data: dict, where: str):
+    known = {f.name: f for f in fields(obj)}
+    unknown = sorted(set(data) - set(known))
+    if unknown:
+        raise ValueError(f"{SETTINGS_PATH.name}: unknown key(s) in [{where}]: {unknown}")
+    changes = {}
+    for key, value in data.items():
+        current = getattr(obj, key)
+        if is_dataclass(current):
+            if not isinstance(value, dict):
+                raise ValueError(f"{SETTINGS_PATH.name}: [{where}.{key}] must be a table")
+            changes[key] = _merge(current, value, f"{where}.{key}".strip("."))
+        else:
+            changes[key] = value
+    return replace(obj, **changes)
+
+
+def load(path: Path = SETTINGS_PATH) -> Settings:
+    if not path.exists():
+        return Settings()
+    with path.open("rb") as fh:
+        data = tomllib.load(fh)
+    s = _merge(Settings(), data, "")
+    # TOML has no null: a 0/negative run limit means "no limit".
+    run = s.run
+    return replace(s, run=replace(
+        run,
+        audio_limit=run.audio_limit if run.audio_limit and run.audio_limit > 0 else None,
+        image_limit=run.image_limit if run.image_limit and run.image_limit > 0 else None,
+    ))
+
+
+settings = load()

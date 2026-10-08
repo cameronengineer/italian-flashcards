@@ -1,48 +1,33 @@
-"""``media`` command — generate ElevenLabs audio + AI images for every card,
-then produce compressed variants for deck packaging.
+"""``media`` commands — ElevenLabs audio and AI images for every card, then
+compressed variants for deck packaging. Voice, models and compression
+settings come from ``settings.toml``; image prompts go through the shared
+AI layer (``tasks.IMAGE_PROMPT``) and are cached like every other AI answer.
 """
 
 from __future__ import annotations
 
-import base64
-import json
 import shutil
 import subprocess
 import threading
-import urllib.error
-import urllib.request
+from contextlib import closing
 from pathlib import Path
 
 from PIL import Image
 from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
 
-from ..db import connect
-from ..openrouter import request_chat
+from ..ai import AI
+from ..db import connect, managed_decks
 from ..paths import (
     AUDIO_DIR, AUDIO_DIR_COMPRESSED,
     IMAGE_DIR, IMAGE_DIR_COMPRESSED,
-    ELEVENLABS_KEY_FILE, OPENROUTER_KEY_FILE,
+    ELEVENLABS_KEY_FILE,
     ensure_dirs,
 )
 from ..pool import run_pool
+from ..settings import settings
+from ..tasks import IMAGE_PROMPT
 from ..util import audio_filename, image_filename, load_key_file, print_banner
-
-# ── Audio ────────────────────────────────────────────────────────────────────
-VOICE_ID = "HuK8QKF35exsCh2e7fLT"
-ELEVENLABS_MODEL = "eleven_multilingual_v2"
-ELEVENLABS_FORMAT = "mp3_44100_128"
-LANGUAGE_CODE = "it"
-VOICE_SETTINGS = VoiceSettings(stability=0.5, similarity_boost=1.0, style=1.0, speed=0.7)
-
-# ── Image ────────────────────────────────────────────────────────────────────
-PROMPT_MODEL = "~google/gemini-flash-latest"
-IMAGE_MODEL = "sourceful/riverflow-v2-fast"
-
-# ── Compression ──────────────────────────────────────────────────────────────
-IMAGE_MAX_PX = 512
-IMAGE_QUALITY = 75
-AUDIO_BITRATE = "48k"
 
 
 def _audio_texts(conn, decks: list[str] | None = None) -> list[str]:
@@ -62,12 +47,19 @@ def _audio_texts(conn, decks: list[str] | None = None) -> list[str]:
 
 
 def _image_jobs(conn) -> list[dict]:
-    """One image per distinct image_text. Use the most-frequent card as context."""
+    """One image per distinct image_text, with one of its cards as context.
+
+    Restricted to ``en_to_it`` rows: the prompt labels ``front_text`` as
+    English and ``back_highlight`` as Italian, which is backwards on the
+    ``it_to_en`` twin (SQLite's GROUP BY would otherwise pick either).
+    """
     rows = conn.execute(
         """
-        SELECT image_text, front_text, front_labels, back_highlight, back_text, deck
+        SELECT image_text, MIN(sort_order), front_text, front_labels,
+               back_highlight, back_text, deck
         FROM cards
         WHERE image_text IS NOT NULL AND image_text != ''
+          AND direction = 'en_to_it'
         GROUP BY image_text
         """
     ).fetchall()
@@ -86,13 +78,17 @@ def _image_jobs(conn) -> list[dict]:
 
 # ── Audio generation ─────────────────────────────────────────────────────────
 def _gen_audio(client: ElevenLabs, text: str, dest: Path) -> None:
+    cfg = settings.audio
     audio_bytes = client.text_to_speech.convert(
-        voice_id=VOICE_ID,
+        voice_id=cfg.voice_id,
         text=text,
-        model_id=ELEVENLABS_MODEL,
-        output_format=ELEVENLABS_FORMAT,
-        language_code=LANGUAGE_CODE,
-        voice_settings=VOICE_SETTINGS,
+        model_id=cfg.model,
+        output_format=cfg.format,
+        language_code=cfg.language,
+        voice_settings=VoiceSettings(
+            stability=cfg.stability, similarity_boost=cfg.similarity_boost,
+            style=cfg.style, speed=cfg.speed,
+        ),
     )
     if not isinstance(audio_bytes, (bytes, bytearray)):
         audio_bytes = b"".join(audio_bytes)
@@ -104,7 +100,7 @@ def _gen_audio(client: ElevenLabs, text: str, dest: Path) -> None:
 def generate_audio(workers: int = 10, limit: int | None = None, decks: list[str] | None = None) -> dict:
     print_banner("media: generate audio (ElevenLabs)")
     ensure_dirs()
-    with connect() as conn:
+    with closing(connect()) as conn:
         texts = _audio_texts(conn, decks=decks)
     pending_all = [
         t for t in texts
@@ -139,83 +135,45 @@ def generate_audio(workers: int = 10, limit: int | None = None, decks: list[str]
     return {"generated": generated, "failed": failed}
 
 
+def generate_audio_per_deck(per_deck: int, workers: int = 5) -> dict:
+    """Up to ``per_deck`` new audio files for every managed deck.
+
+    Spreads a small daily budget across all decks instead of draining it on
+    whichever deck sorts first (replaces scripts/manual_audio_generate.sh).
+    """
+    with closing(connect()) as conn:
+        decks = managed_decks(conn)
+    totals = {"generated": 0, "failed": 0}
+    for deck in decks:
+        res = generate_audio(workers=workers, limit=per_deck, decks=[deck])
+        for k in totals:
+            totals[k] += res.get(k, 0)
+    print(f"\n  all decks: generated={totals['generated']}, failed={totals['failed']}")
+    return totals
+
+
 # ── Image generation ─────────────────────────────────────────────────────────
-def _visual_prompt(api_key: str, entry: dict) -> str | None:
-    user_content = (
-        f"- English: {entry['front_text']}\n"
-        f"- Type / context: {entry['front_labels']}\n"
-        f"- Italian: {entry['back_highlight']}"
-        + (f"\n- Italian infinitive: {entry['back_text']}" if entry["back_text"] else "")
-        + "\n\nWrite the image generation prompt."
-    )
-    system_content = (
-        "You generate image prompts for Italian language flashcard illustrations. "
-        "Given a flashcard's data, write a single specific image generation prompt "
-        "(2–3 sentences) for a flat design, minimalist icon-style illustration. "
-        "The Italian word/phrase takes precedence when English is ambiguous. "
-        "Simple, clear, suitable for a language learner. "
-        "STRICTLY NO TEXT, letters, numbers, or labels in the image. "
-        "Respond with only the visual concept prompt, nothing else."
-    )
-    try:
-        return request_chat(
-            messages=[
-                {"role": "system", "content": system_content},
-                {"role": "user", "content": user_content},
-            ],
-            api_key=api_key,
-            model=PROMPT_MODEL,
-            timeout=60,
-        ).strip() or None
-    except Exception as exc:  # noqa: BLE001
-        print(f"  [prompt-fail] {entry['image_key']!r}: {exc}")
-        return None
+def _image_task(job: dict):
+    return IMAGE_PROMPT.task({
+        "english": job["front_text"],
+        "labels": job["front_labels"],
+        "italian": job["back_highlight"],
+        "details": job["back_text"] or None,
+    })
 
 
-def _gen_image(api_key: str, prompt: str, dest: Path) -> bool:
-    payload = {
-        "model": IMAGE_MODEL,
-        "messages": [{"role": "user", "content": prompt}],
-        "modalities": ["image"],
-    }
-    data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(
-        "https://openrouter.ai/api/v1/chat/completions",
-        data=data,
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-            "X-Title": "Italian Flashcards",
-        },
-        method="POST",
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            body = resp.read().decode("utf-8")
-        result = json.loads(body)
-    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as exc:
-        print(f"  [image-fail] {dest.name}: {exc}")
-        return False
-    images = (result.get("choices") or [{}])[0].get("message", {}).get("images")
-    if not images:
-        return False
-    url = images[0]["image_url"]["url"]
-    if not url.startswith("data:image/"):
-        return False
-    _, encoded = url.split(",", 1)
-    # Write atomically so an interrupted run (SIGINT, disk full) leaves either
-    # no file or a complete file. Otherwise generate_images' "skip if file
-    # exists and is non-empty" check would treat a partial PNG as done.
+def _save_image(data: bytes, dest: Path) -> None:
+    # Write-then-rename so an interrupted run leaves no truncated file that
+    # later runs would treat as done.
     tmp = dest.with_suffix(dest.suffix + ".tmp")
-    tmp.write_bytes(base64.b64decode(encoded))
+    tmp.write_bytes(data)
     tmp.replace(dest)
-    return True
 
 
 def generate_images(workers: int = 10, limit: int | None = None) -> dict:
     print_banner("media: generate images")
     ensure_dirs()
-    with connect() as conn:
+    with closing(connect()) as conn:
         jobs = _image_jobs(conn)
     pending_all = [
         j for j in jobs
@@ -235,31 +193,31 @@ def generate_images(workers: int = 10, limit: int | None = None) -> dict:
     print(f"  {len(jobs)} unique images; {done_count} generated ({done_pct:.1f}%), {len(pending_all)} pending ({pend_pct:.1f}%){limit_note}.")
     if not pending:
         return {"generated": 0, "failed": 0}
-    api_key = load_key_file(OPENROUTER_KEY_FILE)
     print_lock = threading.Lock()
+    with closing(connect()) as conn:
+        ai = AI(conn)  # image prompts are cached; images live on disk
 
-    def work(job: dict) -> bool:
-        dest = IMAGE_DIR / image_filename(job["image_key"])
-        vp = _visual_prompt(api_key, job)
-        if not vp:
-            return False
-        ok = _gen_image(api_key, vp, dest)
-        with print_lock:
-            tag = "ok" if ok else "fail"
-            print(f"  [{tag}] {job['image_key']!r}")
-        return ok
+        def work(job: dict) -> bool:
+            dest = IMAGE_DIR / image_filename(job["image_key"])
+            prompt = ai.run(_image_task(job))["prompt"].strip()
+            data = ai.image(prompt) if prompt else None
+            if data:
+                _save_image(data, dest)
+            with print_lock:
+                print(f"  [{'ok' if data else 'fail'}] {job['image_key']!r}")
+            return bool(data)
 
-    generated = failed = 0
-    for _, res in run_pool(
-        pending, work, workers=workers, label="images",
-        describe=lambda j: j["image_key"],
-    ):
-        if isinstance(res, Exception):
-            failed += 1
-        elif res:
-            generated += 1
-        else:
-            failed += 1
+        generated = failed = 0
+        for _, res in run_pool(
+            pending, work, workers=workers, label="images",
+            describe=lambda j: j["image_key"],
+        ):
+            if isinstance(res, Exception):
+                failed += 1
+            elif res:
+                generated += 1
+            else:
+                failed += 1
     print(f"  done: generated={generated}, failed={failed}")
     return {"generated": generated, "failed": failed}
 
@@ -269,10 +227,15 @@ def _compress_image(src: Path) -> tuple[int, int]:
     dest = IMAGE_DIR_COMPRESSED / (src.stem + ".jpg")
     if dest.exists() and dest.stat().st_size > 0:
         return 0, 0
+    # Write-then-rename: an interrupted run must not leave a truncated file
+    # that every later run treats as done.
+    tmp = dest.with_name(dest.stem + ".tmp.jpg")
     with Image.open(src) as img:
         img = img.convert("RGB")
-        img.thumbnail((IMAGE_MAX_PX, IMAGE_MAX_PX), Image.LANCZOS)
-        img.save(dest, "JPEG", quality=IMAGE_QUALITY, optimize=True)
+        px = settings.images.compressed_max_px
+        img.thumbnail((px, px), Image.LANCZOS)
+        img.save(tmp, "JPEG", quality=settings.images.compressed_quality, optimize=True)
+    tmp.replace(dest)
     return src.stat().st_size, dest.stat().st_size
 
 
@@ -280,12 +243,15 @@ def _compress_audio(src: Path) -> tuple[int, int]:
     dest = AUDIO_DIR_COMPRESSED / src.name
     if dest.exists() and dest.stat().st_size > 0:
         return 0, 0
+    tmp = dest.with_name(dest.stem + ".tmp.mp3")
     result = subprocess.run(
-        ["ffmpeg", "-y", "-i", str(src), "-ac", "1", "-b:a", AUDIO_BITRATE, str(dest)],
+        ["ffmpeg", "-y", "-i", str(src), "-ac", "1", "-b:a", settings.audio.compressed_bitrate, str(tmp)],
         capture_output=True, timeout=60,
     )
     if result.returncode != 0:
+        tmp.unlink(missing_ok=True)
         raise RuntimeError(result.stderr.decode()[-200:])
+    tmp.replace(dest)
     return src.stat().st_size, dest.stat().st_size
 
 
@@ -294,8 +260,8 @@ def compress(workers: int = 8) -> dict:
     ensure_dirs()
     out: dict = {}
     for label, srcs, work_fn in (
-        ("images", list(IMAGE_DIR.glob("*.png")), _compress_image),
-        ("audio", list(AUDIO_DIR.glob("*.mp3")), _compress_audio),
+        ("images", [p for p in IMAGE_DIR.glob("*.png") if ".tmp" not in p.name], _compress_image),
+        ("audio", [p for p in AUDIO_DIR.glob("*.mp3") if ".tmp" not in p.name], _compress_audio),
     ):
         if label == "audio" and not shutil.which("ffmpeg"):
             print("  ffmpeg not on PATH — skipping audio compression.")

@@ -1,131 +1,45 @@
-"""``export`` command — write .apkg files from cards + media."""
+"""``export`` command — write one .apkg per deck from the cards table.
+
+Presentation (fields, templates, CSS, labels, back text) comes from
+:mod:`flashcards.cards`, so every deck renders identically.
+"""
 
 from __future__ import annotations
 
-import re
+import html
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 import genanki
 
+from ..cards import AFMT, CSS, MODEL_FIELDS, MODEL_ID, MODEL_NAME, QFMT, TEMPLATE_NAME, back_html, labels_html
 from ..db import connect, managed_decks
 from ..paths import (
     AUDIO_DIR, AUDIO_DIR_COMPRESSED,
     IMAGE_DIR, IMAGE_DIR_COMPRESSED,
     DECKS_DIR, ensure_dirs,
 )
-from ..util import audio_filename, image_filename, md5_hex, print_banner, slugify
-
-# Stable model ID — DO NOT CHANGE without forcing a re-import.
-MODEL_ID = 1944521879
-
-CSS = """
-.card {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 18px;
-  text-align: center;
-  color: #333;
-  background-color: #f4f4f9;
-  padding: 10px;
-}
-.card-container {
-  background-color: white;
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  max-width: 90%;
-  margin: 0 auto;
-}
-.meta-row {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-.pill {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 0.75em;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.pill.noun        { background-color: #d1fae5; color: #065f46; }
-.pill.infinitive  { background-color: #dbeafe; color: #1e40af; }
-.pill.tense       { background-color: #ede9fe; color: #5b21b6; }
-.pill.subject     { background-color: #fce7f3; color: #9d174d; }
-.pill.phrase      { background-color: #fef3c7; color: #92400e; }
-.pill.number      { background-color: #e0f2fe; color: #075985; }
-.pill.preposition { background-color: #fef9c3; color: #713f12; }
-.pill.type        { background-color: #f3e8ff; color: #6b21a8; }
-.pill.source      { background-color: #fee2e2; color: #991b1b; }
-.front-text { font-size: 2em; font-weight: 700; color: #2c3e50; line-height: 1.3; }
-.back-highlight { font-size: 2em; font-weight: 700; color: #e74c3c; margin-bottom: 12px; }
-.back-text { font-size: 1.2em; color: #2c3e50; font-style: italic; line-height: 1.5; }
-.card-image { margin-top: 14px; }
-.card-image img { max-height: 540px; max-width: 100%; width: auto; height: auto; border-radius: 10px; }
-hr#answer { border: 0; border-top: 1px solid #ddd; margin: 20px 0; }
-"""
-
-QFMT = """
-<div class="card-container">
-  {{#Image}}<div class="card-image">{{Image}}</div>{{/Image}}
-  {{FrontLabels}}
-  <div class="front-text">{{FrontText}}</div>
-  {{FrontAudio}}
-</div>
-"""
-
-AFMT = """
-{{FrontSide}}
-<hr id="answer">
-<div class="card-container">
-  {{#BackHighlight}}<div class="back-highlight">{{BackHighlight}}</div>{{/BackHighlight}}
-  <div class="back-text">{{BackText}}</div>
-  {{Audio}}
-</div>
-"""
+from ..util import audio_filename, image_filename, md5_hex, note_key, print_banner, slugify
 
 
 def build_model() -> genanki.Model:
     return genanki.Model(
         MODEL_ID,
-        "Italian Card Model",
-        fields=[
-            {"name": "FrontText"},
-            {"name": "FrontLabels"},
-            {"name": "FrontAudio"},
-            {"name": "BackHighlight"},
-            {"name": "BackText"},
-            {"name": "Audio"},
-            {"name": "Image"},
-            {"name": "SortKey"},
-        ],
-        templates=[{"name": "Italian Card", "qfmt": QFMT, "afmt": AFMT}],
+        MODEL_NAME,
+        fields=[{"name": f} for f in MODEL_FIELDS],
+        templates=[{"name": TEMPLATE_NAME, "qfmt": QFMT, "afmt": AFMT}],
         css=CSS,
     )
+
+
+def deck_file(deck_name: str) -> Path:
+    return DECKS_DIR / f"{slugify(deck_name)}.apkg"
 
 
 def deck_id_for(deck_name: str) -> int:
     digest = md5_hex(deck_name)
     return (int(digest[:8], 16) % (1 << 30)) + (1 << 30)
-
-
-def labels_html(front_labels: str | None) -> str:
-    if not front_labels or not front_labels.strip():
-        return ""
-    chips: list[str] = []
-    for part in front_labels.split("|"):
-        part = part.strip()
-        if ": " in part:
-            label, value = part.split(": ", 1)
-        else:
-            label, value = part, part
-        css_class = re.sub(r"[^a-z0-9-]", "-", label.strip().lower())
-        chips.append(f'<span class="pill {css_class}">{value.strip()}</span>')
-    return '<div class="meta-row">' + "".join(chips) + "</div>"
 
 
 def resolve_audio(text: str) -> tuple[Path, str] | None:
@@ -160,8 +74,8 @@ def build_deck(deck_name: str, model: genanki.Model, conn: sqlite3.Connection):
     media_files: list[str] = []
     rows = conn.execute(
         """
-        SELECT id, direction, front_text, front_labels, back_highlight,
-               back_text, audio_text, image_text, guid, sort_order
+        SELECT id, natural_key, direction, front_text, front_labels, back_highlight,
+               back_text, audio_text, image_text, fact, fact_kind, guid, sort_order
         FROM cards
         WHERE deck = ?
         ORDER BY sort_order
@@ -195,13 +109,22 @@ def build_deck(deck_name: str, model: genanki.Model, conn: sqlite3.Connection):
         deck.add_note(genanki.Note(
             model=model, guid=r["guid"],
             fields=[
-                r["front_text"], labels_html(r["front_labels"]),
+                html.escape(r["front_text"]), labels_html(r["front_labels"]),
                 front_audio,
-                r["back_highlight"], r["back_text"] or "", back_audio,
-                image_field, str(r["sort_order"]),
+                html.escape(r["back_highlight"]),
+                back_html(r["back_text"], r["fact"], r["fact_kind"]),
+                back_audio,
+                # SortKey carries the note's stable identity (not its
+                # position): sync uses it to find orphans and looks the
+                # position up in the DB. Keeping it stable also means
+                # unchanged notes aren't rewritten on every import.
+                image_field, note_key(r["natural_key"], r["direction"]),
             ],
         ))
         notes += 1
+    # Shared media (one image per verb across ~46 form cards) would otherwise
+    # be zipped into the package once per note.
+    media_files = list(dict.fromkeys(media_files))
     return deck, media_files, notes, miss_audio, miss_image
 
 
@@ -211,10 +134,10 @@ def run() -> dict:
     model = build_model()
     total_notes = total_miss_audio = total_miss_image = 0
     summary: dict = {}
-    with connect() as conn:
+    with closing(connect()) as conn:
         decks = managed_decks(conn)
         for deck_name in decks:
-            out = DECKS_DIR / f"{slugify(deck_name)}.apkg"
+            out = deck_file(deck_name)
             deck, media, notes, ma, mi = build_deck(deck_name, model, conn)
             pkg = genanki.Package(deck)
             pkg.media_files = media

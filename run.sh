@@ -1,35 +1,23 @@
 #!/bin/bash
-# Full pipeline. Equivalent to `python -m flashcards run`.
+# Full pipeline: build → audio → images → compress → export → sync.
+# Equivalent to `flashcards run`; defaults come from settings.toml [run] and
+# any flags are passed through (e.g. ./run.sh --no-sync).
 #
-# To add a new source: append an entry to sources.json (path is relative to
-# inputs/) and re-run this script. No code changes needed.
-#
-# This script bootstraps .venv on first run, validates sources.json, then
-# delegates to `python -m flashcards run`.
+# Orphan deletion is never forced: if sync refuses because too many notes
+# would go, check `./fc.sh sync --dry-run`, then re-run with
+# `./run.sh --allow-orphan-delete` if it's intended.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
-
 # shellcheck disable=SC1091
 source "$HERE/scripts/_venv.sh"
 ensure_venv "$HERE"
 
-# Gate the pipeline on sources.json being well-formed. `discover` exits non-zero
-# (and prints what's wrong) if the manifest is missing, malformed, or fails
-# validation — that catches typos before any AI calls are made.
+# Fail fast on a malformed sources.json before any AI calls are made.
 echo "[run] validating sources.json"
-python -m flashcards discover > /dev/null
+if ! discover_out="$(python -m flashcards discover 2>&1)"; then
+    echo "$discover_out"
+    exit 1
+fi
 
-# Per-phase concurrency. Pass --build-workers / --audio-workers / etc. to
-# override individual phases, or --workers N to override all at once.
-# Audio is capped at 5 to match ElevenLabs' concurrent-request limit.
-# Per-phase limits cap how many new media files each stage generates per run.
-python -m flashcards run \
-    --build-workers 200 \
-    --audio-workers 5 \
-    --image-workers 200 \
-    --compress-workers 8 \
-    --audio-limit 1 \
-    --image-limit 300 \
-    --allow-orphan-delete \
-    "$@"
+python -m flashcards run "$@"
