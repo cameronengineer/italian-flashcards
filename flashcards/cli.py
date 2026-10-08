@@ -1,57 +1,139 @@
-"""CLI entry point: ``flashcards <command>`` (or ``python -m flashcards``).
+"""CLI entry point: ``flashcards <command>`` (or ``./fc.sh <command>``).
 
-Pipeline
-  discover    Validate sources.json and list the sources (no writes).
-  build       Ingest sources, retire removed rows, add fun facts, write cards.
-  audio       ElevenLabs audio for cards that don't have it yet.
-  images      AI illustrations for cards that don't have one yet.
-  compress    Compress media for packaging (PNG→JPEG, MP3→48 kbps mono).
-  export      Write one .apkg per deck into decks/.
-  sync        Import into Anki, clean up orphans, reorder new cards.
-  run         All of the above, in order (backs up the DB first).
+Pipeline (``run`` does all of it, in this order)
+  check       Validate lists.toml and plan.toml.
+  lexicon     Resolve every list to root words (Kaikki + rules); export JSONL.
+  jobs        Show the AI / image queue (also: jobs retry, jobs refresh LIST).
+  work        Work through the queue: Claude for text, Codex for images.
+  notes       Compute the notes Anki should hold.
+  plan        Dry run: what `apply` would change in Anki.
+  apply       Sync Anki: add, update, adopt studied notes, retire, reorder.
+  audio       ElevenLabs audio, in study order.
+  run         Everything above (backs up the DB first).
+
+Movies
+  movie       Coverage report + word dataset for a film.
 
 Study tools
-  practice    Interactive translation practice from your learnt words.
+  practice    Translation practice from your learnt words (mistakes → cards).
   learnt      Export every word you've graduated to review.
-  leech       Suspend + tag cards you keep failing.
+  leech       Suspend + tag cards you keep failing (--doctor: memory aids).
 
 Quality
-  audit       AI review of the generated cards (verdicts saved to the DB).
-  review      Low-confidence entries, failed audits and doubtful facts.
+  audit       AI review of the notes (verdicts saved).
+  review      Disputed roots, failed audits, hidden facts, failed jobs.
 
-Defaults for workers, limits and models live in settings.toml.
+Other
+  kaikki      Import the Wiktionary (Kaikki) Italian dictionary.
+  share       Export ready notes as an .apkg for someone else.
 """
 
 from __future__ import annotations
 
 import argparse
 import sys
+from contextlib import closing
 from pathlib import Path
 
 from .settings import settings
 
 
-def cmd_discover(_args) -> int:
-    from .sources import load, summarise, validate
+def _conn():
+    from .db import connect, init_schema
 
-    sources, parse_errors = load()
-    print(summarise(sources))
-    errors = validate(sources, parse_errors)
+    conn = connect()
+    init_schema(conn)
+    return conn
+
+
+def cmd_check(_args) -> int:
+    from . import lists
+
+    defs = lists.load()
+    errors = lists.validate(defs)
+    for l in defs:
+        print(f"  [{l.kind:<7}] {l.id:<18} → {l.deck}")
     if errors:
-        print("\nValidation errors:")
-        for e in errors:
-            print(f"  - {e}")
+        print("\nErrors:\n  - " + "\n  - ".join(errors))
         return 1
-    print("\nValidation: OK.")
+    print("\nlists.toml + plan.toml: OK")
     return 0
 
 
-def cmd_build(args) -> int:
-    from .commands import build
+def cmd_kaikki(args) -> int:
+    from . import kaikki
 
-    result = build.run(workers=args.workers, select=args.source, skip_ai=args.skip_ai,
-                       refresh=args.refresh)
-    return 1 if result["failed_sources"] else 0
+    if args.action == "import":
+        print(kaikki.import_stream())
+    else:
+        print("kaikki index:", "present" if kaikki.available() else "missing", f"({kaikki.KAIKKI_DB})")
+    return 0
+
+
+def cmd_lexicon(_args) -> int:
+    from . import lexicon
+
+    with closing(_conn()) as conn:
+        edits = lexicon.import_human_edits(conn)
+        if edits:
+            print(f"  applied {edits} human edit(s) from lexicon/lexemes.jsonl")
+        lexicon.sync(conn)
+        print(f"  exported {lexicon.export_jsonl(conn)}")
+    return 0
+
+
+def cmd_jobs(args) -> int:
+    from . import queue
+    from .util import table
+
+    with closing(_conn()) as conn:
+        if args.action == "retry":
+            print(f"  {queue.retry_failed(conn)} failed job(s) back in the queue")
+        elif args.action == "refresh":
+            if not args.list:
+                print("  usage: flashcards jobs refresh LIST")
+                return 1
+            print(f"  {queue.refresh(conn, args.list)} root(s) of {args.list} will be re-asked")
+            print(f"  queued: {queue.plan(conn)}")
+        else:
+            print(f"  newly queued: {queue.plan(conn)}")
+            rows = queue.status(conn)
+            print(table(["Kind", "Status", "Jobs"], [list(r) for r in rows]) if rows else "  queue empty")
+    return 0
+
+
+def cmd_work(args) -> int:
+    from . import queue
+
+    with closing(_conn()) as conn:
+        queue.plan(conn)
+        kinds = args.kind or [k for k in queue.ORDER if not (args.no_images and k == "image")]
+        print(queue.drain(conn, kinds=kinds, max_batches=args.batches))
+    return 0
+
+
+def cmd_notes(_args) -> int:
+    from . import notes
+
+    with closing(_conn()) as conn:
+        notes.build(conn)
+    return 0
+
+
+def cmd_plan(args) -> int:
+    from . import reconcile
+
+    with closing(_conn()) as conn:
+        reconcile.run(conn, dry_run=True)
+    return 0
+
+
+def cmd_apply(args) -> int:
+    from . import reconcile
+
+    with closing(_conn()) as conn:
+        reconcile.run(conn, dry_run=False, allow_retire=args.allow_retire)
+    return 0
 
 
 def cmd_audio(args) -> int:
@@ -61,68 +143,51 @@ def cmd_audio(args) -> int:
         media.generate_audio_per_deck(args.per_deck, workers=args.workers)
     else:
         media.generate_audio(workers=args.workers, limit=args.limit, decks=args.deck or None)
+    media.compress(workers=settings.run.compress_workers)
     return 0
-
-
-def cmd_images(args) -> int:
-    from .commands import media
-
-    media.generate_images(workers=args.workers, limit=args.limit)
-    return 0
-
-
-def cmd_compress(args) -> int:
-    from .commands import media
-
-    media.compress(workers=args.workers)
-    return 0
-
-
-def cmd_export(_args) -> int:
-    from .commands import export
-
-    export.run()
-    return 0
-
-
-def cmd_sync(args) -> int:
-    from .commands import sync
-
-    result = sync.run(
-        dry_run=args.dry_run,
-        allow_orphan_delete=args.allow_orphan_delete,
-        delete_reviewed_orphans=args.delete_reviewed_orphans,
-    )
-    return 1 if result["import_failed"] else 0
 
 
 def cmd_run(args) -> int:
-    from . import backup
-    from .commands import build, export, media, sync
+    from . import backup, lexicon, notes, queue, reconcile
+    from .anki import invoke
+    from .commands import media
 
-    print(f"Workers — build: {args.build_workers}, audio: {args.audio_workers}, "
-          f"images: {args.image_workers}, compress: {args.compress_workers}")
     backup.snapshot("before run")
-    result = build.run(workers=args.build_workers, refresh=args.refresh)
-    failed = result.get("failed_sources") or []
-    media.generate_audio(workers=args.audio_workers, limit=args.audio_limit,
-                         decks=args.audio_deck or None)
-    media.generate_images(workers=args.image_workers, limit=args.image_limit)
-    media.compress(workers=args.compress_workers)
-    export.run()
-    if args.no_sync:
-        print("\nSync skipped (--no-sync).")
-        return 0
-    if failed:
-        print(f"\nSync skipped because the build had failures: {failed}. "
-              "Fix and re-run, or run sync manually.")
-        return 1
-    try:
-        sync.run(allow_orphan_delete=args.allow_orphan_delete,
-                 delete_reviewed_orphans=args.delete_reviewed_orphans)
-    except RuntimeError as exc:
-        print(f"\nSync skipped (Anki not running?): {exc}")
+    with closing(_conn()) as conn:
+        edits = lexicon.import_human_edits(conn)
+        if edits:
+            print(f"  applied {edits} human edit(s) from lexicon/lexemes.jsonl")
+        lexicon.sync(conn)
+        print(f"  queued: {queue.plan(conn)}")
+        notes.build(conn)
+        anki_up = True
+        try:
+            invoke("version")
+        except RuntimeError:
+            anki_up = False
+            print("\n  Anki is not running — skipping sync this run (open Anki and run `./fc.sh apply`).")
+        if anki_up and not args.no_sync:
+            reconcile.run(conn, dry_run=False, allow_retire=args.allow_retire)  # sync what's ready now
+        if not args.no_ai:
+            kinds = [k for k in queue.ORDER if not (args.no_images and k == "image")]
+            queue.drain(conn, kinds=kinds)
+            queue.plan(conn)  # follow-up jobs (disambiguation, images for new roots)
+            queue.drain(conn, kinds=kinds)
+        notes.build(conn)
+    media.generate_audio(workers=args.audio_workers, limit=args.audio_limit)
+    media.compress(workers=settings.run.compress_workers)
+    with closing(_conn()) as conn:
+        notes.build(conn)  # audio tags for newly generated files
+        if anki_up and not args.no_sync:
+            reconcile.run(conn, dry_run=False, allow_retire=args.allow_retire)
+        print(f"  exported {lexicon.export_jsonl(conn)}")
     return 0
+
+
+def cmd_movie(args) -> int:
+    from .commands import movie
+
+    return movie.run(args.list)
 
 
 def cmd_practice(args) -> int:
@@ -144,6 +209,8 @@ def cmd_learnt(args) -> int:
 def cmd_leech(args) -> int:
     from .commands import leech
 
+    if args.doctor:
+        return leech.doctor(unsuspend=args.unsuspend)
     return leech.run(deck=args.deck, threshold=args.threshold,
                      update_config=args.update_config, dry_run=args.dry_run)
 
@@ -158,14 +225,15 @@ def cmd_audit(args) -> int:
 def cmd_review(args) -> int:
     from .commands import review
 
+    if args.action == "approve":
+        return review.approve(lemmas=args.lemmas, all_=args.all)
     return review.run(limit=args.limit)
 
 
-def _orphan_flags(sp) -> None:
-    sp.add_argument("--allow-orphan-delete", action="store_true",
-                    help="Allow deleting more orphans than the [sync] limits in settings.toml.")
-    sp.add_argument("--delete-reviewed-orphans", action="store_true",
-                    help="Also delete orphaned notes that have review history (kept by default).")
+def cmd_share(args) -> int:
+    from .commands import share
+
+    return share.run(decks=args.deck, out=args.out)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -174,73 +242,64 @@ def build_parser() -> argparse.ArgumentParser:
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True, metavar="command")
 
-    sp = sub.add_parser("discover", help="Validate sources.json and list sources.")
-    sp.set_defaults(func=cmd_discover)
+    sub.add_parser("check", help="Validate lists.toml + plan.toml.").set_defaults(func=cmd_check)
 
-    sp = sub.add_parser("build", help="Ingest sources and write cards.")
-    sp.add_argument("--workers", type=int, default=run_cfg.build_workers)
-    sp.add_argument("--source", action="append", help="Only this source id (repeatable).")
-    sp.add_argument("--skip-ai", action="store_true",
-                    help="No AI calls: skip ingest + facts, only rebuild cards from the DB.")
-    sp.add_argument("--refresh", action="append", metavar="SOURCE",
-                    help="Re-ask the AI for every row of this source (repeatable).")
-    sp.set_defaults(func=cmd_build)
+    sp = sub.add_parser("kaikki", help="Import / inspect the Kaikki dictionary.")
+    sp.add_argument("action", nargs="?", choices=["import", "status"], default="status")
+    sp.set_defaults(func=cmd_kaikki)
 
-    sp = sub.add_parser("audio", help="Generate ElevenLabs audio.")
+    sub.add_parser("lexicon", help="Resolve lists to root words; export JSONL.").set_defaults(func=cmd_lexicon)
+
+    sp = sub.add_parser("jobs", help="Show / retry / refresh the AI queue.")
+    sp.add_argument("action", nargs="?", choices=["status", "retry", "refresh"], default="status")
+    sp.add_argument("list", nargs="?", help="list id for `jobs refresh`")
+    sp.set_defaults(func=cmd_jobs)
+
+    sp = sub.add_parser("work", help="Work through the AI / image queue.")
+    sp.add_argument("--kind", action="append", choices=["lexeme_enrich", "phrase_enrich", "verb_prompts", "disambiguate", "image"])
+    sp.add_argument("--batches", type=int, default=None, help="Stop after N batches.")
+    sp.add_argument("--no-images", action="store_true")
+    sp.set_defaults(func=cmd_work)
+
+    sub.add_parser("notes", help="Compute the desired Anki notes.").set_defaults(func=cmd_notes)
+    sub.add_parser("plan", help="Dry run of `apply`.").set_defaults(func=cmd_plan)
+    sp = sub.add_parser("apply", help="Sync Anki.")
+    sp.add_argument("--allow-retire", action="store_true",
+                    help="Allow retiring more unstudied notes than the [sync] limit.")
+    sp.set_defaults(func=cmd_apply)
+
+    sp = sub.add_parser("audio", help="ElevenLabs audio in study order.")
     sp.add_argument("--workers", type=int, default=run_cfg.audio_workers)
-    sp.add_argument("--limit", type=int, default=None)
-    sp.add_argument("--deck", action="append", metavar="DECK", help="Only this deck (repeatable).")
-    sp.add_argument("--per-deck", type=int, default=None, metavar="N",
-                    help="Generate up to N new files for every deck.")
+    sp.add_argument("--limit", type=int, default=run_cfg.audio_limit)
+    sp.add_argument("--deck", action="append", metavar="DECK")
+    sp.add_argument("--per-deck", type=int, default=None, metavar="N")
     sp.set_defaults(func=cmd_audio)
 
-    sp = sub.add_parser("images", help="Generate AI images.")
-    sp.add_argument("--workers", type=int, default=run_cfg.image_workers)
-    sp.add_argument("--limit", type=int, default=None)
-    sp.set_defaults(func=cmd_images)
-
-    sp = sub.add_parser("compress", help="Compress media.")
-    sp.add_argument("--workers", type=int, default=run_cfg.compress_workers)
-    sp.set_defaults(func=cmd_compress)
-
-    sp = sub.add_parser("export", help="Write .apkg files.")
-    sp.set_defaults(func=cmd_export)
-
-    sp = sub.add_parser("sync", help="Push to Anki via AnkiConnect.")
-    sp.add_argument("--dry-run", action="store_true", help="Preview without changing Anki.")
-    _orphan_flags(sp)
-    sp.set_defaults(func=cmd_sync)
-
-    sp = sub.add_parser("run", help="Full pipeline (defaults from settings.toml [run]).")
-    sp.add_argument("--build-workers", type=int, default=run_cfg.build_workers)
+    sp = sub.add_parser("run", help="Full pipeline.")
     sp.add_argument("--audio-workers", type=int, default=run_cfg.audio_workers)
-    sp.add_argument("--image-workers", type=int, default=run_cfg.image_workers)
-    sp.add_argument("--compress-workers", type=int, default=run_cfg.compress_workers)
     sp.add_argument("--audio-limit", type=int, default=run_cfg.audio_limit)
-    sp.add_argument("--image-limit", type=int, default=run_cfg.image_limit)
-    sp.add_argument("--audio-deck", action="append", metavar="DECK",
-                    help="Only generate audio for this deck (repeatable).")
-    sp.add_argument("--refresh", action="append", metavar="SOURCE",
-                    help="Re-ask the AI for every row of this source (repeatable).")
-    sp.add_argument("--no-sync", action="store_true", help="Skip the AnkiConnect sync.")
-    _orphan_flags(sp)
+    sp.add_argument("--no-ai", action="store_true", help="Skip the AI / image queue this run.")
+    sp.add_argument("--no-images", action="store_true", help="Skip Codex images this run.")
+    sp.add_argument("--no-sync", action="store_true", help="Don't touch Anki.")
+    sp.add_argument("--allow-retire", action="store_true")
     sp.set_defaults(func=cmd_run)
+
+    sp = sub.add_parser("movie", help="Coverage report + dataset for a film list.")
+    sp.add_argument("list", nargs="?")
+    sp.set_defaults(func=cmd_movie)
 
     from .commands.practice import LENGTH_GUIDANCE, STYLE_GUIDANCE
 
     sp = sub.add_parser("practice", help="Interactive translation practice.")
-    sp.add_argument("--words", "--count", type=int, default=None,
-                    help=f"Word-bank size per sentence (default {settings.practice.words}).")
-    sp.add_argument("--sentences", type=int, default=None,
-                    help=f"Number of sentences (default {settings.practice.sentences}).")
-    sp.add_argument("--deck", help="Only use words from this deck.")
-    sp.add_argument("--seed", type=int, default=None, help="Random seed for word selection.")
+    sp.add_argument("--words", "--count", type=int, default=None)
+    sp.add_argument("--sentences", type=int, default=None)
+    sp.add_argument("--deck")
+    sp.add_argument("--seed", type=int, default=None)
     sp.add_argument("--length", choices=sorted(LENGTH_GUIDANCE), default=None)
-    sp.add_argument("--style", action="append", choices=sorted(STYLE_GUIDANCE), metavar="STYLE",
-                    default=[], help="Grammar constraint (repeatable); see --list-styles.")
-    sub_group = sp.add_mutually_exclusive_group()
-    sub_group.add_argument("--no-subjunctive", dest="no_subjunctive", action="store_true", default=None)
-    sub_group.add_argument("--subjunctive", dest="no_subjunctive", action="store_false")
+    sp.add_argument("--style", action="append", choices=sorted(STYLE_GUIDANCE), metavar="STYLE", default=[])
+    g = sp.add_mutually_exclusive_group()
+    g.add_argument("--no-subjunctive", dest="no_subjunctive", action="store_true", default=None)
+    g.add_argument("--subjunctive", dest="no_subjunctive", action="store_false")
     sp.add_argument("--list-styles", action="store_true")
     sp.set_defaults(func=cmd_practice)
 
@@ -249,16 +308,16 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--output", type=Path, default=None)
     sp.set_defaults(func=cmd_learnt)
 
-    sp = sub.add_parser("leech", help="Suspend + tag leech cards.")
+    sp = sub.add_parser("leech", help="Suspend + tag leeches; --doctor writes memory aids.")
     sp.add_argument("--deck")
-    sp.add_argument("--threshold", type=int, default=None,
-                    help=f"Consecutive failures (default {settings.leech.threshold}).")
-    sp.add_argument("--update-config", action="store_true",
-                    help="Also set each deck's leech threshold in Anki.")
+    sp.add_argument("--threshold", type=int, default=None)
+    sp.add_argument("--update-config", action="store_true")
     sp.add_argument("--dry-run", action="store_true")
+    sp.add_argument("--doctor", action="store_true")
+    sp.add_argument("--unsuspend", action="store_true", help="With --doctor: unsuspend helped cards.")
     sp.set_defaults(func=cmd_leech)
 
-    sp = sub.add_parser("audit", help="AI review of generated cards.")
+    sp = sub.add_parser("audit", help="AI review of notes.")
     sp.add_argument("--deck", action="append", metavar="DECK")
     sp.add_argument("--limit", type=int, default=None)
     sp.add_argument("--workers", type=int, default=None)
@@ -266,9 +325,17 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--out", type=Path, default=None)
     sp.set_defaults(func=cmd_audit)
 
-    sp = sub.add_parser("review", help="Items that need a human look.")
-    sp.add_argument("--limit", type=int, default=20, help="Rows to print (CSV has all).")
+    sp = sub.add_parser("review", help="Items needing a human look (review approve …).")
+    sp.add_argument("action", nargs="?", choices=["list", "approve"], default="list")
+    sp.add_argument("lemmas", nargs="*")
+    sp.add_argument("--all", action="store_true")
+    sp.add_argument("--limit", type=int, default=20)
     sp.set_defaults(func=cmd_review)
+
+    sp = sub.add_parser("share", help="Export ready notes as .apkg.")
+    sp.add_argument("--deck", action="append", metavar="DECK")
+    sp.add_argument("--out", type=Path, default=None)
+    sp.set_defaults(func=cmd_share)
     return p
 
 

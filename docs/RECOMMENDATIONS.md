@@ -1,18 +1,54 @@
-# Recommendations — toward v4
+# Recommendations — v4
 
-Rebuilt 2026-10-08 after reviewing the code, every input file, the
-database at each stage, the exported notes, the live Anki collection and the
-previous repo (`../italiananki`). Major structural change is on the table.
+Reviewed 2026-10-08; **v4 implemented 2026-10-09** (see the status below).
+The analysis that led here is kept underneath for reference.
 
 **The thesis:** look things up first, generate by rule where Italian is
-regular, and use Claude to *judge, connect and explain* — not to recall
-facts from memory. Rebuild the content from scratch on that basis, keep
-only the identities and review history from today's collection, and organise
-everything around words (roots) and what you need to learn next.
+regular, and use Claude to *judge, connect and explain* — not to recall.
+Content is rebuilt from scratch on that basis; only identities and review
+history carry over from the old collection.
+
+## Status
+
+| # | Recommendation | Status |
+|---|---|---|
+| P1 | Word-first lexicon, roots first | **Done** — `lexicon.py`; 5,046 roots replace 8,884 source-scoped entries; facts and images live on the root |
+| P2 | Kaikki/Wiktionary first, Claude verifies | **Done** — `kaikki.py` (streamed index, form→lemma map, conjugations, IPA, Commons audio URLs, etymology + one-hop source entry); `lexeme_enrich` verifies and flags disagreements |
+| P3 | Regenerate content from scratch | **Done (running)** — every root is re-enriched through the queue; old glosses are not reused |
+| P4 | Durable AI job queue | **Done** — `queue.py`; study-order priorities; sleeps until a stated reset time |
+| P5 | Anki as a reconciled projection | **Done** — `reconcile.py` (`plan` / `apply`), owned notetype, drift guard |
+| P6 | One note, two templates | **Done** — "Italian Flashcard v4", Recognition/Production switched per note |
+| P7 | Knowledge + study plans | **Done** — `plan.toml`, knowledge read back on apply, film coverage report |
+| P8 | Reviewable data in git | **Done** — `lexicon/*.jsonl` with provenance; `human` edits win; identity map |
+| P9 | Media | **Done** — every card has its root's image (Codex); audio in study order; separate audio text. *Open:* use Wikimedia Commons recordings before ElevenLabs |
+| P10 | Patterns, not tables | **Done** — model verbs + irregular + top-N full forms; numbers by rule; cognate families |
+| P11 | Learning loop | **Done** — `leech --doctor`, practice mistakes → cards, film lines on cards. *Open:* cloze cards from example sentences |
+| P12 | Sense-aware cards | **Done** — `disambiguate` task: hints + "also accepted" |
+| §7 | Movie decks | **Done** — *Le otto montagne* is the first list (937 roots; 686 roots → 95% coverage) |
+| §6 | Ideas from `../italiananki` | **Done** — cognates, audio column, adjective forms, `share`; Fluent Forever 625, Caffè, Tutto Bene ported as lists |
+| §9 | Quick wins | **Done** — audio text, CILS POS/lemma, recognition-only giveaways, notes off the prompt, reset-time waits, batching everywhere |
+
+### Next
+
+1. **Finish the first pass** (needs you): `codex login` for images, open Anki,
+   `./run.sh` — the queue (~4,000 roots, ~280 Claude calls) spans several
+   plan windows and resumes by itself.
+2. **Approve or fix disputed roots** (`./fc.sh review`) — Claude flags real
+   dictionary mismatches (e.g. it caught *di* matched to the letter name).
+3. **Studied duplicates**: v4 adopts one studied note per word and direction;
+   other studied copies stay where they are. A scheduling-transfer tool
+   (copy interval/ease onto the adopted note, then retire) would finish the
+   consolidation — test FSRS memory state on a few cards first.
+4. **Commons audio** for roots (free native-speaker recordings, licence per
+   file), ElevenLabs for the rest.
+5. **Codex as a second verifier** for disputed roots or facts (independent
+   model + Wiktionary agreement), within ChatGPT plan limits.
+6. **Cloze cards** from film lines once a film is watched.
+7. Remove the empty legacy notetypes from Anki once nothing uses them.
 
 ---
 
-## 1. Where things stand
+## 1. Where things stood (2026-10-08, before v4)
 
 - Pipeline: `sources.json` → modes → SQLite → cards → `.apkg` → Anki.
   All text AI runs on Claude (`claude -p`, your subscription) and pauses

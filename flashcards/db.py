@@ -164,6 +164,150 @@ CREATE TABLE IF NOT EXISTS audits (
     audited_at     TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (natural_key, direction)
 );
+-- ════════════════════════ v4: word-first lexicon ════════════════════════
+
+-- ── LEXEMES: one record per root word (lemma + part of speech) ─────────
+CREATE TABLE IF NOT EXISTS lexemes (
+    id               TEXT PRIMARY KEY,      -- md5("lex::" lemma "::" pos)
+    lemma            TEXT NOT NULL,         -- dictionary form, standard spelling
+    pos              TEXT NOT NULL,         -- noun|verb|adj|adv|pron|conj|prep|intj|num|det|phrase
+    display          TEXT,                  -- how the card shows it ("la casa", "bello")
+    gender           TEXT,
+    plural           TEXT,
+    english_plural   TEXT,
+    forms_json       TEXT,                  -- adjective forms / verb info (JSON)
+    irregular        INTEGER NOT NULL DEFAULT 0,
+    ipa              TEXT,
+    commons_audio    TEXT,                  -- Wikimedia Commons pronunciation URL
+    etymology        TEXT,                  -- Wiktionary etymology text
+    etymology_chain  TEXT,                  -- one hop down (e.g. French robinet)
+    in_kaikki        INTEGER NOT NULL DEFAULT 0,
+    zipf             REAL,
+    freq_rank        INTEGER,
+    cognate_rule     TEXT,
+    cognate_score    REAL,
+    image_key        TEXT,                  -- text whose md5 names the image file
+    status           TEXT NOT NULL DEFAULT 'new',   -- new | ready | needs_review
+    issues           TEXT,                  -- verification disagreements (JSON)
+    provenance       TEXT,                  -- field → source (JSON)
+    updated_at       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_lexemes_lemma_pos ON lexemes(lemma, pos);
+
+-- ── SENSES: what a lexeme means on a card ──────────────────────────────
+CREATE TABLE IF NOT EXISTS senses (
+    lexeme_id   TEXT NOT NULL,
+    idx         INTEGER NOT NULL,
+    prompt      TEXT NOT NULL,              -- English side of the card
+    hint        TEXT,                       -- short disambiguator
+    register    TEXT,                       -- formal / colloquial / vulgar …
+    note        TEXT,                       -- usage note (back of card)
+    also        TEXT,                       -- other accepted Italian answers
+    provenance  TEXT,
+    PRIMARY KEY (lexeme_id, idx)
+);
+
+-- ── LISTS: what you want to learn (CILS levels, a movie, …) ─────────────
+CREATE TABLE IF NOT EXISTS lists (
+    id          TEXT PRIMARY KEY,
+    kind        TEXT NOT NULL,
+    title       TEXT NOT NULL,
+    deck        TEXT NOT NULL,
+    settings    TEXT
+);
+CREATE TABLE IF NOT EXISTS list_items (
+    list_id     TEXT NOT NULL,
+    lexeme_id   TEXT NOT NULL,
+    rank        INTEGER NOT NULL,           -- order within the list
+    raw         TEXT,                       -- the row as written in the source
+    hint        TEXT,                       -- the source's own English gloss
+    context     TEXT,                       -- JSON: count, first_seen, example (movies)
+    PRIMARY KEY (list_id, lexeme_id)
+);
+CREATE INDEX IF NOT EXISTS idx_list_items_lexeme ON list_items(lexeme_id);
+
+-- legacy v3 entry → lexeme (for adopting studied notes)
+CREATE TABLE IF NOT EXISTS entry_lexeme (
+    entry_id    TEXT PRIMARY KEY,
+    lexeme_id   TEXT NOT NULL
+);
+
+-- ── AI_JOBS: durable queue for every AI / image task ───────────────────
+CREATE TABLE IF NOT EXISTS ai_jobs (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    kind        TEXT NOT NULL,              -- lexeme_enrich | verb_prompts | phrase_enrich | disambiguate | image
+    subject     TEXT NOT NULL,              -- lexeme id / group key
+    payload     TEXT,                       -- JSON input snapshot
+    status      TEXT NOT NULL DEFAULT 'pending',  -- pending | done | failed
+    attempts    INTEGER NOT NULL DEFAULT 0,
+    result      TEXT,
+    error       TEXT,
+    priority    INTEGER NOT NULL DEFAULT 1000,  -- lower runs first (study order)
+    created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (kind, subject)
+);
+CREATE INDEX IF NOT EXISTS idx_ai_jobs_status ON ai_jobs(status, kind, priority);
+
+-- ── KNOWLEDGE: what you already know, read back from Anki ──────────────
+CREATE TABLE IF NOT EXISTS knowledge (
+    lexeme_id   TEXT NOT NULL,
+    card_type   TEXT NOT NULL,
+    state       TEXT NOT NULL,              -- unknown | learning | known
+    interval    INTEGER,
+    lapses      INTEGER,
+    reviews     INTEGER,
+    updated_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (lexeme_id, card_type)
+);
+
+-- ── V4_NOTES: desired Anki notes (rebuilt every build) ─────────────────
+CREATE TABLE IF NOT EXISTS v4_notes (
+    key          TEXT PRIMARY KEY,          -- stable note identity, e.g. vocab:<lexeme>:0
+    lexeme_id    TEXT,
+    card_type    TEXT NOT NULL,
+    deck         TEXT NOT NULL,
+    fields_json  TEXT NOT NULL,
+    fields_hash  TEXT NOT NULL,
+    tags         TEXT NOT NULL,
+    sort_order   INTEGER NOT NULL,
+    ready        INTEGER NOT NULL,          -- content + image present
+    blocked_by   TEXT,                      -- why not ready
+    audio_text   TEXT                       -- what the audio says (no "/a" variants)
+);
+
+-- ── FORM_PROMPTS: English prompts for verb forms (verb_prompts task) ───
+CREATE TABLE IF NOT EXISTS form_prompts (
+    lexeme_id   TEXT NOT NULL,
+    tense       TEXT NOT NULL,
+    person      TEXT NOT NULL,
+    english     TEXT NOT NULL,
+    PRIMARY KEY (lexeme_id, tense, person)
+);
+
+-- ── MISTAKES: practice errors turned into cards ────────────────────────
+CREATE TABLE IF NOT EXISTS mistakes (
+    id          TEXT PRIMARY KEY,           -- md5 of the Italian chunk
+    italian     TEXT NOT NULL,
+    english     TEXT NOT NULL,
+    note        TEXT,
+    created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ── MNEMONICS: leech doctor output per note key ────────────────────────
+CREATE TABLE IF NOT EXISTS mnemonics (
+    key         TEXT PRIMARY KEY,
+    mnemonic    TEXT NOT NULL,
+    created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ── IDENTITY: every note key ever sent to Anki (exported to git) ───────
+CREATE TABLE IF NOT EXISTS identity (
+    key          TEXT PRIMARY KEY,
+    guid         TEXT NOT NULL,
+    kind         TEXT NOT NULL,             -- v4 | legacy
+    first_seen   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 """
 
 
@@ -235,8 +379,21 @@ def _m2_facts_and_audits(conn: sqlite3.Connection) -> None:
             conn.execute(f"ALTER TABLE cards ADD COLUMN {name} TEXT")
 
 
+def _m3_lexicon(conn: sqlite3.Connection) -> None:
+    """v4 word-first tables (lexemes, senses, lists, ai_jobs, knowledge,
+    v4_notes, identity). They are all ``CREATE … IF NOT EXISTS`` in
+    ``SCHEMA_SQL``, which runs right after the migrations; nothing to alter."""
+
+
+def _m4_note_audio(conn: sqlite3.Connection) -> None:
+    """v4_notes.audio_text (databases that got v4_notes before it existed)."""
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(v4_notes)")}
+    if cols and "audio_text" not in cols:
+        conn.execute("ALTER TABLE v4_notes ADD COLUMN audio_text TEXT")
+
+
 #: Ordered schema migrations. Index ``i`` upgrades ``user_version`` i → i+1.
-MIGRATIONS = [_m1_portable_identity, _m2_facts_and_audits]
+MIGRATIONS = [_m1_portable_identity, _m2_facts_and_audits, _m3_lexicon, _m4_note_audio]
 SCHEMA_VERSION = len(MIGRATIONS)
 
 

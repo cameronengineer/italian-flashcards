@@ -9,6 +9,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 INPUTS_DIR = PROJECT_ROOT / "inputs"
 DECKS_DIR = PROJECT_ROOT / "decks"
+DATA_DIR = PROJECT_ROOT / "data"          # reference data indexes (gitignored)
+LEXICON_DIR = PROJECT_ROOT / "lexicon"    # versioned lexicon JSONL (in git)
+DATASETS_DIR = PROJECT_ROOT / "datasets"  # per-movie word lists (gitignored)
 BACKUPS_DIR = PROJECT_ROOT / "backups"
 
 MEDIA_DIR = PROJECT_ROOT / "media"
@@ -20,7 +23,6 @@ IMAGE_DIR_COMPRESSED = MEDIA_DIR / "images_compressed"
 # ``FLASHCARDS_DB`` points the pipeline at another database (e.g. a scratch copy).
 DB_PATH = Path(os.environ.get("FLASHCARDS_DB") or PROJECT_ROOT / "database.sqlite")
 
-OPENROUTER_KEY_FILE = PROJECT_ROOT / ".openrouter"
 ELEVENLABS_KEY_FILE = PROJECT_ROOT / ".elevenlabs"
 
 

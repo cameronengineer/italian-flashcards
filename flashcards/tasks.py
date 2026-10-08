@@ -24,7 +24,6 @@ import json
 from dataclasses import dataclass
 
 from .ai import Task
-from .grammar import TENSES, VERB_PERSONS
 
 SYSTEM = (
     "You are an expert Italian teacher and lexicographer building flashcards and "
@@ -100,186 +99,8 @@ def _enrichment(**extra) -> dict:
     return _obj({**_ENRICH, **extra})
 
 
-# ── Enrichment (one per mode) ──────────────────────────────────────────────
-
-GLOSS = TaskSpec(
-    name="gloss",
-    instruction="Write the English side of a flashcard for this Italian vocabulary item.",
-    rules=(
-        "english: concise, natural gloss for the back of the card; keep the "
-        "punctuation of exclamations. english_hint is the learner's own gloss — "
-        "respect its meaning.",
-        *_STYLE_RULES,
-        "valid=false only if the entry is clearly erroneous.",
-    ),
-    schema=_enrichment(),
-)
-
-AVERE_GLOSS = TaskSpec(
-    name="avere_gloss",
-    instruction="Write the English base form of this Italian 'avere' expression.",
-    rules=(
-        "english: concise base form starting with 'to', e.g. 'to be hungry' for "
-        "'avere fame'. Separate genuine alternatives with ' / '.",
-        *_STYLE_RULES,
-        "valid=false only if this is clearly not an avere expression.",
-    ),
-    schema=_enrichment(),
-)
-
-VERB_META = TaskSpec(
-    name="verb_meta",
-    instruction="Identify this Italian verb and describe it for a flashcard.",
-    rules=(
-        "lemma and infinitive: the canonical Italian infinitive, lowercase "
-        "(reflexive verbs keep -si, e.g. 'trasferirsi').",
-        "english: concise gloss starting with 'to', e.g. 'to go'.",
-        *_STYLE_RULES,
-        "auxiliary: avere | essere | both | unknown.",
-        "past_participle: masculine singular, lowercase.",
-        "is_reflexive: true for reflexive verbs.",
-        "valid=false only if this is not a real Italian verb.",
-    ),
-    schema=_enrichment(
-        lemma=_STR,
-        infinitive=_STR,
-        auxiliary={"type": "string", "enum": ["avere", "essere", "both", "unknown"]},
-        past_participle=_STR,
-        is_reflexive=_BOOL,
-    ),
-)
-
-NOUN_META = TaskSpec(
-    name="noun_meta",
-    instruction="Identify this Italian noun and describe it for a flashcard.",
-    rules=(
-        "lemma and singular: canonical singular, lowercase.",
-        "english: concise gloss, usually without an article.",
-        "singular_english / plural_english: bare translations ('house' / 'houses').",
-        *_STYLE_RULES,
-        "definite_singular ∈ {il, lo, l', la, ''}; definite_plural ∈ {i, gli, le, ''}; "
-        "indefinite_singular ∈ {un, uno, una, un', ''}.",
-        "plural: empty string if the noun has no plural.",
-        "valid=false only if this is clearly not a real Italian noun.",
-    ),
-    schema=_enrichment(
-        lemma=_STR,
-        singular=_STR,
-        singular_english=_STR,
-        plural=_STR,
-        plural_english=_STR,
-        gender={"type": "string", "enum": ["masculine", "feminine", "both", "unknown"]},
-        definite_singular=_STR,
-        definite_plural=_STR,
-        indefinite_singular=_STR,
-    ),
-)
-
-# ── Generated forms ────────────────────────────────────────────────────────
-
-VERB_FORMS = TaskSpec(
-    name="verb_forms",
-    instruction="Conjugate this Italian verb for flashcards. Generate exactly the "
-                "(tense, person) pairs listed in the rules and nothing else.",
-    rules=(
-        "presente_progressivo: stare in the presente + gerundio (e.g. 'sto parlando'); "
-        "for reflexives the pronoun is usually proclitic on stare ('mi sto lavando').",
-        "passato_prossimo: use the supplied auxiliary and past participle.",
-        "futuro_semplice: simple future; respect irregular stems (avrò, sarò, andrò, "
-        "vedrò, farò, dirò…).",
-        "condizionale_passato: the auxiliary in the present conditional + past "
-        "participle ('avrei parlato', 'sarei andato'); with essere agree the participle, "
-        "using the masculine when gender is ambiguous.",
-        "imperativo has no io form; Lei is the formal-you imperative.",
-        "Reflexive verbs include the correct reflexive pronouns.",
-        "english: a natural prompt, e.g. 'we speak / we are speaking', 'Speak!', "
-        "'I will speak', 'I would have spoken'.",
-        "usage_note: very short label only if archaic/formal/vulgar/literary/regional.",
-    ),
-    schema=_obj({"forms": {"type": "array", "items": _obj({
-        "tense": {"type": "string", "enum": list(TENSES)},
-        "person": {"type": "string", "enum": list(VERB_PERSONS)},
-        "italian": _STR,
-        "english": _STR,
-        "usage_note": _STR,
-    })}}),
-    timeout=90,
-)
-
-NOUN_PHRASES = TaskSpec(
-    name="noun_phrases",
-    instruction="Build Italian noun phrases for flashcards. Build exactly the "
-                "phrases listed in the rules and nothing else.",
-    rules=(
-        "Use the correct article for the noun's gender and starting sound.",
-        "For nouns with no plural, only build singular phrases.",
-        "english: definite 'the …'; indefinite 'a/an …' or 'some …'; demonstrative "
-        "'this/these …' for questo, 'that/those …' for quello; possessive my / your / "
-        "his/her / our / your (pl) / their.",
-        "usage_note: empty unless archaic/formal/vulgar/literary/regional.",
-    ),
-    schema=_obj({"phrases": {"type": "array", "items": _obj({
-        "phrase_type": {"type": "string", "enum": [
-            "definite", "indefinite", "articulated_preposition", "demonstrative", "possessive",
-        ]},
-        "number": {"type": "string", "enum": ["singular", "plural"]},
-        "preposition": _STR,
-        "italian": _STR,
-        "english": _STR,
-        "usage_note": _STR,
-    })}}),
-    timeout=90,
-)
-
-# ── Fun facts ──────────────────────────────────────────────────────────────
-
 FACT_KINDS = ("etymology", "english_link", "false_friend", "culture", "usage")
 
-WORD_FACTS = TaskSpec(
-    name="word_facts",
-    instruction="For each Italian word in the input list, decide whether it has a "
-                "genuinely interesting, memorable fact worth putting on its flashcard, "
-                "and if so write it.",
-    rules=(
-        "Return exactly one entry per input word, copying its 'italian' value exactly.",
-        "Good facts: where the word comes from (Latin, Greek, French, Arabic, "
-        "Germanic…), a surprising link to an English word (shared root, cognate), a "
-        "false-friend warning, or a memorable cultural or usage note.",
-        "Style example — rubinetto: 'From French robinet, from Robin, a traditional "
-        "name for a sheep: early taps were often shaped like a ram's head.'",
-        "Only state facts that are well established in standard etymological "
-        "dictionaries. Never invent or speculate. If unsure, has_fact=false.",
-        "Be selective: most words (about two in three) should get has_fact=false. "
-        "Skip anything obvious (e.g. 'telefono' looks like 'telephone').",
-        "fact: plain English, one or two sentences, at most 220 characters, no "
-        "markdown, and do not start with the word itself.",
-        "kind: etymology | english_link | false_friend | culture | usage "
-        "(when has_fact=false use 'etymology' and an empty fact).",
-        "confidence: 0–1, how sure you are the fact is correct.",
-    ),
-    schema=_obj({"facts": {"type": "array", "items": _obj({
-        "italian": _STR,
-        "has_fact": _BOOL,
-        "kind": {"type": "string", "enum": list(FACT_KINDS)},
-        "fact": _STR,
-        "confidence": _CONF,
-    })}}),
-)
-
-# ── Media ──────────────────────────────────────────────────────────────────
-
-IMAGE_PROMPT = TaskSpec(
-    name="image_prompt",
-    instruction="Write an image-generation prompt for the illustration on this "
-                "Italian flashcard.",
-    rules=(
-        "2–3 sentences describing one flat-design, minimalist, icon-style illustration.",
-        "Depict the meaning of the Italian; it takes precedence when the English is "
-        "ambiguous. Simple and clear for a language learner.",
-        "STRICTLY no text, letters, numbers or labels in the image.",
-    ),
-    schema=_obj({"prompt": _STR}),
-)
 
 # ── Quality ────────────────────────────────────────────────────────────────
 
@@ -343,4 +164,159 @@ PRACTICE_FEEDBACK = TaskSpec(
     ),
     schema=None,
     cache=False,
+)
+
+
+# ══════════════════════════ v4: verify, don't recall ══════════════════════════
+# Every v4 task gets the looked-up data (Wiktionary via Kaikki, the lists'
+# own glosses, film lines) and asks Claude to choose, phrase and check it.
+
+_FACT_RULES = (
+    "fact: only if genuinely interesting and memorable (most words: has_fact=false). Prefer the "
+    "sourced etymology given (Wiktionary) and its source-language entry; you may add widely "
+    "documented detail, but never invent. Good facts: origin story, a surprising link to an "
+    "English word, a false-friend warning, a cultural note. Plain English, at most 220 "
+    "characters, no markdown, do not start with the word itself.",
+    "If a draft_fact is given, keep it only if it is consistent with the sourced etymology; "
+    "otherwise rewrite or drop it.",
+    "fact.kind: etymology | english_link | false_friend | culture | usage; fact.confidence 0–1.",
+)
+
+LEXEME_ENRICH = TaskSpec(
+    name="lexeme_enrich",
+    instruction="For each Italian word, write the English side of its flashcard from the "
+                "dictionary data provided, verify that data, and add a fun fact where one is "
+                "genuinely worth it. Return one entry per input id.",
+    rules=(
+        "senses: usually exactly one — the meaning the lists use (list_glosses and contexts "
+        "show which). Add a second only when the lists clearly use two different meanings.",
+        "prompt: the English a learner sees and must turn into the Italian. Natural, short "
+        "(ideally under 40 characters), never containing the Italian word. Verbs start with "
+        "'to'; nouns without an article; adjectives in their basic sense.",
+        "hint: at most 3 words, only when the English prompt itself is ambiguous "
+        "(e.g. 'right' → hint 'direction'). Empty otherwise.",
+        "register: formal | colloquial | vulgar | literary | regional | archaic, or empty.",
+        "note: a short usage note for the back of the card (≤ 120 characters), or empty.",
+        "english_plural: for nouns, the English plural of the prompt (house → houses); else empty.",
+        "verified: false and list issues when the dictionary data looks wrong (gender, part of "
+        "speech, meaning) — say what you believe is right. Empty issues when it checks out.",
+        *_FACT_RULES,
+    ),
+    schema=_obj({"words": {"type": "array", "items": _obj({
+        "id": _STR,
+        "senses": {"type": "array", "items": _obj({
+            "prompt": _STR, "hint": _STR, "register": _STR, "note": _STR,
+        })},
+        "english_plural": _STR,
+        "verified": _BOOL,
+        "issues": {"type": "array", "items": _STR},
+        "fact": _obj({
+            "has_fact": _BOOL,
+            "kind": {"type": "string", "enum": list(FACT_KINDS)},
+            "text": _STR,
+            "confidence": _CONF,
+        }),
+    })}}),
+    timeout=900,
+)
+
+PHRASE_ENRICH = TaskSpec(
+    name="phrase_enrich",
+    instruction="Write the English side of a flashcard for each Italian phrase or sentence "
+                "and check the Italian. Return one entry per input id.",
+    rules=(
+        "prompt: natural English the learner must turn into the Italian; keep a trailing "
+        "'…' when the Italian is a sentence starter.",
+        "hint: at most 4 words when the English could be said several ways in Italian; else empty.",
+        "note: short usage note (≤ 120 characters) or empty.",
+        "verified: false with issues if the Italian has a mistake (say the correction).",
+    ),
+    schema=_obj({"phrases": {"type": "array", "items": _obj({
+        "id": _STR, "prompt": _STR, "hint": _STR, "note": _STR,
+        "verified": _BOOL, "issues": {"type": "array", "items": _STR},
+    })}}),
+    timeout=900,
+)
+
+VERB_PROMPTS = TaskSpec(
+    name="verb_prompts",
+    instruction="Write the English prompt for each Italian verb form given (forms come from "
+                "Wiktionary). Return every (tense, person) pair that was given, per verb id.",
+    rules=(
+        "Present: 'we speak / we are speaking'; imperfetto: 'I used to speak / I was speaking'; "
+        "passato prossimo: 'I spoke / I have spoken'; futuro: 'I will speak'; condizionale "
+        "presente: 'I would speak'; condizionale passato: 'I would have spoken'; presente "
+        "progressivo: 'I am speaking'; imperativo: 'Speak!' (noi: \"Let's speak!\").",
+        "Use the subject in the prompt (I, you, he/she, we, you all, they); for 'Lei' "
+        "imperatives write the command and nothing else — the card adds 'formal'.",
+        "Reflexive verbs: reflect it naturally ('I wash myself' / 'I get washed' as fits).",
+        "Never include Italian. Keep each prompt under 50 characters.",
+    ),
+    schema=_obj({"verbs": {"type": "array", "items": _obj({
+        "id": _STR,
+        "prompts": {"type": "array", "items": _obj({
+            "tense": _STR, "person": _STR, "english": _STR,
+        })},
+    })}}),
+    timeout=900,
+)
+
+DISAMBIGUATE = TaskSpec(
+    name="disambiguate",
+    instruction="Each group is several Italian words whose flashcards would show the same "
+                "English prompt. Give each word a short hint so the learner knows which one "
+                "is wanted, and list the other words as also-acceptable answers.",
+    rules=(
+        "hint: at most 4 words that teach the real difference (register, nuance, typical use), "
+        "e.g. 'most common', 'formal', 'literary', 'of a person'.",
+        "also: comma-separated other words from the group that would also be correct.",
+        "Return one entry per word id in every group.",
+    ),
+    schema=_obj({"words": {"type": "array", "items": _obj({
+        "id": _STR, "hint": _STR, "also": _STR,
+    })}}),
+)
+
+LEECH_HELP = TaskSpec(
+    name="leech_help",
+    instruction="The learner keeps failing these flashcards. For each, write one short "
+                "memory aid that would make it stick.",
+    rules=(
+        "mnemonic: at most 160 characters — a vivid association, a sound-alike, a contrast "
+        "with the word it's being confused with, or a tiny example sentence. No markdown.",
+        "Return one entry per card id.",
+    ),
+    schema=_obj({"cards": {"type": "array", "items": _obj({"id": _STR, "mnemonic": _STR})}}),
+)
+
+MISTAKE_CARDS = TaskSpec(
+    name="mistake_cards",
+    instruction="Turn the learner's translation mistakes into flashcards: for each mistake, "
+                "the short English prompt and the correct Italian chunk (not the whole sentence).",
+    rules=(
+        "One card per distinct mistake; skip accent-only errors.",
+        "italian: the corrected chunk (2–6 words); english: what it means; note: the rule (≤ 120 chars).",
+    ),
+    schema=_obj({"cards": {"type": "array", "items": _obj({
+        "italian": _STR, "english": _STR, "note": _STR,
+    })}}),
+    cache=False,
+)
+
+
+CARD_AUDITS = TaskSpec(
+    name="card_audits",
+    instruction="Audit these automatically generated Italian flashcards. Return one verdict per card id.",
+    rules=CARD_AUDIT.rules,
+    schema=_obj({"cards": {"type": "array", "items": _obj({
+        "id": _STR,
+        "verdict": {"type": "string", "enum": ["pass", "warn", "fail"]},
+        "severity": {"type": "integer", "minimum": 0, "maximum": 5},
+        "categories": {"type": "array", "items": {"type": "string", "enum": [
+            "correctness", "grammar", "naturalness", "consistency", "fact",
+        ]}},
+        "issues": _STR,
+        "suggestion": _STR,
+    })}}),
+    timeout=900,
 )

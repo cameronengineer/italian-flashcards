@@ -127,6 +127,7 @@ def run(*, words: int | None = None, sentences: int | None = None, deck: str | N
         print("  Subjunctive: disabled")
     print("  Type your Italian translation, or press Enter to skip.\n" + "=" * 60)
 
+    mistakes: list[dict] = []
     for i in range(1, sentences + 1):
         bank = rng.sample(pool, min(words, len(pool)))
         print(f"\n  Generating sentence {i}/{sentences}...", flush=True)
@@ -158,6 +159,34 @@ def run(*, words: int | None = None, sentences: int | None = None, deck: str | N
             print(f"  You wrote: {attempt}\n")
             for line in feedback.splitlines():
                 print(f"  {line}")
+            mistakes.append({"english": item["english"], "correct_italian": item["italian"],
+                             "attempt": attempt, "feedback": feedback})
         print("\n  " + "-" * 56)
     print("\n" + "=" * 60 + "\n  Done!\n" + "=" * 60)
+    if mistakes:
+        _mine_mistakes(ai, mistakes)
     return 0
+
+
+def _mine_mistakes(ai: AI, mistakes: list[dict]) -> None:
+    """Turn this session's errors into flashcards (Italian::Mistakes)."""
+    from contextlib import closing
+
+    from ..db import connect, init_schema
+    from ..tasks import MISTAKE_CARDS
+    from ..util import md5_hex
+
+    try:
+        res = ai.run(MISTAKE_CARDS.task({"mistakes": mistakes}))
+    except AIError as exc:
+        print(f"  (couldn't turn mistakes into cards: {exc})")
+        return
+    cards = [c for c in res.get("cards", []) if c.get("italian") and c.get("english")]
+    with closing(connect()) as conn:
+        init_schema(conn)
+        for c in cards:
+            conn.execute("INSERT OR IGNORE INTO mistakes (id, italian, english, note) VALUES (?, ?, ?, ?)",
+                         (md5_hex(c["italian"].strip().lower()), c["italian"].strip(), c["english"].strip(), c.get("note") or None))
+        conn.commit()
+    if cards:
+        print(f"\n  {len(cards)} mistake card(s) saved — they reach Anki (deck Italian::Mistakes) on the next run.")

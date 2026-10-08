@@ -1,0 +1,61 @@
+# Study plan: what to learn first. The new-card queue in Anki is ordered by
+# these priorities (deadline lists first), skipping words you already know.
+# A word in several lists lives in the deck of its highest-priority list.
+
+new_cards_per_day = 25       # used for the "you'll finish by …" estimate
+
+[[priority]]
+list = "eight-mountains"
+by = "2026-10-31"            # watch date — its unknown words come first
+
+[[priority]]
+list = "cils-a1"
+[[priority]]
+list = "fluent-forever"
+[[priority]]
+list = "cafe"
+[[priority]]
+list = "cils-a2"
+[[priority]]
+list = "exam-prep"
+[[priority]]
+list = "italki"
+[[priority]]
+list = "italki-verbs"
+[[priority]]
+list = "cils-b1"
+[[priority]]
+list = "interjections"
+[[priority]]
+list = "pronouns"
+[[priority]]
+list = "conjunctions"
+[[priority]]
+list = "avere"
+[[priority]]
+list = "numbers"
+[[priority]]
+list = "alphabet"
+[[priority]]
+list = "tutto-bene"
+[[priority]]
+list = "cils-b2"
+[[priority]]
+list = "frequency"
+
+[conjugation]
+# Tenses drilled with full form cards, in study order.
+tenses = [
+  "presente", "passato_prossimo", "imperfetto", "futuro_semplice",
+  "presente_progressivo", "imperativo", "condizionale_presente", "condizionale_passato",
+]
+# Full form cards for irregular verbs plus the N most frequent verbs; every
+# other (regular) verb is covered by pattern cards + its infinitive card.
+full_forms_top = 120
+
+[cards]
+# A note's production card (English → Italian) can be switched off per list
+# with recognition_only = true in lists.toml.
+noun_phrases = true          # rule-built article / preposition drills
+cognates = true              # "-zione = -tion" family cards
+patterns = true              # regular conjugation pattern cards

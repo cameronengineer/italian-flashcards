@@ -109,3 +109,63 @@ def run(*, deck: str | None = None, threshold: int | None = None,
     print(f"\nDone{' (dry run)' if dry_run else ''}. {found} leeches found, "
           f"{totals['newly_suspended']} newly suspended.")
     return 0
+
+
+# ── Leech doctor ───────────────────────────────────────────────────────────
+
+
+def doctor(*, unsuspend: bool = False, limit: int = 200) -> int:
+    """Write a memory aid for every leech-tagged pipeline note.
+
+    Mnemonics are stored per note key and shown in the Note field from the
+    next ``flashcards apply`` on. ``--unsuspend`` puts the cards back into
+    rotation once their mnemonic exists.
+    """
+    import html as _html
+    import re as _re
+    from contextlib import closing
+
+    from ..ai import AI
+    from ..db import connect
+    from ..reconcile import legacy_target
+    from ..tasks import LEECH_HELP
+
+    print_banner("leech doctor — memory aids for cards you keep failing")
+    strip = lambda v: _html.unescape(_re.sub(r"<[^>]+>", " ", v or "")).strip()  # noqa: E731
+    notes = invoke("notesInfo", notes=invoke("findNotes", query="tag:leech")[:limit])
+    with closing(connect()) as conn:
+        cards = []
+        for n in notes:
+            f = {k: v["value"] for k, v in n.get("fields", {}).items()}
+            if "Key" in f:
+                key, it, en = f["Key"], strip(f.get("Italian")), strip(f.get("English"))
+            elif "SortKey" in f and "|" in f["SortKey"]:
+                tgt = legacy_target(conn, f["SortKey"])
+                key = tgt[0] if tgt else f["SortKey"]
+                front, back = strip(f.get("FrontText")), strip(f.get("BackHighlight"))
+                it, en = (front, back) if f["SortKey"].endswith("|it_to_en") else (back, front)
+            else:
+                continue
+            if conn.execute("SELECT 1 FROM mnemonics WHERE key = ?", (key,)).fetchone():
+                continue
+            cards.append({"id": key, "italian": it, "english": en, "_cards": n.get("cards", [])})
+        if not cards:
+            print("  No new leeches need a memory aid.")
+            return 0
+        ai = AI(conn)
+        done_cards: list[int] = []
+        for i in range(0, len(cards), 20):
+            batch = cards[i:i + 20]
+            res = ai.run(LEECH_HELP.task({"cards": [{k: v for k, v in c.items() if not k.startswith("_")} for c in batch]}))
+            by_id = {c["id"]: c["mnemonic"] for c in res.get("cards", []) if c.get("mnemonic")}
+            for c in batch:
+                if c["id"] in by_id:
+                    conn.execute("INSERT OR REPLACE INTO mnemonics (key, mnemonic) VALUES (?, ?)", (c["id"], by_id[c["id"]]))
+                    done_cards += c["_cards"]
+            conn.commit()
+        print(f"  wrote {len(done_cards) and len({c['id'] for c in cards})} memory aid(s); they appear on the cards after the next `flashcards apply`.")
+        if unsuspend and done_cards:
+            for chunk in chunks(done_cards, 500):
+                invoke("unsuspend", cards=chunk)
+            print(f"  unsuspended {len(done_cards)} card(s).")
+    return 0
