@@ -1,0 +1,630 @@
+italian,english
+il cane,dog
+il gatto,cat
+il pesce,fish
+l'uccello,bird
+la mucca,cow
+il maiale,pig
+il topo,mouse
+il cavallo,horse
+l'ala,wing
+l'animale,animal
+il treno,train
+l'aereo,plane
+la macchina,car
+il camion,truck
+la bicicletta,bicycle
+l'autobus,bus
+la barca,boat
+la nave,ship
+lo pneumatico,tire
+la benzina,gasoline
+il motore,engine
+il biglietto,ticket
+il trasporto,transportation
+la città,city
+la casa,house
+l'appartamento,apartment
+la strada,street
+l'aeroporto,airport
+la stazione,train station
+il ponte,bridge
+l'hotel,hotel
+il ristorante,restaurant
+la fattoria,farm
+il tribunale,court
+la scuola,school
+l'ufficio,office
+la stanza,room
+il paese,town
+l'università,university
+il club,club
+il bar,bar
+il parco,park
+il campo,camp
+il negozio,store
+il teatro,theater
+la biblioteca,library
+l'ospedale,hospital
+la chiesa,church
+il mercato,market
+il paese,country
+l'edificio,building
+il suolo,ground
+lo spazio,space
+la banca,bank
+la posizione,location
+il cappello,hat
+il vestito,dress
+il completo,suit
+la gonna,skirt
+la camicia,shirt
+la maglietta,T-shirt
+i pantaloni,pants
+le scarpe,shoes
+la tasca,pocket
+il cappotto,coat
+la macchia,stain
+l'abbigliamento,clothing
+rosso,red
+verde,green
+blu,blue
+giallo,yellow
+marrone,brown
+rosa,pink
+arancione,orange
+nero,black
+bianco,white
+grigio,gray
+il colore,color
+il figlio,son
+la figlia,daughter
+la madre,mother
+il padre,father
+il genitore,parent
+il neonato,baby
+l'uomo,man
+la donna,woman
+il fratello,brother
+la sorella,sister
+la famiglia,family
+il nonno,grandfather
+la nonna,grandmother
+il marito,husband
+la moglie,wife
+il re,king
+la regina,queen
+il presidente,president
+il vicino,neighbor
+il ragazzo,boy
+la ragazza,girl
+il bambino,child
+l'adulto,adult
+l'essere umano,human
+l'amico,friend
+la vittima,victim
+il giocatore,player
+il tifoso,fan
+la folla,crowd
+la persona,person
+l'insegnante,teacher
+lo studente,student
+l'avvocato,lawyer
+il medico,doctor
+il paziente,patient
+il cameriere,waiter
+la segretaria,secretary
+il prete,priest
+la polizia,police
+l'esercito,army
+il soldato,soldier
+l'artista,artist
+l'autore,author
+il manager,manager
+il giornalista,reporter
+l'attore,actor
+il lavoro,job
+la religione,religion
+il paradiso,heaven
+l'inferno,hell
+la morte,death
+la medicina,medicine
+i soldi,money
+il dollaro,dollar
+la banconota,bill
+il matrimonio,marriage
+il matrimonio,wedding
+la squadra,team
+la relazione,relationship
+la razza,race (ethnicity)
+il sesso,sex (the act)
+il genere,sex (gender)
+l'omicidio,murder
+la prigione,prison
+la tecnologia,technology
+l'energia,energy
+la guerra,war
+la pace,peace
+l'attacco,attack
+l'elezione,election
+la rivista,magazine
+il giornale,newspaper
+il veleno,poison
+la pistola,gun
+lo sport,sport
+la gara,race (sport)
+l'esercizio,exercise
+la palla,ball
+il gioco,game
+il prezzo,price
+il contratto,contract
+la droga,drug
+il segnale,sign
+la scienza,science
+Dio,God
+il gruppo musicale,band
+la canzone,song
+lo strumento,instrument
+la musica,music
+il film,movie
+l'arte,art
+il caffè,coffee
+il tè,tea
+il vino,wine
+la birra,beer
+il succo,juice
+l'acqua,water
+il latte,milk
+la bevanda,beverage
+l'uovo,egg
+il formaggio,cheese
+il pane,bread
+la zuppa,soup
+la torta,cake
+il pollo,chicken
+il maiale,pork
+il manzo,beef
+la mela,apple
+la banana,banana
+l'arancia,orange
+il limone,lemon
+il mais,corn
+il riso,rice
+l'olio,oil
+il seme,seed
+il coltello,knife
+il cucchiaio,spoon
+la forchetta,fork
+il piatto,plate
+la tazza,cup
+la colazione,breakfast
+il pranzo,lunch
+la cena,dinner
+lo zucchero,sugar
+il sale,salt
+la bottiglia,bottle
+il cibo,food
+il tavolo,table
+la sedia,chair
+il letto,bed
+il sogno,dream
+la finestra,window
+la porta,door
+la camera da letto,bedroom
+la cucina,kitchen
+il bagno,bathroom
+la matita,pencil
+la penna,pen
+la fotografia,photograph
+il sapone,soap
+il libro,book
+la pagina,page
+la chiave,key
+la vernice,paint
+la lettera,letter
+la nota,note
+il muro,wall
+la carta,paper
+il pavimento,floor
+il soffitto,ceiling
+il tetto,roof
+la piscina,pool
+la serratura,lock
+il telefono,telephone
+il giardino,garden
+il cortile,yard
+l'ago,needle
+la borsa,bag
+la scatola,box
+il regalo,gift
+la carta,card
+l'anello,ring
+lo strumento,tool
+l'orologio,clock
+la lampada,lamp
+il ventilatore,fan
+il cellulare,cell phone
+la rete,network
+il computer,computer
+il programma,program
+il laptop,laptop
+lo schermo,screen
+la macchina fotografica,camera
+la televisione,television
+la radio,radio
+l'elettronica,electronics
+la testa,head
+il collo,neck
+la faccia,face
+la barba,beard
+i capelli,hair
+l'occhio,eye
+la bocca,mouth
+il labbro,lip
+il naso,nose
+il dente,tooth
+l'orecchio,ear
+la lacrima,tear
+la lingua,tongue
+la schiena,back
+il dito del piede,toe
+il dito,finger
+il piede,foot
+la mano,hand
+la gamba,leg
+il braccio,arm
+la spalla,shoulder
+il cuore,heart
+il sangue,blood
+il cervello,brain
+il ginocchio,knee
+il sudore,sweat
+la malattia,disease
+l'osso,bone
+la voce,voice
+la pelle,skin
+il corpo,body
+il mare,sea
+l'oceano,ocean
+il fiume,river
+la montagna,mountain
+la pioggia,rain
+la neve,snow
+l'albero,tree
+il sole,sun
+la luna,moon
+il mondo,world
+la Terra,Earth
+la foresta,forest
+il cielo,sky
+la pianta,plant
+il vento,wind
+la terra,soil
+il fiore,flower
+la valle,valley
+la radice,root
+il lago,lake
+la stella,star
+l'erba,grass
+la foglia,leaf
+l'aria,air
+la sabbia,sand
+la spiaggia,beach
+l'onda,wave
+il fuoco,fire
+il ghiaccio,ice
+l'isola,island
+la collina,hill
+il calore,heat
+la natura,nature
+il vetro,glass
+il metallo,metal
+la plastica,plastic
+il legno,wood
+la pietra,stone
+il diamante,diamond
+l'argilla,clay
+la polvere,dust
+l'oro,gold
+il rame,copper
+l'argento,silver
+il materiale,material
+il metro,meter
+il centimetro,centimeter
+il chilogrammo,kilogram
+il pollice,inch
+il piede,foot (measurement)
+la libbra,pound
+la metà,half
+il cerchio,circle
+il quadrato,square
+la temperatura,temperature
+la data,date
+il peso,weight
+il bordo,edge
+l'angolo,corner
+la mappa,map
+il punto,dot
+la consonante,consonant
+la vocale,vowel
+la luce,light
+il suono,sound
+sì,yes
+no,no
+il pezzo,piece
+il dolore,pain
+la ferita,injury
+il buco,hole
+l'immagine,image
+il modello,pattern
+il sostantivo,noun
+il verbo,verb
+l'aggettivo,adjective
+la cima,top
+il fondo,bottom
+il lato,side
+il davanti,front
+il retro,back (direction)
+l'esterno,outside
+l'interno,inside
+su,up
+giù,down
+sinistra,left
+destra,right
+dritto,straight
+nord,north
+sud,south
+est,east
+ovest,west
+la direzione,direction
+l'estate,summer
+la primavera,spring
+l'inverno,winter
+l'autunno,fall
+la stagione,season
+zero,zero
+uno,one
+due,two
+tre,three
+quattro,four
+cinque,five
+sei,six
+sette,seven
+otto,eight
+nove,nine
+dieci,ten
+undici,eleven
+dodici,twelve
+tredici,thirteen
+quattordici,fourteen
+quindici,fifteen
+sedici,sixteen
+diciassette,seventeen
+diciotto,eighteen
+diciannove,nineteen
+venti,twenty
+ventuno,twenty-one
+ventidue,twenty-two
+trenta,thirty
+trentuno,thirty-one
+trentadue,thirty-two
+quaranta,forty
+quarantuno,forty-one
+quarantadue,forty-two
+cinquanta,fifty
+cinquantuno,fifty-one
+cinquantadue,fifty-two
+sessanta,sixty
+sessantuno,sixty-one
+sessantadue,sixty-two
+settanta,seventy
+settantuno,seventy-one
+settantadue,seventy-two
+ottanta,eighty
+ottantuno,eighty-one
+ottantadue,eighty-two
+novanta,ninety
+novantuno,ninety-one
+novantadue,ninety-two
+cento,one hundred
+centouno,one hundred one
+centodue,one hundred two
+centodieci,one hundred ten
+centoundici,one hundred eleven
+mille,one thousand
+milleuno,one thousand one
+diecimila,ten thousand
+centomila,one hundred thousand
+un milione,million
+un miliardo,billion
+primo,first
+secondo,second (ordinal)
+terzo,third
+quarto,fourth
+quinto,fifth
+il numero,number
+gennaio,January
+febbraio,February
+marzo,March
+aprile,April
+maggio,May
+giugno,June
+luglio,July
+agosto,August
+settembre,September
+ottobre,October
+novembre,November
+dicembre,December
+lunedì,Monday
+martedì,Tuesday
+mercoledì,Wednesday
+giovedì,Thursday
+venerdì,Friday
+sabato,Saturday
+domenica,Sunday
+l'anno,year
+il mese,month
+la settimana,week
+il giorno,day
+l'ora,hour
+il minuto,minute
+il secondo,second (time)
+la mattina,morning
+il pomeriggio,afternoon
+la sera,evening
+la notte,night
+il tempo,time
+lavorare,to work
+giocare,to play
+camminare,to walk
+correre,to run
+guidare,to drive
+volare,to fly
+nuotare,to swim
+andare,to go
+fermarsi,to stop
+seguire,to follow
+pensare,to think
+parlare,to speak
+mangiare,to eat
+bere,to drink
+uccidere,to kill
+morire,to die
+sorridere,to smile
+ridere,to laugh
+piangere,to cry
+comprare,to buy
+pagare,to pay
+vendere,to sell
+sparare,to shoot
+imparare,to learn
+saltare,to jump
+odorare,to smell
+sentire,to hear
+ascoltare,to listen
+assaggiare,to taste
+toccare,to touch
+vedere,to see
+guardare,to watch
+baciare,to kiss
+bruciare,to burn
+sciogliere,to melt
+scavare,to dig
+esplodere,to explode
+sedersi,to sit
+stare in piedi,to stand
+amare,to love
+passare,to pass
+tagliare,to cut
+combattere,to fight
+sdraiarsi,to lie down
+ballare,to dance
+dormire,to sleep
+svegliarsi,to wake up
+cantare,to sing
+contare,to count
+sposarsi,to marry
+pregare,to pray
+vincere,to win
+perdere,to lose
+mescolare,to mix
+piegare,to bend
+lavare,to wash
+cucinare,to cook
+aprire,to open
+chiudere,to close
+scrivere,to write
+chiamare,to call
+girare,to turn
+costruire,to build
+insegnare,to teach
+crescere,to grow
+disegnare,to draw
+nutrire,to feed
+prendere,to catch
+lanciare,to throw
+pulire,to clean
+trovare,to find
+cadere,to fall
+spingere,to push
+tirare,to pull
+portare,to carry
+rompere,to break
+indossare,to wear
+appendere,to hang
+scuotere,to shake
+firmare,to sign
+battere,to beat
+sollevare,to lift
+lungo,long
+corto,short (vs long)
+alto,tall
+basso,short (vs tall)
+largo,wide
+stretto,narrow
+grande,big
+piccolo,small
+lento,slow
+veloce,fast
+caldo,hot
+freddo,cold
+tiepido,warm
+fresco,cool
+nuovo,new
+vecchio,old (vs new)
+giovane,young
+anziano,old (vs young)
+buono,good
+cattivo,bad
+bagnato,wet
+asciutto,dry
+malato,sick
+sano,healthy
+rumoroso,loud
+silenzioso,quiet
+felice,happy
+triste,sad
+bello,beautiful
+brutto,ugly
+sordo,deaf
+cieco,blind
+gentile,nice
+cattivo,mean
+ricco,rich
+povero,poor
+spesso,thick
+sottile,thin
+costoso,expensive
+economico,cheap
+piatto,flat
+curvo,curved
+maschile,male
+femminile,female
+stretto,tight
+largo,loose
+alto,high
+basso,low
+morbido,soft
+duro,hard
+profondo,deep
+poco profondo,shallow
+pulito,clean
+sporco,dirty
+forte,strong
+debole,weak
+morto,dead
+vivo,alive
+pesante,heavy
+leggero,light (vs heavy)
+scuro,dark
+chiaro,light (vs dark)
+nucleare,nuclear
+famoso,famous
+io,I
+tu,you (singular)
+lui,he
+lei,she
+esso,it
+noi,we
+voi,you (plural)
+loro,they

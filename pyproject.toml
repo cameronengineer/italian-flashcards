@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "flashcards"
-version = "3.0.0"
-description = "Italian Anki deck pipeline: CSV word lists → AI enrichment → audio/images → Anki."
+version = "4.0.0"
+description = "Italian Anki pipeline: lists → Wiktionary-grounded lexicon → Claude + Codex → Anki."
 requires-python = ">=3.11"
 # Pinned so re-running the pipeline is reproducible. Bump deliberately.
 dependencies = [
@@ -21,4 +21,4 @@ dev = ["pyflakes"]
 flashcards = "flashcards.cli:main"
 
 [tool.setuptools]
-packages = ["flashcards", "flashcards.commands", "flashcards.modes"]
+packages = ["flashcards", "flashcards.commands"]

@@ -46,3 +46,10 @@ old/
 audit_reports/
 # Editable install metadata (pip install -e .)
 *.egg-info/
+
+# Reference data indexes (rebuildable: `flashcards kaikki import`)
+data/
+
+# Movie inputs and derived datasets contain subtitle text — keep private
+inputs/movies/*/*.srt
+datasets/

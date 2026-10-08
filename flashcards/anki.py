@@ -14,6 +14,7 @@ from .cards import AFMT, CSS, MODEL_FIELDS, MODEL_NAME, QFMT
 from .settings import settings
 
 ANKI_CONNECT_VERSION = 6
+V4_MODEL = "Italian Flashcard v4"
 
 
 def invoke(action: str, *, timeout: int = 60, **params: Any) -> Any:
@@ -110,7 +111,12 @@ def learnt_pairs(deck: str | None = None) -> dict[str, list[tuple[str, str]]]:
     in ``SortKey`` (``…|it_to_en``). Notes with a legacy integer SortKey fall
     back to the local DB to tell which side is Italian.
     """
-    query = f"{pipeline_note_query()} is:review -is:suspended"
+    models = [quote(f"note:{m}") for m in pipeline_models()]
+    if V4_MODEL in invoke("modelNames"):
+        models.append(quote(f"note:{V4_MODEL}"))
+    if not models:
+        return {}
+    query = "(" + " OR ".join(models) + ") is:review -is:suspended"
     if deck:
         query += " " + quote(f"deck:{deck}")
     cards: list[dict] = []
@@ -123,6 +129,11 @@ def learnt_pairs(deck: str | None = None) -> dict[str, list[tuple[str, str]]]:
         if c.get("type") not in (2, 3):
             continue
         fields = c.get("fields", {})
+        if "Italian" in fields and "Key" in fields:  # v4 note: fields say which side is which
+            pair = (_strip_html(fields["Italian"]["value"]), _strip_html(fields["English"]["value"]))
+            if pair[0] and pair[1]:
+                out.setdefault(c.get("deckName", ""), set()).add(pair)
+            continue
         front = _strip_html(fields.get("FrontText", {}).get("value", ""))
         back = _strip_html(fields.get("BackHighlight", {}).get("value", ""))
         key = fields.get("SortKey", {}).get("value", "")

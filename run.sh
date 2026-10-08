@@ -1,11 +1,11 @@
 #!/bin/bash
-# Full pipeline: build → audio → images → compress → export → sync.
+# Full pipeline: lexicon → AI queue (Claude + Codex) → notes → Anki → audio.
 # Equivalent to `flashcards run`; defaults come from settings.toml [run] and
 # any flags are passed through (e.g. ./run.sh --no-sync).
 #
-# Orphan deletion is never forced: if sync refuses because too many notes
-# would go, check `./fc.sh sync --dry-run`, then re-run with
-# `./run.sh --allow-orphan-delete` if it's intended.
+# Retiring old notes is never forced: if apply refuses because many
+# unstudied notes would go, check `./fc.sh plan`, then re-run with
+# `./run.sh --allow-retire` if it's intended. Studied notes are never deleted.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -13,10 +13,10 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 source "$HERE/scripts/_venv.sh"
 ensure_venv "$HERE"
 
-# Fail fast on a malformed sources.json before any AI calls are made.
-echo "[run] validating sources.json"
-if ! discover_out="$(python -m flashcards discover 2>&1)"; then
-    echo "$discover_out"
+# Fail fast on a malformed lists.toml / plan.toml before any AI calls are made.
+echo "[run] validating lists.toml + plan.toml"
+if ! check_out="$(python -m flashcards check 2>&1)"; then
+    echo "$check_out"
     exit 1
 fi
 
