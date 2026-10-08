@@ -15,8 +15,8 @@ Config keys recognised on the source (all four deck fields are **required**;
   ``noun_deck``         — noun definite deck (REQUIRED, in ``extras``).
   ``phrases_deck``      — non-definite noun phrase deck (REQUIRED).
 
-Internally, subtlex builds **two** virtual sub-sources, one per kind, and
-delegates ingestion + materialisation to ``VerbMode`` / ``NounMode``.
+Internally, subtlex builds **two** views of the source (verb and noun, same
+``source_path``) and delegates ingestion + cards to ``VerbMode`` / ``NounMode``.
 """
 
 from __future__ import annotations
@@ -25,11 +25,14 @@ import csv
 import unicodedata
 from dataclasses import replace
 from pathlib import Path
+from typing import Iterable
 
+from ..cards import Card
 from ..csvio import CsvRow
 from ..sources import Source
-from .verb import VerbMode
+from .base import Mode
 from .noun import NounMode
+from .verb import VerbMode
 
 
 def _read_subtlex(path: Path) -> list[dict]:
@@ -62,11 +65,15 @@ def _is_garbage(lemma: str) -> bool:
 
 
 def _candidates(rows: list[dict], pos: str, limit: int) -> list[tuple[str, int, float | None]]:
-    """Yield (lemma, frequency_rank, zipf) for top ``limit`` unique lemmas."""
+    """Yield (lemma, frequency_rank, zipf) for top ``limit`` unique lemmas.
+
+    ``frequency_rank`` is the 1-based position of the lemma's most frequent
+    wordform in the (zipf-descending) SUBTLEX file. The file's own ``id``
+    column is an arbitrary identifier, not a rank.
+    """
     out: list[tuple[str, int, float | None]] = []
     seen: set[str] = set()
-    rank = 0
-    for r in rows:
+    for file_rank, r in enumerate(rows, start=1):
         if r.get("dom_pos") != pos:
             continue
         lemma_raw = (r.get("dom_lemma") or "").strip()
@@ -78,101 +85,82 @@ def _candidates(rows: list[dict], pos: str, limit: int) -> list[tuple[str, int, 
         if lemma in seen:
             continue
         seen.add(lemma)
-        rank += 1
-        try:
-            freq_rank = int(r.get("id", "") or 0)
-        except ValueError:
-            freq_rank = 0
-        out.append((lemma_raw, freq_rank, _parse_zipf(r.get("zipf"))))
+        out.append((lemma_raw, file_rank, _parse_zipf(r.get("zipf"))))
         if len(out) >= limit:
             break
     return out
 
 
-def _backfill_frequency(conn, sub_source: Source, candidates: list[tuple[str, int, float | None]]):
-    """Update entries.frequency_rank/zipf for entries we just created."""
-    sp = str(sub_source.path.resolve())
-    rows = [(freq_rank, zipf, sp, lemma.lower()) for lemma, freq_rank, zipf in candidates]
+def _backfill_frequency(
+    conn,
+    sub_source: Source,
+    candidates: list[tuple[str, int, float | None]],
+    resolved: dict[str, str],
+) -> None:
+    """Update entries.frequency_rank/zipf, matching via the resolved lemma
+    (the AI may normalise a candidate, e.g. ``centinaia`` → ``centinaio``)."""
+    rows = [
+        (freq_rank, zipf, sub_source.key, sub_source.mode, resolved[lemma])
+        for lemma, freq_rank, zipf in candidates
+        if lemma in resolved
+    ]
     conn.executemany(
         "UPDATE entries SET frequency_rank = ?, zipf = ? "
-        "WHERE source_path = ? AND natural_id = ?",
+        "WHERE source_path = ? AND mode = ? AND natural_id = ?",
         rows,
     )
     conn.commit()
 
 
-class _RowsAdapter:
-    """Lightweight bridge: subtlex pre-computes CSV-like rows so it can reuse
-    VerbMode._ingest_rows / NounMode._ingest_rows without reading from disk.
-    """
+def _sub_sources(source: Source) -> tuple[Source, Source]:
+    """The verb and noun views of a subtlex source (same source_path)."""
+    verb_deck, noun_deck, infinitive_deck, phrases_deck = _decks(source)
+    verb_source = replace(
+        source, mode="verb", deck=verb_deck, infinitive_deck=infinitive_deck,
+        prompt_hint=source.prompt_hint or "Italian verb from a SUBTLEX-IT frequency-list extraction.",
+    )
+    noun_source = replace(
+        source, mode="noun", deck=noun_deck, phrases_deck=phrases_deck,
+        prompt_hint=source.prompt_hint or "Italian noun from a SUBTLEX-IT frequency-list extraction.",
+    )
+    return verb_source, noun_source
 
-    @staticmethod
-    def for_lemmas(candidates: list[tuple[str, int, float | None]]) -> list[CsvRow]:
-        return [
-            CsvRow(italian=lemma, english="", index=i)
-            for i, (lemma, _r, _z) in enumerate(candidates, start=1)
-        ]
+
+def _rows(candidates: list[tuple[str, int, float | None]]) -> list[CsvRow]:
+    return [CsvRow(italian=lemma, english="", index=i) for i, (lemma, _r, _z) in enumerate(candidates, 1)]
 
 
-class SubtlexMode:
+class SubtlexMode(Mode):
+    """Composite mode: top-N SUBTLEX verbs and nouns, run through the verb
+    and noun modes as two views of the same source."""
+
     name = "subtlex"
 
     def ingest(self, source: Source, ctx) -> int:
         verb_limit = int(source.extras.get("verb_limit", 400))
         noun_limit = int(source.extras.get("noun_limit", 1000))
         if source.limit is not None:
-            # Split limit roughly 2:5 verb:noun if a single limit is given
+            # A single combined limit splits 1:2 verbs:nouns.
             verb_limit = max(1, source.limit // 3)
             noun_limit = source.limit - verb_limit
-
-        verb_deck, noun_deck, infinitive_deck, phrases_deck = _decks(source)
-
-        verb_source = replace(
-            source,
-            mode="verb",
-            deck=verb_deck,
-            infinitive_deck=infinitive_deck,
-            prompt_hint=(
-                source.prompt_hint
-                or "Italian verb from a SUBTLEX-IT frequency-list extraction."
-            ),
-        )
-        noun_source = replace(
-            source,
-            mode="noun",
-            deck=noun_deck,
-            phrases_deck=phrases_deck,
-            prompt_hint=(
-                source.prompt_hint
-                or "Italian noun from a SUBTLEX-IT frequency-list extraction."
-            ),
-        )
-
+        verb_source, noun_source = _sub_sources(source)
         rows = _read_subtlex(source.path)
-        verb_cands = _candidates(rows, "VER", verb_limit)
-        noun_cands = _candidates(rows, "NOM", noun_limit)
-
         inserted = 0
-        if verb_cands:
-            inserted += VerbMode()._ingest_rows(
-                verb_source, _RowsAdapter.for_lemmas(verb_cands), ctx
-            )
-            _backfill_frequency(ctx.conn, verb_source, verb_cands)
-        if noun_cands:
-            inserted += NounMode()._ingest_rows(
-                noun_source, _RowsAdapter.for_lemmas(noun_cands), ctx
-            )
-            _backfill_frequency(ctx.conn, noun_source, noun_cands)
+        # Always run both, even with no candidates, so the live sets get
+        # recorded (an empty list retires everything that dropped out).
+        for mode, sub, cands in (
+            (VerbMode(), verb_source, _candidates(rows, "VER", verb_limit)),
+            (NounMode(), noun_source, _candidates(rows, "NOM", noun_limit)),
+        ):
+            n, resolved = mode.ingest_rows(sub, _rows(cands), ctx)
+            inserted += n
+            _backfill_frequency(ctx.conn, sub, cands, resolved)
         return inserted
 
-    def materialise(self, source: Source, ctx) -> int:
-        verb_deck, noun_deck, infinitive_deck, phrases_deck = _decks(source)
-        verb_source = replace(source, mode="verb", deck=verb_deck, infinitive_deck=infinitive_deck)
-        noun_source = replace(source, mode="noun", deck=noun_deck, phrases_deck=phrases_deck)
-        n = 0
-        n += VerbMode().materialise(verb_source, ctx)
-        n += NounMode().materialise(noun_source, ctx)
-        return n
+    def cards(self, source: Source, conn) -> Iterable[Card]:
+        verb_source, noun_source = _sub_sources(source)
+        yield from VerbMode().cards(verb_source, conn)
+        yield from NounMode().cards(noun_source, conn)
 
 
 def _decks(source: Source) -> tuple[str, str, str, str]:

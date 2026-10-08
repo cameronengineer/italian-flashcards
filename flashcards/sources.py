@@ -39,6 +39,7 @@ class Source:
     enrich: bool = True
     image: bool = True
     audio: bool = True
+    facts: bool = True
 
     label_pill: str | None = None
     front_pill: str | None = None
@@ -60,6 +61,35 @@ class Source:
         except ValueError:
             return self.path.name
 
+    @property
+    def key(self) -> str:
+        """Location-independent key stored in ``entries.source_path``."""
+        try:
+            return self.path.relative_to(INPUTS_DIR).as_posix()
+        except ValueError:
+            return self.path.name
+
+
+def decks_for(source: Source) -> list[str]:
+    """Every deck name a source writes cards into (expanded per mode).
+
+    Single place that knows the deck fan-out — used for validation, for the
+    per-deck shuffle window map, and by anything that needs "which decks
+    belong to this source".
+    """
+    from .grammar import TENSE_DISPLAY
+
+    if source.mode in ("verb", "subtlex"):
+        decks = [f"{source.deck} {t}" for t in TENSE_DISPLAY.values()]
+        if source.infinitive_deck:
+            decks.append(source.infinitive_deck)
+        if source.mode == "subtlex":
+            decks += [d for d in (source.extras.get("noun_deck"), source.phrases_deck) if d]
+        return decks
+    if source.mode == "noun":
+        return [d for d in (source.deck, source.phrases_deck) if d]
+    return [source.deck]
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Loading
@@ -69,7 +99,7 @@ class Source:
 #: not in this set OR ``EXTRA_FIELDS`` below triggers a typo warning in
 #: ``_source_from_entry``.
 KNOWN_FIELDS = {
-    "path", "mode", "deck", "enrich", "image", "audio",
+    "path", "mode", "deck", "enrich", "image", "audio", "facts",
     "label_pill", "front_pill", "shuffle_window", "prompt_hint",
     "infinitive_deck", "phrases_deck", "limit",
     "disabled", "$comment",
@@ -135,6 +165,7 @@ def _source_from_entry(
         enrich=bool(entry.get("enrich", True)),
         image=bool(entry.get("image", True)),
         audio=bool(entry.get("audio", True)),
+        facts=bool(entry.get("facts", True)),
         label_pill=entry.get("label_pill"),
         front_pill=entry.get("front_pill"),
         shuffle_window=int(entry.get("shuffle_window", 50)),
@@ -237,13 +268,35 @@ def validate(sources: list[Source], parse_errors: list[str] | None = None) -> li
                 errors.append(f"{s.id}: mode='subtlex' requires 'noun_deck'")
             if not s.phrases_deck:
                 errors.append(f"{s.id}: mode='subtlex' requires 'phrases_deck'")
-        existing = seen_decks.get(s.deck)
-        if existing and existing != s.id:
-            errors.append(
-                f"{s.id}: deck name {s.deck!r} already claimed by {existing}"
-            )
-        seen_decks[s.deck] = s.id
+        if s.limit is not None and not isinstance(s.limit, int):
+            errors.append(f"{s.id}: 'limit' must be an integer, got {s.limit!r}")
+        # Check every expanded deck (tense decks, infinitive, phrases, …), not
+        # just ``deck`` — two sources writing the same deck would make each
+        # build's cards fight over it. Anki deck names are case-insensitive.
+        for deck in decks_for(s):
+            problem = _deck_name_problem(deck)
+            if problem:
+                errors.append(f"{s.id}: deck name {deck!r} {problem}")
+            existing = seen_decks.get(deck.casefold())
+            if existing and existing != s.id:
+                errors.append(
+                    f"{s.id}: deck name {deck!r} already claimed by {existing}"
+                )
+            seen_decks[deck.casefold()] = s.id
     return errors
+
+
+def _deck_name_problem(deck: str) -> str | None:
+    """Why Anki would reject or mangle a deck name, if it would."""
+    if not deck.strip():
+        return "is empty"
+    if deck != deck.strip():
+        return "has leading/trailing spaces"
+    if '"' in deck:
+        return "contains a double quote (breaks Anki search)"
+    if any(not part.strip() for part in deck.split("::")):
+        return "has an empty '::' subdeck segment"
+    return None
 
 
 def summarise(sources: list[Source]) -> str:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -16,7 +17,8 @@ AUDIO_DIR_COMPRESSED = MEDIA_DIR / "audio_compressed"
 IMAGE_DIR = MEDIA_DIR / "images"
 IMAGE_DIR_COMPRESSED = MEDIA_DIR / "images_compressed"
 
-DB_PATH = PROJECT_ROOT / "database.sqlite"
+# ``FLASHCARDS_DB`` points the pipeline at another database (e.g. a scratch copy).
+DB_PATH = Path(os.environ.get("FLASHCARDS_DB") or PROJECT_ROOT / "database.sqlite")
 
 OPENROUTER_KEY_FILE = PROJECT_ROOT / ".openrouter"
 ELEVENLABS_KEY_FILE = PROJECT_ROOT / ".elevenlabs"

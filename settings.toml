@@ -1,0 +1,84 @@
+# Pipeline settings. Every tunable lives here; `flashcards/settings.py` holds
+# the defaults and documents each key. Deck/source config lives in
+# sources.json, not here.
+
+[ai]
+# Every text / JSON task (enrichment, conjugation, fun facts, image prompts,
+# audits, practice) runs on Claude via `claude -p` — your Claude subscription,
+# so usage counts against your plan and `claude` must be logged in.
+# Only image generation uses OpenRouter ([images]).
+model = "opus"
+effort = "medium"
+timeout = 600            # seconds per call
+concurrency = 4          # calls in flight at once
+# Usage limit hit / logged out / out of credits / offline: pause all AI work
+# and retry every N minutes until it works again.
+unavailable_retry_minutes = 5
+
+[ai.task_models]
+# Per-task overrides. Task names are listed in flashcards/tasks.py.
+practice_sentence = "sonnet"
+practice_feedback = "sonnet"
+
+[facts]
+# "Did you know?" notes (etymology, links to English, false friends…).
+enabled = true
+# Facts below this model-reported confidence are stored but not shown.
+min_confidence = 0.75
+batch_size = 25          # words per AI request
+
+[audio]
+voice_id = "HuK8QKF35exsCh2e7fLT"
+model = "eleven_multilingual_v2"
+format = "mp3_44100_128"
+language = "it"
+stability = 0.5
+similarity_boost = 1.0
+style = 1.0
+speed = 0.7
+compressed_bitrate = "48k"
+
+[images]
+# OpenRouter (key in .openrouter) — used for image generation only.
+model = "sourceful/riverflow-v2-fast"
+max_retries = 3
+retry_delay = 5
+compressed_max_px = 512
+compressed_quality = 75
+
+[run]
+# Defaults for `flashcards run` / ./run.sh (CLI flags override).
+build_workers = 200
+audio_workers = 5        # ElevenLabs' concurrent-request limit
+image_workers = 200
+compress_workers = 8
+audio_limit = 1          # new audio files per run (cost cap)
+image_limit = 300        # new images per run (cost cap)
+
+[sync]
+orphan_ratio_limit = 0.10
+orphan_absolute_limit = 200
+
+[anki]
+url = "http://127.0.0.1:8765"
+
+[backups]
+keep_last = 10
+# Optional second copy outside the repo, e.g. "~/Library/Mobile Documents/com~apple~CloudDocs/flashcards-backups".
+mirror_dir = ""
+
+[review]
+min_confidence = 0.7
+
+[audit]
+workers = 500
+
+[practice]
+words = 50
+sentences = 10
+length = "medium"
+no_subjunctive = true
+
+[leech]
+threshold = 5
+relearn_steps = [10]

@@ -1,12 +1,17 @@
-"""Tiny thread-pool helper with progress output, used by every mode."""
+"""Tiny thread-pool helper with progress output, used by every stage."""
 
 from __future__ import annotations
 
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Callable, Iterator, TypeVar
 
 T = TypeVar("T")
 R = TypeVar("R")
+
+#: Set on Ctrl-C so long waits (e.g. the AI layer's "Claude unavailable"
+#: pause) end immediately instead of holding the process open.
+STOP = threading.Event()
 
 
 def run_pool(
@@ -28,7 +33,9 @@ def run_pool(
     total = len(items)
     print(f"  Processing {total} {label} with {workers} workers...", flush=True)
     done = 0
-    with ThreadPoolExecutor(max_workers=workers) as pool:
+    pool = ThreadPoolExecutor(max_workers=workers)
+    interrupted = False
+    try:
         futs = {pool.submit(work_fn, it): it for it in items}
         for fut in as_completed(futs):
             done += 1
@@ -42,3 +49,13 @@ def run_pool(
                 yield it, fut.result()
             if done % progress_every == 0:
                 print(f"  Progress: {done}/{total}", flush=True)
+    except KeyboardInterrupt:
+        interrupted = True
+        STOP.set()
+        raise
+    except GeneratorExit:
+        # The caller stopped iterating early: drop queued work, don't wait.
+        interrupted = True
+        raise
+    finally:
+        pool.shutdown(wait=not interrupted, cancel_futures=interrupted)

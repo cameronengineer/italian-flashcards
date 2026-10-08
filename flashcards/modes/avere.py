@@ -7,19 +7,18 @@ entry's id so each expression always picks the same persons).
 from __future__ import annotations
 
 import hashlib
-import json
+import sqlite3
+from typing import Iterable
 
 from ..grammar import (
     AVERE_CONJ,
     AVERE_PERSONS,
     AVERE_SUBJ_EN as SUBJ_EN,
-    AVERE_SUBJ_LABEL as SUBJ_LABEL,
 )
-from ..openrouter import SCHEMA_GLOSS, cached_structured, merge_english
-from ..pool import run_pool
-from .. import csvio
+from ..cards import Card, labels
 from ..sources import Source
-from ..util import entry_id
+from ..tasks import AVERE_GLOSS
+from .gloss import GlossMode
 
 
 DEFAULT_CARDS_PER_EXPRESSION = 2
@@ -105,73 +104,20 @@ def _avere_english(person: str, base_english: str) -> str:
     return f"{subject} {' / '.join(parts)}"
 
 
-class AvereMode:
+class AvereMode(GlossMode):
+    """Same ingest as ``gloss`` (one entry per CSV row, optional AI gloss);
+    only the enrichment task and the card fan-out differ."""
+
     name = "avere"
+    meta = AVERE_GLOSS
+    default_hint = (
+        "Fixed Italian phrases using avere + noun where English uses 'to be + "
+        "adjective' or another verb (e.g. 'avere fame' = 'to be hungry')."
+    )
 
-    def ingest(self, source: Source, ctx) -> int:
-        rows = csvio.read(source.path)
-        if not rows:
-            return 0
-
-        sp = str(source.path.resolve())
-        existing = {
-            r["natural_id"] for r in ctx.conn.execute(
-                "SELECT natural_id FROM entries WHERE source_path = ?", (sp,)
-            ).fetchall()
-        }
-        pending = [r for r in rows if r.italian not in existing]
-        if not pending:
-            return 0
-
-        if not source.enrich:
-            inserted = 0
-            for r in pending:
-                inserted += self._insert(ctx.conn, source, r, item=None)
-            ctx.conn.commit()
-            return inserted
-
-        api_key = ctx.api_key()
-        db_lock = ctx.db_lock
-        inserted = 0
-
-        def work(r: csvio.CsvRow) -> dict:
-            return cached_structured(
-                conn=ctx.conn,
-                db_lock=db_lock,
-                prompt=self._prompt(source, r),
-                schema_name="avere_gloss",
-                schema=SCHEMA_GLOSS,
-                api_key=api_key,
-            )
-
-        for r, result in run_pool(
-            pending, work,
-            workers=ctx.workers,
-            label=f"avere/{source.id}",
-            describe=lambda r: r.italian,
-        ):
-            if isinstance(result, Exception):
-                continue
-            with db_lock:
-                inserted += self._insert(ctx.conn, source, r, item=result)
-                ctx.conn.commit()
-        return inserted
-
-    def materialise(self, source: Source, ctx) -> int:
-        sp = str(source.path.resolve())
-        rows = ctx.conn.execute(
-            """
-            SELECT id, italian, english
-            FROM entries
-            WHERE source_path = ?
-            ORDER BY rowid
-            """,
-            (sp,),
-        ).fetchall()
-        # NOTE: ``sources.validate()`` pre-flights this value at discover/build
-        # time; the runtime check below is defense-in-depth so direct
-        # programmatic use of ``AvereMode.materialise`` still fails loudly on
-        # a bad config rather than producing wrong-shaped output. Keep both.
+    def cards(self, source: Source, conn: sqlite3.Connection) -> Iterable[Card]:
+        # NOTE: ``sources.validate()`` pre-flights this value; the runtime
+        # check is defense-in-depth for programmatic use.
         cards_per_expression = int(
             source.extras.get("cards_per_expression", DEFAULT_CARDS_PER_EXPRESSION)
         )
@@ -180,63 +126,18 @@ class AvereMode:
                 f"avere source {source.id!r}: cards_per_expression must be in "
                 f"1..{len(AVERE_PERSONS)}, got {cards_per_expression}"
             )
-        inserted = 0
-        for r in rows:
-            for person in _pick_persons(r["id"], cards_per_expression):
-                italian = _avere_italian(person, r["italian"])
-                english = _avere_english(person, r["english"])
-                base_labels = f"type: avere expression | subject: {SUBJ_LABEL[person]}"
-                if source.label_pill:
-                    base_labels = f"{base_labels} | {source.label_pill}"
-                inserted += ctx.add_card_pair(
-                    entry_id=r["id"],
-                    natural_key=f"avere:{r['id']}:{person}",
+        for e in self.live_entries(conn, source):
+            for person in _pick_persons(e["id"], cards_per_expression):
+                italian = _avere_italian(person, e["italian"])
+                yield Card(
+                    entry_id=e["id"],
+                    natural_key=f"avere:{e['id']}:{person}",
                     deck=source.deck,
-                    front_text=english,
-                    back_highlight=italian,
-                    back_text=None,
-                    front_labels=base_labels,
-                    audio_text=italian if source.audio else None,
-                    image_text=(r["italian"] if source.image else None),
+                    english=_avere_english(person, e["english"]),
+                    italian=italian,
+                    labels=labels(type="avere expression", subject=person, extra=source.label_pill),
+                    details=e["italian"],
+                    audio_text=italian,
+                    image_text=e["italian"],
+                    fact_word=e["italian"],
                 )
-        return inserted
-
-    def _prompt(self, source: Source, r: csvio.CsvRow) -> str:
-        hint = source.prompt_hint or (
-            "Italian 'avere' expression where English uses 'to be + adjective' "
-            "or another verb (e.g. 'avere fame' = 'to be hungry')."
-        )
-        payload = json.dumps({"italian": r.italian, "english_hint": r.english}, ensure_ascii=False)
-        return (
-            "Enrich an Italian 'avere' expression.\n\n"
-            f"Context: {hint}\n\n"
-            "Rules:\n"
-            "  - english: concise base form starting with 'to', e.g. 'to be hungry'.\n"
-            "  - disambiguation: empty unless ambiguous.\n"
-            "  - usage_note: very short label only if archaic/formal/vulgar/regional.\n"
-            "  - valid=false only if clearly not an avere expression.\n\n"
-            f"Item:\n{payload}"
-        )
-
-    def _insert(self, conn, source, r: csvio.CsvRow, *, item: dict | None) -> int:
-        if item is None:
-            english = r.english
-            confidence = 1.0
-        elif not item.get("valid", True):
-            return 0
-        else:
-            english = merge_english(item) or r.english
-            confidence = float(item.get("confidence", 1.0))
-        if not english:
-            return 0
-        sp = str(source.path.resolve())
-        eid = entry_id(sp, r.italian)
-        cursor = conn.execute(
-            """
-            INSERT OR IGNORE INTO entries (
-                id, source_path, natural_id, mode, deck, italian, english, confidence
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (eid, sp, r.italian, source.mode, source.deck, r.italian, english, confidence),
-        )
-        return cursor.rowcount

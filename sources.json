@@ -26,6 +26,16 @@
       "prompt_hint": "Coordinating, subordinating, and correlative conjunctions and connective phrases."
     },
     {
+      "path": "italian_alphabet.csv",
+      "mode": "gloss",
+      "deck": "Italian - Alphabet",
+      "enrich": false,
+      "image": false,
+      "front_pill": "type: letter",
+      "shuffle_window": 0,
+      "prompt_hint": "Letters of the Italian alphabet and their spoken names (e.g. 'B' = 'bi'), including foreign letters J, K, W, X, Y."
+    },
+    {
       "path": "italian_numbers.csv",
       "mode": "gloss",
       "deck": "Italian - Numbers",
@@ -57,7 +67,7 @@
       "deck": "Italian - Italki Verbs",
       "infinitive_deck": "Italian - Italki Verbs Infinitive",
       "label_pill": "source: italki",
-      "shuffle_window": 0,
+      "shuffle_window": 50,
       "prompt_hint": "Verbs recorded during italki conversation classes."
     },
     {
