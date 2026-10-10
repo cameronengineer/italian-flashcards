@@ -1,0 +1,131 @@
+{
+  "validation_date": "2026-10-10",
+  "snapshot_captured_at": "2026-10-10T07:23:05.231158+00:00",
+  "scope": "Offline database copy, simulated provider and Anki integration tests, read-only real media inventory",
+  "tests": {
+    "passed": 106,
+    "ruff_lint": "passed",
+    "ruff_format": "passed"
+  },
+  "snapshot": {
+    "schema": 7,
+    "integrity": "ok",
+    "foreign_key_violations": [],
+    "seconds": {
+      "migration": 0.62,
+      "sources": 4.94,
+      "queue": 2.58,
+      "notes": 1.53
+    },
+    "notes": {
+      "vocab": {
+        "ready": 1961,
+        "waiting": 1677
+      },
+      "form": {
+        "ready": 4534,
+        "waiting": 682
+      },
+      "nphrase": {
+        "ready": 1746,
+        "waiting": 82
+      },
+      "phrase": {
+        "ready": 89,
+        "waiting": 8
+      },
+      "cognate": {
+        "ready": 7,
+        "waiting": 1
+      }
+    },
+    "audit_coverage": {
+      "publishable": 8337,
+      "audited": 0,
+      "unaudited": 8337,
+      "pass": 0,
+      "warn": 0,
+      "fail": 0
+    },
+    "findings": [
+      {
+        "code": "retained_inactive_roots",
+        "severity": "info",
+        "count": 1707
+      },
+      {
+        "code": "unverified_meaning_sources",
+        "severity": "warning",
+        "count": 3574
+      },
+      {
+        "code": "grammar_holds",
+        "severity": "warning",
+        "count": 65
+      },
+      {
+        "code": "unaudited_ready_notes",
+        "severity": "warning",
+        "count": 8337
+      },
+      {
+        "code": "ready_without_audio",
+        "severity": "info",
+        "count": 4239
+      },
+      {
+        "code": "ambiguous_production_cues",
+        "severity": "warning",
+        "count": 101
+      }
+    ],
+    "cue_review_rows": 238,
+    "grammar_review_rows": 65,
+    "finished_jobs_before": {
+      "disambiguate": 32,
+      "lexeme_enrich": 2692,
+      "phrase_enrich": 765,
+      "verb_prompts": 141
+    },
+    "finished_jobs_after": {
+      "disambiguate": 32,
+      "lexeme_enrich": 2692,
+      "phrase_enrich": 765,
+      "verb_prompts": 138
+    },
+    "repeat_sources_skipped": true,
+    "repeat_queue_added": {
+      "lexeme_enrich": 0,
+      "phrase_enrich": 0,
+      "image": 0,
+      "verb_prompts": 0,
+      "disambiguate": 0
+    }
+  },
+  "media": {
+    "complete": true,
+    "files": 73956,
+    "status": {
+      "metadata": 5,
+      "ok": 73951
+    },
+    "missing_references": [],
+    "unreferenced_preserved": 53064,
+    "validation": "All file bytes hashed; images decoded; audio checksums verified, not full audio decoding"
+  },
+  "media_preservation": {
+    "baseline_files": 73956,
+    "current_files": 73956,
+    "missing": 0,
+    "size_or_mtime_changed": 0,
+    "added": 0
+  },
+  "limitations": [
+    "No live provider calls or production Anki writes during validation.",
+    "An independent worker can change live database and export counts.",
+    "Publishable notes still require independent language-content auditing and human adjudication.",
+    "Legacy source IDs preserve identities without asserting verified meaning evidence.",
+    "Audio files were hashed, not fully decoded.",
+    "Recovery tested with a fixture collection including review history and media; no live Anki GUI restore."
+  ]
+}

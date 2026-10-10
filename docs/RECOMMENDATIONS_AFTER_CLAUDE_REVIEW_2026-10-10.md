@@ -1,18 +1,88 @@
 # Recommendations after Claude’s pipeline rework
 
-Review date: 10 October 2026
+Review date: 10 October 2026. Implementation and validation updated the same day.
 
 Claude’s changes improve the run workflow and remove real bottlenecks. Keep the
 single `./run.sh` entry point, bounded parallel Claude batches, source-change
-detection, faster Anki reads and clearer progress reporting. The next priority
-should be correctness of approvals, study history and generated cards.
+detection, faster Anki reads and clearer progress reporting. The implementation
+now adds the approval, study-history and generated-card safeguards below.
 
 These recommendations follow the [earlier data and application review](DATA_AND_APP_RECOMMENDATIONS_2026-10-09.md)
 and the [performance investigation](PERFORMANCE_REVIEW_2026-10-10.md). References
-to D01–D21 below use the identifiers from the earlier data review. D12 should
-still be treated as partly implemented.
+to D01–D21 below use the identifiers from the earlier data review. The shared
+planning changes complete the D12 implementation described in this review;
+this does not mark every item in the earlier D01–D21 review complete.
 
-## Review scope and evidence
+## Implementation status
+
+The code changes for all seven numbered items and the media/recovery follow-up
+are implemented. Content adjudication and production integration checks remain
+separate work, as described below. Sections 1–7 preserve the original findings
+and acceptance criteria so the changes can be checked against the review.
+
+| Item | Implemented behavior | Evidence |
+|---|---|---|
+| 1. Approvals | Review rows carry a content hash; stale approvals cannot release changed content. Pending marks survive exports. Approvals entered during a run are processed before the final build and sync. | Stale/current approval and late-approval pipeline tests. |
+| 2. Meaning identity | Dictionary and source evidence accompany new senses. New meanings receive new identities; superseded meanings remain archived. Explicit human rewording of an existing index requires `same_meaning: true`. Existing unverified identities stay identifiable as legacy data. | Meaning replacement, paraphrase and source-identity regression tests; schema v7 migration on a database copy. |
+| 3. Grammar | Generation uses meaning-specific person, auxiliary and noun-form constraints. Each requested verb form requires an answer or a reasoned exclusion. Known unsuitable published drills are held or suspended while retaining study history. | Verb completeness, exclusions, reflexive/auxiliary, plural-gender and linguistic corpus tests. |
+| 4. Replacement verification | Retirement checks the actual replacement, including adopted studied notes, its expected content and card direction. Adoption is written and checked before the original direction is disabled. | Verified/missing replacement and interrupted-adoption tests. |
+| 5. Sync completion | A rejected sync is not recorded as complete. The final sync reconciles Anki again, and sorting changes affect the local signature. | Partial-sync failure, successful final retry and signature tests. |
+| 6. Shared planning | Generation and publication use the same candidate plan, count new card directions and maintain published verb families. Movie forecasts distinguish vocabulary coverage, card workload and introduction days. The horizon remains opt-in. | Shared horizon generation/publication and workload forecast tests. |
+| 7. Audits and fixtures | Audit ordering prioritises risky cards; reports separate audited and unaudited notes. Versioned `cue_review.csv` supports reviewed hints and accepted alternatives. Import warnings flag likely swapped language columns. A small cited linguistic corpus covers source readers and card types. | Cue correction, language-direction, reader/card-type and full pipeline fixture tests. |
+| Media and recovery | A resumable checksum inventory retains every original. Recovery bundles can include code, dictionary, inputs, pipeline state, an Anki collection and media. Restore verifies copied bytes in a new directory. | Complete local media inventory and an isolated restore/rebuild fixture that preserves Anki review history and media. |
+
+### Validation results
+
+- **106 tests pass**, with Ruff lint and formatting checks passing.
+- A fresh database snapshot migrated to schema v7 with integrity `ok` and no
+  foreign-key violations. No production database migration, AI call or Anki
+  write was performed by this validation.
+- Snapshot timings: migration **0.62 s**, source resolution **4.94 s**, queue
+  planning **2.58 s**, and note building **1.53 s**. These measure local work,
+  not provider latency or live Anki throughput.
+- A repeated source pass skipped unchanged inputs; repeated queue planning
+  added **zero jobs**. All **2,692** finished lexeme enrichment jobs and **765**
+  finished phrase jobs remained finished. Three previously finished verb jobs
+  were reopened for incomplete or unsuitable results instead of being silently
+  treated as valid.
+- The rebuilt snapshot had **8,337 publishable notes**, **238 cue-review rows**,
+  and **65 grammar holds**. Publishable does not mean independently audited:
+  all **8,337** still lacked a matching independent audit. **3,574** existing
+  senses retained explicitly unverified source identities.
+- All **73,956 files** under `media/` were inventoried: **73,951** valid assets
+  and **5** metadata files. No referenced media was missing. **53,064** files
+  without a recorded reference were retained. A final comparison found no
+  missing, added, resized or modified files relative to the initial baseline.
+  All files were hashed and images decoded; audio validation did not include
+  full audio decoding. A repeated scan reused all inventory records.
+
+Snapshot data was captured at **2026-10-10 07:23 UTC**. A separate live worker
+can continue changing production counts. Compact machine-readable evidence is
+in [REVIEW_IMPLEMENTATION_EVIDENCE_2026-10-10.json](REVIEW_IMPLEMENTATION_EVIDENCE_2026-10-10.json).
+
+### Remaining operational work
+
+1. Run `./run.sh` with Anki open to exercise the migration, provider responses
+   and real sync. The implementation checks above used isolated database copies
+   and simulated provider/Anki responses; they do not certify a production run.
+2. Review the generated `review.csv`, `cue_review.csv` and `grammar_review.csv`.
+   Grammar holds require an underlying meaning or grammar correction; a root
+   approval alone is not a substitute. Legacy source identities need reviewed
+   dictionary/source matches over time. Existing finished vocabulary is not
+   regenerated wholesale just to populate these fields.
+3. Run targeted independent content audits and adjudicate ambiguous cues before
+   interpreting publishable counts as language-quality assurance. The checked
+   linguistic fixtures are small regression examples, not a certification of
+   the whole generated corpus.
+4. Make a recovery bundle with the actual Anki collection and media, and rehearse
+   opening its restored collection in an isolated Anki profile. The automated
+   restore fixture verifies stored history and offline rebuilding; it does not
+   launch Anki or install external runtimes and provider credentials.
+
+No media regeneration is required for these changes. See the [README](../README.md)
+for review-file instructions and the inventory/recovery commands.
+
+## Original review scope and evidence
 
 The review inspected the current code, ran the repository’s 73 tests, rebuilt a
 fresh database snapshot offline and used isolated reproductions for the findings
@@ -33,9 +103,9 @@ Different images may distinguish some of the 71 prompt-collision groups; they
 are review candidates, not 71 proven mistakes. Counts describe the review
 snapshot and can change while the live worker continues.
 
-The review made no production database changes, Anki writes, Claude calls or
-media changes. The recommendations below remain proposed work; this document
-does not claim they have been implemented.
+The original review made no production database changes, Anki writes, Claude
+calls or media changes. The findings below describe that baseline; the status
+and validation section above records the subsequent implementation.
 
 ## 1. Fix the approval workflow
 
