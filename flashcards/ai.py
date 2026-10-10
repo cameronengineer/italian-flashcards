@@ -30,13 +30,17 @@ import sqlite3
 import subprocess
 import tempfile
 import threading
+import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Callable, Iterable, Iterator, TypeVar
 
 from .pool import STOP, run_pool
+from . import report
 from .settings import settings
 from .util import md5_hex
+from .validation import validate
+from .runtime import run_process
 
 T = TypeVar("T")
 
@@ -71,23 +75,73 @@ class Task:
         ]
 
     def cache_key(self) -> str:
-        return md5_hex(f"{self.model}::{self.name}::{json.dumps(self.messages(), ensure_ascii=False)}")
+        return md5_hex(
+            json.dumps(
+                {
+                    "model": self.model,
+                    "task": self.name,
+                    "messages": self.messages(),
+                    "schema": self.schema,
+                    "effort": settings.ai.effort,
+                    "thinking": settings.ai.thinking,
+                    "version": settings.ai.task_version,
+                    "provider": settings.ai.claude_cli,
+                },
+                ensure_ascii=False,
+                sort_keys=True,
+            )
+        )
 
 
 # ── Error classification ──────────────────────────────────────────────────
 
 _UNAVAILABLE_STATUS = {401, 402, 403, 408, 429, 500, 502, 503, 504, 529}
 _UNAVAILABLE_HINTS = (
-    "usage limit", "rate limit", "limit reached", "hit your limit", "quota",
-    "credit", "billing", "overloaded", "too many requests",
-    "log in", "login", "logged out", "not logged", "authenticat", "unauthorized",
-    "oauth", "invalid api key", "subscription",
-    "network", "connection", "econnre", "enotfound", "etimedout", "fetch failed",
-    "service unavailable", "internal server error", "bad gateway",
+    "usage limit",
+    "rate limit",
+    "limit reached",
+    "hit your limit",
+    "quota",
+    "credit",
+    "billing",
+    "overloaded",
+    "too many requests",
+    "log in",
+    "login",
+    "logged out",
+    "not logged",
+    "authenticat",
+    "unauthorized",
+    "oauth",
+    "invalid api key",
+    "subscription",
+    "network",
+    "connection",
+    "econnre",
+    "enotfound",
+    "etimedout",
+    "fetch failed",
+    "service unavailable",
+    "internal server error",
+    "bad gateway",
+)
+
+
+_AUTH_HINTS = (
+    "log in",
+    "login",
+    "logged out",
+    "not logged",
+    "authenticat",
+    "unauthorized",
+    "oauth",
+    "invalid api key",
 )
 
 
 def _classify(message: str, status: int | None = None) -> AIError:
+    """Limits, credits, logins and outages are all "unavailable": the queue
+    waits for them to clear (as asked) instead of failing jobs."""
     low = message.lower()
     if status in _UNAVAILABLE_STATUS or (status or 0) >= 500:
         return AIUnavailable(message)
@@ -105,31 +159,50 @@ def _claude_code(task: Task) -> Any:
     """Run one task through ``claude -p`` (your Claude subscription)."""
     cfg = settings.ai
     cmd = [
-        cfg.claude_cli, "-p",
-        "--output-format", "json",
+        cfg.claude_cli,
+        "-p",
+        "--output-format",
+        "json",
         "--no-session-persistence",
-        "--tools", "",
-        "--model", task.model,
-        "--effort", cfg.effort,
-        "--system-prompt", task.system,
+        "--tools",
+        "",
+        "--model",
+        task.model,
+        "--effort",
+        cfg.effort,
+        "--system-prompt",
+        task.system,
+        # Only the task: no MCP servers / claude.ai connectors (their tool
+        # definitions cost ~7,300 tokens per call), no skills, no user or
+        # project settings (hooks, plugins). Runs in the temp dir, so no CLAUDE.md.
+        "--strict-mcp-config",
+        "--disable-slash-commands",
+        "--setting-sources",
+        "",
+        "--settings",
+        json.dumps({"alwaysThinkingEnabled": cfg.thinking}),
     ]
     if task.schema is not None:
         cmd += ["--json-schema", json.dumps(task.schema)]
     try:
-        proc = subprocess.run(
-            cmd, input=task.prompt, capture_output=True, text=True,
+        proc = run_process(
+            cmd,
+            input=task.prompt,
+            stop=STOP,
             timeout=task.timeout or cfg.timeout,
             cwd=tempfile.gettempdir(),  # no project CLAUDE.md / settings
         )
     except FileNotFoundError as exc:
-        raise AIError(f"Claude Code CLI not found ({cfg.claude_cli!r}); install it or set [ai] claude_cli") from exc
+        raise AIError(
+            f"Claude Code CLI not found ({cfg.claude_cli!r}); install it or set [ai] claude_cli"
+        ) from exc
     except subprocess.TimeoutExpired as exc:
         raise AIError(f"{task.name}: no answer within {exc.timeout}s") from exc
     try:
         data = json.loads(proc.stdout)
     except json.JSONDecodeError:
         detail = (proc.stderr or proc.stdout or f"exit code {proc.returncode}").strip()
-        raise _classify(f"claude -p failed: {detail[-400:]}")
+        raise _classify(f"claude -p failed: {detail[-400:]}") from None
     if data.get("is_error") or data.get("subtype") != "success":
         detail = str(data.get("result") or data.get("subtype") or "unknown error")
         raise _classify(f"claude -p: {detail[:400]}", data.get("api_error_status"))
@@ -179,37 +252,58 @@ class _Gate:
                 # someone else is probing — wait for the gate to reopen
 
     def _probe(self, fn: Callable[[], Any], exc: AIUnavailable) -> Any:
+        """Wait out an outage, retrying every ``unavailable_retry_minutes``.
+
+        A stated reset time ("resets 11:40pm") stretches the wait, capped at
+        an hour so a misread time zone can't stall the run for a day. Waits
+        forever unless ``max_unavailable_minutes`` is set; the gate always
+        reopens on the way out, whatever happens.
+        """
         interval = max(0.1, settings.ai.unavailable_retry_minutes) * 60
-        until_reset = seconds_until_reset(str(exc))
-        if until_reset and until_reset > interval:
-            print(f"\n  ⏸  {self.name}: limit resets in {until_reset / 60:.0f} min — sleeping until then.", flush=True)
-            if STOP.wait(until_reset):
-                raise AIError(f"interrupted while waiting for {self.name}")
-            try:
-                result = fn()
-                print(f"  ▶  {self.name} available again — resuming.", flush=True)
-                self.open.set()
-                return result
-            except AIUnavailable as again:
-                exc = again
-        print(f"\n  ⏸  {self.name} unavailable: {exc}\n"
-              f"     Pausing all AI work; retrying every {interval / 60:g} min "
-              f"(Ctrl-C to stop).", flush=True)
+        limit = settings.ai.max_unavailable_minutes * 60
+        deadline = time.monotonic() + limit if limit > 0 else None
+        last_said = None  # say it once, then every 30 minutes
         try:
             while True:
-                nxt = datetime.now() + timedelta(seconds=interval)
-                print(f"     next attempt at {nxt:%H:%M}", flush=True)
-                if STOP.wait(interval):
+                delay = min(max(interval, seconds_until_reset(str(exc)) or 0), 3600)
+                if deadline is not None and time.monotonic() + delay > deadline:
+                    raise AIUnavailable(
+                        f"{self.name} still unavailable after "
+                        f"{settings.ai.max_unavailable_minutes:g} min: {exc}"
+                    )
+                login = any(h in str(exc).lower() for h in _AUTH_HINTS)
+                nxt = datetime.now() + timedelta(seconds=delay)
+                reason = "needs you to log in again" if login else _short_reason(str(exc))
+                if last_said is None or time.monotonic() - last_said >= 1800:
+                    report.line(
+                        f"⏸  {self.name} {reason} — "
+                        + ("waiting" if last_said is None else "still waiting")
+                        + f", next try {nxt:%H:%M}. Leave this running (Ctrl-C is safe)."
+                    )
+                    last_said = time.monotonic()
+                if STOP.wait(delay):
                     raise AIError(f"interrupted while waiting for {self.name}")
                 try:
                     result = fn()
                 except AIUnavailable as again:
-                    print(f"     still unavailable: {str(again)[:160]}", flush=True)
+                    exc = again
                     continue
-                print(f"  ▶  {self.name} available again — resuming.", flush=True)
+                report.line(f"▶  {self.name} is available again — carrying on")
                 return result
         finally:
             self.open.set()
+
+
+def _short_reason(message: str) -> str:
+    """'usage limit reached (resets 3pm)' rather than the raw provider text."""
+    low = message.lower()
+    reset = _RESET.search(message)
+    when = f" (resets {reset.group(0).split(' ', 1)[-1].strip()})" if reset else ""
+    if any(h in low for h in ("limit", "quota", "credit", "billing", "too many requests")):
+        return "usage limit reached" + when
+    if any(h in low for h in ("network", "connection", "enotfound", "etimedout", "fetch failed")):
+        return "can't be reached (network)"
+    return "is unavailable: " + message.strip()[:120]
 
 
 _RESET = re.compile(r"resets?\s+(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?", re.I)
@@ -217,6 +311,25 @@ _RESET = re.compile(r"resets?\s+(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?", re
 
 def seconds_until_reset(message: str) -> float | None:
     """Seconds until a limit message's reset time ("resets 11:40pm"), + 2 min margin."""
+    epoch = re.search(r"limit reached\|(\d{10})\b", message)
+    if epoch:
+        return max(0.0, int(epoch[1]) - datetime.now().timestamp()) + 120
+    # Explicit ISO timestamps are unambiguous. Unknown named zones fall back to the interval.
+    iso = re.search(r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?(?:Z|[+-]\d{2}:\d{2}))", message)
+    if iso:
+        from datetime import timezone
+
+        return (
+            max(
+                0,
+                (
+                    datetime.fromisoformat(iso[1].replace("Z", "+00:00")) - datetime.now(timezone.utc)
+                ).total_seconds(),
+            )
+            + 120
+        )
+    if re.search(r"\b(?:UTC|GMT|[A-Z]{3,5})\b|[+-]\d{2}:\d{2}", message):
+        return None
     m = _RESET.search(message)
     if not m:
         return None
@@ -268,7 +381,10 @@ class AI:
             row = self.conn.execute(
                 "SELECT response_json FROM ai_cache WHERE cache_key = ?", (key,)
             ).fetchone()
-        return json.loads(row[0]) if row else None
+        try:
+            return json.loads(row[0]) if row else None
+        except (TypeError, ValueError):
+            return None  # legacy/corrupt cache entries are recoverable misses
 
     def _cache_put(self, key: str, value: Any) -> None:
         if self.conn is None:
@@ -280,15 +396,32 @@ class AI:
             )
             self.conn.commit()
 
-    def run(self, task: Task, *, refresh: bool = False) -> Any:
-        """Run one task. Structured tasks return a dict, others a string."""
+    def run(
+        self, task: Task, *, refresh: bool = False, validate_result: Callable[[Any], None] | None = None
+    ) -> Any:
+        """Validate schema and request-specific invariants before reusing or caching an answer."""
+
+        def check(value):
+            if task.schema is not None:
+                validate(value, task.schema)
+            if validate_result is not None:
+                validate_result(value)
+
         use_cache = task.cache and self.conn is not None
         key = task.cache_key() if use_cache else ""
         if use_cache and not refresh:
             hit = self._cache_get(key)
             if hit is not None:
-                return hit
+                try:
+                    check(hit)
+                    return hit
+                except ValueError:
+                    pass  # obsolete/corrupt cached output must not poison every retry
         result = _call(task)
+        try:
+            check(result)
+        except ValueError as exc:
+            raise AIError(str(exc)) from exc
         if use_cache:
             self._cache_put(key, result)
         return result
@@ -303,11 +436,16 @@ class AI:
         describe: Callable[[T], str] | None = None,
         refresh: bool = False,
         progress_every: int = 50,
+        validate_result: Callable[[T, Any], None] | None = None,
     ) -> Iterator[tuple[T, Any]]:
         """Run a task per item in parallel; yields ``(item, result | Exception)``."""
         yield from run_pool(
             list(items),
-            lambda item: self.run(make_task(item), refresh=refresh),
+            lambda item: self.run(
+                make_task(item),
+                refresh=refresh,
+                validate_result=(lambda result: validate_result(item, result)) if validate_result else None,
+            ),
             workers=workers,
             label=label,
             describe=describe,

@@ -4,10 +4,14 @@
 an AI pass to correct mis-tagged parts of speech, malformed lemmas, and a
 handful of bad translations in the original distribution.
 
-The file is consumed by the `subtlex` mode in `sources.json`. The pipeline
+The file is consumed by the `subtlex` list in `lists.toml`. The pipeline
 walks the rows in `id` order, takes the top `verb_limit` lemmas tagged
 `dom_pos=VER` and the top `noun_limit` lemmas tagged `dom_pos=NOM`, and
-feeds them into the verb / noun pipelines.
+resolves them into the shared lexicon. Its wordform and dominant-lemma columns
+also supply the subtitle lemmatizer. Those dominant labels are corpus-wide
+guesses; they do not establish a token's meaning in an individual film line.
+The current CSV does not record the earlier AI correction pass as a per-row
+patch history, so retain the file and its hash when reproducing a run.
 
 ## Source
 

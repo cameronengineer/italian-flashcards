@@ -12,10 +12,9 @@ rules, and a JSON schema. All prompts share one shape —
     {"italian": …}
 
 — and one system preamble, so every model sees the same framing whether it
-is glossing a word, conjugating a verb or auditing a card. Enrichment tasks
-share the same core fields (``english``, ``disambiguation``, ``usage_note``,
-``confidence``, ``valid``) so every mode formats English the same way
-(``cards.merge_english``).
+is writing a word's prompt, conjugating a verb or auditing a card. Every
+structured task has a strict JSON schema; answers are validated against it
+before anything is stored (:mod:`flashcards.validation`).
 """
 
 from __future__ import annotations
@@ -30,15 +29,6 @@ SYSTEM = (
     "study material for an English-speaking learner. Be accurate. When you are "
     "unsure, say so through the confidence field (or decline) rather than guessing. "
     "Follow the rules exactly and answer in the requested format."
-)
-
-_STYLE_RULES = (
-    "English must be natural and concise; never include the Italian word in the English.",
-    "usage_note: a very short label only if the item is archaic, formal, vulgar, "
-    "literary, regional or colloquial; empty string for ordinary modern usage.",
-    "disambiguation: a short clarifier only when the English could mean several "
-    "things (e.g. 'right (direction)'); empty string otherwise.",
-    "confidence: 0–1, how sure you are that the answer is correct.",
 )
 
 
@@ -85,51 +75,22 @@ _STR = {"type": "string"}
 _BOOL = {"type": "boolean"}
 _CONF = {"type": "number", "minimum": 0.0, "maximum": 1.0}
 
-#: Fields every enrichment answer carries (see ``cards.merge_english``).
-_ENRICH = {
-    "valid": _BOOL,
-    "english": _STR,
-    "disambiguation": _STR,
-    "usage_note": _STR,
-    "confidence": _CONF,
-}
-
-
-def _enrichment(**extra) -> dict:
-    return _obj({**_ENRICH, **extra})
-
-
 FACT_KINDS = ("etymology", "english_link", "false_friend", "culture", "usage")
 
 
 # ── Quality ────────────────────────────────────────────────────────────────
 
-CARD_AUDIT = TaskSpec(
-    name="card_audit",
-    instruction="Audit this automatically generated Italian flashcard.",
-    rules=(
-        "correctness: the Italian and English mean the same thing.",
-        "grammar: the Italian is correct — gender, number agreement, conjugation, "
-        "articles, accents.",
-        "naturalness: both sides read naturally to a native speaker.",
-        "consistency: front, back, labels, details and fact all describe the same item.",
-        "fact (if present): it must be accurate; an invented or doubtful etymology is a fail.",
-        "A fine card is verdict 'pass', severity 0, empty issues and suggestion. Use "
-        "'warn' (severity 1–2) for minor stylistic nits and 'fail' (3–5) for errors "
-        "that would mislead a learner.",
-        "issues: one or two sentences. suggestion: the corrected text when you propose "
-        "a fix, else an empty string.",
-    ),
-    schema=_obj({
-        "verdict": {"type": "string", "enum": ["pass", "warn", "fail"]},
-        "severity": {"type": "integer", "minimum": 0, "maximum": 5},
-        "categories": {"type": "array", "items": {"type": "string", "enum": [
-            "correctness", "grammar", "naturalness", "consistency", "fact",
-        ]}},
-        "issues": _STR,
-        "suggestion": _STR,
-    }),
-    timeout=90,
+_AUDIT_RULES = (
+    "correctness: the Italian and English mean the same thing.",
+    "grammar: the Italian is correct — gender, number agreement, conjugation, articles, accents.",
+    "naturalness: both sides read naturally to a native speaker.",
+    "consistency: front, back, labels, details and fact all describe the same item.",
+    "fact (if present): it must be accurate; an invented or doubtful etymology is a fail.",
+    "A fine card is verdict 'pass', severity 0, empty issues and suggestion. Use "
+    "'warn' (severity 1–2) for minor stylistic nits and 'fail' (3–5) for errors "
+    "that would mislead a learner.",
+    "issues: one or two sentences. suggestion: the corrected text when you propose "
+    "a fix, else an empty string.",
 )
 
 # ── Practice (interactive; never cached) ───────────────────────────────────
@@ -137,10 +98,9 @@ CARD_AUDIT = TaskSpec(
 PRACTICE_SENTENCE = TaskSpec(
     name="practice_sentence",
     instruction="Write one natural English sentence for the learner to translate "
-                "into Italian, using at least one item from the word bank.",
+    "into Italian, using at least one item from the word bank.",
     rules=(
-        "Refer to word-bank items by their English meaning; do NOT write Italian in "
-        "the English sentence.",
+        "Refer to word-bank items by their English meaning; do NOT write Italian in the English sentence.",
         "Natural and conversational, at an intermediate level.",
         "italian: the correct, natural Italian translation.",
         "words_used: the English meanings from the word bank that appear in the sentence.",
@@ -182,11 +142,26 @@ _FACT_RULES = (
     "fact.kind: etymology | english_link | false_friend | culture | usage; fact.confidence 0–1.",
 )
 
+_FEATURES = _obj(
+    {
+        "persons": {
+            "type": "array",
+            "items": {"type": "string", "enum": ["io", "tu", "lui_lei", "noi", "voi", "loro", "Lei"]},
+        },
+        "auxiliary": {"type": "string", "enum": ["", "avere", "essere"]},
+        "construction": _STR,
+        "singular_gender": {"type": "string", "enum": ["", "masculine", "feminine", "both"]},
+        "plural": _STR,
+        "plural_gender": {"type": "string", "enum": ["", "masculine", "feminine"]},
+        "english_plural": _STR,
+    }
+)
+
 LEXEME_ENRICH = TaskSpec(
     name="lexeme_enrich",
     instruction="For each Italian word, write the English side of its flashcard from the "
-                "dictionary data provided, verify that data, and add a fun fact where one is "
-                "genuinely worth it. Return one entry per input id.",
+    "dictionary data provided, verify that data, and add a fun fact where one is "
+    "genuinely worth it. Return one entry per input id.",
     rules=(
         "senses: usually exactly one — the meaning the lists use (list_glosses and contexts "
         "show which). Add a second only when the lists clearly use two different meanings.",
@@ -197,33 +172,60 @@ LEXEME_ENRICH = TaskSpec(
         "(e.g. 'right' → hint 'direction'). Empty otherwise.",
         "register: formal | colloquial | vulgar | literary | regional | archaic, or empty.",
         "note: a short usage note for the back of the card (≤ 120 characters), or empty.",
+        "source_id: select the supporting ID from meaning_evidence.candidates. Retain the same "
+        "dictionary meaning ID when only wording changes; never merge distinct homonyms. "
+        "features: give sense-specific persons, auxiliary and construction for verbs; [] means "
+        "unrestricted persons. Event meanings use it/they, not I/we happen. For nouns give singular "
+        "gender and the plural, plural gender and English plural that fit THIS meaning. "
+        "Leave inapplicable feature strings empty. Do not guess a plural for an ambiguous meaning.",
         "english_plural: for nouns, the English plural of the prompt (house → houses); else empty.",
         "verified: false and list issues when the dictionary data looks wrong (gender, part of "
         "speech, meaning) — say what you believe is right. Empty issues when it checks out.",
         *_FACT_RULES,
     ),
-    schema=_obj({"words": {"type": "array", "items": _obj({
-        "id": _STR,
-        "senses": {"type": "array", "items": _obj({
-            "prompt": _STR, "hint": _STR, "register": _STR, "note": _STR,
-        })},
-        "english_plural": _STR,
-        "verified": _BOOL,
-        "issues": {"type": "array", "items": _STR},
-        "fact": _obj({
-            "has_fact": _BOOL,
-            "kind": {"type": "string", "enum": list(FACT_KINDS)},
-            "text": _STR,
-            "confidence": _CONF,
-        }),
-    })}}),
+    schema=_obj(
+        {
+            "words": {
+                "type": "array",
+                "items": _obj(
+                    {
+                        "id": _STR,
+                        "senses": {
+                            "type": "array",
+                            "items": _obj(
+                                {
+                                    "prompt": _STR,
+                                    "hint": _STR,
+                                    "register": _STR,
+                                    "note": _STR,
+                                    "source_id": _STR,
+                                    "features": _FEATURES,
+                                }
+                            ),
+                        },
+                        "english_plural": _STR,
+                        "verified": _BOOL,
+                        "issues": {"type": "array", "items": _STR},
+                        "fact": _obj(
+                            {
+                                "has_fact": _BOOL,
+                                "kind": {"type": "string", "enum": list(FACT_KINDS)},
+                                "text": _STR,
+                                "confidence": _CONF,
+                            }
+                        ),
+                    }
+                ),
+            }
+        }
+    ),
     timeout=900,
 )
 
 PHRASE_ENRICH = TaskSpec(
     name="phrase_enrich",
     instruction="Write the English side of a flashcard for each Italian phrase or sentence "
-                "and check the Italian. Return one entry per input id.",
+    "and check the Italian. Return one entry per input id.",
     rules=(
         "prompt: natural English the learner must turn into the Italian; keep a trailing "
         "'…' when the Italian is a sentence starter.",
@@ -231,17 +233,30 @@ PHRASE_ENRICH = TaskSpec(
         "note: short usage note (≤ 120 characters) or empty.",
         "verified: false with issues if the Italian has a mistake (say the correction).",
     ),
-    schema=_obj({"phrases": {"type": "array", "items": _obj({
-        "id": _STR, "prompt": _STR, "hint": _STR, "note": _STR,
-        "verified": _BOOL, "issues": {"type": "array", "items": _STR},
-    })}}),
+    schema=_obj(
+        {
+            "phrases": {
+                "type": "array",
+                "items": _obj(
+                    {
+                        "id": _STR,
+                        "prompt": _STR,
+                        "hint": _STR,
+                        "note": _STR,
+                        "verified": _BOOL,
+                        "issues": {"type": "array", "items": _STR},
+                    }
+                ),
+            }
+        }
+    ),
     timeout=900,
 )
 
 VERB_PROMPTS = TaskSpec(
     name="verb_prompts",
     instruction="Write the English prompt for each Italian verb form given (forms come from "
-                "Wiktionary). Return every (tense, person) pair that was given, per verb id.",
+    "Wiktionary). Return every (tense, person) pair that was given, per verb id.",
     rules=(
         "Present: 'we speak / we are speaking'; imperfetto: 'I used to speak / I was speaking'; "
         "passato prossimo: 'I spoke / I have spoken'; futuro: 'I will speak'; condizionale "
@@ -250,37 +265,73 @@ VERB_PROMPTS = TaskSpec(
         "Use the subject in the prompt (I, you, he/she, we, you all, they); for 'Lei' "
         "imperatives write the command and nothing else — the card adds 'formal'.",
         "Reflexive verbs: reflect it naturally ('I wash myself' / 'I get washed' as fits).",
+        "Return EACH requested pair exactly once in prompts OR exclusions. Every exclusion needs a "
+        "specific reason (not appropriate for this meaning/construction, invalid form, etc.). "
+        "Never silently omit a pair. Respect usage.persons, auxiliary and construction. "
+        "For event subjects use it/they; do not translate succedere (happen) as I happen. "
+        "Exclude modal imperatives that are not ordinarily used. Preserve usable existing prompts.",
         "Never include Italian. Keep each prompt under 50 characters.",
     ),
-    schema=_obj({"verbs": {"type": "array", "items": _obj({
-        "id": _STR,
-        "prompts": {"type": "array", "items": _obj({
-            "tense": _STR, "person": _STR, "english": _STR,
-        })},
-    })}}),
+    schema=_obj(
+        {
+            "verbs": {
+                "type": "array",
+                "items": _obj(
+                    {
+                        "id": _STR,
+                        "exclusions": {
+                            "type": "array",
+                            "items": _obj({"tense": _STR, "person": _STR, "reason": _STR}),
+                        },
+                        "prompts": {
+                            "type": "array",
+                            "items": _obj(
+                                {
+                                    "tense": _STR,
+                                    "person": _STR,
+                                    "english": _STR,
+                                }
+                            ),
+                        },
+                    }
+                ),
+            }
+        }
+    ),
     timeout=900,
 )
 
 DISAMBIGUATE = TaskSpec(
     name="disambiguate",
     instruction="Each group is several Italian words whose flashcards would show the same "
-                "English prompt. Give each word a short hint so the learner knows which one "
-                "is wanted, and list the other words as also-acceptable answers.",
+    "English prompt. Give each word a short hint so the learner knows which one "
+    "is wanted, and list the other words as also-acceptable answers.",
     rules=(
         "hint: at most 4 words that teach the real difference (register, nuance, typical use), "
         "e.g. 'most common', 'formal', 'literary', 'of a person'.",
         "also: comma-separated other words from the group that would also be correct.",
         "Return one entry per word id in every group.",
     ),
-    schema=_obj({"words": {"type": "array", "items": _obj({
-        "id": _STR, "hint": _STR, "also": _STR,
-    })}}),
+    schema=_obj(
+        {
+            "words": {
+                "type": "array",
+                "items": _obj(
+                    {
+                        "id": _STR,
+                        "hint": _STR,
+                        "also": _STR,
+                    }
+                ),
+            }
+        }
+    ),
 )
 
 LEECH_HELP = TaskSpec(
     name="leech_help",
     instruction="The learner keeps failing these flashcards. For each, write one short "
-                "memory aid that would make it stick.",
+    "memory aid that would make it stick.",
     rules=(
         "mnemonic: at most 160 characters — a vivid association, a sound-alike, a contrast "
         "with the word it's being confused with, or a tiny example sentence. No markdown.",
@@ -292,14 +343,25 @@ LEECH_HELP = TaskSpec(
 MISTAKE_CARDS = TaskSpec(
     name="mistake_cards",
     instruction="Turn the learner's translation mistakes into flashcards: for each mistake, "
-                "the short English prompt and the correct Italian chunk (not the whole sentence).",
+    "the short English prompt and the correct Italian chunk (not the whole sentence).",
     rules=(
         "One card per distinct mistake; skip accent-only errors.",
         "italian: the corrected chunk (2–6 words); english: what it means; note: the rule (≤ 120 chars).",
     ),
-    schema=_obj({"cards": {"type": "array", "items": _obj({
-        "italian": _STR, "english": _STR, "note": _STR,
-    })}}),
+    schema=_obj(
+        {
+            "cards": {
+                "type": "array",
+                "items": _obj(
+                    {
+                        "italian": _STR,
+                        "english": _STR,
+                        "note": _STR,
+                    }
+                ),
+            }
+        }
+    ),
     cache=False,
 )
 
@@ -307,16 +369,35 @@ MISTAKE_CARDS = TaskSpec(
 CARD_AUDITS = TaskSpec(
     name="card_audits",
     instruction="Audit these automatically generated Italian flashcards. Return one verdict per card id.",
-    rules=CARD_AUDIT.rules,
-    schema=_obj({"cards": {"type": "array", "items": _obj({
-        "id": _STR,
-        "verdict": {"type": "string", "enum": ["pass", "warn", "fail"]},
-        "severity": {"type": "integer", "minimum": 0, "maximum": 5},
-        "categories": {"type": "array", "items": {"type": "string", "enum": [
-            "correctness", "grammar", "naturalness", "consistency", "fact",
-        ]}},
-        "issues": _STR,
-        "suggestion": _STR,
-    })}}),
+    rules=_AUDIT_RULES,
+    schema=_obj(
+        {
+            "cards": {
+                "type": "array",
+                "items": _obj(
+                    {
+                        "id": _STR,
+                        "verdict": {"type": "string", "enum": ["pass", "warn", "fail"]},
+                        "severity": {"type": "integer", "minimum": 0, "maximum": 5},
+                        "categories": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "correctness",
+                                    "grammar",
+                                    "naturalness",
+                                    "consistency",
+                                    "fact",
+                                ],
+                            },
+                        },
+                        "issues": _STR,
+                        "suggestion": _STR,
+                    }
+                ),
+            }
+        }
+    ),
     timeout=900,
 )

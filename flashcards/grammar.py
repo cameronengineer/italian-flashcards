@@ -41,10 +41,6 @@ TENSE_DISPLAY: dict[str, str] = {
     "condizionale_passato": "Condizionale Passato",
 }
 
-#: Personal pronouns accepted in verb_forms.person. ``Lei`` is the formal-you
-#: imperative.
-VERB_PERSONS = ("io", "tu", "lui_lei", "noi", "voi", "loro", "Lei")
-
 #: Persons we generate per tense. Every non-imperative tense uses the full
 #: indicative/conditional set; ``imperativo`` has no ``io`` form and uses the
 #: formal-you ``Lei`` instead of ``lui_lei``.
@@ -65,18 +61,30 @@ TENSE_PERSONS: dict[str, tuple[str, ...]] = {
 AVERE_PERSONS: list[str] = ["io", "tu", "lui_lei", "noi", "voi", "loro"]
 
 AVERE_CONJ: dict[str, str] = {
-    "io": "ho", "tu": "hai", "lui_lei": "ha",
-    "noi": "abbiamo", "voi": "avete", "loro": "hanno",
+    "io": "ho",
+    "tu": "hai",
+    "lui_lei": "ha",
+    "noi": "abbiamo",
+    "voi": "avete",
+    "loro": "hanno",
 }
 
 AVERE_SUBJ_LABEL: dict[str, str] = {
-    "io": "io", "tu": "tu", "lui_lei": "lui / lei",
-    "noi": "noi", "voi": "voi", "loro": "loro",
+    "io": "io",
+    "tu": "tu",
+    "lui_lei": "lui / lei",
+    "noi": "noi",
+    "voi": "voi",
+    "loro": "loro",
 }
 
 AVERE_SUBJ_EN: dict[str, str] = {
-    "io": "I", "tu": "you", "lui_lei": "he / she",
-    "noi": "we", "voi": "you all", "loro": "they",
+    "io": "I",
+    "tu": "you",
+    "lui_lei": "he / she",
+    "noi": "we",
+    "voi": "you all",
+    "loro": "they",
 }
 
 

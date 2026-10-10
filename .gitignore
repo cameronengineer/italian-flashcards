@@ -15,6 +15,7 @@ database.sqlite
 *.db
 *.sqlite-shm
 *.sqlite-wal
+*.sqlite.lock
 *.sqlite3-shm
 *.sqlite3-wal
 *.db-shm
@@ -53,3 +54,16 @@ data/
 # Movie inputs and derived datasets contain subtitle text — keep private
 inputs/movies/*/*.srt
 datasets/
+
+# Words held for your review (written and read by ./run.sh)
+review.csv
+
+# Database and Anki collection backups (personal data, never committed)
+backups/
+
+# Versioned human cue corrections and generated grammar-review report
+cue_review.csv
+grammar_review.csv
+
+# Linter cache
+.ruff_cache/

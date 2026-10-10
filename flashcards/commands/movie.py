@@ -3,8 +3,8 @@
 Coverage = the share of the film's running words (tokens) whose root you
 already know (``known``: an Anki interval ≥ 21 days) or are learning. The
 report shows how many more roots — taken in order of how often the film
-uses them — get you to 90 / 95 / 98 % coverage, and when you'd get there at
-your plan's new-cards-per-day.
+uses them — get you to 90 / 95 / 98 % coverage, and the current card workload at your daily introduction limit. This is not
+a prediction of learning time or comprehension.
 
 The dataset (``datasets/<list>.csv``) has one row per root: lemma, part of
 speech, count, first appearance, frequency (SUBTLEX zipf), forms heard and
@@ -14,11 +14,10 @@ the example line. It stays out of git (it contains subtitle text).
 from __future__ import annotations
 
 import csv
-import json
 import math
 from collections import Counter
 from contextlib import closing
-from datetime import date, timedelta
+from datetime import date
 
 from .. import srt
 from ..db import connect, init_schema
@@ -40,64 +39,192 @@ def _list(list_id: str | None):
     raise SystemExit(f"No movie list {list_id!r}; have {[l.id for l in movies]}")
 
 
+def coverage(counts, known_ids, unresolved, per_day, costs=None):
+    """Exact denominator, including unresolved words; zero-cost attained targets."""
+    total = sum(counts.values()) + unresolved
+    known = sum(n for lid, n in counts.items() if lid in known_ids)
+    pending = sorted(((n, lid) for lid, n in counts.items() if lid not in known_ids), reverse=True)
+    rows = []
+    for target in (0.9, 0.95, 0.98, 1.0):
+        covered, need = known, 0
+        while total and covered / total < target and need < len(pending):
+            covered += pending[need][0]
+            need += 1
+        reached = bool(total and covered / total >= target)
+        new_cards = (
+            sum(costs[lid] for _n, lid in pending[:need])
+            if reached and costs is not None and all(lid in costs for _n, lid in pending[:need])
+            else (0 if reached and need == 0 else None)
+        )
+        rows.append(
+            {
+                "target": target,
+                "roots": need if reached else None,
+                "new_cards": new_cards,
+                "days": math.ceil(new_cards / per_day) if new_cards is not None else None,
+            }
+        )
+    return {"total": total, "known": known, "unresolved": unresolved, "targets": rows}
+
+
+def source_mappings(conn, list_id):
+    """Every pre-resolution root spelling, including collapsed memberships."""
+    import json
+
+    mappings = {
+        (r["raw"], r["pos"]): r["lexeme_id"]
+        for r in conn.execute(
+            "SELECT li.raw,li.lexeme_id,l.pos FROM list_items li JOIN lexemes l ON l.id=li.lexeme_id WHERE li.list_id=?",
+            (list_id,),
+        )
+    }
+    for row in conn.execute("SELECT payload,lexeme_id FROM source_observations WHERE list_id=?", (list_id,)):
+        item = json.loads(row["payload"])
+        if item.get("lemma") and item.get("pos"):
+            mappings[(item["lemma"], item["pos"])] = row["lexeme_id"]
+    return mappings
+
+
+def workload(conn):
+    from ..notes import candidates
+    from ..planning import card_plan
+
+    rows = candidates(conn).notes
+    planned = card_plan(conn, rows)
+    costs = Counter()
+    for row in rows:
+        if row["lexeme_id"]:
+            costs[row["lexeme_id"]] += planned["costs"][row["key"]]
+    return costs
+
+
+def headlines(conn) -> list[str]:
+    """One line per installed film: how much of it you know, and what it takes to reach 90%."""
+    from ..planning import known_roots
+
+    known = known_roots(conn)
+    per_day = load_plan().get("new_cards_per_day", 25)
+    deadlines = {p["list"]: p.get("by") for p in load_plan().get("priority", [])}
+    out = []
+    for l in load():
+        if l.kind != "movie" or not l.path or not l.path.exists():
+            continue
+        _cues, stream = srt.analyze(l.path)
+        mappings = source_mappings(conn, l.id)
+        counts = Counter(
+            mappings.get((t.lemma, t.pos), lexeme_id(t.lemma, t.pos))
+            for t in stream
+            if t.status == "resolved"
+        )
+        cover = coverage(
+            counts, known, sum(t.status == "unresolved" for t in stream), per_day, workload(conn)
+        )
+        if not cover["total"]:
+            continue
+        text = f"{l.title}: estimated vocabulary coverage {cover['known'] / cover['total']:.0%}"
+        ninety = next(t for t in cover["targets"] if t["target"] == 0.9)
+        if ninety["roots"]:
+            text += f" · {ninety['roots']:,} more roots → 90%"
+            if ninety["new_cards"] is not None:
+                text += f" · {ninety['new_cards']:,} currently planned new directions ({ninety['days']} introduction days at {per_day}/day; learning time varies)"
+        if deadlines.get(l.id):
+            left = (date.fromisoformat(str(deadlines[l.id])) - date.today()).days
+            text += f" · watching in {left} days" if left >= 0 else " · watch date passed"
+        out.append(text)
+    return out
+
+
 def run(list_id: str | None = None, *, export: bool = True) -> int:
+    from ..planning import known_roots
+
     l = _list(list_id)
+    if not l.path or not l.path.exists():
+        print(f"Movie source is optional and not installed: {l.path}")
+        return 2
     print_banner(f"movie — {l.title}")
     with closing(connect()) as conn:
         init_schema(conn)
-        state = {}
-        for r in conn.execute("SELECT lexeme_id, state FROM knowledge"):
-            rank = {"unknown": 0, "learning": 1, "known": 2}
-            if rank[r["state"]] > rank.get(state.get(r["lexeme_id"], "unknown"), 0):
-                state[r["lexeme_id"]] = r["state"]
-        stream = srt.token_stream(l.path)
-        tokens = [t for t in stream if t]
-        counts = Counter(lexeme_id(*t) for t in tokens)
-        total = len(tokens)
-        known = sum(n for lid, n in counts.items() if state.get(lid) == "known")
-        learning = sum(n for lid, n in counts.items() if state.get(lid) == "learning")
-        print(f"  {total} words in the film, {len(counts)} distinct roots")
-        print(f"  you know {known / total:.1%} of the running words; "
-              f"{(known + learning) / total:.1%} including words you're learning")
-        unknown = sorted(((n, lid) for lid, n in counts.items() if state.get(lid) not in ("known",)), reverse=True)
-        per_day = int(load_plan().get("new_cards_per_day", 20)) or 20
+        _cues, stream = srt.analyze(l.path)
+        buckets = Counter(t.status for t in stream)
+        # Use persisted membership resolution so reports and actual cards have identical IDs.
+        mappings = source_mappings(conn, l.id)
+        counts = Counter(
+            mappings.get((t.lemma, t.pos), lexeme_id(t.lemma, t.pos))
+            for t in stream
+            if t.status == "resolved"
+        )
+        known = known_roots(conn)
+        per_day = load_plan().get("new_cards_per_day", 25)
+        report = coverage(counts, known, buckets["unresolved"], per_day, workload(conn))
+        stamp = conn.execute("SELECT value FROM metadata WHERE key='knowledge_synced_at'").fetchone()
+        print(f"  token buckets: {dict(buckets)}; knowledge updated: {stamp[0] if stamp else 'never'}")
+        if not report["total"]:
+            print("  No study tokens in this subtitle file.")
+            return 0
+        print(
+            f"  recognition coverage: {report['known'] / report['total']:.1%}; unresolved: {report['unresolved'] / report['total']:.1%}"
+        )
         rows = []
-        covered = known
-        targets = [0.90, 0.95, 0.98, 1.0]
-        need = 0
-        for n, _lid in unknown:
-            if not targets:
-                break
-            covered += n
-            need += 1
-            while targets and covered / total >= targets[0]:
-                days = math.ceil(need / per_day)
-                rows.append([f"{targets[0]:.0%}", need, f"~{days} days", (date.today() + timedelta(days=days)).isoformat()])
-                targets.pop(0)
-        if rows:
-            print()
-            print(table(["Coverage", "Roots to learn", f"At {per_day}/day", "Done by"], rows))
-        deadline = next((p.get("by") for p in load_plan().get("priority", []) if p.get("list") == l.id), None)
+        for t in report["targets"]:
+            rows.append(
+                [
+                    f"{t['target']:.0%}",
+                    t["roots"]
+                    if t["roots"] is not None
+                    else "unreachable until unresolved tokens are resolved",
+                    t["new_cards"] if t["new_cards"] is not None else "not yet planned",
+                    t["days"] if t["days"] is not None else "—",
+                ]
+            )
+        print(
+            table(
+                ["Vocabulary coverage", "Additional roots", "New card directions", "Introduction days"], rows
+            )
+        )
+        print(
+            "  Workload includes currently planned recognition, production and drills, excluding directions already in Anki. Enrichment can expand it. Introduction days allocate the whole daily budget; they are not learning time or a comprehension forecast."
+        )
+        deadline = next((p.get("by") for p in load_plan().get("priority", []) if p["list"] == l.id), None)
         if deadline:
-            days_left = (date.fromisoformat(str(deadline)) - date.today()).days
-            print(f"\n  watch date {deadline}: {days_left} days → ~{days_left * per_day} new roots at {per_day}/day")
+            left = (date.fromisoformat(str(deadline)) - date.today()).days
+            print(
+                f"  watch date {deadline}: {max(0, left)} days available" + (" (overdue)" if left < 0 else "")
+            )
         if export:
             DATASETS_DIR.mkdir(exist_ok=True)
             out = DATASETS_DIR / f"{l.id}.csv"
-            items = {lexeme_id(i.lemma, i.pos): i for i in srt.word_items(l.path)}
             with out.open("w", newline="", encoding="utf-8") as fh:
-                w = csv.writer(fh)
-                w.writerow(["lemma", "pos", "count", "first_seen", "zipf", "known", "forms", "example", "example_at"])
-                for lid, n in counts.most_common():
-                    it = items.get(lid)
-                    lx = conn.execute("SELECT lemma, pos, zipf FROM lexemes WHERE id = ?", (lid,)).fetchone()
-                    if not it:
-                        continue
-                    w.writerow([it.lemma, it.pos, n, it.context.get("first_seen"), lx["zipf"] if lx else "",
-                                state.get(lid, "unknown"), " ".join(it.context.get("forms", [])),
-                                it.context.get("example", ""), it.context.get("example_at", "")])
-            print(f"\n  dataset: {out}  (gitignored — contains subtitle lines)")
+                writer = csv.writer(fh)
+                writer.writerow(
+                    [
+                        "status",
+                        "lemma",
+                        "pos",
+                        "count",
+                        "first_seen",
+                        "known",
+                        "forms",
+                        "example",
+                        "example_at",
+                    ]
+                )
+                for item in srt.word_items(l.path):
+                    lid = mappings.get((item.lemma, item.pos), lexeme_id(item.lemma, item.pos))
+                    writer.writerow(
+                        [
+                            "resolved",
+                            item.lemma,
+                            item.pos,
+                            item.context["count"],
+                            item.context["first_seen"],
+                            lid in known,
+                            " ".join(item.context["forms"]),
+                            item.context["example"],
+                            item.context["example_at"],
+                        ]
+                    )
+                other = Counter((t.status, t.text.lower()) for t in stream if t.status != "resolved")
+                for (status, token), count in sorted(other.items()):
+                    writer.writerow([status, token, "", count, "", "", "", "", ""])
+            print(f"  local dataset: {out}")
     return 0
-
-
-__all__ = ["run", "json"]

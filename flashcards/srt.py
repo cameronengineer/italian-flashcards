@@ -28,10 +28,13 @@ from .italian import normalise_spelling, plain, tokens
 from .paths import INPUTS_DIR
 
 _TIME = re.compile(r"(\d+):(\d+):(\d+)[,.](\d+)\s*-->")
-_AD = re.compile(r"(yts|yify|opensubtitles|subtitles? by|sottotitoli (a cura|by)|scaricato da|www\.|\.com|\.mx|\.org)", re.I)
+_AD = re.compile(
+    r"(yts|yify|opensubtitles|subtitles? by|sottotitoli (a cura|by)|scaricato da|www\.|\.com|\.mx|\.org)",
+    re.I,
+)
 _CLEAN = [
-    (re.compile(r"<[^>]+>"), " "),            # <i> … </i>
-    (re.compile(r"\{\\[^}]*\}"), " "),        # {\an8}
+    (re.compile(r"<[^>]+>"), " "),  # <i> … </i>
+    (re.compile(r"\{\\[^}]*\}"), " "),  # {\an8}
     (re.compile(r"\[[^\]]*\]|\([^)]*\)"), " "),  # [ride] (sospira)
     (re.compile(r"[♪♫#]"), " "),
     (re.compile(r"^\s*[-–—]\s*", re.M), ""),  # speaker dashes
@@ -75,25 +78,98 @@ def timestamp(ms: int) -> str:
 # ── Lemmatisation ──────────────────────────────────────────────────────────
 
 _SUBTLEX_POS = {
-    "VER": "verb", "NOM": "noun", "ADJ": "adj", "ADV": "adv", "PRO": "pron",
-    "PRE": "prep", "CON": "conj", "DET": "article", "ART": "article", "INT": "intj",
-    "NUM": "num", "NPR": "name",
+    "VER": "verb",
+    "NOM": "noun",
+    "ADJ": "adj",
+    "ADV": "adv",
+    "PRO": "pron",
+    "PRE": "prep",
+    "CON": "conj",
+    "DET": "det",
+    "ART": "article",
+    "INT": "intj",
+    "NUM": "num",
+    "NPR": "name",
 }
 _KAIKKI_POS = {
-    "noun": "noun", "verb": "verb", "adj": "adj", "adv": "adv", "pron": "pron",
-    "conj": "conj", "prep": "prep", "intj": "intj", "num": "num", "det": "article",
-    "article": "article", "name": "name", "prep_phrase": "phrase", "phrase": "phrase",
-    "contraction": "prep", "particle": "adv",
+    "noun": "noun",
+    "verb": "verb",
+    "adj": "adj",
+    "adv": "adv",
+    "pron": "pron",
+    "conj": "conj",
+    "prep": "prep",
+    "intj": "intj",
+    "num": "num",
+    "det": "det",
+    "article": "article",
+    "name": "name",
+    "prep_phrase": "phrase",
+    "phrase": "phrase",
+    "contraction": "prep",
+    "particle": "adv",
 }
 _POS_PREF = ["verb", "noun", "adj", "adv", "pron", "prep", "conj", "article", "intj", "num", "phrase"]
-_ELISION = {"l'": "il", "un'": "uno", "c'": "ci", "d'": "di", "m'": "mi", "t'": "ti",
-            "s'": "si", "v'": "vi", "n'": "ne", "dell'": "di", "all'": "a", "dall'": "da",
-            "nell'": "in", "sull'": "su", "quell'": "quello", "quest'": "questo",
-            "nessun'": "nessuno", "buon'": "buono", "sant'": "santo", "dov'": "dove",
-            "com'": "come", "cos'": "cosa", "po'": "poco", "anch'": "anche", "senz'": "senza"}
-_CLITICS = ["gliele", "glielo", "gliela", "glieli", "gliene", "melo", "mela", "meli", "mele",
-            "telo", "tela", "selo", "sela", "celo", "velo", "mene", "tene", "sene", "cene",
-            "vene", "gli", "lo", "la", "li", "le", "ne", "ci", "vi", "mi", "ti", "si"]
+_ELISION = {
+    "l'": "il",
+    "un'": "uno",
+    "c'": "ci",
+    "d'": "di",
+    "m'": "mi",
+    "t'": "ti",
+    "s'": "si",
+    "v'": "vi",
+    "n'": "ne",
+    "dell'": "di",
+    "all'": "a",
+    "dall'": "da",
+    "nell'": "in",
+    "sull'": "su",
+    "quell'": "quello",
+    "quest'": "questo",
+    "nessun'": "nessuno",
+    "buon'": "buono",
+    "sant'": "santo",
+    "dov'": "dove",
+    "com'": "come",
+    "cos'": "cosa",
+    "po'": "poco",
+    "anch'": "anche",
+    "senz'": "senza",
+}
+_CLITICS = [
+    "gliele",
+    "glielo",
+    "gliela",
+    "glieli",
+    "gliene",
+    "melo",
+    "mela",
+    "meli",
+    "mele",
+    "telo",
+    "tela",
+    "selo",
+    "sela",
+    "celo",
+    "velo",
+    "mene",
+    "tene",
+    "sene",
+    "cene",
+    "vene",
+    "gli",
+    "lo",
+    "la",
+    "li",
+    "le",
+    "ne",
+    "ci",
+    "vi",
+    "mi",
+    "ti",
+    "si",
+]
 
 
 @lru_cache(maxsize=1)
@@ -114,8 +190,19 @@ def subtlex_forms() -> dict[str, tuple[str, str]]:
     return out
 
 
-_ARTICLE_LEMMA = {"il": "il", "lo": "il", "la": "il", "l'": "il", "i": "il", "gli": "il",
-                  "le": "il", "un": "un", "uno": "un", "una": "un", "un'": "un"}
+_ARTICLE_LEMMA = {
+    "il": "il",
+    "lo": "il",
+    "la": "il",
+    "l'": "il",
+    "i": "il",
+    "gli": "il",
+    "le": "il",
+    "un": "un",
+    "uno": "un",
+    "una": "un",
+    "un'": "un",
+}
 
 
 def lemmatise(token: str) -> tuple[str, str] | None:
@@ -123,6 +210,8 @@ def lemmatise(token: str) -> tuple[str, str] | None:
 
     Articles collapse to their dictionary entries: la/lo/gli… → il, una → un.
     """
+    if token in _ARTICLE_LEMMA:
+        return _ARTICLE_LEMMA[token], "article"
     got = _lemmatise(token)
     if got and got[1] == "article":
         return _ARTICLE_LEMMA.get(got[0], got[0]), "article"
@@ -132,7 +221,11 @@ def lemmatise(token: str) -> tuple[str, str] | None:
 def _lemmatise(token: str) -> tuple[str, str] | None:
     if token in _ELISION:
         lemma = _ELISION[token]
-        return (lemma, "article") if lemma in ("il", "uno") else (lemma, "prep" if lemma in ("di", "a", "da", "in", "su") else "pron")
+        return (
+            (lemma, "article")
+            if lemma in ("il", "uno")
+            else (lemma, "prep" if lemma in ("di", "a", "da", "in", "su") else "pron")
+        )
     hit = subtlex_forms().get(token)
     if hit and hit[1] != "name":
         return hit
@@ -148,7 +241,11 @@ def _lemmatise(token: str) -> tuple[str, str] | None:
     for clitic in _CLITICS:  # dimmelo → dimme(lo) → dire …
         if token.endswith(clitic) and len(token) > len(clitic) + 2:
             stem = token[: -len(clitic)]
-            for candidate in (stem, stem + "e", stem[:-1] + "e" if stem.endswith(("ar", "er", "ir")) else stem):
+            for candidate in (
+                stem,
+                stem + "e",
+                stem[:-1] + "e" if stem.endswith(("ar", "er", "ir")) else stem,
+            ):
                 got = _lemmatise(candidate) if candidate != token else None
                 if got and got[1] == "verb":
                     return got
@@ -159,67 +256,77 @@ def _lemmatise(token: str) -> tuple[str, str] | None:
 # ── Items ──────────────────────────────────────────────────────────────────
 
 
-def word_items(path: Path) -> list:
-    from .lists import Item  # local import: lists imports srt
+@dataclass(frozen=True)
+class AnalyzedToken:
+    text: str
+    cue: int
+    status: str
+    lemma: str | None = None
+    pos: str | None = None
 
+
+def analyze(path: Path):
+    """One token accounting policy for ingestion, coverage, and local datasets."""
     cues = parse(path)
-    counts: Counter = Counter()
-    first: dict[tuple[str, str], int] = {}
-    example: dict[tuple[str, str], int] = {}
-    forms_seen: dict[tuple[str, str], Counter] = defaultdict(Counter)
-    lower_seen: set[str] = set()
-    capital_mid: Counter = Counter()
-
+    lowercase = set()
+    capital_mid = set()
     for cue in cues:
         for i, tok in enumerate(tokens(cue.text)):
-            if tok.isdigit():
-                continue
-            if tok[0].isupper() and i > 0:
-                capital_mid[tok.lower()] += 1
-            elif tok[0].islower():
-                lower_seen.add(tok.lower())
-
+            if tok[:1].islower():
+                lowercase.add(tok.lower())
+            elif i > 0 and tok[:1].isupper():
+                capital_mid.add(tok.lower())
+    out = []
     for cue in cues:
-        toks = tokens(cue.text)
-        for i, tok in enumerate(toks):
+        for tok in tokens(cue.text):
             if tok.isdigit():
+                out.append(AnalyzedToken(tok, cue.index, "ignored_number"))
                 continue
             low = tok.lower()
-            if low.strip("'") in capital_mid and low.strip("'") not in lower_seen:
-                continue  # a name: only ever capitalised
             got = lemmatise(low)
-            if not got or got[1] == "name":
+            if (low in capital_mid and low not in lowercase) or (got and got[1] == "name"):
+                out.append(AnalyzedToken(tok, cue.index, "excluded_name"))
                 continue
-            key = got
-            counts[key] += 1
-            forms_seen[key][low] += 1
-            first.setdefault(key, cue.index)
-            # prefer a short, complete line as the example
-            best = example.get(key)
-            if best is None or (6 <= len(toks) <= 14 and not 6 <= len(tokens(cues[best].text)) <= 14):
-                example[key] = cue.index
+            out.append(
+                AnalyzedToken(tok, cue.index, "resolved" if got else "unresolved", *(got or (None, None)))
+            )
+    return cues, out
 
+
+def word_items(path: Path) -> list:
+    from .domain import Item
+
+    cues, stream = analyze(path)
+    counts = Counter()
+    first = {}
+    example = {}
+    forms_seen = defaultdict(Counter)
+    for token in stream:
+        if token.status != "resolved":
+            continue
+        key = (token.lemma, token.pos)
+        counts[key] += 1
+        forms_seen[key][token.text.lower()] += 1
+        first.setdefault(key, token.cue)
+        previous = example.get(key)
+        n = len(tokens(cues[token.cue].text))
+        if previous is None or (6 <= n <= 14 and not 6 <= len(tokens(cues[previous].text)) <= 14):
+            example[key] = token.cue
     items = []
-    for (lemma, pos), n in sorted(counts.items(), key=lambda kv: (-kv[1], first[kv[0]])):
+    for (lemma, pos), n in sorted(counts.items(), key=lambda kv: (-kv[1], first[kv[0]], kv[0])):
         ex = cues[example[(lemma, pos)]]
-        items.append(Item(
-            raw=lemma, lemma=lemma, pos=pos,
-            context={
-                "count": n,
-                "first_seen": timestamp(cues[first[(lemma, pos)]].start_ms),
-                "example": ex.text,
-                "example_at": timestamp(ex.start_ms),
-                "forms": [f for f, _ in forms_seen[(lemma, pos)].most_common(4)],
-            },
-        ))
+        items.append(
+            Item(
+                raw=lemma,
+                lemma=lemma,
+                pos=pos,
+                context={
+                    "count": n,
+                    "first_seen": timestamp(cues[first[(lemma, pos)]].start_ms),
+                    "example": ex.text,
+                    "example_at": timestamp(ex.start_ms),
+                    "forms": [f for f, _ in forms_seen[(lemma, pos)].most_common(4)],
+                },
+            )
+        )
     return items
-
-
-def token_stream(path: Path) -> list[tuple[str, str] | None]:
-    """Every token's (lemma, pos) in order — for coverage reports."""
-    out = []
-    for cue in parse(path):
-        for tok in tokens(cue.text):
-            if not tok.isdigit():
-                out.append(lemmatise(tok.lower()))
-    return out

@@ -25,41 +25,41 @@ from ..util import print_banner
 LENGTH_GUIDANCE = {
     "short": "The sentence should be short and simple (about 5-10 words).",
     "medium": "The sentence should be of moderate length (about 12-20 words), with at "
-              "least one subordinate or relative clause.",
+    "least one subordinate or relative clause.",
     "long": "The sentence should be long and complex (about 20-35 words), with multiple "
-            "clauses (e.g. subordinate, relative, or conditional). It should still feel "
-            "natural and conversational, not run-on.",
+    "clauses (e.g. subordinate, relative, or conditional). It should still feel "
+    "natural and conversational, not run-on.",
 }
 
 STYLE_GUIDANCE = {
     "direct-pronouns": "The Italian translation MUST use at least one direct object pronoun "
-                       "(mi, ti, lo, la, ci, vi, li, le) — ideally more than one.",
+    "(mi, ti, lo, la, ci, vi, li, le) — ideally more than one.",
     "indirect-pronouns": "The Italian translation MUST use at least one indirect object "
-                         "pronoun (mi, ti, gli, le, ci, vi, gli/loro).",
+    "pronoun (mi, ti, gli, le, ci, vi, gli/loro).",
     "combined-pronouns": "The Italian translation MUST use at least one combined pronoun "
-                         "(e.g. me lo, te la, glielo, gliela, ce ne, ve li).",
+    "(e.g. me lo, te la, glielo, gliela, ce ne, ve li).",
     "reflexive": "The Italian translation MUST use at least one reflexive verb "
-                 "(e.g. svegliarsi, lavarsi, divertirsi, accorgersi).",
+    "(e.g. svegliarsi, lavarsi, divertirsi, accorgersi).",
     "passato-prossimo": "The Italian translation MUST be in the passato prossimo, with the "
-                        "correct auxiliary (essere/avere) and past participle agreement.",
+    "correct auxiliary (essere/avere) and past participle agreement.",
     "imperfetto": "The Italian translation MUST use the imperfetto, ideally for a habitual "
-                  "past action or a setting/description.",
+    "past action or a setting/description.",
     "imperfetto-vs-passato": "The Italian translation MUST contrast the imperfetto and "
-                             "passato prossimo in the same sentence (background vs. completed action).",
+    "passato prossimo in the same sentence (background vs. completed action).",
     "future": "The Italian translation MUST use the futuro semplice.",
     "conditional": "The Italian translation MUST use the condizionale (present or past).",
     "subjunctive": "The Italian translation MUST use the congiuntivo, triggered by an "
-                   "appropriate expression (e.g. penso che, è importante che, benché).",
+    "appropriate expression (e.g. penso che, è importante che, benché).",
     "imperative": "The Italian translation MUST use at least one imperativo form "
-                  "(tu, noi, voi, or formal Lei).",
+    "(tu, noi, voi, or formal Lei).",
     "ci-ne": "The Italian translation MUST use the particle 'ci' and/or 'ne' "
-             "(e.g. ci vado, ne ho due, ce ne sono).",
+    "(e.g. ci vado, ne ho due, ce ne sono).",
     "relative": "The Italian translation MUST contain at least one relative clause "
-                "(introduced by che, cui, il quale, etc.).",
+    "(introduced by che, cui, il quale, etc.).",
     "conditional-if": "The Italian translation MUST be a 'periodo ipotetico' (if/then) "
-                      "sentence — first, second, or third type — with the right tense/mood combination.",
+    "sentence — first, second, or third type — with the right tense/mood combination.",
     "question": "The English sentence MUST be phrased as a question, and the Italian "
-                "translation should reflect natural question word order.",
+    "translation should reflect natural question word order.",
 }
 
 NO_SUBJUNCTIVE_SENTENCE = (
@@ -90,9 +90,16 @@ def _learnt(deck: str | None) -> list[tuple[str, str]]:
     return list(seen.items())
 
 
-def run(*, words: int | None = None, sentences: int | None = None, deck: str | None = None,
-        seed: int | None = None, length: str | None = None, styles: list[str] | None = None,
-        no_subjunctive: bool | None = None) -> int:
+def run(
+    *,
+    words: int | None = None,
+    sentences: int | None = None,
+    deck: str | None = None,
+    seed: int | None = None,
+    length: str | None = None,
+    styles: list[str] | None = None,
+    no_subjunctive: bool | None = None,
+) -> int:
     print_banner("practice — translate sentences built from your learnt words")
     cfg = settings.practice
     words = words or cfg.words
@@ -132,10 +139,12 @@ def run(*, words: int | None = None, sentences: int | None = None, deck: str | N
         bank = rng.sample(pool, min(words, len(pool)))
         print(f"\n  Generating sentence {i}/{sentences}...", flush=True)
         try:
-            item = ai.run(PRACTICE_SENTENCE.task(
-                {"word_bank": [{"italian": it, "english": en} for it, en in bank]},
-                rules=tuple(rules),
-            ))
+            item = ai.run(
+                PRACTICE_SENTENCE.task(
+                    {"word_bank": [{"italian": it, "english": en} for it, en in bank]},
+                    rules=tuple(rules),
+                )
+            )
         except AIError as exc:
             print(f"ERROR: {exc}")
             break
@@ -148,10 +157,12 @@ def run(*, words: int | None = None, sentences: int | None = None, deck: str | N
         if attempt:
             print("\n  Getting feedback...", flush=True)
             try:
-                feedback = ai.run(PRACTICE_FEEDBACK.task(
-                    {"english": item["english"], "correct_italian": item["italian"], "attempt": attempt},
-                    rules=feedback_rules,
-                ))
+                feedback = ai.run(
+                    PRACTICE_FEEDBACK.task(
+                        {"english": item["english"], "correct_italian": item["italian"], "attempt": attempt},
+                        rules=feedback_rules,
+                    )
+                )
             except AIError:
                 feedback = "(Could not retrieve feedback)"
             print(f"\n  {'EN:'.ljust(10)} {item['english']}")
@@ -159,8 +170,14 @@ def run(*, words: int | None = None, sentences: int | None = None, deck: str | N
             print(f"  You wrote: {attempt}\n")
             for line in feedback.splitlines():
                 print(f"  {line}")
-            mistakes.append({"english": item["english"], "correct_italian": item["italian"],
-                             "attempt": attempt, "feedback": feedback})
+            mistakes.append(
+                {
+                    "english": item["english"],
+                    "correct_italian": item["italian"],
+                    "attempt": attempt,
+                    "feedback": feedback,
+                }
+            )
         print("\n  " + "-" * 56)
     print("\n" + "=" * 60 + "\n  Done!\n" + "=" * 60)
     if mistakes:
@@ -185,8 +202,17 @@ def _mine_mistakes(ai: AI, mistakes: list[dict]) -> None:
     with closing(connect()) as conn:
         init_schema(conn)
         for c in cards:
-            conn.execute("INSERT OR IGNORE INTO mistakes (id, italian, english, note) VALUES (?, ?, ?, ?)",
-                         (md5_hex(c["italian"].strip().lower()), c["italian"].strip(), c["english"].strip(), c.get("note") or None))
+            conn.execute(
+                "INSERT OR IGNORE INTO mistakes (id, italian, english, note) VALUES (?, ?, ?, ?)",
+                (
+                    md5_hex(c["italian"].strip().lower()),
+                    c["italian"].strip(),
+                    c["english"].strip(),
+                    c.get("note") or None,
+                ),
+            )
         conn.commit()
     if cards:
-        print(f"\n  {len(cards)} mistake card(s) saved — they reach Anki (deck Italian::Mistakes) on the next run.")
+        print(
+            f"\n  {len(cards)} mistake card(s) saved — they reach Anki (deck Italian::Mistakes) on the next run."
+        )

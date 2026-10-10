@@ -1,5 +1,5 @@
 #!/bin/bash
-# Shared venv bootstrap, sourced by run.sh and fc.sh.
+# Shared venv bootstrap, sourced by run.sh.
 #
 #   source "$HERE/scripts/_venv.sh"
 #   ensure_venv "$HERE"

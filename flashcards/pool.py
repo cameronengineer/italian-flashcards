@@ -31,7 +31,9 @@ def run_pool(
     if not items:
         return
     total = len(items)
-    print(f"  Processing {total} {label} with {workers} workers...", flush=True)
+    from . import report
+
+    report.detail(f"  Processing {total} {label} with {workers} workers...")
     done = 0
     pool = ThreadPoolExecutor(max_workers=workers)
     interrupted = False
@@ -48,7 +50,7 @@ def run_pool(
             else:
                 yield it, fut.result()
             if done % progress_every == 0:
-                print(f"  Progress: {done}/{total}", flush=True)
+                report.detail(f"  Progress: {done}/{total}")
     except KeyboardInterrupt:
         interrupted = True
         STOP.set()
