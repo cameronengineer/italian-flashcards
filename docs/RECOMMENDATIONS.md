@@ -2,6 +2,8 @@
 
 Reviewed 2026-10-08; **v4 implemented 2026-10-09** (see the status below).
 The analysis that led here is kept underneath for reference.
+The follow-up safety review and what was applied from it:
+[RECOMMENDATIONS_REVIEW_2026-10-09.md](RECOMMENDATIONS_REVIEW_2026-10-09.md).
 
 **The thesis:** look things up first, generate by rule where Italian is
 regular, and use Claude to *judge, connect and explain* — not to recall.
@@ -33,7 +35,7 @@ history carry over from the old collection.
 1. **Finish the first pass** (needs you): `codex login` for images, open Anki,
    `./run.sh` — the queue (~4,000 roots, ~280 Claude calls) spans several
    plan windows and resumes by itself.
-2. **Approve or fix disputed roots** (`./fc.sh review`) — Claude flags real
+2. **Approve or fix disputed roots** (`./run.sh review`) — Claude flags real
    dictionary mismatches (e.g. it caught *di* matched to the letter name).
 3. **Studied duplicates**: v4 adopts one studied note per word and direction;
    other studied copies stay where they are. A scheduling-transfer tool

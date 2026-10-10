@@ -5,12 +5,12 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(os.environ.get("FLASHCARDS_ROOT") or Path(__file__).resolve().parents[1]).resolve()
 
 INPUTS_DIR = PROJECT_ROOT / "inputs"
 DECKS_DIR = PROJECT_ROOT / "decks"
-DATA_DIR = PROJECT_ROOT / "data"          # reference data indexes (gitignored)
-LEXICON_DIR = PROJECT_ROOT / "lexicon"    # versioned lexicon JSONL (in git)
+DATA_DIR = PROJECT_ROOT / "data"  # reference data indexes (gitignored)
+LEXICON_DIR = PROJECT_ROOT / "lexicon"  # versioned lexicon JSONL (in git)
 DATASETS_DIR = PROJECT_ROOT / "datasets"  # per-movie word lists (gitignored)
 BACKUPS_DIR = PROJECT_ROOT / "backups"
 

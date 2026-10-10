@@ -1,0 +1,19 @@
+{
+  "review_basis": "Source-reader expectations and dictionary/grammar cases checked against Treccani; these fixtures are not a certification of the full corpus.",
+  "sources": [
+    "https://www.treccani.it/vocabolario/succedere/",
+    "https://www.treccani.it/vocabolario/accadere_res-25db9da0-ada9-11eb-94e0-00271042e8d9/",
+    "https://www.treccani.it/enciclopedia/bracci-o-braccia_(La-grammatica-italiana)/",
+    "https://www.treccani.it/vocabolario/camera/"
+  ],
+  "readers": [
+    {"kind":"csv", "body":"italian,english\nla camera,room\n", "lemma":"camera", "pos":"noun"},
+    {"kind":"cils", "body":"italian,english,italian_original,function\nla camera,room,camera,sostantivo femminile\n", "lemma":"camera", "pos":"noun"},
+    {"kind":"verbs", "body":"italian,english\nlavarsi,to wash oneself\n", "lemma":"lavarsi", "pos":"verb"},
+    {"kind":"avere", "body":"italian,english\navere fame,to be hungry\n", "lemma":"avere fame", "pos":"phrase"},
+    {"kind":"numbers", "body":"english,italian\n23 / twenty-three,ventitré\n", "lemma":"ventitré", "pos":"num"},
+    {"kind":"subtlex", "body":"dom_lemma;dom_pos;zipf\ncamera;NOM;4,2\n", "lemma":"camera", "pos":"noun"}
+  ],
+  "numbers": [[11,"undici"],[12,"dodici"],[13,"tredici"],[14,"quattordici"],[15,"quindici"],[18,"diciotto"],[21,"ventuno"],[28,"ventotto"],[33,"trentatré"]],
+  "plural_articles": [["braccia","feminine","le"],["bracci","masculine","i"],["uova","feminine","le"],["camere","feminine","le"]]
+}

@@ -24,8 +24,22 @@ _STRIP = {"à": "a", "è": "e", "é": "e", "ì": "i", "í": "i", "ò": "o", "ó"
 
 #: Monosyllables that standard spelling writes with an accent.
 ACCENTED_MONOSYLLABLES = {
-    "è", "dà", "dì", "là", "lì", "né", "sé", "sì", "tè", "ciò", "già", "giù",
-    "più", "può", "piè", "scià",
+    "è",
+    "dà",
+    "dì",
+    "là",
+    "lì",
+    "né",
+    "sé",
+    "sì",
+    "tè",
+    "ciò",
+    "già",
+    "giù",
+    "più",
+    "può",
+    "piè",
+    "scià",
 }
 
 
@@ -120,9 +134,27 @@ _POSSESSIVE = {
     "loro": ("loro", "loro", "loro", "loro"),
 }
 FAMILY = {
-    "padre", "madre", "fratello", "sorella", "figlio", "figlia", "marito", "moglie",
-    "zio", "zia", "cugino", "cugina", "nonno", "nonna", "nipote", "suocero",
-    "suocera", "cognato", "cognata", "genero", "nuora",
+    "padre",
+    "madre",
+    "fratello",
+    "sorella",
+    "figlio",
+    "figlia",
+    "marito",
+    "moglie",
+    "zio",
+    "zia",
+    "cugino",
+    "cugina",
+    "nonno",
+    "nonna",
+    "nipote",
+    "suocero",
+    "suocera",
+    "cognato",
+    "cognata",
+    "genero",
+    "nuora",
 }
 
 
@@ -143,18 +175,29 @@ def demonstrative_phrase(which: str, word: str, gender: str, plural: bool = Fals
             return f"quest'{word}"
         return f"{('queste' if fem else 'questi') if plural else ('questa' if fem else 'questo')} {word}"
     art = definite_article(word, gender, plural)  # quello follows the article
-    form = {"il": "quel", "lo": "quello", "l'": "quell'", "la": "quella",
-            "i": "quei", "gli": "quegli", "le": "quelle"}[art]
+    form = {
+        "il": "quel",
+        "lo": "quello",
+        "l'": "quell'",
+        "la": "quella",
+        "i": "quei",
+        "gli": "quegli",
+        "le": "quelle",
+    }[art]
     return with_article(form, word)
 
 
 # ── Verbs ──────────────────────────────────────────────────────────────────
 
 PERSONS = ("io", "tu", "lui_lei", "noi", "voi", "loro")
-AVERE = {"presente": ("ho", "hai", "ha", "abbiamo", "avete", "hanno"),
-         "condizionale": ("avrei", "avresti", "avrebbe", "avremmo", "avreste", "avrebbero")}
-ESSERE = {"presente": ("sono", "sei", "è", "siamo", "siete", "sono"),
-          "condizionale": ("sarei", "saresti", "sarebbe", "saremmo", "sareste", "sarebbero")}
+AVERE = {
+    "presente": ("ho", "hai", "ha", "abbiamo", "avete", "hanno"),
+    "condizionale": ("avrei", "avresti", "avrebbe", "avremmo", "avreste", "avrebbero"),
+}
+ESSERE = {
+    "presente": ("sono", "sei", "è", "siamo", "siete", "sono"),
+    "condizionale": ("sarei", "saresti", "sarebbe", "saremmo", "sareste", "sarebbero"),
+}
 STARE = ("sto", "stai", "sta", "stiamo", "state", "stanno")
 REFLEXIVE = ("mi", "ti", "si", "ci", "vi", "si")
 
@@ -192,7 +235,7 @@ def strip_clitic(form: str, reflexive: bool) -> str:
 
 
 def conjugation_class(infinitive: str, presente_io: str | None) -> str:
-    inf = infinitive.removesuffix("si")
+    inf = infinitive[:-2] + "e" if infinitive.endswith("rsi") else infinitive
     if inf.endswith("are"):
         return "-are"
     if inf.endswith("ere"):
@@ -204,11 +247,29 @@ def conjugation_class(infinitive: str, presente_io: str | None) -> str:
 
 # ── Numbers ────────────────────────────────────────────────────────────────
 
-_UNITS = ["zero", "uno", "due", "tre", "quattro", "cinque", "sei", "sette", "otto", "nove",
-          "dieci", "undici", "dodici", "tredici", "quattordici", "quindici", "sedici",
-          "diciassette", "diciotto", "diciannove"]
-_TENS = ["", "", "venti", "trenta", "quaranta", "cinquanta", "sessanta", "settanta",
-         "ottanta", "novanta"]
+_UNITS = [
+    "zero",
+    "uno",
+    "due",
+    "tre",
+    "quattro",
+    "cinque",
+    "sei",
+    "sette",
+    "otto",
+    "nove",
+    "dieci",
+    "undici",
+    "dodici",
+    "tredici",
+    "quattordici",
+    "quindici",
+    "sedici",
+    "diciassette",
+    "diciotto",
+    "diciannove",
+]
+_TENS = ["", "", "venti", "trenta", "quaranta", "cinquanta", "sessanta", "settanta", "ottanta", "novanta"]
 
 
 def _below_1000(n: int) -> str:
@@ -282,19 +343,32 @@ def jaro(a: str, b: str) -> float:
 
 #: Italian suffix → English suffix. Order matters: longer first.
 COGNATE_RULES: list[tuple[str, str, str]] = [
-    ("zione", "tion", "-zione = -tion"), ("sione", "sion", "-sione = -sion"),
-    ("ità", "ity", "-ità = -ity"), ("tà", "ty", "-tà = -ty"),
-    ("logia", "logy", "-logia = -logy"), ("grafia", "graphy", "-grafia = -graphy"),
-    ("ismo", "ism", "-ismo = -ism"), ("ista", "ist", "-ista = -ist"),
-    ("mente", "ly", "-mente = -ly"), ("bile", "ble", "-bile = -ble"),
-    ("enza", "ence", "-enza = -ence"), ("anza", "ance", "-anza = -ance"),
-    ("ente", "ent", "-ente = -ent"), ("ante", "ant", "-ante = -ant"),
-    ("oso", "ous", "-oso = -ous"), ("osa", "ous", "-oso = -ous"),
-    ("ico", "ic", "-ico = -ic"), ("ica", "ic", "-ico = -ic"),
-    ("ivo", "ive", "-ivo = -ive"), ("iva", "ive", "-ivo = -ive"),
-    ("ario", "ary", "-ario = -ary"), ("orio", "ory", "-orio = -ory"),
-    ("ura", "ure", "-ura = -ure"), ("ale", "al", "-ale = -al"),
-    ("ore", "or", "-ore = -or"), ("are", "ate", "-are = -ate (verbs)"),
+    ("zione", "tion", "-zione = -tion"),
+    ("sione", "sion", "-sione = -sion"),
+    ("ità", "ity", "-ità = -ity"),
+    ("tà", "ty", "-tà = -ty"),
+    ("logia", "logy", "-logia = -logy"),
+    ("grafia", "graphy", "-grafia = -graphy"),
+    ("ismo", "ism", "-ismo = -ism"),
+    ("ista", "ist", "-ista = -ist"),
+    ("mente", "ly", "-mente = -ly"),
+    ("bile", "ble", "-bile = -ble"),
+    ("enza", "ence", "-enza = -ence"),
+    ("anza", "ance", "-anza = -ance"),
+    ("ente", "ent", "-ente = -ent"),
+    ("ante", "ant", "-ante = -ant"),
+    ("oso", "ous", "-oso = -ous"),
+    ("osa", "ous", "-oso = -ous"),
+    ("ico", "ic", "-ico = -ic"),
+    ("ica", "ic", "-ico = -ic"),
+    ("ivo", "ive", "-ivo = -ive"),
+    ("iva", "ive", "-ivo = -ive"),
+    ("ario", "ary", "-ario = -ary"),
+    ("orio", "ory", "-orio = -ory"),
+    ("ura", "ure", "-ura = -ure"),
+    ("ale", "al", "-ale = -al"),
+    ("ore", "or", "-ore = -or"),
+    ("are", "ate", "-are = -ate (verbs)"),
 ]
 
 

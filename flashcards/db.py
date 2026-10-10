@@ -1,26 +1,30 @@
-"""SQLite connection + schema for the flashcards pipeline.
+"""SQLite connection, schema and migrations.
 
-Tables, all created by ``init_schema``:
+v4 (word-first) tables:
+  lexemes, senses          one record per root word; what it means on a card
+  lists, list_items        what to learn and which roots each list holds
+  ai_jobs, ai_cache        the durable AI queue; every AI answer
+  form_prompts, word_facts English prompts for verb forms; fun facts
+  mnemonics, mistakes      leech-doctor memory aids; practice mistakes
+  v4_notes                 the notes Anki should hold (rebuilt every build)
+  audits                   latest AI audit verdict per note
 
-  entries        — one row per ingested item (a CSV row or a SUBTLEX lemma)
-  verb_forms     — conjugated forms per verb entry (46 across 8 tenses)
-  noun_phrases   — definite + one chosen phrase family per noun entry
-  cards          — materialised Anki cards, en↔it, with stable GUIDs
-  word_facts     — one "did you know?" answer per distinct word
-  audits         — latest AI audit verdict per card (``flashcards audit``)
-  ai_cache       — every AI answer, keyed by model + task + messages
+Operations tables (``OPERATIONS_SQL``): overrides (human edits), identity +
+adoptions + retirements + sync_runs (what was sent to Anki), card_knowledge
+(what you know), source_observations + identity_aliases (input lineage),
+review_decisions, asset_manifest and metadata (checkpoints).
 
-Frequency information lives on ``entries.frequency_rank`` / ``entries.zipf``;
-the SUBTLEX builder fills those in.
+v3 tables (entries, verb_forms, noun_phrases, cards) are kept read-only so
+studied notes from before v4 can be adopted.
 
-Schema changes go through ``MIGRATIONS`` (tracked with ``PRAGMA user_version``)
-so existing databases pick up new columns. ``SCHEMA_SQL`` is always the latest
-shape and is used verbatim for brand-new databases.
+Schema changes go through ``MIGRATIONS`` (tracked with ``PRAGMA user_version``,
+backed up first). ``SCHEMA_SQL`` + ``_m5_integrity`` build a fresh database.
 """
 
 from __future__ import annotations
 
 import sqlite3
+import json
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -238,7 +242,7 @@ CREATE TABLE IF NOT EXISTS ai_jobs (
     kind        TEXT NOT NULL,              -- lexeme_enrich | verb_prompts | phrase_enrich | disambiguate | image
     subject     TEXT NOT NULL,              -- lexeme id / group key
     payload     TEXT,                       -- JSON input snapshot
-    status      TEXT NOT NULL DEFAULT 'pending',  -- pending | done | failed
+    status      TEXT NOT NULL DEFAULT 'pending',  -- pending | running | done | failed | cancelled
     attempts    INTEGER NOT NULL DEFAULT 0,
     result      TEXT,
     error       TEXT,
@@ -248,18 +252,6 @@ CREATE TABLE IF NOT EXISTS ai_jobs (
     UNIQUE (kind, subject)
 );
 CREATE INDEX IF NOT EXISTS idx_ai_jobs_status ON ai_jobs(status, kind, priority);
-
--- ── KNOWLEDGE: what you already know, read back from Anki ──────────────
-CREATE TABLE IF NOT EXISTS knowledge (
-    lexeme_id   TEXT NOT NULL,
-    card_type   TEXT NOT NULL,
-    state       TEXT NOT NULL,              -- unknown | learning | known
-    interval    INTEGER,
-    lapses      INTEGER,
-    reviews     INTEGER,
-    updated_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (lexeme_id, card_type)
-);
 
 -- ── V4_NOTES: desired Anki notes (rebuilt every build) ─────────────────
 CREATE TABLE IF NOT EXISTS v4_notes (
@@ -301,6 +293,13 @@ CREATE TABLE IF NOT EXISTS mnemonics (
     created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ── LEGACY_NOTES: weekly index of the v3 notes still in Anki ───────────
+CREATE TABLE IF NOT EXISTS legacy_notes (
+    note_id     INTEGER PRIMARY KEY,
+    sort_key    TEXT NOT NULL,
+    cards       TEXT NOT NULL               -- JSON card ids
+);
+
 -- ── IDENTITY: every note key ever sent to Anki (exported to git) ───────
 CREATE TABLE IF NOT EXISTS identity (
     key          TEXT PRIMARY KEY,
@@ -314,9 +313,8 @@ CREATE TABLE IF NOT EXISTS identity (
 def connect(path: Path = DB_PATH) -> sqlite3.Connection:
     """Open a connection with sensible defaults (Row factory, FKs, WAL).
 
-    ``check_same_thread=False`` is set because we share one connection across a
-    worker pool. Concurrent access is serialised by ``threading.Lock`` higher up
-    the stack (``PipelineContext.db_lock``).
+    ``check_same_thread=False`` because one connection is shared with worker
+    threads; callers serialise access with a ``threading.Lock``.
     """
     conn = sqlite3.connect(path, timeout=30, check_same_thread=False)
     conn.row_factory = sqlite3.Row
@@ -338,10 +336,10 @@ def _m1_portable_identity(conn: sqlite3.Connection) -> None:
       natural keys. Existing rows get the legacy ``verb_form:<rowid>`` /
       ``noun_phrase:<rowid>`` keys (same GUIDs); new rows get semantic keys.
     """
-    for (eid, sp) in conn.execute("SELECT id, source_path FROM entries").fetchall():
+    for eid, sp in conn.execute("SELECT id, source_path FROM entries").fetchall():
         marker = "/inputs/"
         if marker in sp:
-            rel = sp[sp.rindex(marker) + len(marker):]
+            rel = sp[sp.rindex(marker) + len(marker) :]
             conn.execute("UPDATE entries SET source_path = ? WHERE id = ?", (rel, eid))
     cols = {r[1] for r in conn.execute("PRAGMA table_info(entries)")}
     if "retired" not in cols:
@@ -361,9 +359,7 @@ def _m1_portable_identity(conn: sqlite3.Connection) -> None:
             # SQLite can't add a NOT NULL column without a default; the
             # default is immediately overwritten for every existing row.
             conn.execute(f"ALTER TABLE {table} ADD COLUMN card_key TEXT NOT NULL DEFAULT ''")
-        conn.execute(
-            f"UPDATE {table} SET card_key = '{prefix}:' || id WHERE card_key = ''"
-        )
+        conn.execute(f"UPDATE {table} SET card_key = '{prefix}:' || id WHERE card_key = ''")
 
 
 def _m2_facts_and_audits(conn: sqlite3.Connection) -> None:
@@ -380,8 +376,8 @@ def _m2_facts_and_audits(conn: sqlite3.Connection) -> None:
 
 
 def _m3_lexicon(conn: sqlite3.Connection) -> None:
-    """v4 word-first tables (lexemes, senses, lists, ai_jobs, knowledge,
-    v4_notes, identity). They are all ``CREATE … IF NOT EXISTS`` in
+    """v4 word-first tables (lexemes, senses, lists, ai_jobs, v4_notes,
+    identity). They are all ``CREATE … IF NOT EXISTS`` in
     ``SCHEMA_SQL``, which runs right after the migrations; nothing to alter."""
 
 
@@ -392,31 +388,279 @@ def _m4_note_audio(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE v4_notes ADD COLUMN audio_text TEXT")
 
 
+OPERATIONS_SQL = """
+CREATE TABLE IF NOT EXISTS metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS overrides (
+    lexeme_id TEXT NOT NULL REFERENCES lexemes(id), field TEXT NOT NULL,
+    value_json TEXT NOT NULL, author TEXT NOT NULL DEFAULT 'human', reason TEXT NOT NULL DEFAULT '',
+    version INTEGER NOT NULL DEFAULT 1, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (lexeme_id, field)
+);
+CREATE TABLE IF NOT EXISTS source_observations (
+    list_id TEXT NOT NULL REFERENCES lists(id) ON DELETE CASCADE, row_key TEXT NOT NULL,
+    lexeme_id TEXT NOT NULL REFERENCES lexemes(id), raw TEXT NOT NULL, payload TEXT NOT NULL,
+    source_hash TEXT NOT NULL, generation TEXT NOT NULL, PRIMARY KEY(list_id, row_key)
+);
+CREATE TABLE IF NOT EXISTS identity_aliases (
+    old_key TEXT PRIMARY KEY, new_key TEXT NOT NULL, reason TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS adoptions (
+    key TEXT NOT NULL, direction TEXT NOT NULL, note_id INTEGER NOT NULL,
+    profile TEXT NOT NULL, PRIMARY KEY(key, direction, profile)
+);
+CREATE TABLE IF NOT EXISTS retirements (
+    key TEXT PRIMARY KEY, reason TEXT NOT NULL CHECK(length(trim(reason)) > 0),
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS sync_runs (
+    id TEXT PRIMARY KEY, profile TEXT NOT NULL, plan_json TEXT NOT NULL,
+    status TEXT NOT NULL, error TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS review_decisions (
+    subject TEXT NOT NULL, content_hash TEXT NOT NULL, decision TEXT NOT NULL,
+    reason TEXT NOT NULL, author TEXT NOT NULL DEFAULT 'human',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(subject, content_hash)
+);
+CREATE TABLE IF NOT EXISTS asset_manifest (
+    filename TEXT PRIMARY KEY, subject TEXT NOT NULL, kind TEXT NOT NULL,
+    spec_hash TEXT NOT NULL, checksum TEXT NOT NULL, metadata TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS card_knowledge (
+    key TEXT NOT NULL, direction TEXT NOT NULL, card_id INTEGER NOT NULL,
+    state TEXT NOT NULL CHECK(state IN ('unknown','learning','known')),
+    interval INTEGER NOT NULL, lapses INTEGER NOT NULL, reviews INTEGER NOT NULL,
+    suspended INTEGER NOT NULL, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(key, direction, card_id)
+);
+"""
+
+
+def execute_statements(conn, script: str) -> None:
+    """Unlike executescript, preserve the caller's transaction."""
+    statement = ""
+    for line in script.splitlines(True):
+        statement += line
+        if sqlite3.complete_statement(statement):
+            conn.execute(statement)
+            statement = ""
+    if statement.strip():
+        raise ValueError("Incomplete migration SQL")
+
+
+def _m5_integrity(conn: sqlite3.Connection) -> None:
+    """Operations tables, foreign keys, queue/identity columns, status checks,
+    and human edits copied into ``overrides``."""
+    additions = {
+        "ai_jobs": {
+            "fingerprint": "TEXT",
+            "force_refresh": "INTEGER NOT NULL DEFAULT 0",
+            "owner": "TEXT",
+            "started_at": "TEXT",
+            "next_retry_at": "TEXT",
+        },
+        "identity": {"note_id": "INTEGER", "profile": "TEXT", "card_ids": "TEXT"},
+        "senses": {"active": "INTEGER NOT NULL DEFAULT 1", "source_id": "TEXT", "context": "TEXT"},
+        "lexemes": {"source_hash": "TEXT"},
+    }
+    for table, cols in additions.items():
+        have = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+        for name, definition in cols.items():
+            if name not in have:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {definition}")
+    # Numeric v4 values were Anki note IDs, never actual GUIDs.
+    conn.execute(
+        "UPDATE identity SET note_id=CAST(guid AS INTEGER), guid='' "
+        "WHERE kind='v4' AND guid != '' AND guid NOT GLOB '*[^0-9]*' AND note_id IS NULL"
+    )
+    relationships = {
+        "senses": [("lexeme_id", "lexemes", "id", "CASCADE")],
+        "list_items": [("list_id", "lists", "id", "CASCADE"), ("lexeme_id", "lexemes", "id", "RESTRICT")],
+        "entry_lexeme": [
+            ("entry_id", "entries", "id", "CASCADE"),
+            ("lexeme_id", "lexemes", "id", "RESTRICT"),
+        ],
+        "form_prompts": [("lexeme_id", "lexemes", "id", "CASCADE")],
+    }
+    # Superseded by card_knowledge (per card and direction, read back on sync).
+    conn.execute("DROP TABLE IF EXISTS knowledge")
+    for table, refs in relationships.items():
+        if list(conn.execute(f"PRAGMA foreign_key_list({table})")):
+            continue
+        for col, parent, pk, _action in refs:
+            n = conn.execute(
+                f"SELECT count(*) FROM {table} WHERE {col} NOT IN (SELECT {pk} FROM {parent})"
+            ).fetchone()[0]
+            if n:
+                raise ValueError(
+                    f"Migration stopped: {table} contains {n} orphan {col} values; restore/repair first"
+                )
+        sql = conn.execute("SELECT sql FROM sqlite_master WHERE name=?", (table,)).fetchone()[0]
+        indexes = [
+            r[0]
+            for r in conn.execute(
+                "SELECT sql FROM sqlite_master WHERE tbl_name=? AND type='index' AND sql IS NOT NULL",
+                (table,),
+            )
+        ]
+        sql = sql.replace(f"CREATE TABLE {table}", f"CREATE TABLE {table}_new", 1)
+        end = sql.rfind(")")
+        constraints = "".join(
+            f", FOREIGN KEY ({col}) REFERENCES {parent}({pk}) ON DELETE {action}"
+            for col, parent, pk, action in refs
+        )
+        conn.execute(sql[:end] + constraints + sql[end:])
+        conn.execute(f"INSERT INTO {table}_new SELECT * FROM {table}")
+        conn.execute(f"DROP TABLE {table}")
+        conn.execute(f"ALTER TABLE {table}_new RENAME TO {table}")
+        for sql in indexes:
+            conn.execute(sql)
+    execute_statements(conn, OPERATIONS_SQL)
+    for table, column, values in (
+        ("lexemes", "status", "'new','ready','needs_review'"),
+        ("ai_jobs", "status", "'pending','running','done','failed','cancelled'"),
+    ):
+        for event in ("INSERT", "UPDATE"):
+            conn.execute(
+                f"CREATE TRIGGER IF NOT EXISTS validate_{table}_{event} BEFORE {event} ON {table} "
+                f"WHEN NEW.{column} NOT IN ({values}) BEGIN SELECT RAISE(ABORT, 'Invalid {table} status'); END"
+            )
+    # Preserve existing human edits as a separate authority from regenerated data.
+    for row in conn.execute("SELECT * FROM lexemes").fetchall():
+        for field, source in json.loads(row["provenance"] or "{}").items():
+            if source == "human" and field in row.keys():
+                conn.execute(
+                    "INSERT OR IGNORE INTO overrides(lexeme_id,field,value_json) VALUES(?,?,?)",
+                    (row["id"], field, json.dumps(row[field])),
+                )
+
+
+def _m6_queue_recovery(conn: sqlite3.Connection) -> None:
+    """Index source evidence and retry failures caused by repaired queue bugs once.
+
+    Planning rebuilds eligible payloads and cancels obsolete jobs before dispatch.
+    Keep their error/result evidence until a successful replacement is committed.
+    """
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_source_observations_lexeme "
+        "ON source_observations(lexeme_id,list_id,row_key)"
+    )
+    conn.execute(
+        "UPDATE ai_jobs SET status='pending',attempts=0,next_retry_at=NULL,owner=NULL "
+        "WHERE status='failed' AND error IN (?,?,?)",
+        (
+            "the JSON object must be str, bytes or bytearray, not NoneType",
+            "Provider must return exactly every requested verb form",
+            "Provider must return exactly the requested IDs once each",
+        ),
+    )
+
+
+def _m7_meaning_contracts(conn):
+    """Preserve keys/media; attach evidence and record every generated-form outcome."""
+    if "features" not in {r[1] for r in conn.execute("PRAGMA table_info(senses)")}:
+        conn.execute("ALTER TABLE senses ADD COLUMN features TEXT NOT NULL DEFAULT '{}'")
+    if "source_id" not in {r[1] for r in conn.execute("PRAGMA table_info(form_prompts)")}:
+        conn.execute("ALTER TABLE form_prompts ADD COLUMN source_id TEXT")
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS cue_overrides (key TEXT PRIMARY KEY, content_hash TEXT NOT NULL, "
+        "hint TEXT NOT NULL, alternatives TEXT NOT NULL, reason TEXT NOT NULL)"
+    )
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS form_exclusions (lexeme_id TEXT NOT NULL REFERENCES lexemes(id), "
+        "tense TEXT NOT NULL,person TEXT NOT NULL,source_id TEXT,reason TEXT NOT NULL, "
+        "PRIMARY KEY(lexeme_id,tense,person))"
+    )
+    for row in conn.execute("SELECT lexeme_id,idx,source_id,context FROM senses").fetchall():
+        refs = [
+            dict(r)
+            for r in conn.execute(
+                "SELECT list_id,row_key,source_hash FROM source_observations WHERE lexeme_id=? ORDER BY list_id,row_key",
+                (row["lexeme_id"],),
+            )
+        ]
+        conn.execute(
+            "UPDATE senses SET source_id=?,context=? WHERE lexeme_id=? AND idx=?",
+            (
+                row["source_id"] or f"legacy:{row['lexeme_id']}:{row['idx']}",
+                row["context"]
+                or json.dumps(
+                    {
+                        "status": "legacy meaning; source match not independently verified",
+                        "observations": refs,
+                    }
+                ),
+                row["lexeme_id"],
+                row["idx"],
+            ),
+        )
+    conn.execute(
+        "UPDATE form_prompts SET source_id=(SELECT source_id FROM senses s "
+        "WHERE s.lexeme_id=form_prompts.lexeme_id AND active=1 ORDER BY idx LIMIT 1)"
+    )
+    # New schemas/evidence do not regenerate all finished vocabulary. Re-record
+    # fingerprints once. Only incomplete/unsafe verb responses are explicitly reopened.
+    conn.execute("UPDATE ai_jobs SET fingerprint=NULL")
+    from . import semantics
+
+    for job in conn.execute("SELECT * FROM ai_jobs WHERE kind='verb_prompts' AND status='done'").fetchall():
+        payload = json.loads(job["payload"] or "{}")
+        requested = {(t, p) for t, ps in payload.get("forms", {}).items() for p in ps}
+        prompts = {
+            (r["tense"], r["person"])
+            for r in conn.execute("SELECT * FROM form_prompts WHERE lexeme_id=?", (job["subject"],))
+        }
+        lx = conn.execute("SELECT * FROM lexemes WHERE id=?", (job["subject"],)).fetchone()
+        sense = semantics.primary(conn, job["subject"])
+        unsafe = lx and any(semantics.exclusion(lx, sense, t, p) for t, p in prompts)
+        if requested != prompts or unsafe:
+            conn.execute(
+                "UPDATE ai_jobs SET status='pending',attempts=0,next_retry_at=NULL,error='Revalidate incomplete or unsuitable verb forms' WHERE id=?",
+                (job["id"],),
+            )
+    conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
+
+
 #: Ordered schema migrations. Index ``i`` upgrades ``user_version`` i → i+1.
-MIGRATIONS = [_m1_portable_identity, _m2_facts_and_audits, _m3_lexicon, _m4_note_audio]
+MIGRATIONS = [
+    _m1_portable_identity,
+    _m2_facts_and_audits,
+    _m3_lexicon,
+    _m4_note_audio,
+    _m5_integrity,
+    _m6_queue_recovery,
+    _m7_meaning_contracts,
+]
 SCHEMA_VERSION = len(MIGRATIONS)
 
 
 def init_schema(conn: sqlite3.Connection) -> None:
     """Create a fresh schema, or migrate an existing DB to ``SCHEMA_VERSION``."""
-    exists = conn.execute(
-        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'entries'"
-    ).fetchone()
+    exists = conn.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'entries'").fetchone()
     if not exists:
         conn.executescript(SCHEMA_SQL)
+        with transaction(conn):
+            _m5_integrity(conn)
+            _m6_queue_recovery(conn)
+            _m7_meaning_contracts(conn)
         conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
         conn.commit()
         return
     version = conn.execute("PRAGMA user_version").fetchone()[0]
+    if version > SCHEMA_VERSION:
+        raise ValueError(f"Database schema {version} is newer than supported {SCHEMA_VERSION}")
     if version < SCHEMA_VERSION:
         from .backup import snapshot
 
-        snapshot(f"before migrating to schema v{SCHEMA_VERSION}")
+        snapshot(f"before migrating to schema v{SCHEMA_VERSION}", connection=conn)
     for i in range(version, SCHEMA_VERSION):
         with transaction(conn):
             MIGRATIONS[i](conn)
             conn.execute(f"PRAGMA user_version = {i + 1}")
-        print(f"  migrated database schema to v{i + 1}")
+        from . import report
+
+        report.detail(f"  migrated database schema to v{i + 1}")
     conn.executescript(SCHEMA_SQL)  # IF NOT EXISTS: adds any missing indexes/tables
     conn.commit()
 
@@ -436,7 +680,5 @@ def transaction(conn: sqlite3.Connection):
 
 def managed_decks(conn: sqlite3.Connection) -> list[str]:
     """Distinct deck names currently in ``cards`` — the single source of truth."""
-    rows = conn.execute(
-        "SELECT DISTINCT deck FROM cards ORDER BY deck"
-    ).fetchall()
+    rows = conn.execute("SELECT DISTINCT deck FROM cards ORDER BY deck").fetchall()
     return [r["deck"] for r in rows]

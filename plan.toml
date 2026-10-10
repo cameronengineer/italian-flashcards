@@ -3,6 +3,10 @@
 # A word in several lists lives in the deck of its highest-priority list.
 
 new_cards_per_day = 25       # used for the "you'll finish by …" estimate
+# Optional study horizon: only prepare (AI) and publish new cards for this many
+# days of study beyond what's already in Anki. Leave it unset to work through
+# everything in study order and let Anki's daily new-card limit pace you.
+# horizon_days = 14
 
 [[priority]]
 list = "eight-mountains"
@@ -13,29 +17,11 @@ list = "cils-a1"
 [[priority]]
 list = "fluent-forever"
 [[priority]]
-list = "cafe"
-[[priority]]
 list = "cils-a2"
-[[priority]]
-list = "exam-prep"
-[[priority]]
-list = "italki"
-[[priority]]
-list = "italki-verbs"
 [[priority]]
 list = "cils-b1"
 [[priority]]
-list = "interjections"
-[[priority]]
-list = "pronouns"
-[[priority]]
-list = "conjunctions"
-[[priority]]
-list = "avere"
-[[priority]]
 list = "numbers"
-[[priority]]
-list = "alphabet"
 [[priority]]
 list = "tutto-bene"
 [[priority]]

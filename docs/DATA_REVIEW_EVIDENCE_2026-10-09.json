@@ -1,0 +1,1262 @@
+{
+  "scope": "Snapshot data; no provider or Anki requests during this review",
+  "snapshot_sha256": "a2a40e29aa20b92d67d6964fcf2004eb7f7e34240b355b3b52c37d1a0c6d091a",
+  "before": {
+    "block_reasons": {
+      "awaiting AI": 7173,
+      "image": 663,
+      "missing content": 7287,
+      "needs review": 244
+    },
+    "captured_at": "2026-10-09T10:58:34.212830+00:00",
+    "checkpoints": {
+      "knowledge_synced_at": "2026-10-09 10:46:07",
+      "source_generation": "e6b909312fb345949056a7a29d55dd7c"
+    },
+    "findings": [
+      {
+        "code": "stale_notes",
+        "count": 1,
+        "detail": "Upstream data changed since the last note build; this can be normal between worker batches",
+        "examples": [],
+        "severity": "warning"
+      },
+      {
+        "code": "unversioned_dictionary",
+        "count": 1,
+        "detail": "The database checkpoint does not identify its dictionary version",
+        "examples": [],
+        "severity": "warning"
+      },
+      {
+        "code": "retained_inactive_roots",
+        "count": 203,
+        "detail": "Roots without current membership are retained; do not delete their media or study history",
+        "examples": [],
+        "severity": "info"
+      },
+      {
+        "code": "failed_jobs",
+        "count": 30,
+        "detail": "Jobs require diagnosis and an explicit retry",
+        "examples": [
+          5371,
+          5382,
+          5389,
+          5393,
+          5406,
+          5407,
+          5426,
+          5439,
+          5441,
+          5477
+        ],
+        "severity": "warning"
+      },
+      {
+        "code": "untraced_senses",
+        "count": 1006,
+        "detail": "Active meanings do not identify the dictionary sense/source observation supporting them",
+        "examples": [],
+        "severity": "warning"
+      },
+      {
+        "code": "unaudited_ready_notes",
+        "count": 3101,
+        "detail": "Ready means publishable; these notes have no matching independent note audit",
+        "examples": [
+          "form:002a83ed00982c3aefa998390d633557:condizionale_passato:io",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_passato:loro",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_passato:lui_lei",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_passato:noi",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_passato:tu",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_passato:voi",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_presente:io",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_presente:loro",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_presente:lui_lei",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_presente:noi"
+        ],
+        "severity": "warning"
+      },
+      {
+        "code": "ready_without_audio",
+        "count": 1386,
+        "detail": "Audio is optional and separately budgeted",
+        "examples": [
+          "form:002a83ed00982c3aefa998390d633557:condizionale_passato:io",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_passato:loro",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_passato:lui_lei",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_passato:noi",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_passato:tu",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_passato:voi",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_presente:io",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_presente:loro",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_presente:lui_lei",
+          "form:002a83ed00982c3aefa998390d633557:condizionale_presente:noi"
+        ],
+        "severity": "info"
+      },
+      {
+        "code": "ambiguous_production_cues",
+        "count": 88,
+        "detail": "Identical English/hint/labels lead to different answers; images may differ",
+        "examples": [
+          "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_passato:io",
+          "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_passato:loro",
+          "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_passato:lui_lei",
+          "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_passato:noi",
+          "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_passato:tu",
+          "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_passato:voi",
+          "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_presente:io",
+          "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_presente:loro",
+          "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_presente:lui_lei",
+          "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_presente:noi"
+        ],
+        "severity": "warning"
+      }
+    ],
+    "foreign_key_violations": [],
+    "format": 1,
+    "integrity": [
+      "ok"
+    ],
+    "jobs": [
+      {
+        "count": 4,
+        "kind": "disambiguate",
+        "status": "cancelled"
+      },
+      {
+        "count": 32,
+        "kind": "image",
+        "status": "cancelled"
+      },
+      {
+        "count": 103,
+        "kind": "lexeme_enrich",
+        "status": "cancelled"
+      },
+      {
+        "count": 91,
+        "kind": "phrase_enrich",
+        "status": "cancelled"
+      },
+      {
+        "count": 7,
+        "kind": "disambiguate",
+        "status": "done"
+      },
+      {
+        "count": 969,
+        "kind": "lexeme_enrich",
+        "status": "done"
+      },
+      {
+        "count": 85,
+        "kind": "verb_prompts",
+        "status": "done"
+      },
+      {
+        "count": 30,
+        "kind": "verb_prompts",
+        "status": "failed"
+      },
+      {
+        "count": 2,
+        "kind": "disambiguate",
+        "status": "pending"
+      },
+      {
+        "count": 488,
+        "kind": "image",
+        "status": "pending"
+      },
+      {
+        "count": 3020,
+        "kind": "lexeme_enrich",
+        "status": "pending"
+      },
+      {
+        "count": 810,
+        "kind": "phrase_enrich",
+        "status": "pending"
+      },
+      {
+        "count": 139,
+        "kind": "verb_prompts",
+        "status": "pending"
+      },
+      {
+        "count": 15,
+        "kind": "lexeme_enrich",
+        "status": "running"
+      }
+    ],
+    "knowledge": [
+      {
+        "count": 1178,
+        "direction": "Production",
+        "state": "known"
+      },
+      {
+        "count": 526,
+        "direction": "Production",
+        "state": "learning"
+      },
+      {
+        "count": 29077,
+        "direction": "Production",
+        "state": "unknown"
+      },
+      {
+        "count": 573,
+        "direction": "Recognition",
+        "state": "known"
+      },
+      {
+        "count": 4,
+        "direction": "Recognition",
+        "state": "learning"
+      },
+      {
+        "count": 6639,
+        "direction": "Recognition",
+        "state": "unknown"
+      }
+    ],
+    "lexemes": [
+      {
+        "count": 124,
+        "status": "needs_review"
+      },
+      {
+        "count": 4050,
+        "status": "new"
+      },
+      {
+        "count": 836,
+        "status": "ready"
+      }
+    ],
+    "lists": [
+      {
+        "id": "alphabet",
+        "kind": "csv",
+        "memberships": 26,
+        "observations": 26
+      },
+      {
+        "id": "avere",
+        "kind": "avere",
+        "memberships": 101,
+        "observations": 101
+      },
+      {
+        "id": "cafe",
+        "kind": "csv",
+        "memberships": 181,
+        "observations": 184
+      },
+      {
+        "id": "cils-a1",
+        "kind": "cils",
+        "memberships": 482,
+        "observations": 485
+      },
+      {
+        "id": "cils-a2",
+        "kind": "cils",
+        "memberships": 1033,
+        "observations": 1037
+      },
+      {
+        "id": "cils-b1",
+        "kind": "cils",
+        "memberships": 1533,
+        "observations": 1538
+      },
+      {
+        "id": "cils-b2",
+        "kind": "cils",
+        "memberships": 2073,
+        "observations": 2078
+      },
+      {
+        "id": "conjunctions",
+        "kind": "csv",
+        "memberships": 194,
+        "observations": 194
+      },
+      {
+        "id": "eight-mountains",
+        "kind": "movie",
+        "memberships": 936,
+        "observations": 940
+      },
+      {
+        "id": "exam-prep",
+        "kind": "csv",
+        "memberships": 564,
+        "observations": 567
+      },
+      {
+        "id": "fluent-forever",
+        "kind": "csv",
+        "memberships": 617,
+        "observations": 629
+      },
+      {
+        "id": "frequency",
+        "kind": "subtlex",
+        "memberships": 1398,
+        "observations": 1400
+      },
+      {
+        "id": "interjections",
+        "kind": "csv",
+        "memberships": 287,
+        "observations": 292
+      },
+      {
+        "id": "italki",
+        "kind": "csv",
+        "memberships": 547,
+        "observations": 563
+      },
+      {
+        "id": "italki-verbs",
+        "kind": "verbs",
+        "memberships": 95,
+        "observations": 95
+      },
+      {
+        "id": "numbers",
+        "kind": "numbers",
+        "memberships": 178,
+        "observations": 178
+      },
+      {
+        "id": "pronouns",
+        "kind": "csv",
+        "memberships": 77,
+        "observations": 117
+      },
+      {
+        "id": "tutto-bene",
+        "kind": "csv",
+        "memberships": 1098,
+        "observations": 1128
+      }
+    ],
+    "media": {
+      "checked": true,
+      "missing_or_invalid": [],
+      "referenced_files": 2275
+    },
+    "notes": [
+      {
+        "count": 1,
+        "ready": false,
+        "type": "cognate"
+      },
+      {
+        "count": 3434,
+        "ready": false,
+        "type": "form"
+      },
+      {
+        "count": 1846,
+        "ready": true,
+        "type": "form"
+      },
+      {
+        "count": 78,
+        "ready": false,
+        "type": "nphrase"
+      },
+      {
+        "count": 506,
+        "ready": true,
+        "type": "nphrase"
+      },
+      {
+        "count": 810,
+        "ready": false,
+        "type": "phrase"
+      },
+      {
+        "count": 3487,
+        "ready": false,
+        "type": "vocab"
+      },
+      {
+        "count": 749,
+        "ready": true,
+        "type": "vocab"
+      }
+    ],
+    "production_collision_groups": [
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_passato:io",
+        "form:933266d025ddb55215bcf79f8c151520:condizionale_passato:io"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_passato:loro",
+        "form:933266d025ddb55215bcf79f8c151520:condizionale_passato:loro"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_passato:lui_lei",
+        "form:933266d025ddb55215bcf79f8c151520:condizionale_passato:lui_lei"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_passato:noi",
+        "form:933266d025ddb55215bcf79f8c151520:condizionale_passato:noi"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_passato:tu",
+        "form:933266d025ddb55215bcf79f8c151520:condizionale_passato:tu"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_passato:voi",
+        "form:933266d025ddb55215bcf79f8c151520:condizionale_passato:voi"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_presente:io",
+        "form:933266d025ddb55215bcf79f8c151520:condizionale_presente:io"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_presente:loro",
+        "form:933266d025ddb55215bcf79f8c151520:condizionale_presente:loro"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_presente:lui_lei",
+        "form:933266d025ddb55215bcf79f8c151520:condizionale_presente:lui_lei"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_presente:noi",
+        "form:933266d025ddb55215bcf79f8c151520:condizionale_presente:noi"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_presente:tu",
+        "form:933266d025ddb55215bcf79f8c151520:condizionale_presente:tu"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:condizionale_presente:voi",
+        "form:933266d025ddb55215bcf79f8c151520:condizionale_presente:voi"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:futuro_semplice:io",
+        "form:933266d025ddb55215bcf79f8c151520:futuro_semplice:io"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:futuro_semplice:loro",
+        "form:933266d025ddb55215bcf79f8c151520:futuro_semplice:loro"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:futuro_semplice:lui_lei",
+        "form:933266d025ddb55215bcf79f8c151520:futuro_semplice:lui_lei"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:futuro_semplice:noi",
+        "form:933266d025ddb55215bcf79f8c151520:futuro_semplice:noi"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:futuro_semplice:tu",
+        "form:933266d025ddb55215bcf79f8c151520:futuro_semplice:tu"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:futuro_semplice:voi",
+        "form:933266d025ddb55215bcf79f8c151520:futuro_semplice:voi"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:imperativo:Lei",
+        "form:933266d025ddb55215bcf79f8c151520:imperativo:Lei"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:imperativo:noi",
+        "form:933266d025ddb55215bcf79f8c151520:imperativo:noi"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:imperativo:tu",
+        "form:933266d025ddb55215bcf79f8c151520:imperativo:tu"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:imperativo:voi",
+        "form:933266d025ddb55215bcf79f8c151520:imperativo:voi"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:imperfetto:io",
+        "form:933266d025ddb55215bcf79f8c151520:imperfetto:io"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:imperfetto:loro",
+        "form:933266d025ddb55215bcf79f8c151520:imperfetto:loro"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:imperfetto:noi",
+        "form:933266d025ddb55215bcf79f8c151520:imperfetto:noi"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:imperfetto:tu",
+        "form:933266d025ddb55215bcf79f8c151520:imperfetto:tu"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:passato_prossimo:io",
+        "form:933266d025ddb55215bcf79f8c151520:passato_prossimo:io"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:passato_prossimo:loro",
+        "form:933266d025ddb55215bcf79f8c151520:passato_prossimo:loro"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:passato_prossimo:lui_lei",
+        "form:933266d025ddb55215bcf79f8c151520:passato_prossimo:lui_lei"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:passato_prossimo:noi",
+        "form:933266d025ddb55215bcf79f8c151520:passato_prossimo:noi"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:passato_prossimo:tu",
+        "form:933266d025ddb55215bcf79f8c151520:passato_prossimo:tu"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:passato_prossimo:voi",
+        "form:933266d025ddb55215bcf79f8c151520:passato_prossimo:voi"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:presente:io",
+        "form:933266d025ddb55215bcf79f8c151520:presente:io"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:presente:loro",
+        "form:933266d025ddb55215bcf79f8c151520:presente:loro"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:presente:lui_lei",
+        "form:933266d025ddb55215bcf79f8c151520:presente:lui_lei"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:presente:noi",
+        "form:933266d025ddb55215bcf79f8c151520:presente:noi"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:presente:tu",
+        "form:933266d025ddb55215bcf79f8c151520:presente:tu"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:presente:voi",
+        "form:933266d025ddb55215bcf79f8c151520:presente:voi"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:presente_progressivo:io",
+        "form:933266d025ddb55215bcf79f8c151520:presente_progressivo:io"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:presente_progressivo:loro",
+        "form:933266d025ddb55215bcf79f8c151520:presente_progressivo:loro"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:presente_progressivo:lui_lei",
+        "form:933266d025ddb55215bcf79f8c151520:presente_progressivo:lui_lei"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:presente_progressivo:noi",
+        "form:933266d025ddb55215bcf79f8c151520:presente_progressivo:noi"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:presente_progressivo:tu",
+        "form:933266d025ddb55215bcf79f8c151520:presente_progressivo:tu"
+      ],
+      [
+        "form:386b68c8cd28b3ae764b190f34bfe2c3:presente_progressivo:voi",
+        "form:933266d025ddb55215bcf79f8c151520:presente_progressivo:voi"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:condizionale_passato:io",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:condizionale_passato:io"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:condizionale_passato:loro",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:condizionale_passato:loro"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:condizionale_passato:lui_lei",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:condizionale_passato:lui_lei"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:condizionale_passato:noi",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:condizionale_passato:noi"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:condizionale_passato:tu",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:condizionale_passato:tu"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:condizionale_passato:voi",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:condizionale_passato:voi"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:condizionale_presente:io",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:condizionale_presente:io"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:condizionale_presente:loro",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:condizionale_presente:loro"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:condizionale_presente:lui_lei",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:condizionale_presente:lui_lei"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:condizionale_presente:noi",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:condizionale_presente:noi"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:condizionale_presente:tu",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:condizionale_presente:tu"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:condizionale_presente:voi",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:condizionale_presente:voi"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:futuro_semplice:io",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:futuro_semplice:io"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:futuro_semplice:loro",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:futuro_semplice:loro"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:futuro_semplice:lui_lei",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:futuro_semplice:lui_lei"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:futuro_semplice:noi",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:futuro_semplice:noi"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:futuro_semplice:tu",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:futuro_semplice:tu"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:futuro_semplice:voi",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:futuro_semplice:voi"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:imperativo:Lei",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:imperativo:Lei"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:imperativo:noi",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:imperativo:noi"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:imperfetto:io",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:imperfetto:io"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:imperfetto:loro",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:imperfetto:loro"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:imperfetto:noi",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:imperfetto:noi"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:imperfetto:tu",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:imperfetto:tu"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:passato_prossimo:io",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:passato_prossimo:io"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:passato_prossimo:loro",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:passato_prossimo:loro"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:passato_prossimo:lui_lei",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:passato_prossimo:lui_lei"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:passato_prossimo:noi",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:passato_prossimo:noi"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:passato_prossimo:tu",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:passato_prossimo:tu"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:passato_prossimo:voi",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:passato_prossimo:voi"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:presente:io",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:presente:io"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:presente:loro",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:presente:loro"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:presente:lui_lei",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:presente:lui_lei"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:presente:noi",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:presente:noi"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:presente:tu",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:presente:tu"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:presente:voi",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:presente:voi"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:presente_progressivo:io",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:presente_progressivo:io"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:presente_progressivo:loro",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:presente_progressivo:loro"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:presente_progressivo:lui_lei",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:presente_progressivo:lui_lei"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:presente_progressivo:noi",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:presente_progressivo:noi"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:presente_progressivo:tu",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:presente_progressivo:tu"
+      ],
+      [
+        "form:43dc0236833a474539d06c3140cff88f:presente_progressivo:voi",
+        "form:8e6216cd8e4a16772b05292d1c81a1d4:presente_progressivo:voi"
+      ],
+      [
+        "vocab:03303c85918eb23c05cc16b31da4ce91:0",
+        "vocab:2815482256c8f71314dcdc03f33f4434:0"
+      ],
+      [
+        "vocab:526d9541d8ca4e5a03d0d563f4169e9f:0",
+        "vocab:74c930441eb788c87f1a035ec6ae15b7:0"
+      ]
+    ],
+    "ready_count": 3101,
+    "ready_directions": {
+      "Production": 3062,
+      "Recognition": 725
+    },
+    "schema": 5,
+    "senses": {
+      "active": 1006,
+      "without_source_id": 1006
+    },
+    "status": "review",
+    "table_counts": {
+      "adoptions": 602,
+      "ai_cache": 10972,
+      "ai_jobs": 5795,
+      "asset_manifest": 0,
+      "audits": 0,
+      "card_knowledge": 37997,
+      "cards": 69424,
+      "entries": 8884,
+      "entry_lexeme": 8484,
+      "form_prompts": 3694,
+      "identity": 2853,
+      "identity_aliases": 390,
+      "lexemes": 5213,
+      "list_items": 11420,
+      "lists": 18,
+      "metadata": 3,
+      "mistakes": 0,
+      "mnemonics": 0,
+      "noun_phrases": 3971,
+      "overrides": 0,
+      "retirements": 0,
+      "review_decisions": 0,
+      "senses": 1006,
+      "source_observations": 11552,
+      "sync_runs": 6,
+      "v4_notes": 10911,
+      "verb_forms": 22770,
+      "word_facts": 2008
+    }
+  },
+  "input_csvs": [
+    {
+      "path": "inputs/italian_pronouns.csv",
+      "rows": 117,
+      "encoding": "utf-8-sig",
+      "columns": 2,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/italian_interjections.csv",
+      "rows": 292,
+      "encoding": "utf-8-sig",
+      "columns": 2,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/italian_alphabet.csv",
+      "rows": 26,
+      "encoding": "utf-8-sig",
+      "columns": 2,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/italian_numbers.csv",
+      "rows": 400,
+      "encoding": "utf-8-sig",
+      "columns": 2,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/italian_conjunctions.csv",
+      "rows": 194,
+      "encoding": "utf-8-sig",
+      "columns": 2,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/italian_espressioni_con_avere.csv",
+      "rows": 101,
+      "encoding": "utf-8-sig",
+      "columns": 2,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/italki/italki.csv",
+      "rows": 563,
+      "encoding": "utf-8-sig",
+      "columns": 2,
+      "malformed": 0,
+      "duplicates": 2
+    },
+    {
+      "path": "inputs/italki/italki_verbs.csv",
+      "rows": 95,
+      "encoding": "utf-8-sig",
+      "columns": 2,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/freqdic/subtlex-it.cleaned.csv",
+      "rows": 15000,
+      "encoding": "utf-8-sig",
+      "columns": 8,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/fluentforever/fluentforever_625.csv",
+      "rows": 629,
+      "encoding": "utf-8-sig",
+      "columns": 2,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/examprep/examprep.csv",
+      "rows": 567,
+      "encoding": "utf-8-sig",
+      "columns": 2,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/cils/cils_b2.csv",
+      "rows": 2078,
+      "encoding": "utf-8-sig",
+      "columns": 4,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/cils/cils_b1.csv",
+      "rows": 1538,
+      "encoding": "utf-8-sig",
+      "columns": 4,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/cils/cils_a1.csv",
+      "rows": 485,
+      "encoding": "utf-8-sig",
+      "columns": 4,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/cils/cils_a2.csv",
+      "rows": 1037,
+      "encoding": "utf-8-sig",
+      "columns": 4,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/cafe/cafe.csv",
+      "rows": 184,
+      "encoding": "utf-8-sig",
+      "columns": 2,
+      "malformed": 0,
+      "duplicates": 0
+    },
+    {
+      "path": "inputs/tuttobene/tuttobene.csv",
+      "rows": 1128,
+      "encoding": "utf-8-sig",
+      "columns": 2,
+      "malformed": 0,
+      "duplicates": 0
+    }
+  ],
+  "source_resolution": [
+    {
+      "id": "eight-mountains",
+      "rows": 940,
+      "unique_roots": 936,
+      "collapsed": 4,
+      "blank_glosses": 940,
+      "slash_rows": 0,
+      "unresolved_dictionary": 23,
+      "resolved_different": 5,
+      "multiple_dictionary_entries": 61
+    },
+    {
+      "id": "cils-a1",
+      "rows": 485,
+      "unique_roots": 482,
+      "collapsed": 3,
+      "blank_glosses": 0,
+      "slash_rows": 52,
+      "unresolved_dictionary": 10,
+      "resolved_different": 3,
+      "multiple_dictionary_entries": 46
+    },
+    {
+      "id": "cils-a2",
+      "rows": 1037,
+      "unique_roots": 1033,
+      "collapsed": 4,
+      "blank_glosses": 0,
+      "slash_rows": 129,
+      "unresolved_dictionary": 16,
+      "resolved_different": 3,
+      "multiple_dictionary_entries": 80
+    },
+    {
+      "id": "cils-b1",
+      "rows": 1538,
+      "unique_roots": 1533,
+      "collapsed": 5,
+      "blank_glosses": 0,
+      "slash_rows": 230,
+      "unresolved_dictionary": 25,
+      "resolved_different": 5,
+      "multiple_dictionary_entries": 99
+    },
+    {
+      "id": "cils-b2",
+      "rows": 2078,
+      "unique_roots": 2073,
+      "collapsed": 5,
+      "blank_glosses": 0,
+      "slash_rows": 306,
+      "unresolved_dictionary": 27,
+      "resolved_different": 6,
+      "multiple_dictionary_entries": 126
+    },
+    {
+      "id": "exam-prep",
+      "rows": 567,
+      "unique_roots": 564,
+      "collapsed": 3,
+      "blank_glosses": 0,
+      "slash_rows": 5,
+      "unresolved_dictionary": 235,
+      "resolved_different": 28,
+      "multiple_dictionary_entries": 20
+    },
+    {
+      "id": "italki",
+      "rows": 563,
+      "unique_roots": 547,
+      "collapsed": 16,
+      "blank_glosses": 0,
+      "slash_rows": 0,
+      "unresolved_dictionary": 212,
+      "resolved_different": 66,
+      "multiple_dictionary_entries": 13
+    },
+    {
+      "id": "italki-verbs",
+      "rows": 95,
+      "unique_roots": 95,
+      "collapsed": 0,
+      "blank_glosses": 0,
+      "slash_rows": 0,
+      "unresolved_dictionary": 0,
+      "resolved_different": 0,
+      "multiple_dictionary_entries": 5
+    },
+    {
+      "id": "interjections",
+      "rows": 292,
+      "unique_roots": 287,
+      "collapsed": 5,
+      "blank_glosses": 0,
+      "slash_rows": 0,
+      "unresolved_dictionary": 169,
+      "resolved_different": 4,
+      "multiple_dictionary_entries": 0
+    },
+    {
+      "id": "pronouns",
+      "rows": 117,
+      "unique_roots": 77,
+      "collapsed": 40,
+      "blank_glosses": 0,
+      "slash_rows": 0,
+      "unresolved_dictionary": 31,
+      "resolved_different": 40,
+      "multiple_dictionary_entries": 6
+    },
+    {
+      "id": "conjunctions",
+      "rows": 194,
+      "unique_roots": 194,
+      "collapsed": 0,
+      "blank_glosses": 0,
+      "slash_rows": 0,
+      "unresolved_dictionary": 130,
+      "resolved_different": 0,
+      "multiple_dictionary_entries": 11
+    },
+    {
+      "id": "alphabet",
+      "rows": 26,
+      "unique_roots": 26,
+      "collapsed": 0,
+      "blank_glosses": 0,
+      "slash_rows": 2,
+      "unresolved_dictionary": 21,
+      "resolved_different": 0,
+      "multiple_dictionary_entries": 5
+    },
+    {
+      "id": "numbers",
+      "rows": 178,
+      "unique_roots": 178,
+      "collapsed": 0,
+      "blank_glosses": 0,
+      "slash_rows": 0,
+      "unresolved_dictionary": 52,
+      "resolved_different": 0,
+      "multiple_dictionary_entries": 2
+    },
+    {
+      "id": "avere",
+      "rows": 101,
+      "unique_roots": 101,
+      "collapsed": 0,
+      "blank_glosses": 0,
+      "slash_rows": 0,
+      "unresolved_dictionary": 89,
+      "resolved_different": 0,
+      "multiple_dictionary_entries": 0
+    },
+    {
+      "id": "fluent-forever",
+      "rows": 629,
+      "unique_roots": 617,
+      "collapsed": 12,
+      "blank_glosses": 0,
+      "slash_rows": 0,
+      "unresolved_dictionary": 8,
+      "resolved_different": 3,
+      "multiple_dictionary_entries": 44
+    },
+    {
+      "id": "cafe",
+      "rows": 184,
+      "unique_roots": 181,
+      "collapsed": 3,
+      "blank_glosses": 0,
+      "slash_rows": 0,
+      "unresolved_dictionary": 175,
+      "resolved_different": 0,
+      "multiple_dictionary_entries": 0
+    },
+    {
+      "id": "tutto-bene",
+      "rows": 1128,
+      "unique_roots": 1098,
+      "collapsed": 30,
+      "blank_glosses": 0,
+      "slash_rows": 195,
+      "unresolved_dictionary": 93,
+      "resolved_different": 35,
+      "multiple_dictionary_entries": 76
+    },
+    {
+      "id": "frequency",
+      "rows": 1400,
+      "unique_roots": 1398,
+      "collapsed": 2,
+      "blank_glosses": 1400,
+      "slash_rows": 0,
+      "unresolved_dictionary": 19,
+      "resolved_different": 4,
+      "multiple_dictionary_entries": 98
+    }
+  ],
+  "repeat_rebuild": {
+    "first": {
+      "queue": {
+        "lexeme_enrich": 31,
+        "phrase_enrich": 0,
+        "image": 0,
+        "verb_prompts": 0,
+        "disambiguate": 0
+      },
+      "notes": {
+        "vocab": {
+          "ready": 766,
+          "waiting": 3471
+        },
+        "form": {
+          "ready": 1640,
+          "waiting": 3676
+        },
+        "nphrase": {
+          "ready": 530,
+          "waiting": 80
+        },
+        "phrase": {
+          "ready": 0,
+          "waiting": 810
+        },
+        "cognate": {
+          "ready": 0,
+          "waiting": 1
+        }
+      },
+      "known_roots": 284,
+      "foreign_keys": [],
+      "export_sha256": "67be911d96242d2a4c185f8f7a85a0cdbd46052e9e33ef6977bf3c55ed4e9675"
+    },
+    "second": {
+      "queue": {
+        "lexeme_enrich": 0,
+        "phrase_enrich": 0,
+        "image": 0,
+        "verb_prompts": 0,
+        "disambiguate": 0
+      },
+      "notes": {
+        "vocab": {
+          "ready": 766,
+          "waiting": 3471
+        },
+        "form": {
+          "ready": 1640,
+          "waiting": 3676
+        },
+        "nphrase": {
+          "ready": 530,
+          "waiting": 80
+        },
+        "phrase": {
+          "ready": 0,
+          "waiting": 810
+        },
+        "cognate": {
+          "ready": 0,
+          "waiting": 1
+        }
+      },
+      "known_roots": 284,
+      "foreign_keys": [],
+      "export_sha256": "67be911d96242d2a4c185f8f7a85a0cdbd46052e9e33ef6977bf3c55ed4e9675"
+    }
+  },
+  "movie_after": {
+    "resolved_tokens": 6039,
+    "membership_tokens": 6039,
+    "unmapped_tokens": 0,
+    "coverage": {
+      "total": 6070,
+      "known": 3941,
+      "unresolved": 31,
+      "targets": [
+        {
+          "target": 0.9,
+          "roots": 185,
+          "days": 8
+        },
+        {
+          "target": 0.95,
+          "roots": 410,
+          "days": 17
+        },
+        {
+          "target": 0.98,
+          "roots": 592,
+          "days": 24
+        },
+        {
+          "target": 1.0,
+          "roots": null,
+          "days": null
+        }
+      ]
+    }
+  },
+  "media_preservation": {
+    "baseline_files": 73956,
+    "current_files": 73956,
+    "missing": [],
+    "changed": [],
+    "inventory": {
+      "media": [
+        1,
+        6148
+      ],
+      "media/images": [
+        9763,
+        3634624237
+      ],
+      "media/audio_compressed": [
+        26847,
+        272910382
+      ],
+      "media/images_compressed": [
+        10498,
+        96664984
+      ],
+      "media/audio": [
+        26847,
+        723916562
+      ]
+    }
+  }
+}

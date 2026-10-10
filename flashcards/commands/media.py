@@ -6,7 +6,9 @@ the job queue (``flashcards.codex``). Media is only ever added, never deleted.
 from __future__ import annotations
 
 import shutil
+import json
 import subprocess
+from dataclasses import asdict
 from contextlib import closing
 from pathlib import Path
 
@@ -16,32 +18,50 @@ from elevenlabs.client import ElevenLabs
 
 from ..db import connect, managed_decks
 from ..paths import (
-    AUDIO_DIR, AUDIO_DIR_COMPRESSED,
-    IMAGE_DIR, IMAGE_DIR_COMPRESSED,
+    AUDIO_DIR,
+    AUDIO_DIR_COMPRESSED,
+    IMAGE_DIR,
+    IMAGE_DIR_COMPRESSED,
     ELEVENLABS_KEY_FILE,
     ensure_dirs,
 )
+from .. import report
 from ..pool import run_pool
 from ..settings import settings
-from ..util import audio_filename, load_key_file, print_banner
+from ..util import (
+    audio_filename,
+    load_key_file,
+    print_banner,
+    image_compression_suffix,
+    compressed_audio_name,
+)
+from ..assets import record, locate, valid_image
+from ..quality import reasons, require_current_notes
 
 
 def _audio_texts(conn, decks: list[str] | None = None) -> list[str]:
-    """Audio still worth generating, in study order (v4 notes): ready notes
-    first, then the rest of the plan. Falls back to legacy cards if v4 has
-    not been built yet."""
-    has_v4 = conn.execute("SELECT COUNT(*) FROM v4_notes").fetchone()[0] if conn.execute(
-        "SELECT 1 FROM sqlite_master WHERE name = 'v4_notes'").fetchone() else 0
+    """Audio still worth generating: ready v4 notes, in study order. Falls
+    back to legacy cards if v4 has not been built yet."""
+    has_v4 = (
+        conn.execute("SELECT COUNT(*) FROM v4_notes").fetchone()[0]
+        if conn.execute("SELECT 1 FROM sqlite_master WHERE name = 'v4_notes'").fetchone()
+        else 0
+    )
     if has_v4:
-        where = "WHERE audio_text IS NOT NULL AND audio_text != ''"
+        require_current_notes(conn)
+        where = "WHERE ready=1 AND audio_text IS NOT NULL AND audio_text != ''"
         params: list = []
         if decks:
             where += f" AND deck IN ({','.join('?' * len(decks))})"
             params = list(decks)
-        rows = conn.execute(
-            f"SELECT audio_text FROM v4_notes {where} ORDER BY ready DESC, sort_order", params
-        ).fetchall()
-        return list(dict.fromkeys(r[0] for r in rows))
+        rows = conn.execute(f"SELECT * FROM v4_notes {where} ORDER BY sort_order", params).fetchall()
+        return list(
+            dict.fromkeys(
+                r["audio_text"]
+                for r in rows
+                if not reasons(conn, r["key"], r["lexeme_id"], json.loads(r["fields_json"]))
+            )
+        )
     if decks:
         placeholders = ",".join("?" * len(decks))
         rows = conn.execute(
@@ -60,6 +80,8 @@ def _audio_texts(conn, decks: list[str] | None = None) -> list[str]:
 # ── Audio generation ─────────────────────────────────────────────────────────
 def _gen_audio(client: ElevenLabs, text: str, dest: Path) -> None:
     cfg = settings.audio
+    if dest.exists():
+        raise ValueError(f"Existing media is preserved; refusing overwrite: {dest}")
     audio_bytes = client.text_to_speech.convert(
         voice_id=cfg.voice_id,
         text=text,
@@ -67,35 +89,46 @@ def _gen_audio(client: ElevenLabs, text: str, dest: Path) -> None:
         output_format=cfg.format,
         language_code=cfg.language,
         voice_settings=VoiceSettings(
-            stability=cfg.stability, similarity_boost=cfg.similarity_boost,
-            style=cfg.style, speed=cfg.speed,
+            stability=cfg.stability,
+            similarity_boost=cfg.similarity_boost,
+            style=cfg.style,
+            speed=cfg.speed,
         ),
     )
     if not isinstance(audio_bytes, (bytes, bytearray)):
         audio_bytes = b"".join(audio_bytes)
     tmp = dest.with_suffix(dest.suffix + ".tmp")
+    if not audio_bytes:
+        raise ValueError("TTS returned empty audio")
     tmp.write_bytes(audio_bytes)
     tmp.replace(dest)
 
 
 def generate_audio(workers: int = 10, limit: int | None = None, decks: list[str] | None = None) -> dict:
-    print_banner("media: generate audio (ElevenLabs)")
+    if report.VERBOSE:
+        print_banner("media: generate audio (ElevenLabs)")
     ensure_dirs()
     with closing(connect()) as conn:
         texts = _audio_texts(conn, decks=decks)
     pending_all = [
-        t for t in texts
-        if not ((AUDIO_DIR / audio_filename(t)).exists()
-                and (AUDIO_DIR / audio_filename(t)).stat().st_size > 0)
+        t
+        for t in texts
+        if not locate(audio_filename(t)) and not locate(compressed_audio_name(audio_filename(t)))
     ]
     pending = pending_all[:limit] if limit is not None else pending_all
     done_count = len(texts) - len(pending_all)
     done_pct = (done_count / len(texts) * 100) if texts else 0
     pend_pct = (len(pending_all) / len(texts) * 100) if texts else 0
-    limit_note = f"; processing {len(pending)} this run" if limit is not None and len(pending_all) > len(pending) else ""
-    print(f"  {len(texts)} unique audio strings; {done_count} generated ({done_pct:.1f}%), {len(pending_all)} pending ({pend_pct:.1f}%){limit_note}.")
+    limit_note = (
+        f"; processing {len(pending)} this run"
+        if limit is not None and len(pending_all) > len(pending)
+        else ""
+    )
+    report.detail(
+        f"  {len(texts)} unique audio strings; {done_count} generated ({done_pct:.1f}%), {len(pending_all)} pending ({pend_pct:.1f}%){limit_note}."
+    )
     if not pending:
-        return {"generated": 0, "failed": 0}
+        return {"generated": 0, "failed": 0, "pending": len(pending_all)}
     api_key = load_key_file(ELEVENLABS_KEY_FILE)
     client = ElevenLabs(api_key=api_key)
 
@@ -104,26 +137,44 @@ def generate_audio(workers: int = 10, limit: int | None = None, decks: list[str]
         return audio_filename(text)
 
     generated = failed = 0
-    for _, res in run_pool(
-        pending, work, workers=workers, label="audio",
+    for text, res in run_pool(
+        pending,
+        work,
+        workers=workers,
+        label="audio",
         describe=lambda t: t[:60],
     ):
         if isinstance(res, Exception):
             failed += 1
         else:
             generated += 1
-    print(f"  done: generated={generated}, failed={failed}")
-    return {"generated": generated, "failed": failed}
+            with closing(connect()) as conn:
+                record(conn, AUDIO_DIR / res, subject=text, kind="audio", spec=asdict(settings.audio))
+                conn.commit()
+    report.detail(f"  done: generated={generated}, failed={failed}")
+    return {"generated": generated, "failed": failed, "pending": len(pending_all) - generated}
 
 
-def generate_audio_per_deck(per_deck: int, workers: int = 5) -> dict:
+def generate_audio_per_deck(
+    per_deck: int, workers: int = 5, decks: list[str] | None = None, limit: int | None = None
+) -> dict:
     """Up to ``per_deck`` new audio files for every deck (study order within
     each deck) — spreads a small daily budget across all decks."""
     with closing(connect()) as conn:
-        decks = [r[0] for r in conn.execute("SELECT DISTINCT deck FROM v4_notes ORDER BY deck")] or managed_decks(conn)
+        available = [
+            r[0] for r in conn.execute("SELECT DISTINCT deck FROM v4_notes ORDER BY deck")
+        ] or managed_decks(conn)
+        decks = [d for d in available if not decks or any(d == p or d.startswith(p + "::") for p in decks)]
     totals = {"generated": 0, "failed": 0}
     for deck in decks:
-        res = generate_audio(workers=workers, limit=per_deck, decks=[deck])
+        remaining = None if limit is None else limit - totals["generated"] - totals["failed"]
+        if remaining is not None and remaining <= 0:
+            break
+        res = generate_audio(
+            workers=workers,
+            limit=min(per_deck, remaining) if remaining is not None else per_deck,
+            decks=[deck],
+        )
         for k in totals:
             totals[k] += res.get(k, 0)
     print(f"\n  all decks: generated={totals['generated']}, failed={totals['failed']}")
@@ -132,9 +183,13 @@ def generate_audio_per_deck(per_deck: int, workers: int = 5) -> dict:
 
 # ── Compression ──────────────────────────────────────────────────────────────
 def _compress_image(src: Path) -> tuple[int, int]:
-    dest = IMAGE_DIR_COMPRESSED / (src.stem + ".jpg")
-    if dest.exists() and dest.stat().st_size > 0:
+    dest = IMAGE_DIR_COMPRESSED / (src.stem + image_compression_suffix() + ".jpg")
+    if dest.exists():
+        if not valid_image(dest):
+            raise ValueError(f"Invalid existing media preserved: {dest}")
         return 0, 0
+    if not valid_image(src):
+        raise ValueError(f"Invalid source image preserved: {src}")
     # Write-then-rename: an interrupted run must not leave a truncated file
     # that every later run treats as done.
     tmp = dest.with_name(dest.stem + ".tmp.jpg")
@@ -148,13 +203,16 @@ def _compress_image(src: Path) -> tuple[int, int]:
 
 
 def _compress_audio(src: Path) -> tuple[int, int]:
-    dest = AUDIO_DIR_COMPRESSED / src.name
-    if dest.exists() and dest.stat().st_size > 0:
+    dest = AUDIO_DIR_COMPRESSED / compressed_audio_name(src.name)
+    if dest.exists():
+        if dest.stat().st_size <= 0:
+            raise ValueError(f"Invalid existing media preserved: {dest}")
         return 0, 0
     tmp = dest.with_name(dest.stem + ".tmp.mp3")
     result = subprocess.run(
         ["ffmpeg", "-y", "-i", str(src), "-ac", "1", "-b:a", settings.audio.compressed_bitrate, str(tmp)],
-        capture_output=True, timeout=60,
+        capture_output=True,
+        timeout=60,
     )
     if result.returncode != 0:
         tmp.unlink(missing_ok=True)
@@ -163,24 +221,45 @@ def _compress_audio(src: Path) -> tuple[int, int]:
     return src.stat().st_size, dest.stat().st_size
 
 
+def _image_done(src: Path) -> bool:
+    return (IMAGE_DIR_COMPRESSED / (src.stem + image_compression_suffix() + ".jpg")).exists()
+
+
+def _audio_done(src: Path) -> bool:
+    return (AUDIO_DIR_COMPRESSED / compressed_audio_name(src.name)).exists()
+
+
 def compress(workers: int = 8) -> dict:
-    print_banner("media: compress")
+    if report.VERBOSE:
+        print_banner("media: compress")
     ensure_dirs()
     out: dict = {}
     for label, srcs, work_fn in (
-        ("images", [p for p in IMAGE_DIR.glob("*.png") if ".tmp" not in p.name], _compress_image),
-        ("audio", [p for p in AUDIO_DIR.glob("*.mp3") if ".tmp" not in p.name], _compress_audio),
+        (
+            "images",
+            [p for p in IMAGE_DIR.glob("*.png") if ".tmp" not in p.name and not _image_done(p)],
+            _compress_image,
+        ),
+        (
+            "audio",
+            [p for p in AUDIO_DIR.glob("*.mp3") if ".tmp" not in p.name and not _audio_done(p)],
+            _compress_audio,
+        ),
     ):
         if label == "audio" and not shutil.which("ffmpeg"):
-            print("  ffmpeg not on PATH — skipping audio compression.")
+            report.detail("  ffmpeg not on PATH — skipping audio compression.")
             continue
         if not srcs:
-            print(f"  no {label} to compress.")
+            report.detail(f"  no {label} to compress.")
+            out[label] = {"done": 0, "skipped": 0, "failed": 0}
             continue
         done = skipped = failed = 0
         orig = comp = 0
         for _src, res in run_pool(
-            srcs, work_fn, workers=workers, label=label,
+            srcs,
+            work_fn,
+            workers=workers,
+            label=label,
             progress_every=max(1, len(srcs) // 10),
             describe=lambda p: p.name,
         ):
@@ -197,9 +276,9 @@ def compress(workers: int = 8) -> dict:
         out[label] = {"done": done, "skipped": skipped, "failed": failed}
         if done:
             saved = (1 - comp / orig) * 100 if orig else 0
-            print(
+            report.detail(
                 f"  {label}: compressed {done}  "
-                f"({orig/1024/1024:.1f}MB → {comp/1024/1024:.1f}MB, "
+                f"({orig / 1024 / 1024:.1f}MB → {comp / 1024 / 1024:.1f}MB, "
                 f"{saved:.0f}% reduction)  skipped={skipped} failed={failed}"
             )
     return out

@@ -27,9 +27,11 @@ def run(*, deck: str | None = None, output: Path | None = None) -> int:
     sections = []
     for name, pairs in by_deck.items():
         if pairs:
-            sections.append(f"{name}\n{'=' * len(name)}\n"
-                            + table(["Italian", "English"], [list(p) for p in pairs])
-                            + f"\n{len(pairs)} word(s) learnt\n")
+            sections.append(
+                f"{name}\n{'=' * len(name)}\n"
+                + table(["Italian", "English"], [list(p) for p in pairs])
+                + f"\n{len(pairs)} word(s) learnt\n"
+            )
     output.write_text("\n".join(sections), encoding="utf-8")
     counts = [[name, len(pairs)] for name, pairs in by_deck.items()]
     print(table(["Deck", "Learnt"], counts, total=["TOTAL", sum(c for _, c in counts)]))
