@@ -3,6 +3,9 @@
 .openrouter
 .elevenlabs
 
+# Private source lists and their named exports
+*[Tt]utto*[Bb]ene*
+
 # Local Python environment
 .venv/
 __pycache__/

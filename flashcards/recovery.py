@@ -29,11 +29,10 @@ def create(destination: Path, *, include_media: bool = False, anki_collection: P
             paths.LEXICON_DIR,
             paths.MEDIA_DIR,
             paths.PROJECT_ROOT / "flashcards",
-            paths.PROJECT_ROOT / "scripts",
         )
     ):
         raise ValueError(
-            "Recovery destination must be outside inputs, lexicon, media, code and scripts to avoid copying itself"
+            "Recovery destination must be outside inputs, lexicon, media and code to avoid copying itself"
         )
     if destination.exists():
         raise ValueError(f"Recovery destination already exists: {destination}")
@@ -85,7 +84,6 @@ def create(destination: Path, *, include_media: bool = False, anki_collection: P
         paths.INPUTS_DIR,
         paths.LEXICON_DIR,
         paths.PROJECT_ROOT / "flashcards",
-        paths.PROJECT_ROOT / "scripts",
     ):
         if directory.exists():
             for src in sorted(directory.rglob("*")):
