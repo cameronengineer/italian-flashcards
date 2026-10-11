@@ -492,8 +492,8 @@ def _retire_removed_lists(conn: sqlite3.Connection, removed: list[str], paths: d
     """Mark the Anki notes of removed lists for retirement; returns how many.
 
     Covers v4 notes whose root no longer belongs to any list, and v3 notes made
-    from the removed lists' files. The Anki sync then deletes only the
-    unstudied ones, after re-checking each; studied notes always stay.
+    from the removed lists' files. The Anki sync deletes obsolete notes after
+    re-checking each, including studied notes. Generated content and media stay.
     """
     reason = "list removed from lists.toml: " + ", ".join(removed)
     still = {r[0] for r in conn.execute("SELECT DISTINCT lexeme_id FROM list_items")}
@@ -516,7 +516,9 @@ def _retire_removed_lists(conn: sqlite3.Connection, removed: list[str], paths: d
     conn.executemany(
         "INSERT OR IGNORE INTO retirements(key, reason) VALUES(?, ?)", [(k, reason) for k in keys]
     )
-    report.detail(f"  removed lists {removed}: {len(keys)} Anki notes marked for retirement (unstudied only)")
+    report.detail(
+        f"  removed lists {removed}: {len(keys)} Anki notes marked for retirement (including studied)"
+    )
     return len(keys)
 
 
@@ -563,38 +565,40 @@ def _assign_images(conn: sqlite3.Connection) -> None:
 # ── Git export ─────────────────────────────────────────────────────────────
 
 
-#: Exported text sharing this many consecutive words with a film line is left out.
-_QUOTE_WORDS = 5
+def film_line(text: str) -> str:
+    """A film line as a card shows it: one line, without its own outer quotes."""
+    return " ".join((text or "").split()).strip('"“”«»').strip()
 
 
-def _ngrams(text: str) -> set[tuple[str, ...]]:
-    words = re.findall(r"\w+", (text or "").casefold())
-    return {tuple(words[i : i + _QUOTE_WORDS]) for i in range(len(words) - _QUOTE_WORDS + 1)}
+def film_line_key(text: str) -> str:
+    return md5_hex(film_line(text))
 
 
-def _film_ngrams(conn: sqlite3.Connection) -> set[tuple[str, ...]]:
-    """Word sequences of every film line known to the database."""
-    grams: set[tuple[str, ...]] = set()
-    for (ctx,) in conn.execute("SELECT context FROM list_items WHERE context IS NOT NULL"):
-        grams |= _ngrams(json.loads(ctx).get("example") or "")
-    for (payload,) in conn.execute("SELECT payload FROM source_observations"):
-        grams |= _ngrams((json.loads(payload).get("context") or {}).get("example") or "")
-    return grams
+def film_examples(conn: sqlite3.Connection) -> dict[str, dict]:
+    """lexeme id → the film line its card shows (and where it's from).
+
+    Shared by the card builder and the queue, so the word-for-word gloss is
+    always made for exactly the line on the card.
+    """
+    out: dict[str, dict] = {}
+    for r in conn.execute(
+        "SELECT list_id, lexeme_id, context FROM list_items WHERE context IS NOT NULL ORDER BY list_id, rank"
+    ):
+        if r["lexeme_id"] in out:
+            continue
+        ctx = json.loads(r["context"])
+        if ctx.get("example"):
+            out[r["lexeme_id"]] = {**ctx, "list": r["list_id"], "example": film_line(ctx["example"])}
+    return out
 
 
 def export_jsonl(conn: sqlite3.Connection) -> Path:
     """lexicon/lexemes.jsonl + lexicon/lists.jsonl (sorted, diff-friendly).
 
-    Movie example lines are deliberately left out (subtitle text stays
-    private); everything else needed to rebuild the content is here.
+    Film lines aren't repeated here; they live with the subtitles in
+    ``inputs/movies/<film>/words.csv``.
     """
     LEXICON_DIR.mkdir(exist_ok=True)
-    # Subtitle text never goes to git, including where AI text quotes a film line.
-    film = _film_ngrams(conn)
-
-    def private(text) -> bool:
-        return bool(film and text and _ngrams(text) & film)
-
     senses: dict[str, list] = {}
     for s in conn.execute("SELECT * FROM senses WHERE active=1 ORDER BY lexeme_id, idx"):
         senses.setdefault(s["lexeme_id"], []).append(
@@ -604,15 +608,11 @@ def export_jsonl(conn: sqlite3.Connection) -> Path:
                 **{
                     k: s[k]
                     for k in ("prompt", "hint", "register", "note", "also", "provenance", "source_id")
-                    if s[k] and not private(s[k])
+                    if s[k]
                 },
             }
         )
-    facts = {
-        r["word"]: r
-        for r in conn.execute("SELECT * FROM word_facts WHERE has_fact = 1")
-        if not private(r["fact"])
-    }
+    facts = {r["word"]: r for r in conn.execute("SELECT * FROM word_facts WHERE has_fact = 1")}
     out = LEXICON_DIR / "lexemes.jsonl"
     with io.StringIO() as fh:
         for r in conn.execute(
@@ -653,7 +653,7 @@ def export_jsonl(conn: sqlite3.Connection) -> Path:
                FROM list_items li JOIN lexemes l ON l.id = li.lexeme_id ORDER BY li.list_id, li.rank"""
         ):
             ctx = json.loads(r["context"]) if r["context"] else {}
-            ctx.pop("example", None)  # subtitle text never leaves the local DB
+            ctx.pop("example", None)  # already in inputs/movies/<film>/words.csv
             rec = {
                 "list": r["list_id"],
                 "rank": r["rank"],

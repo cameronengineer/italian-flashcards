@@ -131,15 +131,17 @@ class IntegrityTests(unittest.TestCase):
                 lexicon.sync(c)
         self.assertEqual(c.execute("SELECT count(*) FROM list_items").fetchone()[0], 1)
 
-    def test_disputed_derivative_and_failed_audit_are_blocked(self):
+    def test_flagged_derivative_publishes_and_audits_block_only_when_enabled(self):
+        # No human review: Claude's doubts are recorded but never hold a card back.
         c = database(self)
         lexeme(
             c,
-            status="needs_review",
+            status="ready",
             pos="verb",
             lemma="parlare",
             forms=json.dumps({"forms": {"presente": {"io": "parlo"}}}),
         )
+        c.execute("UPDATE lexemes SET issues=?", (json.dumps(["Dictionary gender looks wrong"]),))
         c.execute(
             "INSERT INTO form_prompts(lexeme_id,tense,person,english) VALUES('x','presente','io','I speak')"
         )
@@ -147,14 +149,27 @@ class IntegrityTests(unittest.TestCase):
         b = notes._Builder(c)
         with patch("flashcards.notes.full_form_verbs", return_value={"x"}):
             b.verb_form_notes()
-        self.assertFalse(b.notes[0]["ready"])
+        blocked = b.notes[0]["blocked_by"] or ""
+        self.assertNotIn("review", blocked)  # Claude's flag is never a reason to wait
         f = desired(c)
-        c.execute("UPDATE lexemes SET status='ready'")
         c.execute(
             "INSERT INTO audits(natural_key,direction,card_hash,verdict) VALUES(?, 'note', ?, 'fail')",
             (f["Key"], quality.note_hash(f)),
         )
-        self.assertIn("failed audit", quality.reasons(c, f["Key"], "x", f))
+        self.assertNotIn("failed audit", quality.reasons(c, f["Key"], "x", f))
+        from dataclasses import replace
+
+        strict = replace(quality.settings, audit=replace(quality.settings.audit, block_failures=True))
+        with patch.object(quality, "settings", strict):
+            self.assertIn("failed audit", quality.reasons(c, f["Key"], "x", f))
+
+    def test_old_held_words_are_released_once(self):
+        c = database(self)
+        lexeme(c, status="needs_review")
+        overrides.save_senses(c, "x", [{"prompt": "house"}], "claude:test")
+        lexeme(c, "y", status="needs_review", lemma="cane")  # no content yet
+        db._m8_no_human_review(c)
+        self.assertEqual(dict(c.execute("SELECT id, status FROM lexemes")), {"x": "ready", "y": "new"})
 
     def test_missing_image_blocks_by_default(self):
         c = database(self)

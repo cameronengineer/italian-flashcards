@@ -41,7 +41,7 @@ class AISettings:
     task_models: dict = field(default_factory=dict)
     #: 0 = wait for Claude/Codex to come back however long it takes.
     max_unavailable_minutes: float = 0
-    task_version: str = "5"
+    task_version: str = "6"
 
     def model_for(self, task: str) -> str:
         return self.task_models.get(task, self.model)
@@ -105,7 +105,8 @@ class BackupSettings:
 @dataclass(frozen=True)
 class AuditSettings:
     workers: int = 6
-    block_failures: bool = True
+    #: Hold back cards that failed `./run.sh audit` (off: audits are informational).
+    block_failures: bool = False
 
 
 @dataclass(frozen=True)

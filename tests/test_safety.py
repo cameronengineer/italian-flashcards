@@ -230,7 +230,7 @@ class GenerationTests(unittest.TestCase):
 
 
 class BatchedRetirementTests(unittest.TestCase):
-    def test_only_unstudied_owned_predecessors_are_deleted_in_one_call(self):
+    def test_owned_predecessors_are_deleted_regardless_of_history_but_foreign_notes_stay(self):
         c = database(self)
         free = reconcile.AnkiNote(10, "gloss:a|en_to_it", {}, [], [100], {"Italian::Test"})
         studied = reconcile.AnkiNote(11, "gloss:b|en_to_it", {}, [], [110], {"Italian::Test"})
@@ -266,7 +266,7 @@ class BatchedRetirementTests(unittest.TestCase):
         ):
             reconcile.run(c, allow_retire=True)
         deletes = [kw["notes"] for action, kw in calls if action == "deleteNotes"]
-        self.assertEqual(deletes, [[10]])
+        self.assertEqual(deletes, [[10, 11]])
 
     def test_studied_lookup_is_limited_to_the_given_cards(self):
         with patch.object(

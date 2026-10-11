@@ -39,8 +39,8 @@ def reasons(conn, key, lexeme_id, fields):
         result.append("missing content")
     if lexeme_id:
         lx = conn.execute("SELECT status,pos FROM lexemes WHERE id=?", (lexeme_id,)).fetchone()
-        if not lx or lx[0] == "needs_review":
-            result.append("needs review")
+        if not lx:
+            result.append("missing root")
         elif lx[0] != "ready" and lx[1] not in {"num", "letter"}:
             result.append("awaiting verification")
     if key.startswith("form:") and lexeme_id:
@@ -54,11 +54,7 @@ def reasons(conn, key, lexeme_id, fields):
             "SELECT card_hash,verdict FROM audits WHERE natural_key=? AND direction='note'", (key,)
         ).fetchone()
         if a and a[0] == note_hash(fields) and a[1] == "fail":
-            decision = conn.execute(
-                "SELECT decision FROM review_decisions WHERE subject=? AND content_hash=?", (key, a[0])
-            ).fetchone()
-            if not decision or decision[0] != "approve":
-                result.append("failed audit")
+            result.append("failed audit")
     return result
 
 

@@ -37,7 +37,7 @@ class LinguisticCorpusTests(unittest.TestCase):
         for word, gender, article in CASES["plural_articles"]:
             self.assertEqual(italian.definite_article(word, gender, True), article)
 
-    def test_invalid_published_event_drill_is_held_without_deleting_history(self):
+    def test_invalid_published_event_drill_is_removed_even_when_studied(self):
         c = database(self)
         lexeme(
             c,
@@ -72,8 +72,9 @@ class LinguisticCorpusTests(unittest.TestCase):
             patch.object(reconcile, "legacy_index", return_value={}),
         ):
             planned = reconcile.build_plan(c, anki_media=set())
-        self.assertIn(100, planned.suspend)
-        self.assertEqual(planned.retire_v4, [])
+        self.assertNotIn(100, planned.suspend)
+        self.assertEqual(planned.retire_v4, [old])
+        self.assertIsNone(planned.retire_dependencies[10])
 
     def test_interrupted_adoption_does_not_disable_existing_v4_direction(self):
         c = database(self)

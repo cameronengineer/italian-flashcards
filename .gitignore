@@ -23,8 +23,6 @@ database.sqlite
 
 # macOS
 .DS_Store
-.kilo/
-!.kilo/*.md
 
 # Generated Anki decks
 *.apkg
@@ -51,19 +49,17 @@ audit_reports/
 # Reference data indexes (rebuildable: `flashcards kaikki import`)
 data/
 
-# Movie inputs and derived datasets contain subtitle text — keep private
-inputs/movies/*/*.srt
-datasets/
-
-# Words held for your review (written and read by ./run.sh)
-review.csv
 
 # Database and Anki collection backups (personal data, never committed)
 backups/
 
-# Versioned human cue corrections and generated grammar-review report
-cue_review.csv
-grammar_review.csv
-
 # Linter cache
 .ruff_cache/
+
+# Internal notes and reviews (not shared)
+docs/
+
+# Obsolete manual-review reports from older checkouts
+review.csv
+cue_review.csv
+grammar_review.csv

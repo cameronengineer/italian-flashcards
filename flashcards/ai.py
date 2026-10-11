@@ -53,6 +53,14 @@ class AIUnavailable(AIError):
     """Claude can't serve anything right now (usage limit, auth, network)."""
 
 
+class AIResponseError(AIError):
+    """An uncached fresh answer failed validation; callers may salvage valid members."""
+
+    def __init__(self, message, response):
+        super().__init__(message)
+        self.response = response
+
+
 @dataclass(frozen=True)
 class Task:
     """One AI request. Build these with ``flashcards.tasks`` specs."""
@@ -234,6 +242,14 @@ class _Gate:
         self.open = threading.Event()
         self.open.set()
         self.lock = threading.Lock()
+        self._wait_seconds = 0.0
+        self._wait_started = None
+
+    def waited_seconds(self):
+        """Wall time spent paused, counted once even with several waiting workers."""
+        with self.lock:
+            active = time.monotonic() - self._wait_started if self._wait_started is not None else 0
+            return self._wait_seconds + active
 
     def call(self, fn: Callable[[], Any]) -> Any:
         while True:
@@ -260,6 +276,8 @@ class _Gate:
         reopens on the way out, whatever happens.
         """
         interval = max(0.1, settings.ai.unavailable_retry_minutes) * 60
+        with self.lock:
+            self._wait_started = time.monotonic()
         limit = settings.ai.max_unavailable_minutes * 60
         deadline = time.monotonic() + limit if limit > 0 else None
         last_said = None  # say it once, then every 30 minutes
@@ -280,6 +298,7 @@ class _Gate:
                         + ("waiting" if last_said is None else "still waiting")
                         + f", next try {nxt:%H:%M}. Leave this running (Ctrl-C is safe)."
                     )
+                    report.event("provider_wait", provider=self.name, reason=reason, retry_in_seconds=delay)
                     last_said = time.monotonic()
                 if STOP.wait(delay):
                     raise AIError(f"interrupted while waiting for {self.name}")
@@ -291,6 +310,9 @@ class _Gate:
                 report.line(f"▶  {self.name} is available again — carrying on")
                 return result
         finally:
+            with self.lock:
+                self._wait_seconds += time.monotonic() - self._wait_started
+                self._wait_started = None
             self.open.set()
 
 
@@ -421,7 +443,7 @@ class AI:
         try:
             check(result)
         except ValueError as exc:
-            raise AIError(str(exc)) from exc
+            raise AIResponseError(str(exc), result) from exc
         if use_cache:
             self._cache_put(key, result)
         return result

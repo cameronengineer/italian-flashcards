@@ -8,13 +8,11 @@ Rules (safety first):
 
 * Only notes on the pipeline's notetypes, in the pipeline's decks
   (``Italian::*`` and the legacy v3 decks), are ever touched.
-* **Studied notes are never deleted.** A legacy note you've reviewed is
-  *adopted*: its content is updated in place, it moves into the v4 deck,
-  and the matching direction of the new v4 note is switched off so you
-  never study the same thing twice.
-* An unstudied legacy note is retired once its replacement is confirmed in
-  Anki: the v4 note's matching card, or a studied legacy note adopted for
-  that same card (an unstudied duplicate). Notes without a replacement stay.
+* Valid legacy notes can be reused in place. Study history never overrides
+  the desired content, enabled directions, or retirement decisions.
+* Obsolete notes are retired once their replacement is confirmed in Anki,
+  or when explicitly removed/disabled/ignored, whether studied or not.
+  Unmapped notes stay until there is a replacement or a retirement reason.
 * Anki is read once per sync. The ~60k legacy notes are indexed weekly
   (``legacy_notes``); each sync only reads the studied ones, and every note
   is re-read immediately before it is deleted.
@@ -76,14 +74,15 @@ class Plan:
         default_factory=list
     )  # legacy note, desired row, template
     retire_v4: list[AnkiNote] = field(default_factory=list)
-    keep_v4_studied: list[AnkiNote] = field(default_factory=list)
     retire_legacy: list[AnkiNote] = field(default_factory=list)
-    keep_legacy_studied: int = 0
+    keep_unmapped: int = 0
     waiting: int = 0
     media: set[str] = field(default_factory=set)
     present: set[str] = field(default_factory=set)  # v4 keys already in Anki
 
     retire_dependencies: dict[int, tuple[str, str] | None] = field(default_factory=dict)
+    retirement_reasons: dict[int, str] = field(default_factory=dict)
+    removed_ids: set[int] = field(default_factory=set)
     conflicts: list[str] = field(default_factory=list)
     rejected: list[str] = field(default_factory=list)
     suspend: list[int] = field(default_factory=list)
@@ -99,18 +98,20 @@ class Plan:
     retired: int = 0
     reordered: int = 0
     uploaded: int = 0
+    suspended: int = 0
+    resumed: int = 0
 
     def result(self) -> str:
         """``+231 new · 6 updated · 357 old cards replaced`` (what apply changed)."""
         parts = [
-            f"+{self.added:,} new" if self.added else "",
-            f"{len(self.update):,} updated" if self.update else "",
-            f"{len(self.adopt):,} studied old cards refreshed" if self.adopt else "",
-            f"{self.retired:,} unstudied old cards removed" if self.retired else "",
+            f"+{self.added:,} new notes" if self.added else "",
+            f"{len(self.update):,} note updates" if self.update else "",
+            f"{len(self.adopt):,} studied old notes refreshed" if self.adopt else "",
+            f"{self.retired:,} obsolete notes removed" if self.retired else "",
+            f"{sum(len(c) for c, _ in self.move):,} cards moved" if self.move else "",
             f"{len(self.rejected):,} rejected by Anki" if self.rejected else "",
-            f"{len(set(self.suspend)):,} unsuitable/disabled cards suspended (history kept)"
-            if self.suspend
-            else "",
+            f"{self.suspended:,} newly suspended cards (history kept)" if self.suspended else "",
+            f"{self.resumed:,} dormant cards activated" if self.resumed else "",
         ]
         return " · ".join(p for p in parts if p) or "up to date"
 
@@ -119,8 +120,8 @@ class Plan:
             f"model: {self.model} · add {len(self.add)} · update {len(self.update)} · "
             f"move {sum(len(c) for c, _ in self.move)} cards · adopt {len(self.adopt)} studied legacy notes "
             f"({len(self.adopted)} adopted in all) · "
-            f"retire {len(self.retire_v4)} v4 + {len(self.retire_legacy)} legacy (unstudied) · "
-            f"keep {len(self.keep_v4_studied) + self.keep_legacy_studied} studied without a v4 home · "
+            f"retire {len(self.retire_v4)} v4 + {len(self.retire_legacy)} legacy (including studied) · "
+            f"keep {self.keep_unmapped} without a replacement/removal reason · "
             f"{self.waiting} notes still waiting (AI/image) · upload {len(self.media)} media files"
         )
 
@@ -133,6 +134,97 @@ def _notes(query: str, key_field: str) -> list[AnkiNote]:
 
 
 _CARD_INFO = ("ord", "type", "queue", "due", "interval", "lapses", "reps")
+
+
+def _suspend_active(plan):
+    """Cached legacy IDs need a fresh state check; report only actual changes."""
+    active = []
+    for group in chunks(sorted(set(plan.suspend)), 500):
+        active.extend(
+            c["cardId"]
+            for c in invoke("cardsInfo", cards=group)
+            if c and c.get("queue") is not None and c["queue"] != -1
+        )
+    if active:
+        if not invoke("suspend", cards=active):
+            raise RuntimeError("Anki did not confirm card suspension")
+        plan.suspended = len(active)
+        changed = set(active)
+        for note in list(plan.v4.values()) + plan.studied_legacy:
+            for cid in changed.intersection(note.cards_info):
+                note.cards_info[cid]["queue"] = -1
+
+
+def _sync_dormancy(conn, plan, note_of):
+    """Suspend Dormant cards; reactivate only suspensions made by this feature.
+
+    Intent is checkpointed before the Anki call so interruption is resumable.
+    Existing manual/leech suspensions are not claimed by the pipeline.
+    """
+    modes = {
+        r["key"]: "fc::dormant" in r["tags"].split()
+        for r in conn.execute("SELECT key,tags FROM v4_notes WHERE ready=1 AND card_type='form'")
+    }
+    wanted = {nid: modes[key] for key, nid in note_of.items() if key in modes and nid not in plan.removed_ids}
+    for (key, _direction), (nid, _fields, _deck) in plan.replacements.items():
+        if key in modes and nid not in plan.removed_ids:
+            wanted[nid] = modes[key]
+    if not wanted:
+        return
+    checkpoint = f"dormant_suspensions:{plan.profile}"
+    row = conn.execute("SELECT value FROM metadata WHERE key=?", (checkpoint,)).fetchone()
+    managed = {
+        int(cid): nid
+        for cid, nid in json.loads(row[0] if row else "{}").items()
+        if nid not in plan.removed_ids
+    }
+    notes = {}
+    for group in chunks(sorted(wanted), 500):
+        notes.update({n["noteId"]: n for n in invoke("notesInfo", notes=group) if n})
+    card_modes, protected = {}, set()
+    for nid, note in notes.items():
+        for cid in note.get("cards", []):
+            card_modes[cid] = (nid, wanted[nid])
+            if "leech" in note.get("tags", []):
+                protected.add(cid)
+    before = {}
+    for group in chunks(sorted(card_modes), 500):
+        before.update({c["cardId"]: c for c in invoke("cardsInfo", cards=group) if c})
+    suspend, resume = [], []
+    for cid, (nid, dormant) in card_modes.items():
+        state = before.get(cid, {})
+        if state.get("queue") is None:
+            continue
+        if dormant and state["queue"] != -1:
+            managed[cid] = nid
+            suspend.append(cid)
+        elif not dormant and managed.get(cid) == nid and cid not in protected and cid not in plan.suspend:
+            if state["queue"] == -1:
+                resume.append(cid)
+            else:
+                managed.pop(cid)
+    conn.execute("INSERT OR REPLACE INTO metadata VALUES(?,?)", (checkpoint, json.dumps(managed)))
+    conn.commit()
+    for action, ids in (("suspend", suspend), ("unsuspend", resume)):
+        for group in chunks(ids, 500):
+            if not invoke(action, cards=group):
+                raise RuntimeError(f"Anki did not confirm dormant-card {action}")
+    changed = {}
+    for group in chunks(suspend + resume, 500):
+        changed.update({c["cardId"]: c for c in invoke("cardsInfo", cards=group) if c})
+    if any(changed.get(cid, {}).get("queue") != -1 for cid in suspend) or any(
+        changed.get(cid, {}).get("queue", -1) == -1 for cid in resume
+    ):
+        raise RuntimeError("Anki dormant-card state did not match the requested state")
+    for cid in resume:
+        managed.pop(cid, None)
+    conn.execute("INSERT OR REPLACE INTO metadata VALUES(?,?)", (checkpoint, json.dumps(managed)))
+    conn.commit()
+    plan.suspended += len(suspend)
+    plan.resumed += len(resume)
+    for note in list(plan.v4.values()) + plan.studied_legacy:
+        for cid in set(changed).intersection(note.cards_info):
+            note.cards_info[cid].update(changed[cid])
 
 
 def _load(note_ids: list[int], key_field: str) -> list[AnkiNote]:
@@ -231,7 +323,7 @@ def legacy_targets(conn):
             if not hit:
                 return None
             return f"{'phrase' if hit[1] == 'phrase' else 'vocab'}:{hit[0]}:0", template
-        if kind == "verb_form" and template == "Production" and nk in forms:
+        if kind == "verb_form" and nk in forms:
             entry_id, tense, person = forms[nk]
             hit = lexeme_of.get(entry_id)
             if hit:
@@ -373,9 +465,24 @@ def legacy_index(conn, profile: str, *, refresh: bool = False) -> dict[int, tupl
 
 def build_plan(conn: sqlite3.Connection, *, anki_media: set[str], profile: str = "") -> Plan:
     from .quality import reasons, require_current_notes
+    from .planning import form_publication, form_output_reason
 
     require_current_notes(conn)
     plan = Plan()
+    publication = form_publication()
+    holds = {}
+
+    def hold(key):
+        if key not in holds:
+            holds[key] = semantics.note_hold(conn, key)
+        return holds[key]
+
+    def removed_form(key):
+        # Grammar holds are decided automatically (no human review): the drill is removed.
+        return form_output_reason(key, publication) or (
+            hold(key) if key.startswith(("form:", "nphrase:")) else None
+        )
+
     desired = {r["key"]: dict(r) for r in conn.execute("SELECT * FROM v4_notes")}
     for row in desired.values():
         if row["ready"] and reasons(conn, row["key"], row["lexeme_id"], json.loads(row["fields_json"])):
@@ -384,8 +491,8 @@ def build_plan(conn: sqlite3.Connection, *, anki_media: set[str], profile: str =
     v4 = {n.key: n for n in owned_notes(conn, conflicts=plan.conflicts)}
     plan.v4 = v4
     for key, note in v4.items():
-        if semantics.note_hold(conn, key):
-            plan.suspend.extend(note.cards)
+        if hold(key) and not removed_form(key):
+            plan.suspend.extend(c for c in note.cards if note.cards_info.get(c, {}).get("queue") != -1)
     plan.present = set(v4)
     plan.studied_legacy = owned_legacy(conn, studied_only=True)
     seen = {n.note_id for n in plan.studied_legacy}
@@ -403,8 +510,9 @@ def build_plan(conn: sqlite3.Connection, *, anki_media: set[str], profile: str =
     for n in legacy:
         tgt = target_of(n.key)
         targets[n.note_id] = tgt
-        if tgt and semantics.note_hold(conn, tgt[0]):
-            plan.suspend.extend(n.cards)
+        if tgt and (hold(tgt[0]) or removed_form(tgt[0])):
+            if not removed_form(tgt[0]):
+                plan.suspend.extend(c for c in n.cards if n.cards_info.get(c, {}).get("queue") != -1)
             continue
         if not tgt or tgt[0] not in desired or not any(c in studied for c in n.cards):
             continue
@@ -426,7 +534,7 @@ def build_plan(conn: sqlite3.Connection, *, anki_media: set[str], profile: str =
         if current is None or score(n) > score(current):
             candidates[tgt[0]][tgt[1]] = n
     for key, row in desired.items():
-        if not row["ready"]:
+        if not row["ready"] or removed_form(key):
             continue
         fields = json.loads(row["fields_json"])
         tags = row["tags"].split() + [OWNER_TAG]
@@ -439,17 +547,17 @@ def build_plan(conn: sqlite3.Connection, *, anki_media: set[str], profile: str =
             want = _legacy_fields(fields, template)
             plan.replacements[(key, template)] = (ln.note_id, {**want, "SortKey": ln.key}, row["deck"])
             current = all(ln.fields.get(k, "") == v for k, v in want.items())
-            if not (current and ln.decks == {row["deck"]} and {*tags, "fc::adopted"} <= set(ln.tags)):
-                plan.adopt.append((ln, {**fields, "_deck": row["deck"], "_tags": tags}, template))
+            wanted_tags = tags_for(ln.tags, [*tags, "fc::adopted"])
+            if not (current and ln.decks == {row["deck"]} and set(wanted_tags) == set(ln.tags)):
+                plan.adopt.append((ln, {**fields, "_deck": row["deck"], "_tags": wanted_tags}, template))
             fields[template] = ""
         plan.media |= _media_names(fields) - anki_media
         existing = v4.get(key)
         if existing:
-            # Preserve studied cards even when a manifest disables a direction.
+            # AnkiConnect cannot delete one template's card without deleting
+            # its whole note. Disable/suspend that direction, regardless of history.
             for cid, template in existing.templates.items():
-                if cid in studied and not fields[template]:
-                    fields[template] = existing.fields.get(template, "1")
-                elif not fields[template]:
+                if not fields[template] and existing.cards_info.get(cid, {}).get("queue") != -1:
                     plan.suspend.append(cid)
             wanted_tags = tags_for(existing.tags, tags)
             if any(existing.fields.get(f, "") != fields.get(f, "") for f in FIELDS) or set(
@@ -471,21 +579,22 @@ def build_plan(conn: sqlite3.Connection, *, anki_media: set[str], profile: str =
             )
     reasons = {r[0]: r[1] for r in conn.execute("SELECT key,reason FROM retirements")}
     for key, n in v4.items():
-        if key not in desired:
-            if any(c in studied for c in n.cards):
-                plan.keep_v4_studied.append(n)
-            elif key in reasons:
-                plan.retire_v4.append(n)
-                plan.retire_dependencies[n.note_id] = None
+        reason = removed_form(key) or (reasons.get(key) if key not in desired else None)
+        if reason:
+            plan.retire_v4.append(n)
+            plan.retire_dependencies[n.note_id] = None
+            plan.retirement_reasons[n.note_id] = reason
+        elif key not in desired:
+            plan.keep_unmapped += 1
     adopted_ids = plan.adopted
     possible = set(v4) | {a["fields"]["Key"] for a in plan.add}
     for n in legacy:
         if n.note_id in adopted_ids:
             continue
-        if any(c in studied for c in n.cards):
-            plan.keep_legacy_studied += 1
-            continue
         tgt = targets[n.note_id]
+        reason = removed_form(tgt[0]) if tgt else None
+        if tgt and tgt[0] in desired and not json.loads(desired[tgt[0]]["fields_json"]).get(tgt[1]):
+            reason = reason or "Card direction disabled in the study plan"
         # Only once the same card exists in v4 (or is served by an adopted note).
         replaced = (
             tgt
@@ -494,9 +603,13 @@ def build_plan(conn: sqlite3.Connection, *, anki_media: set[str], profile: str =
             and desired[tgt[0]]["ready"]
             and json.loads(desired[tgt[0]]["fields_json"]).get(tgt[1])
         )
-        if replaced or n.key in reasons:
+        reason = reason or reasons.get(n.key)
+        if replaced or reason:
             plan.retire_legacy.append(n)
-            plan.retire_dependencies[n.note_id] = tgt if replaced else None
+            plan.retire_dependencies[n.note_id] = tgt if replaced and not reason else None
+            plan.retirement_reasons[n.note_id] = reason or "Replacement confirmed in Anki"
+        else:
+            plan.keep_unmapped += 1
     return plan
 
 
@@ -558,7 +671,9 @@ def _multi(actions: list[dict]) -> None:
 
 
 def _drift_guard(conn, v4_keys_in_anki: set[str]) -> str | None:
-    expected = {r[0] for r in conn.execute("SELECT key FROM identity WHERE kind = 'v4'")}
+    expected = {
+        r[0] for r in conn.execute("SELECT key FROM identity WHERE kind = 'v4' AND note_id IS NOT NULL")
+    }
     still_wanted = {r[0] for r in conn.execute("SELECT key FROM v4_notes")}
     missing = (expected & still_wanted) - v4_keys_in_anki
     if expected and len(missing) > max(20, 0.05 * len(expected)):
@@ -629,6 +744,7 @@ def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool =
         "retire": [
             (n.note_id, plan.retire_dependencies[n.note_id]) for n in plan.retire_v4 + plan.retire_legacy
         ],
+        "retirement_reasons": plan.retirement_reasons,
     }
     conn.execute(
         "INSERT INTO sync_runs(id,profile,plan_json,status) VALUES(?,?,?,'running')",
@@ -687,6 +803,14 @@ def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool =
         adopt_actions = []
         for n, f, t in plan.adopt:
             verify[n.note_id] = {**_legacy_fields(f, t), "SortKey": n.key}
+            removed_tags = set(n.tags) - set(f["_tags"])
+            if removed_tags:
+                adopt_actions.append(
+                    {
+                        "action": "removeTags",
+                        "params": {"notes": [n.note_id], "tags": " ".join(sorted(removed_tags))},
+                    }
+                )
             if n.decks != {f["_deck"]}:
                 adopt_actions.append(
                     {"action": "changeDeck", "params": {"cards": n.cards, "deck": f["_deck"]}}
@@ -733,11 +857,14 @@ def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool =
                 "INSERT OR REPLACE INTO adoptions VALUES(?,?,?,?)", (f["Key"], t, n.note_id, profile)
             )
         conn.commit()
-        if plan.suspend:
-            invoke("suspend", cards=plan.suspend)
+        _suspend_active(plan)
         plan.retired = _retire(conn, plan, final, note_of, allow_retire)
+        _sync_dormancy(conn, plan, note_of)
         plan.reordered = _reorder(conn, plan, {nid: written.get(nid, {}) for nid in added_ids}, note_of)
-        _store_knowledge(conn, list(plan.v4.values()) + plan.studied_legacy)
+        _store_knowledge(
+            conn,
+            [n for n in list(plan.v4.values()) + plan.studied_legacy if n.note_id not in plan.removed_ids],
+        )
         conn.execute(
             "UPDATE sync_runs SET status=?,error=? WHERE id=?",
             (
@@ -765,16 +892,16 @@ def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool =
 
 
 def _retire(conn, plan: Plan, final: dict, note_of: dict, allow: bool) -> int:
-    """Delete unstudied predecessors whose replacement is confirmed in Anki.
+    """Delete obsolete notes, including studied ones, after verifying the plan.
 
     A replacement is the v4 note's matching card (read back from Anki here) or
     a studied legacy note adopted for that same card. Every note is re-read
-    immediately before deletion: same identity, no study history, owned deck.
+    immediately before deletion: same identity and owned deck. No media is deleted.
     """
     candidates = plan.retire_v4 + plan.retire_legacy
     if not candidates or not allow:
         if candidates:
-            report.line(f"kept {len(candidates):,} unstudied old cards (retirement switched off)")
+            report.line(f"kept {len(candidates):,} obsolete notes (retirement switched off)")
         return 0
     needed, decks = {}, {}
     verified_dependencies = {}
@@ -809,14 +936,13 @@ def _retire(conn, plan: Plan, final: dict, note_of: dict, allow: bool) -> int:
         if (dep := plan.retire_dependencies[n.note_id]) is None or dep in verified_dependencies
     ]
     if eligible:
-        report.detail(f"  … retiring up to {len(eligible)} unstudied predecessors")
+        report.detail(f"  … retiring up to {len(eligible)} obsolete notes (including studied)")
     legacy_decks = _legacy_decks(conn)
     retire_v4 = {n.note_id for n in plan.retire_v4}
     retired, gone = 0, []
     for chunk in chunks(eligible, 200):
         fresh = {n["noteId"]: n for n in invoke("notesInfo", notes=[n.note_id for n in chunk]) if n}
         cards = [c for f in fresh.values() for c in f.get("cards", [])]
-        studied = _studied(cards)
         deck_of = {c: d for d, cs in (invoke("getDecks", cards=cards) if cards else {}).items() for c in cs}
         doomed = []
         for n in chunk:
@@ -828,7 +954,7 @@ def _retire(conn, plan: Plan, final: dict, note_of: dict, allow: bool) -> int:
             if current.get("fields", {}).get(field_name, {}).get("value") != n.key:
                 raise RuntimeError("Retirement identity changed during sync")
             cs = current.get("cards", [])
-            if studied & set(cs) or not all(deck_owned(deck_of.get(c, ""), legacy_decks) for c in cs):
+            if not all(deck_owned(deck_of.get(c, ""), legacy_decks) for c in cs):
                 continue
             doomed.append(n.note_id)
         if doomed:
@@ -836,7 +962,14 @@ def _retire(conn, plan: Plan, final: dict, note_of: dict, allow: bool) -> int:
             retired += len(doomed)
             gone += doomed
     if gone:
+        plan.removed_ids.update(gone)
         conn.executemany("DELETE FROM legacy_notes WHERE note_id=?", [(i,) for i in gone])
+        conn.executemany("DELETE FROM adoptions WHERE note_id=?", [(i,) for i in gone])
+        # Keep historical identities and all generated content, but stop counting
+        # deleted notes as currently published (including when re-enabled later).
+        conn.executemany("UPDATE identity SET note_id=NULL WHERE note_id=?", [(i,) for i in gone])
+        removed_cards = [cid for n in candidates if n.note_id in plan.removed_ids for cid in n.cards]
+        conn.executemany("DELETE FROM card_knowledge WHERE card_id=?", [(i,) for i in removed_cards])
         conn.commit()
     return retired
 
@@ -848,7 +981,7 @@ def _reorder(conn, plan: Plan, added: dict[int, dict[int, int]], note_of: dict) 
     want: dict[int, int] = {}
     current: dict[int, int | None] = {}
     for key, n in plan.v4.items():
-        if key in pos:
+        if key in pos and n.note_id not in plan.removed_ids:
             for cid, info in n.cards_info.items():
                 if info.get("type") == 0:
                     want[cid] = pos[key] * 2 + (info.get("ord") or 0)

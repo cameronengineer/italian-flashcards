@@ -30,11 +30,19 @@ list = "cils-b2"
 list = "frequency"
 
 [conjugation]
-# Tenses drilled with full form cards, in study order.
+# Generate and retain all of these tenses, including those not currently studied.
 tenses = [
   "presente", "passato_prossimo", "imperfetto", "futuro_semplice",
   "presente_progressivo", "imperativo", "condizionale_presente", "condizionale_passato",
 ]
+# These forms go into Learning subdecks. All other generated forms go into
+# Dormant subdecks, suspended until moved to Learning by this configuration.
+deck = "Italian::Verbs"
+learning_tenses = [
+  "presente", "passato_prossimo", "futuro_semplice", "imperativo",
+  "imperfetto", "presente_progressivo",
+]
+learning_imperative_persons = ["Lei", "tu"]
 # Full form cards for irregular verbs plus the N most frequent verbs; every
 # other (regular) verb is covered by pattern cards + its infinitive card.
 full_forms_top = 120

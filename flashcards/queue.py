@@ -20,6 +20,7 @@ from uuid import uuid4
 from pathlib import Path
 import tempfile
 import time
+import traceback
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -28,30 +29,39 @@ from .db import transaction
 from .runtime import writer_lock
 from .validation import validate
 from .assets import record
-from .ai import AI, AIUnavailable
+from .ai import AI, AIUnavailable, AIResponseError, _gate
 from .pool import STOP
 from .settings import settings
 from .facts import normalise as fact_key
 from .italian import conjugation_class
 from .planning import study_order, full_form_verbs, plan_tenses, verb_forms, MODEL_VERBS
-from .lexicon import image_exists
-from .tasks import DISAMBIGUATE, LEXEME_ENRICH, PHRASE_ENRICH, VERB_PROMPTS
+from .lexicon import film_examples, film_line_key, image_exists
+from .tasks import DISAMBIGUATE, FILM_GLOSS, LEXEME_ENRICH, PHRASE_ENRICH, VERB_PROMPTS
 from .util import md5_hex, print_banner
 
-BATCH = {"lexeme_enrich": 15, "phrase_enrich": 20, "verb_prompts": 3, "disambiguate": 8, "image": 1}
-ORDER = ["lexeme_enrich", "phrase_enrich", "verb_prompts", "disambiguate", "image"]
+BATCH = {
+    "lexeme_enrich": 15,
+    "phrase_enrich": 20,
+    "verb_prompts": 3,
+    "disambiguate": 8,
+    "film_gloss": 25,
+    "image": 1,
+}
+ORDER = ["lexeme_enrich", "phrase_enrich", "verb_prompts", "disambiguate", "film_gloss", "image"]
 DETERMINISTIC_POS = ("num", "letter")
 SPECS = {
     "lexeme_enrich": LEXEME_ENRICH,
     "phrase_enrich": PHRASE_ENRICH,
     "verb_prompts": VERB_PROMPTS,
     "disambiguate": DISAMBIGUATE,
+    "film_gloss": FILM_GLOSS,
 }
 TEXT_ROOTS = {
     "lexeme_enrich": "words",
     "phrase_enrich": "phrases",
     "verb_prompts": "verbs",
     "disambiguate": "groups",
+    "film_gloss": "lines",
 }
 
 
@@ -118,7 +128,7 @@ def _enqueue(conn, kind, subject, priority, payload, *, reopen=False):
     )
     if changed and kind in ("lexeme_enrich", "phrase_enrich"):
         conn.execute(
-            "UPDATE lexemes SET status=CASE WHEN status='needs_review' THEN status ELSE 'new' END WHERE id=?",
+            "UPDATE lexemes SET status='new' WHERE id=?",
             (subject,),
         )
     if changed or revive:
@@ -188,14 +198,17 @@ def plan(conn):
                     {"image_key": lx["image_key"], "subject": lx["id"]},
                     reopen=True,
                 )
-    for vid in planned["verbs"]:
+    generation_verbs = full_form_verbs(conn)
+    if planned.get("budget") is not None:
+        generation_verbs &= selected
+    for vid in generation_verbs:
         lx = conn.execute("SELECT * FROM lexemes WHERE id=?", (vid,)).fetchone()
         if lx["status"] == "ready" and verb_forms(lx):
             added["verb_prompts"] += enqueue(
                 "verb_prompts",
                 vid,
                 order.get(vid, 1 << 29),
-                _verb_payload(conn, lx, planned["keys"] if planned.get("budget") is not None else None),
+                _verb_payload(conn, lx),
             )
     for m in conn.execute("SELECT id,italian FROM mistakes"):
         subject = "mistake:" + m["id"]
@@ -203,7 +216,9 @@ def plan(conn):
             added["image"] += enqueue("image", subject, 400, {"image_key": m["italian"]}, reopen=True)
     groups = defaultdict(list)
     for r in conn.execute(
-        "SELECT s.*,l.pos,l.display FROM senses s JOIN lexemes l ON l.id=s.lexeme_id WHERE s.active=1 AND s.idx=0 AND l.status='ready' AND coalesce(s.hint,'')='' AND coalesce(s.also,'')=''"
+        # Every group of words sharing a prompt, hinted or not, so a task_version
+        # bump redoes the hints too (the payload leaves out hint/also: stable).
+        "SELECT s.*,l.pos,l.display FROM senses s JOIN lexemes l ON l.id=s.lexeme_id WHERE s.active=1 AND s.idx=0 AND l.status='ready'"
     ):
         if r["lexeme_id"] in selected and not overrides.is_human(conn, r["lexeme_id"], "senses"):
             groups[(r["prompt"].strip().lower(), r["pos"])].append(dict(r))
@@ -222,6 +237,21 @@ def plan(conn):
         }
         added["disambiguate"] += enqueue(
             "disambiguate", subject, min(order.get(i, 1 << 30) for i in ids), payload
+        )
+    # Word-for-word English for the film line each card shows (one job per distinct
+    # line). Every line is planned, so a task_version bump redoes the glosses too.
+    glossed = {r[0] for r in conn.execute("SELECT key FROM film_glosses")}
+    lines: dict[str, tuple[str, int]] = {}
+    for lid, ctx in film_examples(conn).items():
+        key = film_line_key(ctx["example"])
+        if lid in selected:
+            pri = order.get(lid, 1 << 30)
+            if key not in lines or pri < lines[key][1]:
+                lines[key] = (ctx["example"], pri)
+    for key, (line, pri) in lines.items():
+        # reopen: a finished job whose gloss has gone missing is redone.
+        added["film_gloss"] += enqueue(
+            "film_gloss", key, pri, {"id": key, "italian": line}, reopen=key not in glossed
         )
     for row in conn.execute("SELECT id,kind,subject FROM ai_jobs WHERE status='pending'").fetchall():
         if (row["kind"], row["subject"]) not in active:
@@ -358,22 +388,16 @@ def _add_etymology_chains(conn, jobs: list[sqlite3.Row], lock=None) -> list[sqli
     return refreshed
 
 
-def _verb_payload(conn, lx, selected_keys=None):
+def _verb_payload(conn, lx):
+    """Generate the complete verb family, including forms disabled for publication.
+
+    The study horizon selects verbs, but never truncates their stored grammar.
+    Explicit AI exclusions are completed outcomes, not missing prompts.
+    """
     from . import semantics
 
     sense = semantics.primary(conn, lx["id"])
     forms = {t: {p: d for p, (d, _a) in persons.items()} for t, persons in verb_forms(lx, sense).items()}
-    if selected_keys is not None:
-        suffix = semantics.form_suffix(sense)
-        forms = {
-            t: {
-                p: value
-                for p, value in persons.items()
-                if f"form:{lx['id']}:{t}:{p}{suffix}" in selected_keys
-            }
-            for t, persons in forms.items()
-        }
-        forms = {t: persons for t, persons in forms.items() if persons}
     return {
         "id": lx["id"],
         "infinitive": lx["lemma"],
@@ -402,8 +426,10 @@ def _apply_lexeme(conn, word, model):
     if not overrides.is_human(conn, lx["id"], "senses"):
         overrides.save_senses(conn, lx["id"], word["senses"], f"claude:{model}")
         prov["senses"] = f"claude:{model}"
+    # Claude's doubts about the dictionary data are kept (``./run.sh review``
+    # lists them) but never hold a word back: there is no human review step.
     issues = [x for x in word.get("issues", []) if x.strip()]
-    status = "ready" if word.get("verified") and not issues else "needs_review"
+    status = "ready"
     plural = (
         lx["english_plural"]
         if overrides.is_human(conn, lx["id"], "english_plural")
@@ -439,8 +465,8 @@ def _apply_phrase(conn, p, model):
         overrides.save_senses(conn, p["id"], [p], f"claude:{model}")
     issues = [x for x in p.get("issues", []) if x.strip()]
     conn.execute(
-        "UPDATE lexemes SET status=?,issues=? WHERE id=?",
-        ("ready" if p.get("verified") and not issues else "needs_review", json.dumps(issues), p["id"]),
+        "UPDATE lexemes SET status='ready',issues=? WHERE id=?",
+        (json.dumps(issues), p["id"]),
     )
     overrides.apply(conn, p["id"])
     return True
@@ -455,7 +481,13 @@ def _validate_text_result(kind, payloads, jobs, result):
     )
     ids = [item["id"] for item in returned]
     if set(ids) != expected or len(ids) != len(set(ids)):
-        raise ValueError("Provider must return exactly the requested IDs once each")
+        missing = sorted(expected - set(ids))
+        extra = sorted(set(ids) - expected)
+        duplicates = sorted({i for i in ids if ids.count(i) > 1})
+        raise ValueError(
+            "Provider must return exactly the requested IDs once each; "
+            f"missing={missing}, extra={extra}, duplicates={duplicates}"
+        )
     for item in returned:
         if kind == "lexeme_enrich" and (
             not item["senses"] or any(not s["prompt"].strip() for s in item["senses"])
@@ -468,6 +500,12 @@ def _validate_text_result(kind, payloads, jobs, result):
             for sense in item["senses"]:
                 if allowed and sense["source_id"] not in allowed:
                     raise ValueError("Sense must cite supplied dictionary/source evidence")
+        if kind == "film_gloss":
+            line = next(p["italian"] for p in payloads if p["id"] == item["id"])
+            if not item["words"] or any(not w["en"].strip() for w in item["words"]):
+                raise ValueError("Empty word-for-word gloss")
+            if _letters("".join(w["it"] for w in item["words"])) != _letters(line):
+                raise ValueError("Word-for-word gloss must cover every word of the line, in order")
         if kind == "phrase_enrich" and not item["prompt"].strip():
             raise ValueError("Empty phrase prompt")
         if kind == "verb_prompts":
@@ -476,7 +514,13 @@ def _validate_text_result(kind, payloads, jobs, result):
             accepted = [(p["tense"], p["person"]) for p in item["prompts"]]
             excluded = [(p["tense"], p["person"]) for p in item["exclusions"]]
             if set(accepted + excluded) != requested or len(accepted + excluded) != len(requested):
-                raise ValueError("Every requested verb form needs exactly one prompt or reasoned exclusion")
+                missing = sorted(requested - set(accepted + excluded))
+                extra = sorted(set(accepted + excluded) - requested)
+                duplicates = sorted({p for p in accepted + excluded if (accepted + excluded).count(p) > 1})
+                raise ValueError(
+                    "Every requested verb form needs exactly one prompt or reasoned exclusion; "
+                    f"missing={missing}, extra={extra}, duplicates={duplicates}"
+                )
             if any(not p["english"].strip() for p in item["prompts"]) or any(
                 not p["reason"].strip() for p in item["exclusions"]
             ):
@@ -491,6 +535,42 @@ def _validate_text_result(kind, payloads, jobs, result):
                     raise ValueError("Unsuitable imperative must be explicitly excluded")
 
 
+def _letters(text: str) -> str:
+    """Letters and digits only, for checking a gloss covers its line word for word."""
+    return "".join(ch for ch in text.casefold() if ch.isalnum())
+
+
+class PartialBatchError(ValueError):
+    """Validated members were committed; only the listed jobs need another attempt."""
+
+    def __init__(self, done, failures):
+        super().__init__("; ".join(failures.values()))
+        self.done = done
+        self.failures = failures
+
+
+def _valid_members(kind, payloads, jobs, response):
+    root = "words" if kind == "disambiguate" else TEXT_ROOTS[kind]
+    if not isinstance(response, dict) or not isinstance(response.get(root), list):
+        return [], {}, response
+    good, failures, accepted = [], {}, []
+    for job, payload in zip(jobs, payloads, strict=True):
+        ids = set(payload["ids"]) if kind == "disambiguate" else {job["subject"]}
+        items = [
+            r
+            for r in response[root]
+            if isinstance(r, dict) and isinstance(r.get("id"), str) and r["id"] in ids
+        ]
+        try:
+            _validate_text_result(kind, [payload], [job], {root: items})
+        except ValueError as exc:
+            failures[job["id"]] = str(exc)
+        else:
+            good.append(job)
+            accepted.extend(items)
+    return good, failures, {root: accepted}
+
+
 def _run_text_batch(ai, kind, jobs, conn, lock):
     payloads = []
     for job in jobs:
@@ -500,12 +580,30 @@ def _run_text_batch(ai, kind, jobs, conn, lock):
         if not isinstance(payload, dict):
             raise ValueError(f"{kind} job {job['id']} has an invalid input object")
         payloads.append(payload)
-    task = SPECS[kind].task({TEXT_ROOTS[kind]: payloads})
+    feedback = [f"{j['subject']}: {j['error']}" for j in jobs if j["attempts"] and j["error"]]
+    task = SPECS[kind].task(
+        {TEXT_ROOTS[kind]: payloads},
+        rules=(
+            "Answer only the CURRENT input IDs and forms. Correct these validation failures "
+            "from the previous attempt (which may have requested a larger batch): " + "; ".join(feedback),
+        )
+        if feedback
+        else (),
+    )
 
     def check(result):
         _validate_text_result(kind, payloads, jobs, result)
 
-    result = ai.run(task, refresh=any(j["force_refresh"] for j in jobs), validate_result=check)
+    failures = {}
+    try:
+        result = ai.run(task, refresh=any(j["force_refresh"] for j in jobs), validate_result=check)
+    except AIResponseError as exc:
+        good, failures, result = _valid_members(kind, payloads, jobs, exc.response)
+        if not good or not failures:
+            raise  # foreign-only or globally invalid answers are never silently accepted
+        good_ids = {j["id"] for j in good}
+        payloads = [p for j, p in zip(jobs, payloads, strict=True) if j["id"] in good_ids]
+        jobs = good
     check(result)
     returned = result["words" if kind == "disambiguate" else TEXT_ROOTS[kind]]
     by_id = {r["id"]: r for r in returned}
@@ -540,6 +638,16 @@ def _run_text_batch(ai, kind, jobs, conn, lock):
                         for pr in item["prompts"]
                     ],
                 )
+            elif kind == "film_gloss":
+                conn.execute(
+                    "INSERT OR REPLACE INTO film_glosses(key, italian, words, model) VALUES(?,?,?,?)",
+                    (
+                        item["id"],
+                        next(p["italian"] for p in payloads if p["id"] == item["id"]),
+                        json.dumps(item["words"], ensure_ascii=False),
+                        task.model,
+                    ),
+                )
             elif not overrides.is_human(conn, item["id"], "senses"):
                 conn.execute(
                     "UPDATE senses SET hint=?,also=? WHERE lexeme_id=? AND idx=0 AND active=1",
@@ -552,6 +660,8 @@ def _run_text_batch(ai, kind, jobs, conn, lock):
                 (json.dumps(response, ensure_ascii=False), job["id"]),
             )
         conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
+    if failures:
+        raise PartialBatchError(len(jobs), failures)
     return len(jobs)
 
 
@@ -559,9 +669,22 @@ KIND_NAME = {
     "lexeme_enrich": "words",
     "phrase_enrich": "phrases",
     "verb_prompts": "verbs",
-    "disambiguate": "hints",
+    "disambiguate": "cue groups",
+    "film_gloss": "film lines",
     "image": "images",
 }
+
+
+def count_label(kind, n):
+    singular = {
+        "lexeme_enrich": "word",
+        "phrase_enrich": "phrase",
+        "verb_prompts": "verb",
+        "disambiguate": "cue group",
+        "film_gloss": "film line",
+        "image": "image",
+    }
+    return report.plural(n, singular[kind])
 
 
 def _wave_text(wave) -> list[str]:
@@ -579,20 +702,44 @@ def _wave_text(wave) -> list[str]:
 
 
 def _label(conn, kind, jobs) -> str:
-    return (
-        _describe(conn, jobs)
-        if kind != "disambiguate"
-        else f"group of {len(json.loads(jobs[0]['payload'] or '{}').get('ids', []))}"
-    )
+    if kind == "film_gloss":
+        return report.plural(len(jobs), "line")
+    if kind != "disambiguate":
+        return _describe(conn, jobs)
+    words = [w["italian"] for j in jobs for w in json.loads(j["payload"] or "{}").get("words", [])]
+    return ", ".join(words[:3]) + (f" +{len(words) - 3}" if len(words) > 3 else "")
 
 
-def pending_counts(conn) -> dict[str, int]:
+def pending_counts(conn, *, include_failed=False) -> dict[str, int]:
     """kind → jobs waiting to run (pending or interrupted)."""
     return {
         r[0]: r[1]
         for r in conn.execute(
-            "SELECT kind, count(*) FROM ai_jobs WHERE status IN ('pending','running') GROUP BY kind"
+            "SELECT kind, count(*) FROM ai_jobs WHERE status IN ('pending','running'"
+            + (",'failed'" if include_failed else "")
+            + ") GROUP BY kind"
         )
+    }
+
+
+def backlog(conn) -> dict:
+    """Separate runnable work, retry cooldowns, and exhausted jobs (text only)."""
+    counts = dict(
+        conn.execute(
+            "SELECT CASE WHEN status='failed' THEN 'failed' "
+            "WHEN status='running' THEN 'running' "
+            "WHEN next_retry_at>datetime('now') THEN 'cooling_down' ELSE 'runnable' END, count(*) "
+            "FROM ai_jobs WHERE kind!='image' AND status IN ('pending','running','failed') GROUP BY 1"
+        )
+    )
+    next_retry = conn.execute(
+        "SELECT min(next_retry_at), max(0, (julianday(min(next_retry_at))-julianday('now'))*86400) "
+        "FROM ai_jobs WHERE kind!='image' AND status='pending' AND next_retry_at>datetime('now')"
+    ).fetchone()
+    return {
+        **{k: counts.get(k, 0) for k in ("runnable", "cooling_down", "running", "failed")},
+        "next_retry_at": next_retry[0],
+        "retry_in_seconds": next_retry[1],
     }
 
 
@@ -661,6 +808,7 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
 
     def work(kind, jobs, number, label):
         started = time.monotonic()
+        waited = _gate.waited_seconds()
         if STOP.is_set():
             raise KeyboardInterrupt
         if kind == "lexeme_enrich":
@@ -678,7 +826,7 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
             done = 1
         else:
             done = _run_text_batch(client, kind, jobs, conn, lock)
-        return done, time.monotonic() - started
+        return done, time.monotonic() - started, _gate.waited_seconds() - waited
 
     def release(jobs):
         with lock, transaction(conn):
@@ -686,6 +834,25 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
                 "UPDATE ai_jobs SET status='pending',owner=NULL WHERE id=? AND owner=?",
                 [(j["id"], owner) for j in jobs],
             )
+
+    def failure(jobs, exc):
+        errors = exc.failures if isinstance(exc, PartialBatchError) else {j["id"]: str(exc) for j in jobs}
+        with lock, transaction(conn):
+            conn.executemany(
+                "UPDATE ai_jobs SET status=CASE WHEN attempts>=2 THEN 'failed' ELSE 'pending' END,"
+                "attempts=attempts+1,error=?,owner=NULL,next_retry_at=datetime('now','+5 minutes'),"
+                "updated_at=CURRENT_TIMESTAMP WHERE id=?",
+                [(message[:2000], jid) for jid, message in errors.items()],
+            )
+        report.event(
+            "batch_failed",
+            kind=kind,
+            errors=errors,
+            exception=type(exc).__name__,
+            traceback=traceback.format_exc(),
+            saved=getattr(exc, "done", 0),
+        )
+        return len(errors)
 
     with writer_lock(database):
         # No previous worker can publish after this lock is acquired.
@@ -713,7 +880,7 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
                     first = conn.execute(
                         f"SELECT * FROM ai_jobs WHERE status='pending' AND kind IN ({marks}) "
                         "AND (next_retry_at IS NULL OR next_retry_at<=datetime('now')) "
-                        "ORDER BY priority, CASE kind WHEN 'lexeme_enrich' THEN 0 "
+                        "ORDER BY CASE kind WHEN 'disambiguate' THEN 1 ELSE 0 END, priority, CASE kind WHEN 'lexeme_enrich' THEN 0 "
                         "WHEN 'phrase_enrich' THEN 0 WHEN 'image' THEN 2 ELSE 1 END,id LIMIT 1",
                         wave_kinds,
                     ).fetchone()
@@ -721,6 +888,8 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
                         break
                     kind = first["kind"]
                     band_end = (first["priority"] // 100_000 + 1) * 100_000
+                    if kind == "disambiguate":
+                        band_end = 1 << 60  # compare ready words together after enrichment
                     with transaction(conn):
                         # Isolate a previously failed text job on its next attempt;
                         # one bad member must not keep poisoning the same whole batch.
@@ -758,7 +927,7 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
                         kind, jobs, number, label = futures[future]
                         counts = summary.setdefault(kind, {"done": 0, "failed": 0})
                         try:
-                            done, seconds = future.result()
+                            done, seconds, waited = future.result()
                         except AIUnavailable as exc:
                             release(jobs)
                             report.line(f"{KIND_NAME[kind]:<8}… put back for later — {exc}")
@@ -767,17 +936,28 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
                             else:
                                 available_kinds = [k for k in available_kinds if k == "image"]
                         except Exception as exc:
-                            with lock, transaction(conn):
-                                conn.executemany(
-                                    "UPDATE ai_jobs SET status=CASE WHEN attempts>=2 THEN 'failed' ELSE 'pending' END,"
-                                    "attempts=attempts+1,error=?,owner=NULL,next_retry_at=datetime('now','+5 minutes'),"
-                                    "updated_at=CURRENT_TIMESTAMP WHERE id=?",
-                                    [(str(exc)[:500], j["id"]) for j in jobs],
-                                )
-                            counts["failed"] += len(jobs)
+                            nfailed = failure(jobs, exc)
+                            counts["failed"] += nfailed
+                            counts["done"] += getattr(exc, "done", 0)
+                            saved = (
+                                f" · {exc.done} valid items saved"
+                                if isinstance(exc, PartialBatchError)
+                                else ""
+                            )
+                            failed_ids = (
+                                exc.failures
+                                if isinstance(exc, PartialBatchError)
+                                else {j["id"] for j in jobs}
+                            )
+                            exhausted = sum(j["attempts"] >= 2 for j in jobs if j["id"] in failed_ids)
+                            retry_note = (
+                                f"{exhausted} exhausted; rerun after reviewing the error"
+                                if exhausted == nfailed
+                                else "retry after 5m; bounded to 3 attempts"
+                            )
                             report.line(
-                                f"{KIND_NAME[kind]:<8}✗ {len(jobs):<4}{label[:34]:<34} failed: "
-                                f"{str(exc)[:70]} (tried again later)"
+                                f"{KIND_NAME[kind]:<11}✗ {nfailed:<4}{label[:34]:<34} failed: "
+                                f"{str(exc)[:100]}{saved} ({retry_note})"
                             )
                         else:
                             counts["done"] += done
@@ -787,8 +967,18 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
                                     (kind,),
                                 ).fetchone()[0]
                             report.line(
-                                f"{KIND_NAME[kind]:<8}✓ {done:<4}{label[:34]:<34} "
-                                f"{report.duration(seconds):>6} · {left:,} left"
+                                f"{KIND_NAME[kind]:<11}✓ {done:<4}{label[:34]:<34} "
+                                f"{report.duration(max(0, seconds - waited)):>6}"
+                                + (f" + {report.duration(waited)} provider wait" if waited >= 1 else "")
+                                + f" · {count_label(kind, left)} left"
+                            )
+                            report.event(
+                                "batch_done",
+                                kind=kind,
+                                jobs=[j["id"] for j in jobs],
+                                done=done,
+                                seconds=round(seconds, 3),
+                                provider_wait_seconds=round(waited, 3),
                             )
                 except BaseException:
                     STOP.set()
@@ -828,9 +1018,16 @@ def status(conn: sqlite3.Connection) -> list[tuple]:
     ]
 
 
-def retry_failed(conn: sqlite3.Connection, kind: str | None = None) -> int:
+def retry_failed(conn: sqlite3.Connection, kind: str | None = None, *, include_deferred=False) -> int:
     cur = conn.execute(
-        "UPDATE ai_jobs SET status = 'pending', attempts = 0, next_retry_at=NULL WHERE status = 'failed'"
+        "UPDATE ai_jobs SET attempts=CASE WHEN status='failed' THEN 0 ELSE attempts END, "
+        "status = 'pending', next_retry_at=NULL WHERE (status = 'failed'"
+        + (
+            " OR (status='pending' AND error IS NOT NULL AND next_retry_at>datetime('now'))"
+            if include_deferred
+            else ""
+        )
+        + ")"
         + (" AND kind = ?" if kind else ""),
         (kind,) if kind else (),
     )

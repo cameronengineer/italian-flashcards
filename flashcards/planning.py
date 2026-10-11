@@ -75,7 +75,7 @@ def published_directions(conn):
     result |= {(r["key"], r["direction"]) for r in conn.execute("SELECT key,direction FROM card_knowledge")}
     # Old identity rows may predate card_knowledge; recover their stored directions.
     for row in conn.execute(
-        "SELECT n.key,n.fields_json FROM identity i JOIN v4_notes n ON n.key=i.key WHERE i.kind='v4'"
+        "SELECT n.key,n.fields_json FROM identity i JOIN v4_notes n ON n.key=i.key WHERE i.kind='v4' AND i.note_id IS NOT NULL"
     ):
         fields = json.loads(row["fields_json"])
         result |= {(row["key"], d) for d in ("Recognition", "Production") if fields.get(d)}
@@ -99,7 +99,7 @@ def card_plan(conn, candidates=None):
     total = 0
     for note in sorted(candidates, key=lambda n: (n["sort"], n["key"])):
         directions = {(note["key"], d) for d in ("Recognition", "Production") if note["fields"].get(d)}
-        cost = len(directions - published)
+        cost = 0 if "fc::dormant" in note.get("tags", []) else len(directions - published)
         costs[note["key"]] = cost
         maintained = bool(directions & published)
         if remaining is not None and cost > remaining and not maintained:
@@ -162,7 +162,9 @@ def full_form_verbs(conn: sqlite3.Connection) -> set[str]:
     }
     published |= {
         r[0].split(":")[1]
-        for r in conn.execute("SELECT key FROM identity WHERE kind='v4' AND key LIKE 'form:%'")
+        for r in conn.execute(
+            "SELECT key FROM identity WHERE kind='v4' AND note_id IS NOT NULL AND key LIKE 'form:%'"
+        )
     }
     maintained = published & {r["id"] for r in rows}
     fixed = models | maintained
@@ -189,6 +191,57 @@ def plan_tenses() -> list[str]:
             ],
         )
     )
+
+
+def form_publication() -> dict:
+    """Every configured tense is stored and published; only Learning is active."""
+    config = load_plan().get("conjugation", {})
+    generated = config.get("tenses", plan_tenses())
+    return {
+        "deck": config.get("deck", "Italian::Verbs"),
+        "tenses": generated,
+        "learning_tenses": [
+            t
+            for t in config.get(
+                "learning_tenses",
+                [
+                    "presente",
+                    "passato_prossimo",
+                    "futuro_semplice",
+                    "imperativo",
+                    "imperfetto",
+                    "presente_progressivo",
+                ],
+            )
+            if t in generated
+        ],
+        "imperative_persons": config.get("learning_imperative_persons", ["Lei", "tu"]),
+    }
+
+
+def form_output_reason(key: str, policy: dict | None = None) -> str | None:
+    """Why a stored form must not be an Anki note; unrelated keys are unaffected."""
+    parts = key.split(":")
+    if len(parts) < 4 or parts[0] != "form":
+        return None
+    policy = form_publication() if policy is None else policy
+    if parts[2] not in policy["tenses"]:
+        return "Tense retained in the database but disabled for Anki"
+    return None
+
+
+def form_is_learning(tense: str, person: str, policy: dict) -> bool:
+    return tense in policy["learning_tenses"] and (
+        tense != "imperativo" or person in policy["imperative_persons"]
+    )
+
+
+def form_deck(tense: str, person: str, policy: dict) -> str:
+    from .grammar import TENSE_DISPLAY
+
+    folder = "Learning" if form_is_learning(tense, person, policy) else "Dormant"
+    name = f"Imperativo con {person}" if tense == "imperativo" else TENSE_DISPLAY[tense]
+    return f"{policy['deck']}::{folder}::{name}"
 
 
 def verb_forms(lexeme: sqlite3.Row, sense=None) -> dict[str, dict[str, tuple[str, str]]]:

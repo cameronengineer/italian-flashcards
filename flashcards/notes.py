@@ -40,16 +40,24 @@ from .italian import (
     possessive_phrase,
     with_article,
 )
-from .lexicon import image_exists
+from .lexicon import film_examples, film_line_key, image_exists
 from . import quality, report, semantics
 from .db import transaction
 from .ownership import OWNER_TAG
 from .assets import locate, image_for
 from .lists import load_plan
-from .planning import MODEL_VERBS, full_form_verbs, study_order, verb_forms
+from .planning import (
+    MODEL_VERBS,
+    full_form_verbs,
+    study_order,
+    verb_forms,
+    form_publication,
+    form_output_reason,
+    form_deck,
+    form_is_learning,
+)
 from .settings import settings
 from .util import audio_filename, md5_hex, print_banner, compressed_audio_name
-from .grammar import TENSE_DISPLAY
 
 MODEL_NAME = "Italian Flashcard v4"
 FIELDS = [
@@ -71,7 +79,6 @@ FIELDS = [
     "Source",
     "Key",
 ]
-DECK_FORMS = "Italian::Verbs::{tense}"
 DECK_NPHRASES = "Italian::Noun Phrases"
 DECK_COGNATES = "Italian::Cognates"
 DECK_MISTAKES = "Italian::Mistakes"
@@ -171,13 +178,12 @@ class _Builder:
             )
         ]
         self.membership: dict[str, list[str]] = defaultdict(list)
-        self.context: dict[str, dict] = {}
-        for r in conn.execute("SELECT list_id, lexeme_id, context FROM list_items"):
+        for r in conn.execute("SELECT list_id, lexeme_id FROM list_items"):
             self.membership[r["lexeme_id"]].append(r["list_id"])
-            if r["context"] and r["lexeme_id"] not in self.context:
-                ctx = json.loads(r["context"])
-                if ctx.get("example"):
-                    self.context[r["lexeme_id"]] = {**ctx, "list": r["list_id"]}
+        self.context = film_examples(conn)
+        self.glosses = {
+            r["key"]: json.loads(r["words"]) for r in conn.execute("SELECT key, words FROM film_glosses")
+        }
         self.facts = {
             r["word"]: r
             for r in conn.execute(
@@ -293,7 +299,13 @@ class _Builder:
             return ""
         title = self.lists.get(ctx["list"])
         where = f"{title['title']}, {ctx.get('example_at', '')}" if title else ""
-        return f'<i>“{_esc(ctx["example"])}”</i><br><span class="src">— {_esc(where)}</span>'
+        words = self.glosses.get(film_line_key(ctx["example"]))
+        literal = (
+            f'<br><span class="literal">word for word: {_esc(" ".join(w["en"] for w in words))}</span>'
+            if words
+            else ""
+        )
+        return f'<i>“{_esc(ctx["example"])}”</i>{literal}<br><span class="src">— {_esc(where)}</span>'
 
     # ── card types ────────────────────────────────────────────────────────
     def vocab_and_phrases(self):
@@ -323,8 +335,6 @@ class _Builder:
             if not sense_rows:
                 blocked = "awaiting AI"
                 sense_rows = [{"prompt": "", "hint": None, "register": None, "note": None, "also": None}]
-            if lx["status"] == "needs_review":
-                blocked = "needs review"
             card_type = "phrase" if lx["pos"] == "phrase" else "vocab"
             for ordinal, s in enumerate(sense_rows):
                 i = s["idx"] if "idx" in s.keys() else ordinal
@@ -415,7 +425,10 @@ class _Builder:
                 "SELECT lexeme_id, prompt FROM senses WHERE active=1 AND idx = (SELECT min(s2.idx) FROM senses s2 WHERE s2.lexeme_id=senses.lexeme_id AND s2.active=1)"
             )
         }
-        tense_rank = {t: i for i, t in enumerate(load_plan().get("conjugation", {}).get("tenses", []))}
+        publication = form_publication()
+        tense_rank = {
+            t: i for i, t in enumerate(dict.fromkeys(publication["learning_tenses"] + publication["tenses"]))
+        }
         for vid in full_form_verbs(self.conn):
             lx = self.conn.execute("SELECT * FROM lexemes WHERE id = ?", (vid,)).fetchone()
             info = json.loads(lx["forms_json"] or "{}")
@@ -431,6 +444,9 @@ class _Builder:
             }
             for tense, persons in verb_forms(lx, sense).items():
                 for person, (display, audio) in persons.items():
+                    key = f"form:{vid}:{tense}:{person}{semantics.form_suffix(sense)}"
+                    if form_output_reason(key, publication):
+                        continue
                     english = prompts[vid].get((tense, person), "")
                     if (tense, person) in exclusions or semantics.exclusion(lx, sense, tense, person):
                         continue  # only explicit exclusions or curated meaning restrictions
@@ -438,10 +454,10 @@ class _Builder:
                     if model:
                         details += f" · model for regular {cls} verbs"
                     self.add(
-                        key=f"form:{vid}:{tense}:{person}{semantics.form_suffix(sense)}",
+                        key=key,
                         lexeme_id=vid,
                         card_type="form",
-                        deck=DECK_FORMS.format(tense=TENSE_DISPLAY.get(tense, tense)),
+                        deck=form_deck(tense, person, publication),
                         fields={
                             "Italian": _esc(display),
                             "English": _esc(english),
@@ -452,18 +468,13 @@ class _Builder:
                             "Source": "conjugation",
                         },
                         tags=["verb-form", f"tense::{tense}", f"verb::{lx['lemma']}"]
+                        + ([] if form_is_learning(tense, person, publication) else ["fc::dormant"])
                         + (["pattern"] if model else []),
                         sort=(self.order.get(vid, 1 << 29) * 10) + 100 + tense_rank.get(tense, 9) * 10,
                         image_key=lx["image_key"],
                         recognition=False,
                         production=True,
-                        blocked=(
-                            "needs review"
-                            if lx["status"] == "needs_review"
-                            else None
-                            if lx["status"] == "ready" and english
-                            else "awaiting AI"
-                        ),
+                        blocked=None if lx["status"] == "ready" and english else "awaiting AI",
                         audio_text=audio,
                     )
 
@@ -712,6 +723,7 @@ CSS = """
 .forms { font-style: normal; color: #374151; }
 .example { margin: 14px auto 0; max-width: 34em; color: #374151; font-size: 0.95em; line-height: 1.5; }
 .example .src { color: #9ca3af; font-size: 0.85em; }
+.example .literal { color: #6b7280; font-size: 0.88em; }
 .note { margin-top: 10px; color: #4b5563; font-size: 0.9em; }
 .fact { margin: 16px auto 0; max-width: 34em; padding: 10px 14px; border-left: 4px solid #f59e0b;
   border-radius: 8px; background-color: #fffbeb; color: #78350f; font-size: 0.85em; line-height: 1.5; text-align: left; }
@@ -724,6 +736,7 @@ hr#answer { border: 0; border-top: 1px solid #ddd; margin: 20px 0; }
 .nightMode .card-container, .night_mode .card-container { background-color: #111827; }
 .nightMode .front-text, .night_mode .front-text { color: #f3f4f6; }
 .nightMode .forms, .night_mode .forms, .nightMode .example, .night_mode .example { color: #d1d5db; }
+.nightMode .example .literal, .night_mode .example .literal { color: #9ca3af; }
 .nightMode .fact, .night_mode .fact { background-color: #3b2a12; color: #fde68a; }
 .nightMode .fact-title, .night_mode .fact-title { color: #fbbf24; }
 """

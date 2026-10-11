@@ -19,7 +19,7 @@ unavailable_retry_minutes = 5
 # Give up after this many minutes of waiting (0 = wait as long as it takes).
 max_unavailable_minutes = 0
 # Bump this to redo ALL AI work from scratch (e.g. after switching to a stronger model).
-task_version = "5"
+task_version = "6"
 
 [ai.task_models]
 # Per-task overrides, e.g. practice_feedback = "sonnet". Task names are in

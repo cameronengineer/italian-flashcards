@@ -305,11 +305,14 @@ DISAMBIGUATE = TaskSpec(
     name="disambiguate",
     instruction="Each group is several Italian words whose flashcards would show the same "
     "English prompt. Give each word a short hint so the learner knows which one "
-    "is wanted, and list the other words as also-acceptable answers.",
+    "is wanted. Only list alternatives that remain correct for that word's specific cue and hint.",
     rules=(
         "hint: at most 4 words that teach the real difference (register, nuance, typical use), "
         "e.g. 'most common', 'formal', 'literary', 'of a person'.",
-        "also: comma-separated other words from the group that would also be correct.",
+        "also: comma-separated words from the group that are genuinely interchangeable for this "
+        "cue INCLUDING its hint. Sharing an English translation does not make words interchangeable. "
+        "For example, agire is not an alternative to recitare when the hint specifies acting in theatre. "
+        "Leave also empty when the distinction rules the other word out.",
         "Return one entry per word id in every group.",
     ),
     schema=_obj(
@@ -395,6 +398,34 @@ CARD_AUDITS = TaskSpec(
                         "issues": _STR,
                         "suggestion": _STR,
                     }
+                ),
+            }
+        }
+    ),
+    timeout=900,
+)
+
+
+FILM_GLOSS = TaskSpec(
+    name="film_gloss",
+    instruction="Give a literal, word-for-word English gloss of each Italian film line, so a learner "
+    "can see what every Italian word means. Return one entry per input id.",
+    rules=(
+        "words: one entry per Italian word, in the original order. Never merge, skip or reorder words.",
+        "it: the Italian word exactly as written, with any punctuation attached (e.g. 'minuti.'). "
+        "Together the it values must reproduce the whole line.",
+        "en: the most literal English for that word alone, in this context, with the same punctuation "
+        "attached. Do not smooth it into natural English.",
+        "Join several English words for one Italian word with hyphens: Sono (subject implied) → 'I-am', "
+        "andarci → 'to-go-there', dell' → 'of-the', c'è → 'there-is'.",
+        "Keep names and numbers as they are.",
+    ),
+    schema=_obj(
+        {
+            "lines": {
+                "type": "array",
+                "items": _obj(
+                    {"id": _STR, "words": {"type": "array", "items": _obj({"it": _STR, "en": _STR})}}
                 ),
             }
         }

@@ -1,0 +1,1102 @@
+status,lemma,pos,count,first_seen,forms,example,example_at
+resolved,essere,verb,367,0:01:39,è sono era sei,Né quell'amicizia era un posto dove metti le tue radici,0:01:39
+resolved,il,article,337,0:01:39,il la lo l',Né quell'amicizia era un posto dove metti le tue radici,0:01:39
+resolved,avere,verb,184,0:01:34,ha ho hai hanno,Non pensavo che avrei trovato Un amico come Bruno nella vita,0:01:34
+resolved,un,article,155,0:01:34,un una uno un',Non pensavo che avrei trovato Un amico come Bruno nella vita,0:01:34
+resolved,non,adv,151,0:01:34,non,Non pensavo che avrei trovato Un amico come Bruno nella vita,0:01:34
+resolved,di,prep,131,0:02:07,di della delle dell',"I miei genitori hanno noleggiato una casa In una città di montagna,",0:02:07
+resolved,andare,verb,130,0:03:18,va andare vai andiamo,"Andò ai pascoli con suo zio per aiutarlo,",0:15:21
+resolved,che,pron,122,0:01:34,che,Non pensavo che avrei trovato Un amico come Bruno nella vita,0:01:34
+resolved,per,prep,99,0:08:08,per,"Sai, per portare le persone a Grana.",0:08:08
+resolved,e,conj,93,0:01:42,e ed,"ora di lavoro, dell'umore semplice e nero.",0:10:18
+resolved,sì,adv,87,0:04:02,sì,Posso avere un altro biscotto? - SÌ.,0:05:28
+resolved,in,prep,81,0:01:34,in nella nei nell',Non pensavo che avrei trovato Un amico come Bruno nella vita,0:01:34
+resolved,a,prep,81,0:01:55,a all' alle,Non ero abituato a fare le cose in due.,0:01:55
+resolved,fare,verb,80,0:01:55,fare fatto fai fa,Non ero abituato a fare le cose in due.,0:01:55
+resolved,cosa,noun,68,0:01:42,cosa cose,Non ero abituato a fare le cose in due.,0:01:55
+resolved,no,adv,64,0:04:12,no,"NO, Sono l'ultimo figlio nel paese.",0:04:12
+resolved,mi,pron,59,0:02:56,mi,"Mi scusi, ce n'è uno qui.",0:02:56
+resolved,ci,pron,55,0:02:11,ci c',"dove, ironia della sorte, c'era solo Un bambino che vive in quel momento.",0:02:11
+resolved,volere,verb,53,0:03:55,vuoi volevo voglio voleva,Vorresti un po 'di colazione? - Hmm.,0:03:55
+resolved,come,conj,52,0:01:34,come,Non pensavo che avrei trovato Un amico come Bruno nella vita,0:01:34
+resolved,bene,adv,52,0:03:45,bene,Penso di aver capito Non è andato così bene,0:16:25
+resolved,stare,verb,49,0:01:42,stai sta sto stavo,"Sì, è a casa a Torino, Sta lavorando.",0:08:22
+resolved,con,prep,49,0:05:13,con,"Laggiù, con i miei zii. My father isn't here.",0:05:13
+resolved,questo,pron,48,0:04:21,questo questi queste quest',"Queste linee sono chiamate ""Curve di livello"".",0:12:54
+resolved,qui,adv,47,0:02:56,qui,"Mi scusi, ce n'è uno qui.",0:02:56
+resolved,quello,pron,38,0:01:39,quello quella quelli quell',Né quell'amicizia era un posto dove metti le tue radici,0:01:39
+resolved,potere,verb,38,0:05:28,posso puoi possiamo può,Posso avere un altro biscotto? - SÌ.,0:05:28
+resolved,ma,conj,37,0:02:04,ma,"Siamo appena arrivati, Ma abbiamo cose.",0:03:58
+resolved,mio,pron,37,0:02:07,mio miei mie,"I miei genitori hanno noleggiato una casa In una città di montagna,",0:02:07
+resolved,dare,verb,36,0:02:59,dai dargli dà danno,"Dai, puoi insegnarmi il tuo dialetto?",0:11:47
+resolved,ciao,intj,36,0:03:15,ciao,"Ciao, devi essere Bruno. Pietro mi ha raccontato molto di te.",0:17:03
+resolved,dire,verb,36,0:13:25,detto dice dire diciamo,Dimmi che sai cosa stai accettando? - SÌ.,0:13:28
+resolved,oh,intj,35,0:03:12,oh,"Quando sei qui, ti chiamo così. - OH.",0:11:41
+resolved,sapere,verb,35,0:08:08,sai so sapere sapevi,"Sai, per portare le persone a Grana.",0:08:08
+resolved,eh,intj,33,0:08:45,eh,Eh ... mio padre è sempre via.,0:21:13
+resolved,montagna,noun,32,0:02:07,montagna montagne,"I miei genitori hanno noleggiato una casa In una città di montagna,",0:02:07
+resolved,più,adv,31,0:12:58,più,"Più sono vicini, più ripido è il pendio.",0:12:58
+resolved,se,conj,30,0:10:59,se,Possiamo andare insieme se vuoi. Che ne dici?,0:15:37
+resolved,da,prep,30,0:17:48,da dal dalle dalla,Colui che produce il formaggio. - Li hai fatti da solo?,0:17:48
+resolved,ti,pron,28,0:01:42,ti,"Quando sei qui, ti chiamo così. - OH.",0:11:41
+resolved,te,pron,28,0:17:03,te,"Ciao, devi essere Bruno. Pietro mi ha raccontato molto di te.",0:17:03
+resolved,quando,conj,27,0:11:41,quando,"Quando sei qui, ti chiamo così. - OH.",0:11:41
+resolved,dovere,verb,26,0:16:28,devo dovuto deve devi,"Sì, dovresti parlare a mio marito a riguardo.",0:16:43
+resolved,ehi,intj,25,0:03:52,ehi,EHI!,0:03:52
+resolved,anche,adv,25,0:08:17,anche,"Se va bene con te, potremmo prenderti Anche Bruno. Cosa ne pensi?",0:18:27
+resolved,padre,noun,25,0:08:17,padre padri,Il ghiacciaio ha affascinato l'uomo della scienza che era mio padre.,0:19:36
+resolved,si,pron,25,0:13:31,si,Sei sicuro? Non si può tornare indietro.,0:13:31
+resolved,vedere,verb,24,0:11:14,visto vedremo vedere vediamo,Quindi non l'ho mai più visto.,0:15:26
+resolved,bello,adj,24,0:20:20,bello bellissimo bella bel,"La cosa bella del ghiacciaio, quindi, è che non si ferma mai.",0:20:20
+resolved,anno,noun,22,0:04:59,anni anno,Non è la neve dell'anno scorso.,0:20:08
+resolved,ora,adv,22,0:08:50,ora,"Merda, mia zia! È ora di mungere.",0:08:50
+resolved,solo,adv,21,0:02:11,solo,"dove, ironia della sorte, c'era solo Un bambino che vive in quel momento.",0:02:11
+resolved,venire,verb,21,0:04:25,vieni venire venuto venuta,"Vieni, provalo, questo è tuo. Dai. - Sì, aspetta.",0:34:42
+resolved,perché,conj,21,0:08:28,perché,Perché abbiamo affittato la casa per tutta l'estate.,0:08:28
+resolved,molto,adv,21,0:17:03,molto,"Ciao, devi essere Bruno. Pietro mi ha raccontato molto di te.",0:17:03
+resolved,tutto,det,20,0:20:29,tutto,"Perché tutto è un pericolo, Non puoi uscire.",0:28:48
+resolved,tuo,det,19,0:01:39,tua tuoi tue,Né quell'amicizia era un posto dove metti le tue radici,0:01:39
+resolved,grazia,noun,19,0:03:12,grazie,"No grazie, volevo solo per lasciarti questi.",0:31:36
+resolved,via,noun,19,0:05:18,via,"È via, è un muratore. In Svizzera o forse in Austria.",0:05:18
+resolved,me,pron,19,0:07:55,me,Ma il ricordo di quella mattina rimarrebbe con me per sempre.,0:25:51
+resolved,tuo,pron,19,0:08:17,tuo,"Dai, puoi insegnarmi il tuo dialetto?",0:11:47
+resolved,casa,noun,18,0:02:07,casa case,"I miei genitori hanno noleggiato una casa In una città di montagna,",0:02:07
+resolved,poco,adv,18,0:03:55,po poco,Vorresti un po 'di colazione? - Hmm.,0:03:55
+resolved,niente,pron,18,0:22:02,niente,"Niente in particolare, Andiamo a fare un giro.",0:22:02
+resolved,suo,det,17,0:15:21,suo sua suoi,"Andò ai pascoli con suo zio per aiutarlo,",0:15:21
+resolved,dove,adv,16,0:01:39,dove,Né quell'amicizia era un posto dove metti le tue radici,0:01:39
+resolved,tornare,verb,16,0:11:32,tornare tornato tornando tornerò,"Sono contento che tu sia tornato, Berto.",0:11:32
+resolved,ok,intj,16,0:21:42,ok,"È una piccola malattia da altitudine, ok?",0:25:00
+resolved,piacere,verb,15,0:03:18,piace piacere piacerebbe piaciuto,"Grazie per il fuoco. - No, piacere mio.",0:43:55
+resolved,così,adv,15,0:10:55,così,"I giorni di Grana Sembrava così lontano,",0:10:55
+resolved,chiedere,verb,15,0:10:59,chiesto chiedevo chiederti chiedi,"Posso chiederti una sigaretta? - Sì, certamente.",0:33:25
+resolved,lì,adv,15,0:11:55,lì,Allora il ghiacciaio? È mai andato lì?,0:18:14
+resolved,mai,adv,15,0:15:26,mai,Quindi non l'ho mai più visto.,0:15:26
+resolved,parlare,verb,15,0:16:43,parlare parlato parleremo parliamo,"Sì, dovresti parlare a mio marito a riguardo.",0:16:43
+resolved,noi,pron,15,0:17:58,noi,"Ci sono regole assurde, noi Capita, ma è per lo più un duro lavoro.",0:17:58
+resolved,al,prep,15,0:38:59,al,"Sì, okay, come al solito. - Sì, beh. Ciao, Pietro.",0:38:59
+resolved,pensare,verb,14,0:01:34,penso pensi pensavo pensato,Non pensavo che avrei trovato Un amico come Bruno nella vita,0:01:34
+resolved,del,prep,14,0:02:04,del,"La cosa bella del ghiacciaio, quindi, è che non si ferma mai.",0:20:20
+resolved,nel,prep,14,0:04:12,nel,"NO, Sono l'ultimo figlio nel paese.",0:04:12
+resolved,questo,det,14,0:29:26,questa,"Questa era la tua idea, non la mia, Ma è mio amico, non tuo!",0:29:26
+resolved,due,num,13,0:01:55,due,Non ero abituato a fare le cose in due.,0:01:55
+resolved,ne,pron,13,0:02:56,ne n',"Mi scusi, ce n'è uno qui.",0:02:56
+resolved,forse,adv,13,0:05:18,forse,"È via, è un muratore. In Svizzera o forse in Austria.",0:05:18
+resolved,altro,pron,13,0:05:28,altro altri,Posso avere un altro biscotto? - SÌ.,0:05:28
+resolved,quindi,adv,13,0:08:17,quindi,"Quindi, è un ingegnere In una grande fabbrica,",0:08:34
+resolved,lavoro,noun,13,0:10:18,lavoro lavori,"ora di lavoro, dell'umore semplice e nero.",0:10:18
+resolved,io,pron,13,0:13:21,io,"Sono io, Guglielmina Bruno, E me ne vado!",0:30:55
+resolved,sempre,adv,13,0:21:13,sempre,Eh ... mio padre è sempre via.,0:21:13
+resolved,ragazzo,noun,12,0:15:53,ragazzo ragazza ragazzi,"Dai, ragazzo, vai! Andare! - Aspetta, aspetta!",0:15:53
+resolved,su,prep,12,0:19:44,su sulla sulle,la mitologia su cui si è formata.,0:19:44
+resolved,chi,pron,12,0:28:21,chi,"Per i soldi, Si preoccupa solo di chi paga.",0:28:21
+resolved,amico,noun,11,0:01:34,amici amico,Non pensavo che avrei trovato Un amico come Bruno nella vita,0:01:34
+resolved,trovare,verb,11,0:01:34,trovato trova trovati trovare,Non pensavo che avrei trovato Un amico come Bruno nella vita,0:01:34
+resolved,estate,noun,11,0:02:04,estate,Perché abbiamo affittato la casa per tutta l'estate.,0:08:28
+resolved,buono,adj,11,0:03:48,buona buono buon,"Pietro, è buono per Bruno, è per il suo futuro.",0:29:01
+resolved,tu,pron,11,0:11:32,tu,"Sono contento che tu sia tornato, Berto.",0:11:32
+resolved,chiamare,verb,11,0:11:35,chiama chiamato chiamo chiamano,"Quando sei qui, ti chiamo così. - OH.",0:11:41
+resolved,bravo,adj,11,0:20:32,bravo,"No, non fa per me. Non sono abbastanza bravo.",1:12:29
+resolved,vita,noun,10,0:01:34,vita vite,Non pensavo che avrei trovato Un amico come Bruno nella vita,0:01:34
+resolved,aspettare,verb,10,0:01:42,aspetta aspetterò aspettando aspettato,"Dai, ragazzo, vai! Andare! - Aspetta, aspetta!",0:15:53
+resolved,arrivare,verb,10,0:03:58,arrivati arriva arrivano arrivare,"Siamo appena arrivati, Ma abbiamo cose.",0:03:58
+resolved,capire,verb,10,0:04:14,capito capisco capisci,Non capisco. - Sono l'ultimo bambino nel villaggio.,0:04:14
+resolved,lui,pron,10,0:05:05,lui,È bello che anche lui insegni a te.,0:21:08
+resolved,portare,verb,10,0:08:08,portare portato porterai portò,"Sai, per portare le persone a Grana.",0:08:08
+resolved,mio,det,10,0:08:25,mia,"Nel frattempo sono qui con mia madre,",0:08:25
+resolved,giorno,noun,10,0:10:55,giorni giorno,"I giorni di Grana Sembrava così lontano,",0:10:55
+resolved,giusto,adj,10,0:16:34,giusto,"Bruno è intelligente. Sarebbe un peccato, Se ha smesso di studiare, giusto?",0:16:34
+resolved,bisogno,noun,10,0:16:39,bisogno,Ha bisogno di qualcuno per aiutarlo a studiare,0:16:39
+resolved,qualcuno,pron,10,0:16:39,qualcuno,Ha bisogno di qualcuno per aiutarlo a studiare,0:16:39
+resolved,favore,noun,10,0:22:04,favore,"Per favore, Fai attenzione a questi bambini.",0:22:04
+resolved,rimanere,verb,10,0:25:51,rimanere rimani rimasto rimane,Ma il ricordo di quella mattina rimarrebbe con me per sempre.,0:25:51
+resolved,poi,adv,10,0:34:04,poi,Poi sabato vado giù E dormo nel mio letto.,0:55:59
+resolved,vivere,verb,9,0:02:11,vivere vive vivrò vivevano,"dove, ironia della sorte, c'era solo Un bambino che vive in quel momento.",0:02:11
+resolved,merda,noun,9,0:07:06,merda,"Merda, mia zia! È ora di mungere.",0:08:50
+resolved,lavorare,verb,9,0:08:22,lavorare lavorano lavorando lavorato,"Sì, è a casa a Torino, Sta lavorando.",0:08:22
+resolved,sentire,verb,9,0:12:12,senti sentito sentivo sentire,Non ho sentito nessuno. - OH! Veramente?,0:12:12
+resolved,aiutare,verb,9,0:15:21,aiutarlo aiutare aiutato aiuterò,"Andò ai pascoli con suo zio per aiutarlo,",0:15:21
+resolved,allora,adv,9,0:18:14,allora,Allora il ghiacciaio? È mai andato lì?,0:18:14
+resolved,finire,verb,9,0:25:32,finito finita finiamo finire,"Non preoccuparti, non è niente, ora è finita.",0:25:32
+resolved,lasciare,verb,9,0:26:21,lasciato lascerai lascio lasciarti,"No grazie, volevo solo per lasciarti questi.",0:31:36
+resolved,tra,prep,9,0:27:53,tra,I segreti che tieni tra te.,0:27:53
+resolved,certo,adv,8,0:08:04,certo,"A un certo punto, Hanno costruito la strada.",0:08:04
+resolved,papà,noun,8,0:12:35,papà,"Dai, papà, siamo appena arrivati ​​qui!",0:15:08
+resolved,zio,noun,8,0:15:21,zio,"Andò ai pascoli con suo zio per aiutarlo,",0:15:21
+resolved,tempo,noun,8,0:18:18,tempo,"No, non ho mai avuto il tempo.",0:18:18
+resolved,inverno,noun,8,0:19:48,inverno inverni,Ci ha detto che il ghiacciaio è Il ricordo degli inverni passati,0:19:48
+resolved,primo,adj,8,0:23:44,primo prima,"""Mi sono svegliato prima e attentamente esaminato ...""",0:26:48
+resolved,preoccuparsi,verb,8,0:25:32,preoccuparti,"Non preoccuparti, non è niente, ora è finita.",0:25:32
+resolved,mondo,noun,8,0:36:55,mondo,Scrivere? Viaggiare in tutto il mondo?,0:36:55
+resolved,otto,num,8,1:36:34,otto,"Mi ha detto: ""Stai facendo Il tour delle otto montagne? """,1:36:34
+resolved,città,noun,7,0:01:52,città,Sono stato cresciuto come figlio unico in un appartamento in città.,0:01:52
+resolved,ultimo,adj,7,0:04:12,ultimo ultima ultimi,"NO, Sono l'ultimo figlio nel paese.",0:04:12
+resolved,o,conj,7,0:05:18,o,"È via, è un muratore. In Svizzera o forse in Austria.",0:05:18
+resolved,tre,num,7,0:06:11,tre,"Quindi, finiamo in tre o quattro mesi.",0:48:43
+resolved,adesso,adv,7,0:07:53,adesso,Mossa! Ne hai bisogno essere al telefono adesso?,1:21:50
+resolved,madre,noun,7,0:08:25,madre,"Nel frattempo sono qui con mia madre,",0:08:25
+resolved,tutto,adj,7,0:08:28,tutta tutte,Perché abbiamo affittato la casa per tutta l'estate.,0:08:28
+resolved,altro,adj,7,0:13:03,altra altre,"I numeri, d'altra parte, sono l'altitudine.",0:13:03
+resolved,continuare,verb,7,0:16:23,continuare continua continuano continuerò,Mi scusi per continuare a insistere.,0:16:23
+resolved,prendere,verb,7,0:17:17,prendiamo prenderti prenderanno prende,"Prendiamo quello in bianco e nero laggiù. - Va bene, proviamo.",0:17:17
+resolved,provare,verb,7,0:17:17,provato provo proviamo provalo,"Prendiamo quello in bianco e nero laggiù. - Va bene, proviamo.",0:17:17
+resolved,li,pron,7,0:17:48,li,Colui che produce il formaggio. - Li hai fatti da solo?,0:17:48
+resolved,ghiacciaio,noun,7,0:18:14,ghiacciaio,Allora il ghiacciaio? È mai andato lì?,0:18:14
+resolved,volta,noun,7,0:18:47,volte volta,"Pietro, lo sai che una volta toccato ... - Shh!",0:18:47
+resolved,fermare,verb,7,0:18:52,fermato fermare fermiamo fermi,"Ora non parliamo, Parliamo quando ci fermiamo.",0:18:52
+resolved,neve,noun,7,0:20:08,neve,Non è la neve dell'anno scorso.,0:20:08
+resolved,dormire,verb,7,0:21:42,dormire dormo dormirò dormito,Poi sabato vado giù E dormo nel mio letto.,0:55:59
+resolved,dopo,adv,7,0:27:59,dopo,"Che dopo l'estate mi porterai con te a Torino per andare ""Lisco"".",0:27:59
+resolved,immaginare,verb,7,0:28:39,immagina immaginarlo immaginato immagino,"Non sono mai stato a Torino, Non riesco nemmeno a immaginarlo.",0:28:39
+resolved,mucca,noun,7,0:29:04,mucche,Qual è il problema se sfiora le mucche E prepara il formaggio?,0:29:04
+resolved,nuovo,adj,7,0:35:06,nuovo nuove,"Aspettare. Ora, facciamolo di nuovo insieme, ok?",0:35:06
+resolved,alla,prep,7,1:00:21,alla,Alla fine ho dovuto dargli uno.,1:00:21
+resolved,posto,noun,6,0:01:39,posto,Né quell'amicizia era un posto dove metti le tue radici,0:01:39
+resolved,figlio,noun,6,0:01:52,figlio figli,Sono stato cresciuto come figlio unico in un appartamento in città.,0:01:52
+resolved,quel,det,6,0:02:11,quel quei,"dove, ironia della sorte, c'era solo Un bambino che vive in quel momento.",0:02:11
+resolved,persona,noun,6,0:07:50,persone,A Grana c'erano 183 persone.,0:07:50
+resolved,successo,noun,6,0:08:11,successo,Ma sai cosa è successo? - Che cosa?,0:08:11
+resolved,grande,adj,6,0:08:34,grande,"Quindi, è un ingegnere In una grande fabbrica,",0:08:34
+resolved,sembrare,verb,6,0:10:55,sembrava sembra sembrato,"I giorni di Grana Sembrava così lontano,",0:10:55
+resolved,formaggio,noun,6,0:17:43,formaggio formaggi,Sto imparando a essere un produttore di formaggi.,0:17:43
+resolved,troppo,adv,6,0:17:56,troppo,"No, scusa, è troppo. - Mettilo ... svuotamoci un po '.",0:34:59
+resolved,loro,pron,6,0:18:04,loro,"Le montagne, Quali sono i loro nomi?",0:18:04
+resolved,ricordo,noun,6,0:19:48,ricordo ricordi,Ci ha detto che il ghiacciaio è Il ricordo degli inverni passati,0:19:48
+resolved,giù,adv,6,0:20:29,giù,Più in basso andiamo giù Più passa.,0:25:35
+resolved,guardare,verb,6,0:24:58,guardami guarda,"Prendi la tua ascia e guarda le corde, che sono intrecciati.",0:25:14
+resolved,senza,prep,6,0:26:34,senza,Gli altri continuano vivere senza di lui.,0:52:09
+resolved,riuscire,verb,6,0:28:39,riesco riesci riuscito riuscirò,"Non sono mai stato a Torino, Non riesco nemmeno a immaginarlo.",0:28:39
+resolved,iniziare,verb,6,0:32:56,iniziato iniziamo iniziare inizia,La sua vita adulta è iniziato quando aveva 13 anni.,0:32:56
+resolved,possibile,adj,6,0:54:09,possibile,E l'estate che provo stare avanti il ​​più possibile.,1:20:17
+resolved,mettere,verb,5,0:01:39,metti mettiamo messo,Né quell'amicizia era un posto dove metti le tue radici,0:01:39
+resolved,bambino,noun,5,0:02:11,bambino bambini bambina,"dove, ironia della sorte, c'era solo Un bambino che vive in quel momento.",0:02:11
+resolved,amore,noun,5,0:03:42,amore,"Amore mio, dovremmo comprare Un posto come questo, una rovina.",1:17:09
+resolved,tardo,adj,5,0:03:45,tardi,"Ok, più tardi. Lo faremo più tardi.",0:57:17
+resolved,notte,noun,5,0:03:48,notte,Buona notte. - Buona notte.,0:03:48
+resolved,pronto,adj,5,0:06:08,pronto,Pronto? - Aspettare.,0:06:08
+resolved,punto,noun,5,0:08:04,punto,"A un certo punto, Hanno costruito la strada.",0:08:04
+resolved,secondo,adj,5,0:10:10,secondo,Pensavo che ti avrebbe inseguito Avevo paura per un secondo.,1:29:22
+resolved,cazzo,noun,5,0:10:26,cazzo,Merda! Ma che cazzo stai facendo?,0:10:26
+resolved,diventare,verb,5,0:10:46,diventerò diventate diventa diventato,"Nel frattempo Le mie gambe sono diventate pallide,",0:10:46
+resolved,parte,noun,5,0:13:03,parte,"I numeri, d'altra parte, sono l'altitudine.",0:13:03
+resolved,modo,noun,5,0:13:07,modo modi,"È qui ... - In questo modo, questo, questo ...",0:13:07
+resolved,sul,prep,5,0:13:25,sul,"Questo è quando siamo andati Sul ghiacciaio con Bruno,",0:51:08
+resolved,sicuro,adj,5,0:13:31,sicuro,Sei sicuro? Non si può tornare indietro.,0:13:31
+resolved,pascolare,verb,5,0:15:21,pascoli,"Andò ai pascoli con suo zio per aiutarlo,",0:15:21
+resolved,vero,adj,5,0:15:34,vero vera,"Un'ora non è così tanto, vero?",0:15:34
+resolved,qualcosa,pron,5,0:17:14,qualcosa,"Io, se mi piace qualcosa, Lo faccio, o almeno provo.",1:12:38
+resolved,shh,intj,5,0:18:47,shh,"Pietro, lo sai che una volta toccato ... - Shh!",0:18:47
+resolved,uomo,noun,5,0:19:36,uomo uomini,Il ghiacciaio ha affascinato l'uomo della scienza che era mio padre.,0:19:36
+resolved,cui,pron,5,0:19:44,cui,la mitologia su cui si è formata.,0:19:44
+resolved,giornata,noun,5,0:20:56,giornata,E quella appena una giornata estiva Passato in montagna.,0:50:00
+resolved,cercare,verb,5,0:21:42,cercare cercherò cercando cercato,Quindi ho dovuto cercare i proprietari E farli vendere.,0:46:58
+resolved,avanti,adv,5,0:24:34,avanti,"Non possiamo tornare indietro, in avanti.",0:24:34
+resolved,scusa,noun,5,0:24:50,scusa,"Scusa, papà, scusa. - shh. Non c'è bisogno di essere dispiaciuti.",0:24:50
+resolved,fuori,adv,5,0:27:38,fuori,"Vai fuori, sarò proprio lì. Andare!",0:27:38
+resolved,alcuno,pron,5,0:35:59,alcune alcun alcuni,"L'anno seguente sono tornato a le montagne solo per alcuni giorni,",0:35:59
+resolved,ciò,pron,5,0:52:04,ciò,Questo è ciò che accade a coloro che se ne vanno.,0:52:04
+resolved,male,adv,5,0:58:24,male,Devo avergli fatto del male Perché da allora non l'ho visto.,1:00:26
+resolved,pascolo,noun,5,1:10:55,pascolo,Vorrei ripristinare il pascolo di mio zio.,1:10:55
+resolved,abbastanza,adv,5,1:12:29,abbastanza,"No, non fa per me. Non sono abbastanza bravo.",1:12:29
+resolved,mangiare,verb,5,1:15:56,mangiamo mangia mangi mangiano,"OH! - Qui è dove mangiamo, fuori.",1:15:56
+resolved,donna,noun,5,1:22:05,donna donne,"Mi piace l'idea, ma è una donna In montagna una buona idea?",1:22:05
+resolved,puro,noun,5,1:31:46,purì,"""Puri"". - ""Purì""?",1:31:46
+resolved,scuola,noun,4,0:08:02,scuola,"Mi hanno fatto scegliere una scuola, E vivrò con te.",0:28:06
+resolved,ogni,adj,4,0:10:12,ogni,"per ogni stagione di leggerezza segue uno di gravità,",0:10:12
+resolved,lontano,adj,4,0:10:55,lontano,"I giorni di Grana Sembrava così lontano,",0:10:55
+resolved,davvero,adv,4,0:10:59,davvero,"È stupido perché è impossibile Davvero, preoccuparti di qualcun altro.",2:03:13
+resolved,domani,adv,4,0:13:11,domani,Qui è dove voglio arrivare domani.,0:13:11
+resolved,credere,verb,4,0:15:18,credo credere crede,Non credo che lo sapesse Cosa era l'adolescenza.,0:33:02
+resolved,insieme,adv,4,0:15:37,insieme,Possiamo andare insieme se vuoi. Che ne dici?,0:15:37
+resolved,smettere,verb,4,0:16:34,smesso smettere smettila,"Bruno è intelligente. Sarebbe un peccato, Se ha smesso di studiare, giusto?",0:16:34
+resolved,studiare,verb,4,0:16:34,studiare,"Bruno è intelligente. Sarebbe un peccato, Se ha smesso di studiare, giusto?",0:16:34
+resolved,passare,verb,4,0:16:41,passa passati,Ci ha detto che il ghiacciaio è Il ricordo degli inverni passati,0:19:48
+resolved,tenere,verb,4,0:17:51,tenere tienili tieni,"No, mio ​​zio. Li giro e tienili in ordine.",0:17:51
+resolved,assurdo,adj,4,0:17:58,assurdo assurde,"Ci sono regole assurde, noi Capita, ma è per lo più un duro lavoro.",0:17:58
+resolved,quale,det,4,0:18:04,quali,"Le montagne, Quali sono i loro nomi?",0:18:04
+resolved,conoscere,verb,4,0:21:03,conosciuto conosce conosco,Tuo padre conosce una cosa o due!,0:21:03
+resolved,quanto,adv,4,0:26:28,quanto,"""Non lo so Per quanto tempo è durato il sonno "",",0:26:28
+resolved,nostro,det,4,0:26:56,nostra,"""Ho esaminato attentamente la nostra cella."" - ""Cell.""",0:26:56
+resolved,nostro,pron,4,0:27:08,nostro nostri,"""Il cameriere, approfittando del nostro riposo """,0:27:08
+resolved,ancora,adv,4,0:27:34,ancora,Hai ancora molto di più da fare?,0:27:34
+resolved,soldo,noun,4,0:28:21,soldi,"Per i soldi, Si preoccupa solo di chi paga.",0:28:21
+resolved,cura,noun,4,0:28:24,cura,"Hanno detto che si prenderanno cura di cibo, alloggio e scuola.",0:28:24
+resolved,idea,noun,4,0:29:26,idea,"Questa era la tua idea, non la mia, Ma è mio amico, non tuo!",0:29:26
+resolved,restare,verb,4,0:30:39,restare resterò,"Che non vuoi andare a Torino, che vuoi restare qui.",0:30:39
+resolved,dispiacere,verb,4,0:31:56,dispiace,Bruno sarà via per tutta l'estate. Mi dispiace.,0:31:56
+resolved,testa,noun,4,0:34:01,testa,È una che sa come farlo E lei ha una testa dura.,1:22:09
+resolved,ascoltare,verb,4,0:37:14,ascoltami ascolta,"Ascolta, ascolta, Volevo chiederti una cosa.",1:21:37
+resolved,vecchio,adj,4,0:46:27,vecchio vecchie vecchia,Allora cosa mangi? polenta e patate come la vecchia gente?,1:18:15
+resolved,barma,noun,4,0:47:03,barma,e per prendere il sentiero per la barma.,1:27:24
+resolved,nulla,pron,4,0:48:17,nulla,"Anche se se ne è andato, Per me non cambia nulla.",0:48:17
+resolved,quattro,num,4,0:48:43,quattro,"Quindi, finiamo in tre o quattro mesi.",0:48:43
+resolved,nascere,verb,4,0:49:24,nato,L'età in cui era quando sono nato.,0:49:24
+resolved,altrove,adv,4,0:55:17,altrove,Ma è debole se Lo metti altrove.,0:55:17
+resolved,già,adv,4,0:55:21,già,"Non per me, Mi sta già andando alla testa.",1:34:51
+resolved,cemento,noun,4,1:02:04,cemento,"Ti, ta, puma, cemento, la casa.",1:02:09
+resolved,cima,noun,4,1:05:23,cima,Come si arriva in cima a Grenon?,1:05:23
+resolved,parola,noun,4,1:08:41,parola parole,"""Finito"" è una parola grande. C'è il tetto.",1:08:41
+resolved,almeno,adv,4,1:11:07,almeno,"Io, se mi piace qualcosa, Lo faccio, o almeno provo.",1:12:38
+resolved,domanda,noun,4,1:12:58,domanda domande,"La domanda è questa: ""Chi ha imparato di più""",1:37:27
+resolved,natura,noun,4,1:17:23,natura,Ci renderemo un bel villaggio ecologico Qui nel mezzo della natura.,1:17:23
+resolved,sognare,verb,4,1:18:18,sognare,"Va bene, non la chiamerò più ""natura"", Ma mi lascerai sognare?",1:18:18
+resolved,meno,adv,4,1:25:03,meno,"Si prende anche cura dei conti, meno male. Odio quella roba.",1:25:03
+resolved,né,conj,3,0:01:39,né,Né quell'amicizia era un posto dove metti le tue radici,0:01:39
+resolved,genitore,noun,3,0:02:07,genitori,"I miei genitori hanno noleggiato una casa In una città di montagna,",0:02:07
+resolved,momento,noun,3,0:02:11,momento momenti,"dove, ironia della sorte, c'era solo Un bambino che vive in quel momento.",0:02:11
+resolved,appena,adv,3,0:03:58,appena,"Siamo appena arrivati, Ma abbiamo cose.",0:03:58
+resolved,pregare,verb,3,0:04:49,prego,Grazie. - Prego.,0:04:49
+resolved,laggiù,adv,3,0:05:13,laggiù,"Laggiù, con i miei zii. My father isn't here.",0:05:13
+resolved,santa,noun,3,0:07:06,santa,Merda santa!,0:07:06
+resolved,costruire,verb,3,0:08:04,costruito costruire,"A un certo punto, Hanno costruito la strada.",0:08:04
+resolved,strada,noun,3,0:08:04,strada,"A un certo punto, Hanno costruito la strada.",0:08:04
+resolved,tutto,pron,3,0:08:15,tutti,Tutti i miei antenati vivevano sulle montagne con le bestie.,1:11:29
+resolved,accidenti,intj,3,0:08:45,accidenti,Accidenti? - Eh!,0:08:45
+resolved,mungere,verb,3,0:08:50,mungere,"Merda, mia zia! È ora di mungere.",0:08:50
+resolved,nero,adj,3,0:10:18,nero,"ora di lavoro, dell'umore semplice e nero.",0:10:18
+resolved,contento,adj,3,0:11:32,contento,"Sono contento che tu sia tornato, Berto.",0:11:32
+resolved,insegnare,verb,3,0:11:47,insegnarmi insegni insegnerò,"Dai, puoi insegnarmi il tuo dialetto?",0:11:47
+resolved,nessuno,adj,3,0:12:12,nessuno,Non ho sentito nessuno. - OH! Veramente?,0:12:12
+resolved,altitudine,noun,3,0:13:03,altitudine,"I numeri, d'altra parte, sono l'altitudine.",0:13:03
+resolved,ecco,intj,3,0:14:31,eccoci eccoli,Eccoli.,0:14:31
+resolved,ai,prep,3,0:15:21,ai,"Andò ai pascoli con suo zio per aiutarlo,",0:15:21
+resolved,significare,verb,3,0:17:46,significa significhi,Cosa significa?,0:17:46
+resolved,giro,noun,3,0:17:51,giro,"No, mio ​​zio. Li giro e tienili in ordine.",0:17:51
+resolved,piccolo,adj,3,0:17:56,piccolo piccola piccoli,"È una piccola malattia da altitudine, ok?",0:25:00
+resolved,regola,noun,3,0:17:58,regole,"Ci sono regole assurde, noi Capita, ma è per lo più un duro lavoro.",0:17:58
+resolved,nome,noun,3,0:18:04,nome nomi,"Le montagne, Quali sono i loro nomi?",0:18:04
+resolved,prossimo,adj,3,0:18:24,prossimi prossima prossimo,Nei prossimi giorni Voglio andarci con il mio ragazzo.,0:18:24
+resolved,acqua,noun,3,0:20:05,acqua,Sarà acqua da 100 anni fa.,0:20:12
+resolved,difficile,adj,3,0:20:18,difficile,Ora è un po 'più difficile con le nuove regole.,1:20:31
+resolved,scendere,verb,3,0:20:37,scende scendi scendiamo,"Dai, quando scendi, vieni. - No, volevo svegliarmi presto domani.",0:38:55
+resolved,attenzione,noun,3,0:22:04,attenzione,"Per favore, Fai attenzione a questi bambini.",0:22:04
+resolved,salto,noun,3,0:23:44,salto salti,"Salti per primo, Bruno, vai!",0:23:44
+resolved,saltare,verb,3,0:23:46,saltare salta,Fai un respiro profondo e salta.,0:23:46
+resolved,mattina,noun,3,0:25:51,mattina,Ma il ricordo di quella mattina rimarrebbe con me per sempre.,0:25:51
+resolved,lungo,adj,3,0:26:34,lungo,"""Ma era senza dubbio ... lungo.""",0:26:34
+resolved,esaminare,verb,3,0:26:48,esaminato,"""Mi sono svegliato prima e attentamente esaminato ...""",0:26:48
+resolved,proprio,adv,3,0:27:38,proprio,"Vai fuori, sarò proprio lì. Andare!",0:27:38
+resolved,pagare,verb,3,0:28:21,paga pagherò pagherà,"Per i soldi, Si preoccupa solo di chi paga.",0:28:21
+resolved,preoccupare,verb,3,0:28:21,preoccupa preoccupo preoccupi,"Per i soldi, Si preoccupa solo di chi paga.",0:28:21
+resolved,nemmeno,adv,3,0:28:39,nemmeno,"Non sono mai stato a Torino, Non riesco nemmeno a immaginarlo.",0:28:39
+resolved,uscire,verb,3,0:28:48,uscire uscendo uscì,"Perché tutto è un pericolo, Non puoi uscire.",0:28:48
+resolved,lago,noun,3,0:30:20,lago,"Cosa ""niente""? Dai! - La tenda, il lago, niente è giusto.",0:35:14
+resolved,caffè,noun,3,0:31:34,caffè,"Fili, vuoi un caffè? - Che cosa?",1:14:22
+resolved,cantiere,noun,3,0:32:52,cantiere cantieri,Ha lavorato con suo padre Nei cantieri.,0:32:52
+resolved,mano,noun,3,0:34:03,mano mani,"del loro modo di lavorare per la terra, Nelle mani delle donne,",1:32:37
+resolved,famiglia,noun,3,0:34:22,famiglia,"Non mi ha chiesto come stavo, Come era la mia famiglia",0:34:22
+resolved,roba,noun,3,0:35:32,roba,"È roba che fai con gli amici. - Dai, Pietro.",0:35:32
+resolved,scrivere,verb,3,0:36:55,scrivere scrivi,Scrivere? Viaggiare in tutto il mondo?,0:36:55
+resolved,metà,noun,3,0:39:36,metà,La Juventus ha mostrato poca attenzione Nella metà dell'avversario.,0:39:36
+resolved,rovina,noun,3,0:46:42,rovina,"Amore mio, dovremmo comprare Un posto come questo, una rovina.",1:17:09
+resolved,vendere,verb,3,0:46:58,vendere vendiamo,Quindi ho dovuto cercare i proprietari E farli vendere.,0:46:58
+resolved,cambiare,verb,3,0:48:17,cambia cambiano,"Anche se se ne è andato, Per me non cambia nulla.",0:48:17
+resolved,mese,noun,3,0:48:43,mesi,"Quindi, finiamo in tre o quattro mesi.",0:48:43
+resolved,ad,prep,3,0:51:48,ad,"Ad un certo punto, Bruno ha litigato con suo padre",0:51:48
+resolved,notizia,noun,3,0:52:15,notizie notizia,Bruno ha sempre chiesto notizie di te.,0:52:15
+resolved,settimana,noun,3,0:54:03,settimana,Ci vorrà una settimana per chiarirlo.,0:54:03
+resolved,forte,adj,3,0:55:14,forte,"È forte quando cresce dove è nato,",0:55:14
+resolved,perdere,verb,3,0:55:39,perso perdere,Non posso perdere Quattro ore di lavoro viaggiando ogni giorno.,0:55:39
+resolved,felice,adj,3,1:02:55,felice,"Sarebbe stato felice Per vedere cosa stai facendo, sai?",1:02:55
+resolved,libro,noun,3,1:12:27,libro libri,Che hai provato a scrivere un libro.,1:12:27
+resolved,là,adv,3,1:13:14,là,"Vedi, c'è un mondo là fuori.",2:04:06
+resolved,casino,noun,3,1:16:34,casino,Sto facendo un casino. - Lo farò.,1:16:34
+resolved,rendere,verb,3,1:17:14,renderemo reso,"Lo renderemo più bello del tuo. - Sì, bene.",1:17:14
+resolved,usare,verb,3,1:17:48,usare usano usiamo,"Cose che puoi indicare anche con il dito, cose che puoi usare.",1:17:48
+resolved,terra,noun,3,1:18:04,terra,"Creiamo una buona terra, noi giardiamo ...",1:18:04
+resolved,lei,pron,3,1:22:09,lei,È una che sa come farlo E lei ha una testa dura.,1:22:09
+resolved,grappa,noun,3,1:34:50,grappa,Qualcuno vuole un'altra Grappa? - Me.,1:34:50
+resolved,vincere,verb,3,1:37:55,vinco vince,"Molto bene, buono. - Chi vince?",1:37:55
+resolved,stesso,adj,3,1:45:16,stesso,"Fa lo stesso lavoro di mia madre, più o meno.",1:45:16
+resolved,meglio,adv,3,1:51:46,meglio,"che avevo solo intravisto, ancora noto meglio.",1:51:46
+resolved,aiuto,noun,3,1:55:36,aiuto,Come se la nostra amicizia Non avevo bisogno di alcun aiuto.,1:55:36
+resolved,inizio,noun,3,2:02:52,inizio,Quando mi sono svegliato all'inizio del mattina al latte,2:02:52
+resolved,stupido,adj,3,2:03:08,stupido,"È stupido perché è impossibile Davvero, preoccuparti di qualcun altro.",2:03:13
+resolved,oltre,adv,3,2:06:37,oltre,"Mi chiedevo chi lo avesse conosciuto Oltre a me sulla terra,",2:17:44
+resolved,bolla,noun,3,2:10:58,bolle,"Bolle, bolle, bolle!",2:10:58
+resolved,amicizia,noun,2,0:01:39,amicizia,Né quell'amicizia era un posto dove metti le tue radici,0:01:39
+resolved,radice,noun,2,0:01:39,radici radice,Né quell'amicizia era un posto dove metti le tue radici,0:01:39
+resolved,crescere,verb,2,0:01:52,cresciuto cresce,Sono stato cresciuto come figlio unico in un appartamento in città.,0:01:52
+resolved,unico,adj,2,0:01:52,unico unica,Sono stato cresciuto come figlio unico in un appartamento in città.,0:01:52
+resolved,ce,pron,2,0:02:56,ce,"Mi scusi, ce n'è uno qui.",0:02:56
+resolved,scusare,verb,2,0:02:56,scusi,"Mi scusi, ce n'è uno qui.",0:02:56
+resolved,colazione,noun,2,0:03:55,colazione,Vorresti un po 'di colazione? - Hmm.,0:03:55
+resolved,biscotto,noun,2,0:04:02,biscotto,Posso avere un altro biscotto? - SÌ.,0:05:28
+resolved,vivo,adj,2,0:04:06,vivi,Vivi qui? - SÌ.,0:04:06
+resolved,villaggio,noun,2,0:04:14,villaggio,Non capisco. - Sono l'ultimo bambino nel villaggio.,0:04:14
+resolved,quanto,pron,2,0:04:59,quanti,Quanti modi ci sono per dire cose.,1:44:06
+resolved,novembre,noun,2,0:05:01,novembre,"Non andrei mai. - Certo, torna a novembre, poi vedremo.",1:16:54
+resolved,dove,pron,2,0:05:17,dov',E dov'è?,0:05:17
+resolved,muratore,noun,2,0:05:18,muratore,"È via, è un muratore. In Svizzera o forse in Austria.",0:05:18
+resolved,mamma,noun,2,0:05:24,mamma,"Mamma, c'è qualcuno lì con te? - Alessandra è qui.",0:40:18
+resolved,funzionare,verb,2,0:07:11,funziona,"No, funziona, andiamo.",0:07:11
+resolved,frattempo,adv,2,0:08:25,frattempo,"Nel frattempo sono qui con mia madre,",0:08:25
+resolved,affittare,verb,2,0:08:28,affittato affittare,Perché abbiamo affittato la casa per tutta l'estate.,0:08:28
+resolved,seguire,verb,2,0:10:12,segue seguire,"per ogni stagione di leggerezza segue uno di gravità,",0:10:12
+resolved,semplice,adj,2,0:10:18,semplice semplici,"ora di lavoro, dell'umore semplice e nero.",0:10:18
+resolved,esistere,verb,2,0:10:59,esistessero esisterebbe,"Senza quel pezzo, Il formaggio non esisterebbe.",1:24:26
+resolved,rock,noun,2,0:11:37,rock,"Means ""rock"" in my language, Come ""Pietro"".",0:11:37
+resolved,dialetto,noun,2,0:11:47,dialetto,"Dai, puoi insegnarmi il tuo dialetto?",0:11:47
+resolved,albero,noun,2,0:11:53,alberi albero,"Parte uomo, parte animale e in parte albero,",1:24:36
+resolved,vicino,adj,2,0:12:58,vicini vicino,"Più sono vicini, più ripido è il pendio.",0:12:58
+resolved,indietro,adv,2,0:13:31,indietro,Sei sicuro? Non si può tornare indietro.,0:13:31
+resolved,mancare,verb,2,0:14:58,manca mancano,Non ti manca quella città schifosa?,0:14:58
+resolved,piede,noun,2,0:15:27,piedi,Ci vuole un'ora a piedi per arrivarci.,0:15:27
+resolved,tanto,adv,2,0:15:34,tanto,"Un'ora non è così tanto, vero?",0:15:34
+resolved,intelligente,adj,2,0:16:34,intelligente,"Bruno è intelligente. Sarebbe un peccato, Se ha smesso di studiare, giusto?",0:16:34
+resolved,peccato,noun,2,0:16:34,peccato,"Bruno è intelligente. Sarebbe un peccato, Se ha smesso di studiare, giusto?",0:16:34
+resolved,sicuramente,adv,2,0:16:41,sicuramente,"Ciao, ""Namasté"" a te. - Spero sicuramente che il Wi-Fi funzioni qui.",1:29:07
+resolved,marito,noun,2,0:16:43,marito,"Sì, dovresti parlare a mio marito a riguardo.",0:16:43
+resolved,riguardo,noun,2,0:16:43,riguardo,"Sì, dovresti parlare a mio marito a riguardo.",0:16:43
+resolved,buongiorno,noun,2,0:17:06,buongiorno,Buongiorno. - CIAO.,0:17:06
+resolved,mostrare,verb,2,0:17:14,mostrerò mostrato,La Juventus ha mostrato poca attenzione Nella metà dell'avversario.,0:39:36
+resolved,imparare,verb,2,0:17:43,imparando imparato,Sto imparando a essere un produttore di formaggi.,0:17:43
+resolved,duro,adj,2,0:17:58,duro dura,"Ci sono regole assurde, noi Capita, ma è per lo più un duro lavoro.",0:17:58
+resolved,meraviglioso,adj,2,0:19:26,meraviglioso,Non è meraviglioso?,0:19:26
+resolved,studio,noun,2,0:19:40,studi,"Gli ricordava i suoi studi in chimica e fisica,",0:19:40
+resolved,bere,verb,2,0:20:05,bevendo bere,L'acqua che stai bevendo,0:20:05
+resolved,fermarsi,verb,2,0:22:47,fermiamoci fermarmi,"Anche se Bruno e Lara mi ha sempre invitato a fermarmi qui,",1:27:18
+resolved,respiro,noun,2,0:23:46,respiro respiri,Fai un respiro profondo e salta.,0:23:46
+resolved,ascia,noun,2,0:23:52,ascia,"Prendi la tua ascia e guarda le corde, che sono intrecciati.",0:25:14
+resolved,malattia,noun,2,0:25:00,malattia,"È una piccola malattia da altitudine, ok?",0:25:00
+resolved,alzarsi,verb,2,0:25:03,alzati,"Non è niente, alzati.",0:25:03
+resolved,corda,noun,2,0:25:14,corde corda,"Prendi la tua ascia e guarda le corde, che sono intrecciati.",0:25:14
+resolved,accadere,verb,2,0:26:08,accadesse accade,Come se non accadesse mai più.,0:26:08
+resolved,completamente,adv,2,0:26:45,completamente,"E così, il cadavere scompare completamente.",1:34:23
+resolved,attentamente,adv,2,0:26:48,attentamente,"""Mi sono svegliato prima e attentamente esaminato ...""",0:26:48
+resolved,svegliare,verb,2,0:26:48,svegliato,"""Mi sono svegliato prima e attentamente esaminato ...""",0:26:48
+resolved,cameriere,noun,2,0:27:04,cameriere,"""Il cameriere, approfittando del nostro riposo """,0:27:08
+resolved,strano,adj,2,0:27:50,strano strana,"Strano, comunque non capisco niente. - Riguardo a cosa?",0:27:50
+resolved,cibo,noun,2,0:28:24,cibo,"Hanno detto che si prenderanno cura di cibo, alloggio e scuola.",0:28:24
+resolved,futuro,noun,2,0:29:01,futuro,"Pietro, è buono per Bruno, è per il suo futuro.",0:29:01
+resolved,preparare,verb,2,0:29:04,prepara preparo,Qual è il problema se sfiora le mucche E prepara il formaggio?,0:29:04
+resolved,problema,noun,2,0:29:04,problema problemi,Qual è il problema se sfiora le mucche E prepara il formaggio?,0:29:04
+resolved,sfiorare,verb,2,0:29:04,sfiora sfiorare,Qual è il problema se sfiora le mucche E prepara il formaggio?,0:29:04
+resolved,odiare,verb,2,0:29:13,odiamo,Vuoi portare Bruno A quella città di merda odiamo?,0:29:13
+resolved,pazzo,adj,2,0:30:44,pazzo,"Sei pazzo. - Guarda, non sto scherzando.",1:10:26
+resolved,separare,verb,2,0:32:45,separato separati,"Anche se a volte lo avrei fatto Mi è piaciuto parlargli quando eravamo separati,",1:55:29
+resolved,mentre,conj,2,0:32:49,mentre,"Mentre ero impegnato con gli altri, Così banale che non li ricordo nemmeno.",1:01:37
+resolved,certamente,adv,2,0:33:25,certamente,"Posso chiederti una sigaretta? - Sì, certamente.",0:33:25
+resolved,illuminare,verb,2,0:33:30,illuminare illumineremo,"Forse illumineremo un falò, unkrk una bottiglia e cantare insieme, eh?",0:35:26
+resolved,pesante,adj,2,0:34:49,pesante,"Sul rilievo alpino Si prevede una neve pesante,",2:06:34
+resolved,aspetto,noun,2,0:35:21,aspetti aspetto,Cosa ti aspetti da me?,0:35:21
+resolved,falò,noun,2,0:35:26,falò,"Forse illumineremo un falò, unkrk una bottiglia e cantare insieme, eh?",0:35:26
+resolved,seguente,adj,2,0:35:59,seguente,"L'anno seguente sono tornato a le montagne solo per alcuni giorni,",0:35:59
+resolved,scelta,noun,2,0:36:41,scelte,Perché non posso fare le mie scelte?,0:36:41
+resolved,sogno,noun,2,0:37:02,sogno,Ci sarà sempre tempo per ... fottuto sogno!,0:37:02
+resolved,riprendere,verb,2,0:37:25,riprendi riprendilo,riprendi quello che hai detto. - NO.,0:37:25
+resolved,beh,intj,2,0:38:59,beh,"Sì, okay, come al solito. - Sì, beh. Ciao, Pietro.",0:38:59
+resolved,poco,adj,2,0:39:36,poca pochi,La Juventus ha mostrato poca attenzione Nella metà dell'avversario.,0:39:36
+resolved,area,noun,2,0:39:39,area,"Hanno anche cercato l'area circostante Con i cani, ma non hanno trovato nulla.",2:16:42
+resolved,barba,noun,2,0:44:01,barba,"Il tuo è più bello, una vera barba.",0:44:06
+resolved,terreno,noun,2,0:46:24,terreno,"Arrivi al terreno pietroso, Continua dritto e arriva in cima.",1:05:29
+resolved,costruirlo,verb,2,0:47:31,costruirlo,Mi ha chiesto di costruirlo.,0:47:31
+resolved,libero,adj,2,0:47:51,libero,Ti aspetterò alle 9 del mattino. A sei anni sei libero.,0:56:12
+resolved,promettere,verb,2,0:48:05,promesso promettere,Gli ho promesso.,0:48:05
+resolved,stabile,adj,2,0:49:35,stabile,Non avevo nemmeno un lavoro stabile.,0:49:35
+resolved,estivo,adj,2,0:50:00,estiva,E quella appena una giornata estiva Passato in montagna.,0:50:00
+resolved,marcatore,noun,2,0:51:03,marcatore,"Devo essere il marcatore rosso, Perché è sempre stato quello nero.",0:51:03
+resolved,spingere,verb,2,0:53:37,spingi spinto,Qualcosa mi ha spinto per salutare quella famiglia,1:27:21
+resolved,strappare,verb,2,0:53:40,strappando strappato,"Stai strappando il muro? - Con i piedi, dai.",0:53:40
+resolved,ora,noun,2,0:55:39,ore,Non posso perdere Quattro ore di lavoro viaggiando ogni giorno.,0:55:39
+resolved,servire,verb,2,0:55:57,serve serviamo,Questo è quello che serve.,0:55:57
+resolved,letto,noun,2,0:55:59,letto,Poi sabato vado giù E dormo nel mio letto.,0:55:59
+resolved,sabato,noun,2,0:55:59,sabato,Poi sabato vado giù E dormo nel mio letto.,0:55:59
+resolved,impazzire,verb,2,0:58:17,impazziresti impazzire,"Non devi pensare troppo in questo lavoro, Altrimenti, impazziresti.",0:58:17
+resolved,come,pron,2,0:58:24,com',Com'è quando è male?,0:58:24
+resolved,invece,adv,2,1:01:16,invece,Ed era lì a parlare con mio padre invece di me.,1:01:16
+resolved,condividere,verb,2,1:01:24,condivideremmo condiviso,"Se era solo il nostro Quello che avevamo condiviso,",2:17:58
+resolved,importante,adj,2,1:01:35,importanti,"Mi sentivo come se avessi perso le cose più importanti,",1:01:35
+resolved,muovere,verb,2,1:02:31,muovendo muoverti,A partire da domani mi sto muovendo anche io.,1:02:31
+resolved,facile,adj,2,1:03:52,facile,"Facile, Roy! Dove cazzo stai correndo?",1:03:52
+resolved,domenica,noun,2,1:05:35,domenica,Per Bruno non c'erano né sabato Né la domenica nei pascoli di montagna.,1:26:06
+resolved,oggi,adv,2,1:05:45,oggi,"""Oggi ho di nuovo 21 anni, Come il mio compagno qui. """,1:49:41
+resolved,tetto,noun,2,1:08:41,tetto,"""Finito"" è una parola grande. C'è il tetto.",1:08:41
+resolved,piano,noun,2,1:10:50,piani,"Abbiamo finito qui, quali sono i tuoi piani?",1:10:50
+resolved,progetto,noun,2,1:11:48,progetto progetti,"È un bel progetto, davvero.",1:11:48
+resolved,realtà,noun,2,1:12:16,realtà,"Abbiamo debiti terribili, Apri gli occhi alla realtà!",1:53:22
+resolved,cosa,pron,2,1:16:07,cos',"Voglio dire, ma cos'è? - Un'immagine.",1:16:07
+resolved,immagine,noun,2,1:16:07,immagine,"Voglio dire, ma cos'è? - Un'immagine.",1:16:07
+resolved,invitare,verb,2,1:17:20,inviteremo invitato,Inviteremo tutto I nostri amici di Torino a venire.,1:17:20
+resolved,mezzo,noun,2,1:17:23,mezzo,Ci renderemo un bel villaggio ecologico Qui nel mezzo della natura.,1:17:23
+resolved,astratto,noun,2,1:17:33,astratto,È così astratto nella tua mente che anche il nome è astratto.,1:17:33
+resolved,mente,noun,2,1:17:33,mente,È così astratto nella tua mente che anche il nome è astratto.,1:17:33
+resolved,prevedere,verb,2,1:18:09,prevedi prevede,Allora in inverno cosa prevedi di fare?,1:18:09
+resolved,metro,noun,2,1:18:12,metri,"Senti, ci sono metri di neve qui.",1:18:12
+resolved,banca,noun,2,1:20:20,banca,"Poi c'è il mutuo, la banca ...",1:20:20
+resolved,piatto,noun,2,1:21:12,piatti,"Tabella due. - Dammi i piatti, dai.",1:21:14
+resolved,stanco,adj,2,1:24:57,stanca stanco,"È forte, non si stanca mai.",1:24:57
+resolved,conto,noun,2,1:25:03,conti conto,"Si prende anche cura dei conti, meno male. Odio quella roba.",1:25:03
+resolved,sapore,noun,2,1:33:49,sapore,Yak Butter ha un sapore più forte.,1:33:49
+resolved,cielo,noun,2,1:34:00,cielo,"Che immagine, le sepolture del cielo!",1:34:29
+resolved,sepoltura,noun,2,1:34:00,sepolture,"Che immagine, le sepolture del cielo!",1:34:29
+resolved,cadavere,noun,2,1:34:03,cadaveri cadavere,Non c'è abbastanza legno in Nepal per cremare i cadaveri.,1:34:03
+resolved,orribile,adj,2,1:34:26,orribile,Quanto orribile!,1:34:26
+resolved,famoso,adj,2,1:35:48,famoso,"Dai, sappiamo che sono dopo di te, Ora che sei famoso.",1:35:48
+resolved,uh,intj,2,1:36:16,uh,uh! - Hmm.,1:36:16
+resolved,mare,noun,2,1:36:57,mari,"""Ci sono otto montagne e otto mari""",1:36:57
+resolved,stronzo,noun,2,1:37:07,stronzo,"Sembra uno stronzo, ma questo ...",1:37:07
+resolved,centro,noun,2,1:37:13,centro,E al centro c'è questo ...,1:37:13
+resolved,espresso,noun,2,1:39:40,espresso,"Un espresso, ""Krpaya"". Freddo se possibile.",1:40:16
+resolved,freddo,noun,2,1:40:16,freddo,"Un espresso, ""Krpaya"". Freddo se possibile.",1:40:16
+resolved,differenza,noun,2,1:52:13,differenza,"Vendiamo direttamente ai clienti, che è piuttosto una differenza.",1:52:13
+resolved,uso,noun,2,1:52:21,uso,"E sentivo che non era più di alcun uso,",2:19:21
+resolved,storia,noun,2,1:53:02,storia,Ma l'inverno a Grana È tutta un'altra storia.,1:53:02
+resolved,morire,verb,2,1:53:11,moriremo muore,"Non moriremo di fame, Abbiamo un sacco di formaggio.",1:53:11
+resolved,decidere,verb,2,1:54:47,deciso,"In breve, hanno deciso Che non ha senso continuare a cercare.",2:16:50
+resolved,arrabbiato,adj,2,2:11:50,arrabbiato,"Ero arrabbiato, perché non è colpa di uno, Ma il mio.",2:11:53
+resolved,appartamento,noun,1,0:01:52,appartamento,Sono stato cresciuto come figlio unico in un appartamento in città.,0:01:52
+resolved,abituare,verb,1,0:01:55,abituato,Non ero abituato a fare le cose in due.,0:01:55
+resolved,noleggiare,verb,1,0:02:07,noleggiato,"I miei genitori hanno noleggiato una casa In una città di montagna,",0:02:07
+resolved,ironia,noun,1,0:02:11,ironia,"dove, ironia della sorte, c'era solo Un bambino che vive in quel momento.",0:02:11
+resolved,sorte,noun,1,0:02:11,sorte,"dove, ironia della sorte, c'era solo Un bambino che vive in quel momento.",0:02:11
+resolved,arrivederci,intj,1,0:03:20,arrivederci,Arrivederci.,0:03:20
+resolved,fratello,noun,1,0:04:10,fratelli,"Hai fratelli, Bruno?",0:04:10
+resolved,paese,noun,1,0:04:12,paese,"NO, Sono l'ultimo figlio nel paese.",0:04:12
+resolved,gennaio,noun,1,0:05:05,gennaio,Solo lui è a gennaio.,0:05:05
+resolved,T,noun,1,0:05:13,t,"Laggiù, con i miei zii. My father isn't here.",0:05:13
+resolved,zii,noun,1,0:05:13,zii,"Laggiù, con i miei zii. My father isn't here.",0:05:13
+resolved,ferito,adj,1,0:07:09,ferito,Mi hai spaventato. Sei ferito?,0:07:09
+resolved,spaventare,verb,1,0:07:09,spaventato,Mi hai spaventato. Sei ferito?,0:07:09
+resolved,incluso,adj,1,0:07:55,incluso,"14, incluso me. - Hmm.",0:07:55
+resolved,bar,noun,1,0:07:58,bar,"C'erano due negozi, un bar,",0:07:58
+resolved,negozio,noun,1,0:07:58,negozi,"C'erano due negozi, un bar,",0:07:58
+resolved,panetteria,noun,1,0:08:02,panetteria,"La scuola, la panetteria ...",0:08:02
+resolved,fabbrica,noun,1,0:08:34,fabbrica,"Quindi, è un ingegnere In una grande fabbrica,",0:08:34
+resolved,ingegnere,noun,1,0:08:34,ingegnere,"Quindi, è un ingegnere In una grande fabbrica,",0:08:34
+resolved,zia,noun,1,0:08:50,zia,"Merda, mia zia! È ora di mungere.",0:08:50
+resolved,gravità,noun,1,0:10:12,gravità,"per ogni stagione di leggerezza segue uno di gravità,",0:10:12
+resolved,leggerezza,noun,1,0:10:12,leggerezza,"per ogni stagione di leggerezza segue uno di gravità,",0:10:12
+resolved,stagione,noun,1,0:10:12,stagione,"per ogni stagione di leggerezza segue uno di gravità,",0:10:12
+resolved,umore,noun,1,0:10:18,umore,"ora di lavoro, dell'umore semplice e nero.",0:10:18
+resolved,gamba,noun,1,0:10:46,gambe,"Nel frattempo Le mie gambe sono diventate pallide,",0:10:46
+resolved,pallido,adj,1,0:10:46,pallide,"Nel frattempo Le mie gambe sono diventate pallide,",0:10:46
+resolved,crosta,noun,1,0:10:48,croste,i graffi e le croste sono guarite E hanno dimenticato il prurito delle ortiche.,0:10:48
+resolved,dimenticare,verb,1,0:10:48,dimenticato,i graffi e le croste sono guarite E hanno dimenticato il prurito delle ortiche.,0:10:48
+resolved,graffio,noun,1,0:10:48,graffi,i graffi e le croste sono guarite E hanno dimenticato il prurito delle ortiche.,0:10:48
+resolved,guarire,verb,1,0:10:48,guarite,i graffi e le croste sono guarite E hanno dimenticato il prurito delle ortiche.,0:10:48
+resolved,ortica,noun,1,0:10:48,ortiche,i graffi e le croste sono guarite E hanno dimenticato il prurito delle ortiche.,0:10:48
+resolved,prurito,noun,1,0:10:48,prurito,i graffi e le croste sono guarite E hanno dimenticato il prurito delle ortiche.,0:10:48
+resolved,ago,noun,1,0:11:57,aghi,"Che c'è un ""iares"" E ha aghi morbidi.",0:11:57
+resolved,morbido,noun,1,0:11:57,morbidi,"Che c'è un ""iares"" E ha aghi morbidi.",0:11:57
+resolved,chiamata,noun,1,0:12:54,chiamate,"Queste linee sono chiamate ""Curve di livello"".",0:12:54
+resolved,linea,noun,1,0:12:54,linee,"Queste linee sono chiamate ""Curve di livello"".",0:12:54
+resolved,livello,noun,1,0:12:54,livello,"Queste linee sono chiamate ""Curve di livello"".",0:12:54
+resolved,pendio,noun,1,0:12:58,pendio,"Più sono vicini, più ripido è il pendio.",0:12:58
+resolved,ripido,adj,1,0:12:58,ripido,"Più sono vicini, più ripido è il pendio.",0:12:58
+resolved,numero,noun,1,0:13:03,numeri,"I numeri, d'altra parte, sono l'altitudine.",0:13:03
+resolved,esatto,adj,1,0:13:10,esatto,Esatto.,0:13:10
+resolved,madonna,noun,1,0:13:18,madonna,Madonna!,0:13:18
+resolved,serio,adj,1,0:13:25,serio,Dici sul serio?,0:13:25
+resolved,accettare,verb,1,0:13:28,accettando,Dimmi che sai cosa stai accettando? - SÌ.,0:13:28
+resolved,cresta,noun,1,0:14:41,cresta,"La cresta che lo chiamano ""Maneater"". Lo sapevi?",0:14:41
+resolved,schifoso,adj,1,0:14:58,schifosa,Non ti manca quella città schifosa?,0:14:58
+resolved,insistere,verb,1,0:16:23,insistere,Mi scusi per continuare a insistere.,0:16:23
+resolved,ripetere,verb,1,0:16:28,ripetere,"Quindi, deve ripetere l'anno?",0:16:28
+resolved,fallire,verb,1,0:16:32,fallito,"Bene, se ha fallito ...",0:16:32
+resolved,raccontare,verb,1,0:17:03,raccontato,"Ciao, devi essere Bruno. Pietro mi ha raccontato molto di te.",0:17:03
+resolved,bianco,adj,1,0:17:17,bianco,"Prendiamo quello in bianco e nero laggiù. - Va bene, proviamo.",0:17:17
+resolved,produttore,noun,1,0:17:43,produttore,Sto imparando a essere un produttore di formaggi.,0:17:43
+resolved,colui,pron,1,0:17:48,colui,Colui che produce il formaggio. - Li hai fatti da solo?,0:17:48
+resolved,produrre,verb,1,0:17:48,produce,Colui che produce il formaggio. - Li hai fatti da solo?,0:17:48
+resolved,ordine,noun,1,0:17:51,ordine,"No, mio ​​zio. Li giro e tienili in ordine.",0:17:51
+resolved,lotto,noun,1,0:18:09,lotto,Il lotto. Non chiamiamo i picchi qui.,0:18:09
+resolved,picchiare,verb,1,0:18:09,picchi,Il lotto. Non chiamiamo i picchi qui.,0:18:09
+resolved,vino,noun,1,0:18:40,vino,Passa il vino.,0:18:40
+resolved,toccare,verb,1,0:18:47,toccato,"Pietro, lo sai che una volta toccato ... - Shh!",0:18:47
+resolved,affascinare,verb,1,0:19:36,affascinato,Il ghiacciaio ha affascinato l'uomo della scienza che era mio padre.,0:19:36
+resolved,scienza,noun,1,0:19:36,scienza,Il ghiacciaio ha affascinato l'uomo della scienza che era mio padre.,0:19:36
+resolved,chimica,noun,1,0:19:40,chimica,"Gli ricordava i suoi studi in chimica e fisica,",0:19:40
+resolved,fisico,adj,1,0:19:40,fisica,"Gli ricordava i suoi studi in chimica e fisica,",0:19:40
+resolved,ricordare,verb,1,0:19:40,ricordava,"Gli ricordava i suoi studi in chimica e fisica,",0:19:40
+resolved,formato,verb,1,0:19:44,formata,la mitologia su cui si è formata.,0:19:44
+resolved,mitologia,noun,1,0:19:44,mitologia,la mitologia su cui si è formata.,0:19:44
+resolved,trattare,verb,1,0:19:51,tratterà,Che la montagna ci tratterà per noi.,0:19:51
+resolved,altezza,noun,1,0:19:55,altezza,Sopra una certa altezza Mantiene la memoria,0:19:55
+resolved,certo,adj,1,0:19:55,certa,Sopra una certa altezza Mantiene la memoria,0:19:55
+resolved,memoria,noun,1,0:19:55,memoria,Sopra una certa altezza Mantiene la memoria,0:19:55
+resolved,sopra,adv,1,0:19:55,sopra,Sopra una certa altezza Mantiene la memoria,0:19:55
+resolved,scorso,adj,1,0:20:08,scorso,Non è la neve dell'anno scorso.,0:20:08
+resolved,fermo,adj,1,0:20:20,ferma,"La cosa bella del ghiacciaio, quindi, è che non si ferma mai.",0:20:20
+resolved,bicchiere,noun,1,0:21:35,bicchiere,"Vuoi un bicchiere d'acqua? - No, no, no.",0:21:35
+resolved,particolare,adj,1,0:22:02,particolare,"Niente in particolare, Andiamo a fare un giro.",0:22:02
+resolved,ritmo,noun,1,0:22:50,ritmo,Ritmo!,0:22:50
+resolved,profondo,adj,1,0:23:46,profondo,Fai un respiro profondo e salta.,0:23:46
+resolved,attento,adj,1,0:23:52,attento,Attento all'ascia per ghiaccio.,0:23:52
+resolved,ghiaccio,noun,1,0:23:52,ghiaccio,Attento all'ascia per ghiaccio.,0:23:52
+resolved,cinque,num,1,0:24:00,cinque,Incredibile! Dammi cinque.,0:24:00
+resolved,incredibile,adj,1,0:24:00,incredibile,Incredibile! Dammi cinque.,0:24:00
+resolved,turno,noun,1,0:24:08,turno,È il tuo turno adesso.,0:24:08
+resolved,scivolare,verb,1,0:24:16,scivolato,Sei scivolato? - SÌ.,0:24:16
+resolved,dispiaciuto,verb,1,0:24:50,dispiaciuti,"Scusa, papà, scusa. - shh. Non c'è bisogno di essere dispiaciuti.",0:24:50
+resolved,respirare,verb,1,0:25:04,respira,"Respira, fai piccoli respiri.",0:25:04
+resolved,intrecciarsi,verb,1,0:25:14,intrecciati,"Prendi la tua ascia e guarda le corde, che sono intrecciati.",0:25:14
+resolved,condurre,verb,1,0:25:27,condurrai,"Condurrai la corda, ok?",0:25:27
+resolved,guidare,verb,1,0:25:29,guidando,"Lo stai guidando, ok? - Va bene.",0:25:29
+resolved,basso,adj,1,0:25:35,basso,Più in basso andiamo giù Più passa.,0:25:35
+resolved,campione,noun,1,0:25:42,campione,"Bravo, sei un campione! Andare.",0:25:42
+resolved,successivo,adj,1,0:25:48,successivo,"Il giorno successivo Mio padre è tornato a Torino,",0:25:48
+resolved,durare,verb,1,0:26:28,durato,"""Non lo so Per quanto tempo è durato il sonno "",",0:26:28
+resolved,sonno,noun,1,0:26:28,sonno,"""Non lo so Per quanto tempo è durato il sonno "",",0:26:28
+resolved,dubbio,noun,1,0:26:34,dubbio,"""Ma era senza dubbio ... lungo.""",0:26:34
+resolved,rinfrescare,verb,1,0:26:42,rinfrescato,"""Perché ci ha rinfrescato ...""",0:26:42
+resolved,cella,noun,1,0:26:56,cella,"""Ho esaminato attentamente la nostra cella."" - ""Cell.""",0:26:56
+resolved,pausa,noun,1,0:27:02,pausa,Pausa.,0:27:02
+resolved,approfittare,verb,1,0:27:08,approfittando,"""Il cameriere, approfittando del nostro riposo """,0:27:08
+resolved,riposo,noun,1,0:27:08,riposo,"""Il cameriere, approfittando del nostro riposo """,0:27:08
+resolved,eliminare,verb,1,0:27:13,eliminato,"""Aveva eliminato il tavolo, ma ...""",0:27:13
+resolved,tavolo,noun,1,0:27:13,tavolo,"""Aveva eliminato il tavolo, ma ...""",0:27:13
+resolved,comunque,adv,1,0:27:50,comunque,"Strano, comunque non capisco niente. - Riguardo a cosa?",0:27:50
+resolved,segreto,adj,1,0:27:53,segreti,I segreti che tieni tra te.,0:27:53
+resolved,superiore,adj,1,0:28:04,superiore,Scuola superiore? - SÌ.,0:28:04
+resolved,scegliere,verb,1,0:28:06,scegliere,"Mi hanno fatto scegliere una scuola, E vivrò con te.",0:28:06
+resolved,alloggio,noun,1,0:28:24,alloggio,"Hanno detto che si prenderanno cura di cibo, alloggio e scuola.",0:28:24
+resolved,diverso,adj,1,0:28:43,diverso,"Sai, è diverso.",0:28:43
+resolved,dentro,adv,1,0:28:45,dentro,"Rimani sempre dentro,",0:28:45
+resolved,pericolo,noun,1,0:28:48,pericolo,"Perché tutto è un pericolo, Non puoi uscire.",0:28:48
+resolved,diritto,noun,1,0:29:09,diritto,"Ma ha il diritto di studiare, allora Decidi se tornare alle sue mucche.",0:29:09
+resolved,suo,adj,1,0:29:09,sue,"Ma ha il diritto di studiare, allora Decidi se tornare alle sue mucche.",0:29:09
+resolved,rovinare,verb,1,0:29:19,rovinerà,Torino rovinerà qualcuno come Bruno! - Non è vero.,0:29:19
+resolved,egoista,adj,1,0:29:31,egoista,"Bene, è un po 'egoista ...",0:29:31
+resolved,osare,verb,1,0:29:33,osare,Fanculo! - OH! Non osare!,0:29:33
+resolved,volgare,adj,1,0:29:36,volgare,"Non essere volgare, non è come noi!",0:29:36
+resolved,inteso,adj,1,0:31:00,inteso,Inteso?,0:31:00
+resolved,disturbare,verb,1,0:31:29,disturbarti,"Spero di non disturbarti. - No, andiamo, fai posto.",0:31:29
+resolved,tanto,adj,1,0:31:40,tante,"Così tante uova! Che bello, non hai dovuto!",0:31:40
+resolved,uovo,noun,1,0:31:40,uova,"Così tante uova! Che bello, non hai dovuto!",0:31:40
+resolved,educarlo,verb,1,0:32:41,educarlo,"Urgenza dei miei genitori per aiutare Bruno, per educarlo",0:32:41
+resolved,urgenza,noun,1,0:32:41,urgenza,"Urgenza dei miei genitori per aiutare Bruno, per educarlo",0:32:41
+resolved,annoiato,adj,1,0:32:49,annoiato,"Mentre ero annoiato in estate,",0:32:49
+resolved,adulto,adj,1,0:32:56,adulta,La sua vita adulta è iniziato quando aveva 13 anni.,0:32:56
+resolved,chissà,adv,1,0:32:59,chissà,"Il mio, chissà.",0:32:59
+resolved,adolescenza,noun,1,0:33:02,adolescenza,Non credo che lo sapesse Cosa era l'adolescenza.,0:33:02
+resolved,sigaretta,noun,1,0:33:25,sigaretta,"Posso chiederti una sigaretta? - Sì, certamente.",0:33:25
+resolved,annuire,verb,1,0:34:01,annuì,Annuì la testa.,0:34:01
+resolved,alzare,verb,1,0:34:03,alzato,Ho alzato la mano,0:34:03
+resolved,nient',adv,1,0:34:04,nient',E poi nient'altro.,0:34:04
+resolved,guadagnare,verb,1,0:34:11,guadagnato,"Non gli ho chiesto come fosse, quanto ha guadagnato,",0:34:11
+resolved,rispondere,verb,1,0:34:26,risposto,"E non ho risposto: ""Mia madre sta bene, mio ​​padre non ho idea.""",0:34:26
+resolved,pranzo,noun,1,0:34:36,pranzo,"Pranzo... - merda santa, dai.",0:34:36
+resolved,esterno,adj,1,0:34:39,esterno,Non preoccuparti. Questi si legano all'esterno. - SÌ.,0:34:39
+resolved,legare,verb,1,0:34:39,legano,Non preoccuparti. Questi si legano all'esterno. - SÌ.,0:34:39
+resolved,necessario,adj,1,0:35:03,necessario,"No, non è necessario. - Va bene, non preoccuparti.",0:35:03
+resolved,tenda,noun,1,0:35:14,tenda,"Cosa ""niente""? Dai! - La tenda, il lago, niente è giusto.",0:35:14
+resolved,pescare,verb,1,0:35:24,pescare,"Cosa, vado a pescare con papà?",0:35:24
+resolved,bottiglia,noun,1,0:35:26,bottiglia,"Forse illumineremo un falò, unkrk una bottiglia e cantare insieme, eh?",0:35:26
+resolved,cantare,verb,1,0:35:26,cantare,"Forse illumineremo un falò, unkrk una bottiglia e cantare insieme, eh?",0:35:26
+resolved,voglia,noun,1,0:35:44,voglia,"Dai, Pietro. - Non ne ho voglia.",0:35:44
+resolved,doc,noun,1,0:36:47,doc,Vuoi fare ... doc ...,0:36:47
+resolved,americano,adj,1,0:36:52,americana,Vuoi studiare la letteratura americana? Cosa vuoi fare?,0:36:52
+resolved,letteratura,noun,1,0:36:52,letteratura,Vuoi studiare la letteratura americana? Cosa vuoi fare?,0:36:52
+resolved,fottuto,adj,1,0:37:02,fottuto,Ci sarà sempre tempo per ... fottuto sogno!,0:37:02
+resolved,buttare,verb,1,0:37:11,buttare,Non buttare via la tua vita.,0:37:11
+resolved,sprecare,verb,1,0:37:16,sprecato,Sei tu quello che ha sprecato il tuo. - Pietro!,0:37:16
+resolved,rio,adj,1,0:37:21,ri,Ri ... r i ...,0:37:21
+resolved,giurare,verb,1,0:37:50,giuro,Lo giuro.,0:37:50
+resolved,presto,adv,1,0:38:55,presto,"Dai, quando scendi, vieni. - No, volevo svegliarmi presto domani.",0:38:55
+resolved,svegliarsi,verb,1,0:38:55,svegliarmi,"Dai, quando scendi, vieni. - No, volevo svegliarmi presto domani.",0:38:55
+resolved,okay,noun,1,0:38:59,okay,"Sì, okay, come al solito. - Sì, beh. Ciao, Pietro.",0:38:59
+resolved,solito,adj,1,0:38:59,solito,"Sì, okay, come al solito. - Sì, beh. Ciao, Pietro.",0:38:59
+resolved,avversario,noun,1,0:39:36,avversario,La Juventus ha mostrato poca attenzione Nella metà dell'avversario.,0:39:36
+resolved,entrare,verb,1,0:39:39,entra,Entra nell'area ...,0:39:39
+resolved,progresso,noun,1,0:39:45,progressi,I progressi di Cannavaro ... - Ah ...,0:39:45
+resolved,finalmente,adv,1,0:39:48,finalmente,Cannavaro finalmente Si sbarazza della palla ...,0:39:48
+resolved,palla,noun,1,0:39:48,palla,Cannavaro finalmente Si sbarazza della palla ...,0:39:48
+resolved,sbarazzare,verb,1,0:39:48,sbarazza,Cannavaro finalmente Si sbarazza della palla ...,0:39:48
+resolved,condoglianza,noun,1,0:43:50,condoglianze,Condoglianze.,0:43:50
+resolved,fuoco,noun,1,0:43:55,fuoco,"Grazie per il fuoco. - No, piacere mio.",0:43:55
+resolved,peggio,adv,1,0:46:09,peggio,"Se ti fermi, è peggio.",0:46:09
+resolved,murare,verb,1,0:46:27,mura,Quelle sono le vecchie mura.,0:46:27
+resolved,immediatamente,adv,1,0:46:53,immediatamente,Ha capito immediatamente che era quello giusto.,0:46:53
+resolved,proprietario,noun,1,0:46:58,proprietari,Quindi ho dovuto cercare i proprietari E farli vendere.,0:46:58
+resolved,ereditare,verb,1,0:47:47,ereditato,Ho ereditato un mucchio di rocce.,0:47:47
+resolved,mucchio,noun,1,0:47:47,mucchio,Ho ereditato un mucchio di rocce.,0:47:47
+resolved,roccia,noun,1,0:47:47,rocce,Ho ereditato un mucchio di rocce.,0:47:47
+resolved,acquistare,verb,1,0:48:28,acquistando,Sta solo acquistando il materiale. - Chi ti pagherà?,0:48:28
+resolved,materiale,noun,1,0:48:28,materiale,Sta solo acquistando il materiale. - Chi ti pagherà?,0:48:28
+resolved,lavoratore,noun,1,0:48:39,lavoratore,è il lavoratore.,0:48:39
+resolved,goffo,adj,1,0:48:48,goffo,Sono goffo.,0:48:48
+resolved,sciolta,noun,1,0:49:04,sciolta,Dopo che la neve si è sciolta.,0:49:04
+resolved,morto,adj,1,0:49:20,morto,"Mio padre è morto Quando aveva 62 anni e io avevo 31 anni,",0:49:20
+resolved,età,noun,1,0:49:24,età,L'età in cui era quando sono nato.,0:49:24
+resolved,sposato,adj,1,0:49:30,sposato,"Ma non ero sposato, Non avevo avuto un figlio,",0:49:30
+resolved,desiderio,noun,1,0:49:52,desiderio,Qual era il desiderio di mio padre?,0:49:52
+resolved,perduto,adj,1,0:50:06,perduto,Cosa dovevo fare io Con il suo sogno perduto,0:50:06
+resolved,promessa,noun,1,0:50:13,promessa,E con una promessa che non era mia?,0:50:13
+resolved,rosso,adj,1,0:51:03,rosso,"Devo essere il marcatore rosso, Perché è sempre stato quello nero.",0:51:03
+resolved,verde,adj,1,0:51:15,verde,Quindi Bruno deve essere il marcatore verde.,0:51:15
+resolved,spesso,adv,1,0:51:20,spesso,Spesso andavano in montagna.,0:51:20
+resolved,litigare,verb,1,0:51:48,litigato,"Ad un certo punto, Bruno ha litigato con suo padre",0:51:48
+resolved,consiglio,noun,1,0:51:51,consigli,"E quando aveva bisogno di consigli, È venuto da noi.",0:51:51
+resolved,fidare,verb,1,0:51:55,fidava,Si fidava di quello che diceva papà.,0:51:55
+resolved,colorare,verb,1,0:52:04,coloro,Questo è ciò che accade a coloro che se ne vanno.,0:52:04
+resolved,gliel',pron,1,0:52:32,gliel',"Sì, e gliel'ho detto Tutto quello che sapevo su di te.",0:52:32
+resolved,glielo,pron,1,0:52:37,glielo,"Non era molto, Ma glielo ho detto.",0:52:37
+resolved,muro,noun,1,0:53:40,muro,"Stai strappando il muro? - Con i piedi, dai.",0:53:40
+resolved,chiarirlo,verb,1,0:54:03,chiarirlo,Ci vorrà una settimana per chiarirlo.,0:54:03
+resolved,pianta,noun,1,0:55:11,pianta,Questa è una pianta strana.,0:55:11
+resolved,debole,adj,1,0:55:17,debole,Ma è debole se Lo metti altrove.,0:55:17
+resolved,viaggiare,verb,1,0:55:39,viaggiando,Non posso perdere Quattro ore di lavoro viaggiando ogni giorno.,0:55:39
+resolved,mattino,noun,1,0:56:12,mattino,Ti aspetterò alle 9 del mattino. A sei anni sei libero.,0:56:12
+resolved,calmarsi,verb,1,0:57:10,calmati,"Shh, calmati.",0:57:10
+resolved,dieci,num,1,0:59:37,dieci,Negli ultimi dieci anni,0:59:37
+resolved,pace,noun,1,1:00:18,pace,Non mi ha lasciato in pace.,1:00:18
+resolved,fine,noun,1,1:00:21,fine,Alla fine ho dovuto dargli uno.,1:00:21
+resolved,ubriaco,adj,1,1:00:36,ubriaco,Vecchio ubriaco.,1:00:36
+resolved,serata,noun,1,1:01:11,serate,"Ho immaginato le serate lì tra loro Quando Bruno aveva 20 anni, 25 anni",1:01:11
+resolved,banale,adj,1,1:01:37,banale,"Mentre ero impegnato con gli altri, Così banale che non li ricordo nemmeno.",1:01:37
+resolved,impegnare,verb,1,1:01:37,impegnato,"Mentre ero impegnato con gli altri, Così banale che non li ricordo nemmeno.",1:01:37
+resolved,pietra,noun,1,1:02:04,pietre,"cemento, pietre, cemento, cemento,",1:02:04
+resolved,puma,noun,1,1:02:09,puma,"Ti, ta, puma, cemento, la casa.",1:02:09
+resolved,generale,adj,1,1:02:14,generale,"""La casa"". - In generale.",1:02:14
+resolved,maestro,noun,1,1:02:18,maestro,Una grande build maestro.,1:02:18
+resolved,seriamente,adv,1,1:02:23,seriamente,"Seriamente, è molto bravo.",1:02:23
+resolved,tuttofare,noun,1,1:02:29,tuttofare,Sono solo il tuttofare.,1:02:29
+resolved,partire,verb,1,1:02:31,partire,A partire da domani mi sto muovendo anche io.,1:02:31
+resolved,correre,verb,1,1:03:52,correndo,"Facile, Roy! Dove cazzo stai correndo?",1:03:52
+resolved,percorso,noun,1,1:05:26,percorso,"È facile, c'è un percorso.",1:05:26
+resolved,dritto,adj,1,1:05:29,dritto,"Arrivi al terreno pietroso, Continua dritto e arriva in cima.",1:05:29
+resolved,pietroso,adj,1,1:05:29,pietroso,"Arrivi al terreno pietroso, Continua dritto e arriva in cima.",1:05:29
+resolved,sbagliare,verb,1,1:05:32,sbagliare,Non puoi sbagliare.,1:05:32
+resolved,bomba,noun,1,1:09:25,bomba,Bomba.,1:09:25
+resolved,ridere,verb,1,1:10:18,ridendo,Cosa stai ridendo? - È casa tua.,1:10:18
+resolved,entrambi,adj,1,1:10:23,entrambi,Questo è la patria di entrambi.,1:10:23
+resolved,patria,noun,1,1:10:23,patria,Questo è la patria di entrambi.,1:10:23
+resolved,scherzare,verb,1,1:10:26,scherzando,"Sei pazzo. - Guarda, non sto scherzando.",1:10:26
+resolved,ripristinare,verb,1,1:10:55,ripristinare,Vorrei ripristinare il pascolo di mio zio.,1:10:55
+resolved,costare,verb,1,1:11:01,costano,"Prendi delle mucche, come questa, Non costano più nulla.",1:11:01
+resolved,mattone,noun,1,1:11:11,mattoni,"Se era solo per i soldi, Continuerei a posare mattoni.",1:11:11
+resolved,posare,verb,1,1:11:11,posare,"Se era solo per i soldi, Continuerei a posare mattoni.",1:11:11
+resolved,alpinista,noun,1,1:11:24,alpinista,Essere un alpinista.,1:11:24
+resolved,antenato,noun,1,1:11:29,antenati,Tutti i miei antenati vivevano sulle montagne con le bestie.,1:11:29
+resolved,bestia,noun,1,1:11:29,bestie,Tutti i miei antenati vivevano sulle montagne con le bestie.,1:11:29
+resolved,corrente,noun,1,1:11:38,corrente,Avrebbe fulminato le mucche con la corrente.,1:11:38
+resolved,fulminato,noun,1,1:11:38,fulminato,Avrebbe fulminato le mucche con la corrente.,1:11:38
+resolved,rovinato,adj,1,1:11:43,rovinato,Anche mio zio ha rovinato.,1:11:43
+resolved,pesce,noun,1,1:13:10,pesce,"il pesce,",1:13:10
+resolved,qua,adv,1,1:13:14,qua,alcune montagne qua e là,1:13:14
+resolved,nessuno,pron,1,1:13:40,nessuna,Non vado da nessuna parte.,1:13:40
+resolved,filo,noun,1,1:14:22,fili,"Fili, vuoi un caffè? - Che cosa?",1:14:22
+resolved,spazio,noun,1,1:15:40,spazio,C'è spazio.,1:15:40
+resolved,voilà,intj,1,1:16:01,voila,"Voila, eccoci qui. - Oh!",1:16:01
+resolved,stupendo,adj,1,1:16:04,stupendo,È stupendo. - eh?,1:16:04
+resolved,brillante,adj,1,1:16:16,brillante,"Questa è la brillante invenzione di Bruno, non la lampadina",1:16:16
+resolved,invenzione,noun,1,1:16:16,invenzione,"Questa è la brillante invenzione di Bruno, non la lampadina",1:16:16
+resolved,lampadina,noun,1,1:16:16,lampadina,"Questa è la brillante invenzione di Bruno, non la lampadina",1:16:16
+resolved,mulino,noun,1,1:16:19,mulino,Ma un mulino che ha costruito dal torrente.,1:16:19
+resolved,torrente,noun,1,1:16:19,torrente,Ma un mulino che ha costruito dal torrente.,1:16:19
+resolved,elettricità,noun,1,1:16:22,elettricità,Abbiamo abbastanza elettricità per te.,1:16:22
+resolved,signore,noun,1,1:16:28,signore,Signore?,1:16:28
+resolved,conquistare,verb,1,1:16:31,conquistato,Quindi l'hai conquistato?,1:16:31
+resolved,trucco,noun,1,1:16:37,trucco,Ti ho detto il trucco. - Grazie.,1:16:37
+resolved,wow,intj,1,1:16:50,wow,"Wow, bruno, devo dirtelo Questo posto è bellissimo.",1:16:50
+resolved,comprare,verb,1,1:17:09,comprare,"Amore mio, dovremmo comprare Un posto come questo, una rovina.",1:17:09
+resolved,rinnovare,verb,1,1:17:13,rinnoveremo,Lo rinnoveremo.,1:17:13
+resolved,bastare,verb,1,1:17:17,basta,"Basta, abbiamo finito con Torino. - SÌ.",1:17:17
+resolved,ecologico,adj,1,1:17:23,ecologico,Ci renderemo un bel villaggio ecologico Qui nel mezzo della natura.,1:17:23
+resolved,bosco,noun,1,1:17:41,boschi,"Qui diciamo ... boschi, pascoli,",1:17:41
+resolved,dito,noun,1,1:17:48,dito,"Cose che puoi indicare anche con il dito, cose che puoi usare.",1:17:48
+resolved,indicare,verb,1,1:17:48,indicare,"Cose che puoi indicare anche con il dito, cose che puoi usare.",1:17:48
+resolved,bellezza,noun,1,1:17:54,bellezza,che non può semplicemente divertirsi La bellezza della natura?,1:17:54
+resolved,divertirsi,verb,1,1:17:54,divertirsi,che non può semplicemente divertirsi La bellezza della natura?,1:17:54
+resolved,semplicemente,adv,1,1:17:54,semplicemente,che non può semplicemente divertirsi La bellezza della natura?,1:17:54
+resolved,aria,noun,1,1:17:57,aria,"Sì, certo, e mangia aria.",1:17:57
+resolved,abbassare,verb,1,1:18:00,abbassato,Abbassato quello.,1:18:00
+resolved,creare,verb,1,1:18:04,creiamo,"Creiamo una buona terra, noi giardiamo ...",1:18:04
+resolved,gente,noun,1,1:18:15,gente,Allora cosa mangi? polenta e patate come la vecchia gente?,1:18:15
+resolved,patata,noun,1,1:18:15,patate,Allora cosa mangi? polenta e patate come la vecchia gente?,1:18:15
+resolved,polenta,noun,1,1:18:15,polenta,Allora cosa mangi? polenta e patate come la vecchia gente?,1:18:15
+resolved,scongiuro,noun,1,1:18:22,scongiuro,Mi lascerai sognare? Ti scongiuro! - Lascialo sognare.,1:18:22
+resolved,baciare,verb,1,1:18:33,bacia,Non si bacia.,1:18:33
+resolved,gelido,adj,1,1:19:42,gelido,"Merda, è gelido!",1:19:42
+resolved,contare,verb,1,1:19:52,conterò,"OH... - Se vuoi, conterò.",1:19:52
+resolved,mutuo,noun,1,1:20:20,mutuo,"Poi c'è il mutuo, la banca ...",1:20:20
+resolved,pena,noun,1,1:20:27,pena,Ma ne vale la pena.,1:20:27
+resolved,valere,verb,1,1:20:27,vale,Ma ne vale la pena.,1:20:27
+resolved,giugno,noun,1,1:20:36,giugno,eh? - A giugno.,1:20:36
+resolved,tabella,noun,1,1:21:14,tabella,"Tabella due. - Dammi i piatti, dai.",1:21:14
+resolved,perfetto,adj,1,1:21:20,perfetto,"Ok, perfetto.",1:21:20
+resolved,guaio,noun,1,1:21:24,guai,Sbrigati per favore Siamo nei guai.,1:21:24
+resolved,sbrigarsi,verb,1,1:21:24,sbrigati,Sbrigati per favore Siamo nei guai.,1:21:24
+resolved,mossa,noun,1,1:21:50,mossa,Mossa! Ne hai bisogno essere al telefono adesso?,1:21:50
+resolved,telefono,noun,1,1:21:50,telefono,Mossa! Ne hai bisogno essere al telefono adesso?,1:21:50
+resolved,minuto,adj,1,1:21:53,minuto,Un minuto! - C'è un casino!,1:21:53
+resolved,interessato,adj,1,1:21:55,interessata,Stavo dicendo che era interessata ai pascoli E l'ho sollevata per vederlo.,1:21:55
+resolved,sollevare,verb,1,1:21:55,sollevata,Stavo dicendo che era interessata ai pascoli E l'ho sollevata per vederlo.,1:21:55
+resolved,assolutamente,adv,1,1:22:32,assolutamente,"Sei sicuro? - Sì, assolutamente.",1:22:32
+resolved,delicato,adj,1,1:22:48,delicata,È molto delicata.,1:22:48
+resolved,innanzitutto,adv,1,1:22:52,innanzitutto,"Innanzitutto, devi farla rilassare.",1:22:52
+resolved,rilassare,verb,1,1:22:52,rilassare,"Innanzitutto, devi farla rilassare.",1:22:52
+resolved,succedere,verb,1,1:23:03,succede,Che cosa succede?,1:23:03
+resolved,rilassarsi,verb,1,1:23:05,rilassarsi,Hai detto che ha bisogno di rilassarsi.,1:23:05
+resolved,essere|stare,verb,1,1:23:15,stati,Siamo stati fortunati.,1:23:15
+resolved,fortunato,adj,1,1:23:15,fortunati,Siamo stati fortunati.,1:23:15
+resolved,guardia,noun,1,1:24:10,guardia,Farò come una guardia laterale.,1:24:10
+resolved,laterale,adj,1,1:24:10,laterale,Farò come una guardia laterale.,1:24:10
+resolved,polpaccio,noun,1,1:24:23,polpaccio,Lo stomaco del polpaccio?,1:24:23
+resolved,stomaco,noun,1,1:24:23,stomaco,Lo stomaco del polpaccio?,1:24:23
+resolved,pezzo,noun,1,1:24:26,pezzo,"Senza quel pezzo, Il formaggio non esisterebbe.",1:24:26
+resolved,selvaggio,adj,1,1:24:31,selvaggio,"L'uomo selvaggio. - ""The Wild Man""?",1:24:31
+resolved,animale,noun,1,1:24:36,animale,"Parte uomo, parte animale e in parte albero,",1:24:36
+resolved,fantastico,adj,1,1:24:55,fantastica,È fantastica.,1:24:55
+resolved,persino,adv,1,1:25:08,persino,Abbava persino i libri.,1:25:08
+resolved,trascorso,adj,1,1:25:50,trascorso,Vorrei poterlo fare Ho trascorso più tempo con te.,1:25:50
+resolved,incinto,adj,1,1:26:45,incinta,"L'estate che seguì, Lara era incinta.",1:26:45
+resolved,segui,verb,1,1:26:45,seguì,"L'estate che seguì, Lara era incinta.",1:26:45
+resolved,vento,noun,1,1:26:48,vento,"L'ho vista sfiorare le mucche, da solo, al vento,",1:26:48
+resolved,vista,noun,1,1:26:48,vista,"L'ho vista sfiorare le mucche, da solo, al vento,",1:26:48
+resolved,caviglia,noun,1,1:26:51,caviglie,con una pancia rotonda e caviglie spesse.,1:26:51
+resolved,pancia,noun,1,1:26:51,pancia,con una pancia rotonda e caviglie spesse.,1:26:51
+resolved,rotonda,noun,1,1:26:51,rotonda,con una pancia rotonda e caviglie spesse.,1:26:51
+resolved,spesso,adj,1,1:26:51,spesse,con una pancia rotonda e caviglie spesse.,1:26:51
+resolved,creatura,noun,1,1:26:56,creatura,Sempre più una creatura della montagna.,1:26:56
+resolved,braccio,noun,1,1:27:13,braccia,L'anno seguente uscì al pascolo con una bambina tra le braccia.,1:27:13
+resolved,salutare,verb,1,1:27:21,salutare,Qualcosa mi ha spinto per salutare quella famiglia,1:27:21
+resolved,sentiero,noun,1,1:27:24,sentiero,e per prendere il sentiero per la barma.,1:27:24
+resolved,andarsene,verb,1,1:27:55,andarmene,"Volevo trasformare, evolversi, andarmene",1:27:55
+resolved,evolversi,verb,1,1:27:55,evolversi,"Volevo trasformare, evolversi, andarmene",1:27:55
+resolved,trasformare,verb,1,1:27:55,trasformare,"Volevo trasformare, evolversi, andarmene",1:27:55
+resolved,zecca,noun,1,1:27:58,zecca,Per un nuovo Pietro nuovo di zecca.,1:27:58
+resolved,funzione,noun,1,1:29:07,funzioni,"Ciao, ""Namasté"" a te. - Spero sicuramente che il Wi-Fi funzioni qui.",1:29:07
+resolved,inseguire,verb,1,1:29:22,inseguito,Pensavo che ti avrebbe inseguito Avevo paura per un secondo.,1:29:22
+resolved,paura,noun,1,1:29:22,paura,Pensavo che ti avrebbe inseguito Avevo paura per un secondo.,1:29:22
+resolved,birra,noun,1,1:29:27,birra,Cosa pensi che abbia ... Pensi che abbia una birra alla radice?,1:29:27
+resolved,voi,pron,1,1:31:56,voi,Voi...,1:31:56
+resolved,pure,adv,1,1:32:00,pure,"""Pure"". - ""Purò, Purì"".",1:32:00
+resolved,moglie,noun,1,1:32:10,moglie,"Marito, moglie.",1:32:10
+resolved,costruito,verb,1,1:32:34,costruiti,Come li hanno costruiti,1:32:34
+resolved,bovini,noun,1,1:32:41,bovini,dei giochi per bambini Tra i bovini.,1:32:41
+resolved,gioco,noun,1,1:32:41,giochi,dei giochi per bambini Tra i bovini.,1:32:41
+resolved,singolo,adj,1,1:32:45,singole,Forse avrebbe pensato alla montagna Le persone del mondo sono tutte singole.,1:32:45
+resolved,capello,noun,1,1:33:57,capelli,"per le lampade, Come un unguento per capelli",1:33:57
+resolved,lampada,noun,1,1:33:57,lampade,"per le lampade, Come un unguento per capelli",1:33:57
+resolved,unguento,noun,1,1:33:57,unguento,"per le lampade, Come un unguento per capelli",1:33:57
+resolved,cremare,verb,1,1:34:03,cremare,Non c'è abbastanza legno in Nepal per cremare i cadaveri.,1:34:03
+resolved,legno,noun,1,1:34:03,legno,Non c'è abbastanza legno in Nepal per cremare i cadaveri.,1:34:03
+resolved,avvoltoio,noun,1,1:34:08,avvoltoi,Li scuotono e li lasciano su un plateau per gli avvoltoi.,1:34:08
+resolved,scuotere,verb,1,1:34:08,scuotono,Li scuotono e li lasciano su un plateau per gli avvoltoi.,1:34:08
+resolved,osso,noun,1,1:34:12,ossa,"Tornano dopo pochi giorni e trova solo le ossa,",1:34:12
+resolved,burro,noun,1,1:34:17,burro,"che schiacciano e impastare di burro e farina,",1:34:17
+resolved,farina,noun,1,1:34:17,farina,"che schiacciano e impastare di burro e farina,",1:34:17
+resolved,impastare,verb,1,1:34:17,impastare,"che schiacciano e impastare di burro e farina,",1:34:17
+resolved,schiacciare,verb,1,1:34:17,schiacciano,"che schiacciano e impastare di burro e farina,",1:34:17
+resolved,uccello,noun,1,1:34:20,uccelli,che poi diventa cibo per gli uccelli.,1:34:20
+resolved,scomparire,verb,1,1:34:23,scompare,"E così, il cadavere scompare completamente.",1:34:23
+resolved,pelle,noun,1,1:34:34,pelle,Riesci a immaginare che tua madre abbia pelle,1:34:34
+resolved,sepolto,adj,1,1:34:39,sepolto,Non è che non lo mangiano sepolto sotterraneo. - Almeno non lo vedi.,1:34:39
+resolved,sotterraneo,adj,1,1:34:39,sotterraneo,Non è che non lo mangiano sepolto sotterraneo. - Almeno non lo vedi.,1:34:39
+resolved,mescolare,verb,1,1:35:21,mescoliamo,"Ah, ci mescoliamo un po 'qui?",1:35:21
+resolved,pubblicare,verb,1,1:35:51,pubblicato,"""Famoso"" ... un libro che hanno pubblicato per me.",1:35:51
+resolved,tormentarlo,verb,1,1:35:54,tormentarlo,Non tormentarlo! - Mi preoccupo per il mio amico.,1:35:54
+resolved,buddista,noun,1,1:36:02,buddista,Sei diventato un monaco buddista?,1:36:02
+resolved,monaco,noun,1,1:36:02,monaco,Sei diventato un monaco buddista?,1:36:02
+resolved,cazzata,noun,1,1:36:18,cazzate,"Vuoi sentire delle cazzate? - Sì, sì.",1:36:18
+resolved,fastidio,noun,1,1:36:22,fastidio,Questo ti dà fastidio?,1:36:22
+resolved,tour,noun,1,1:36:34,tour,"Mi ha detto: ""Stai facendo Il tour delle otto montagne? """,1:36:34
+resolved,disegnare,verb,1,1:36:44,disegnare,E inizia a disegnare.,1:36:44
+resolved,chiunque,pron,1,1:37:34,chiunque,"""O chiunque sia arrivato in cima di Monte Sumeru? """,1:37:34
+resolved,risposta,noun,1,1:37:39,risposta,Risposta.,1:37:39
+resolved,buonanotte,noun,1,1:38:09,buonanotte,Buonanotte Grappa.,1:38:09
+resolved,obsoleto,adj,1,1:40:27,obsoleto,È un po 'obsoleto.,1:40:27
+resolved,inglese,adj,1,1:40:29,inglese,"Diciamo ""per favore"". - Come in inglese.",1:40:29
+resolved,lingua,noun,1,1:40:33,lingua,Come si dice nella tua lingua? - Nel mio?,1:40:33
+resolved,sorriso,noun,1,1:41:32,sorriso,Sorriso!,1:41:32
+resolved,passino,noun,1,1:43:03,passino,Vuoi che ti passino a te?,1:43:03
+resolved,triste,adj,1,1:43:52,tristi,Sai cosa diciamo qui quando siamo tristi? - Che cosa?,1:43:52
+resolved,leggere,verb,1,1:44:02,leggere,È quando ho iniziato per leggere che ho capito,1:44:02
+resolved,caso,noun,1,1:44:11,caso,"In caso contrario ... parole povere, pensieri poveri.",1:44:11
+resolved,contrario,noun,1,1:44:11,contrario,"In caso contrario ... parole povere, pensieri poveri.",1:44:11
+resolved,pensiero,noun,1,1:44:11,pensieri,"In caso contrario ... parole povere, pensieri poveri.",1:44:11
+resolved,povero,adj,1,1:44:11,povere,"In caso contrario ... parole povere, pensieri poveri.",1:44:11
+resolved,povero,noun,1,1:44:11,poveri,"In caso contrario ... parole povere, pensieri poveri.",1:44:11
+resolved,editore,noun,1,1:44:34,editore,C'è un editore che crede in te,1:44:34
+resolved,ricco,adj,1,1:44:42,ricco,"Non diventerò ricco, ma posso restare tranquillo in Nepal per un po '.",1:44:42
+resolved,tranquillo,adj,1,1:44:42,tranquillo,"Non diventerò ricco, ma posso restare tranquillo in Nepal per un po '.",1:44:42
+resolved,incontrare,verb,1,1:45:06,incontrato,Ho incontrato qualcuno.,1:45:06
+resolved,imprevedibile,noun,1,1:45:32,imprevedibili,in modi meno imprevedibili di uno immagina.,1:45:32
+resolved,cena,noun,1,1:46:26,cena,Vieni a cena uno di questi giorni. - SÌ.,1:46:26
+resolved,piombo,noun,1,1:48:14,piombo,"""Questo sarà il mio ultimo come scalatore di piombo, Perché tra un po 'mi tirerà su. """,1:48:14
+resolved,scalatore,noun,1,1:48:14,scalatore,"""Questo sarà il mio ultimo come scalatore di piombo, Perché tra un po 'mi tirerà su. """,1:48:14
+resolved,tirare,verb,1,1:48:14,tirerà,"""Questo sarà il mio ultimo come scalatore di piombo, Perché tra un po 'mi tirerà su. """,1:48:14
+resolved,rifugio,noun,1,1:48:19,rifugio,"""Porterò sempre il ricordo di In questi giorni come il rifugio più bello "".",1:48:19
+resolved,agosto,noun,1,1:48:24,agosto,"""Giovanni Guasti, agosto 1984.""",1:48:24
+resolved,corsa,noun,1,1:49:33,corsa,"""Sono andato da Grana In due ore e 37 minuti. Ottima corsa. """,1:49:33
+resolved,minuto,noun,1,1:49:33,minuti,"""Sono andato da Grana In due ore e 37 minuti. Ottima corsa. """,1:49:33
+resolved,aquila,noun,1,1:49:37,aquila,"""Ho visto sei ibexes e un'aquila.""",1:49:37
+resolved,compagno,noun,1,1:49:41,compagno,"""Oggi ho di nuovo 21 anni, Come il mio compagno qui. """,1:49:41
+resolved,luglio,noun,1,1:49:45,luglio,"""John Gusti e Bruno Guglielmina, luglio 1994. """,1:49:45
+resolved,messaggio,noun,1,1:50:52,messaggio,Poi ho trovato ciò che deve Sii l'ultimo messaggio da lui.,1:50:52
+resolved,quassù,adv,1,1:50:58,quassù,"""Sarebbe bello restare quassù per sempre """,1:50:58
+resolved,fino,prep,1,1:51:00,fino,"""Senza vedere nessuno, senza dover andare di nuovo fino alla valle. """,1:51:00
+resolved,valle,noun,1,1:51:00,valle,"""Senza vedere nessuno, senza dover andare di nuovo fino alla valle. """,1:51:00
+resolved,sentimento,noun,1,1:51:08,sentimento,Ecco il sentimento che lo aveva fatto Sogna una casa lontano dal mondo.,1:51:08
+resolved,sconosciuto,noun,1,1:51:39,sconosciuto,Il primo è stato lo sconosciuto con cui avevo vissuto 20 anni in città.,1:51:39
+resolved,intravedere,verb,1,1:51:46,intravisto,"che avevo solo intravisto, ancora noto meglio.",1:51:46
+resolved,noto,adj,1,1:51:46,noto,"che avevo solo intravisto, ancora noto meglio.",1:51:46
+resolved,ricostruire,verb,1,1:51:51,ricostruire,"Quest'altro padre mi aveva lasciato una rovina da ricostruire,",1:51:51
+resolved,regalo,noun,1,1:51:58,regalo,Ma forse non lo sapeva Sarebbe il più grande regalo di un altro.,1:51:58
+resolved,camera,noun,1,1:52:03,camere,"Forse potremmo affittare camere, giusto?",1:52:03
+resolved,agricola,noun,1,1:52:06,agricole,Le case agricole lavorano bene.,1:52:06
+resolved,cooperativa,noun,1,1:52:10,cooperativa,Abbiamo smesso di vendere alla cooperativa.,1:52:10
+resolved,cliente,noun,1,1:52:13,clienti,"Vendiamo direttamente ai clienti, che è piuttosto una differenza.",1:52:13
+resolved,direttamente,adv,1,1:52:13,direttamente,"Vendiamo direttamente ai clienti, che è piuttosto una differenza.",1:52:13
+resolved,piuttosto,adv,1,1:52:13,piuttosto,"Vendiamo direttamente ai clienti, che è piuttosto una differenza.",1:52:13
+resolved,fortunatamente,adv,1,1:52:18,fortunatamente,Fortunatamente Francesca è qui.,1:52:18
+resolved,macchina,noun,1,1:52:21,macchina,Uso la sua macchina e anche lei mi fa il piacere di prendersi cura di Anita.,1:52:21
+resolved,prendersi,verb,1,1:52:21,prendersi,Uso la sua macchina e anche lei mi fa il piacere di prendersi cura di Anita.,1:52:21
+resolved,accordo,noun,1,1:52:28,accordo,Hmm. - Non sei d'accordo?,1:52:28
+resolved,qualche,det,1,1:52:32,qualche,Ora dobbiamo fare qualche altro sforzo.,1:52:32
+resolved,sforzo,noun,1,1:52:32,sforzo,Ora dobbiamo fare qualche altro sforzo.,1:52:32
+resolved,pagamento,noun,1,1:52:36,pagamenti,"Non possiamo tenere il passo con i pagamenti,",1:52:36
+resolved,passo,noun,1,1:52:36,passo,"Non possiamo tenere il passo con i pagamenti,",1:52:36
+resolved,contributo,noun,1,1:52:38,contributi,"Perché ci danno contributi, Ma non sono abbastanza.",1:52:38
+resolved,crisi,noun,1,1:52:43,crisi,"In banca, lo loro sempre incolpare la crisi.",1:52:43
+resolved,incolpare,verb,1,1:52:43,incolpare,"In banca, lo loro sempre incolpare la crisi.",1:52:43
+resolved,coglione,noun,1,1:52:46,coglione,Mi ha detto un coglione,1:52:46
+resolved,euro,noun,1,1:52:48,euro,che era meglio se avessi chiesto 20 milioni in prestito invece di 20.000 euro.,1:52:48
+resolved,milione,noun,1,1:52:48,milioni,che era meglio se avessi chiesto 20 milioni in prestito invece di 20.000 euro.,1:52:48
+resolved,prestito,noun,1,1:52:48,prestito,che era meglio se avessi chiesto 20 milioni in prestito invece di 20.000 euro.,1:52:48
+resolved,ordinare,verb,1,1:52:55,ordineremo,Lo ordineremo in estate.,1:52:55
+resolved,limite,noun,1,1:52:57,limite,"Siamo al nostro limite, Ma ce la faremo in quel periodo,",1:52:57
+resolved,periodo,noun,1,1:52:57,periodo,"Siamo al nostro limite, Ma ce la faremo in quel periodo,",1:52:57
+resolved,autosufficiente,adj,1,1:53:00,autosufficienti,"Siamo autosufficienti,",1:53:00
+resolved,affitto,noun,1,1:53:05,affitto,Abbiamo un affitto stabile e tutte le altre spese.,1:53:05
+resolved,spesa,noun,1,1:53:05,spese,Abbiamo un affitto stabile e tutte le altre spese.,1:53:05
+resolved,fame,noun,1,1:53:11,fame,"Non moriremo di fame, Abbiamo un sacco di formaggio.",1:53:11
+resolved,sacco,noun,1,1:53:11,sacco,"Non moriremo di fame, Abbiamo un sacco di formaggio.",1:53:11
+resolved,battuta,noun,1,1:53:14,battute,"Dio! Ecco. Quando non lo sa Cosa fare, fa battute.",1:53:14
+resolved,debito,noun,1,1:53:22,debiti,"Abbiamo debiti terribili, Apri gli occhi alla realtà!",1:53:22
+resolved,occhio,noun,1,1:53:22,occhi,"Abbiamo debiti terribili, Apri gli occhi alla realtà!",1:53:22
+resolved,terribile,adj,1,1:53:22,terribili,"Abbiamo debiti terribili, Apri gli occhi alla realtà!",1:53:22
+resolved,discutere,verb,1,1:53:26,discuteremo,Ne discuteremo adesso? - Dio...,1:53:26
+resolved,familiarità,noun,1,1:53:36,familiarità,Ma non ha familiarità con i problemi di noi semplici mortali.,1:53:36
+resolved,mortale,adj,1,1:53:36,mortali,Ma non ha familiarità con i problemi di noi semplici mortali.,1:53:36
+resolved,ragione,noun,1,1:54:18,ragione,Ha ragione,1:54:18
+resolved,risolvere,verb,1,1:54:23,risolverà,Ma non è come parlare lo risolverà.,1:54:23
+resolved,molto,det,1,1:54:42,molti,Non ho molti soldi Ma posso stare qui per lavorare. Eh?,1:54:42
+resolved,considerare,verb,1,1:54:51,considerare,Hai già molto da considerare.,1:54:51
+resolved,tipo,noun,1,1:54:54,tipo,Tipo cosa? - La tua ragazza.,1:54:54
+resolved,sentirsi,verb,1,1:55:33,sentiti,"Bruno e io ci siamo sentiti molto poco,",1:55:33
+resolved,computer,noun,1,1:55:49,computer,Un computer?,1:55:49
+resolved,reciprocare,verb,1,1:55:59,reciproca,Era mia madre ci ha dato una notizia reciproca.,1:55:59
+resolved,abituato,adj,1,1:56:02,abituata,Era abituata a vivere tra gli uomini silenziosi.,1:56:02
+resolved,silenzioso,adj,1,1:56:02,silenziosi,Era abituata a vivere tra gli uomini silenziosi.,1:56:02
+resolved,cattivo,adj,1,1:56:26,cattive,Cattive notizie.,1:56:26
+resolved,luce,noun,1,1:59:23,luce,Spegni la luce.,1:59:23
+resolved,spegnere,verb,1,1:59:23,spegni,Spegni la luce.,1:59:23
+resolved,latte,noun,1,2:02:52,latte,Quando mi sono svegliato all'inizio del mattina al latte,2:02:52
+resolved,preferito,adj,1,2:02:57,preferito,Era il mio momento preferito della giornata.,2:02:57
+resolved,controllo,noun,1,2:03:01,controllo,"Avevo l'impressione Tutto era sotto controllo,",2:03:01
+resolved,impressione,noun,1,2:03:01,impressione,"Avevo l'impressione Tutto era sotto controllo,",2:03:01
+resolved,sotto,prep,1,2:03:01,sotto,"Avevo l'impressione Tutto era sotto controllo,",2:03:01
+resolved,impossibile,adj,1,2:03:13,impossibile,"È stupido perché è impossibile Davvero, preoccuparti di qualcun altro.",2:03:13
+resolved,qualcun,pron,1,2:03:13,qualcun,"È stupido perché è impossibile Davvero, preoccuparti di qualcun altro.",2:03:13
+resolved,visitare,verb,1,2:03:25,visitare,Quando vai per visitare Anita? A Natale?,2:03:25
+resolved,primavera,noun,1,2:03:36,primavera,Forse in primavera.,2:03:36
+resolved,confine,noun,1,2:04:09,confine,Hai inventato tu stesso questo confine.,2:04:09
+resolved,inventare,verb,1,2:04:09,inventato,Hai inventato tu stesso questo confine.,2:04:09
+resolved,normale,adj,1,2:04:14,normale,"Trovati un lavoro normale, almeno per l'inverno.",2:04:14
+resolved,abbandonare,verb,1,2:04:34,abbandonare,"Abbandonare tua figlia, Come ha fatto con te.",2:04:34
+resolved,figlia,noun,1,2:04:34,figlia,"Abbandonare tua figlia, Come ha fatto con te.",2:04:34
+resolved,alpino,noun,1,2:06:34,alpino,"Sul rilievo alpino Si prevede una neve pesante,",2:06:34
+resolved,rilievo,noun,1,2:06:34,rilievo,"Sul rilievo alpino Si prevede una neve pesante,",2:06:34
+resolved,decrescente,adj,1,2:06:38,decrescenti,Temperature decrescenti.,2:06:38
+resolved,temperatura,noun,1,2:06:38,temperature,Temperature decrescenti.,2:06:38
+resolved,asilo,noun,1,2:06:57,asilo,È già all'asilo.,2:06:57
+resolved,lotta,noun,1,2:07:00,lotta,"All'inizio, non posso dirti che lotta fosse Per farli seguire le regole!",2:07:00
+resolved,migliorare,verb,1,2:07:05,migliorando,Ma ora sta migliorando un po '.,2:07:05
+resolved,soluzione,noun,1,2:07:30,soluzioni,"Avremmo potuto trovare altre soluzioni, Sai, altri lavori.",2:07:30
+resolved,ascensore,noun,1,2:07:36,ascensore,Stavano cercando persone qui All'ascensore della sedia. Niente.,2:07:36
+resolved,sedia,noun,1,2:07:36,sedia,Stavano cercando persone qui All'ascensore della sedia. Niente.,2:07:36
+resolved,qualunque,adj,1,2:07:53,qualunque,Qualunque cosa significhi.,2:07:53
+resolved,consumare,verb,1,2:07:59,consuma,"A volte l'amore si consuma lentamente, Altre volte muore improvvisamente.",2:07:59
+resolved,improvvisamente,adv,1,2:07:59,improvvisamente,"A volte l'amore si consuma lentamente, Altre volte muore improvvisamente.",2:07:59
+resolved,lentamente,adv,1,2:07:59,lentamente,"A volte l'amore si consuma lentamente, Altre volte muore improvvisamente.",2:07:59
+resolved,allenare,verb,1,2:10:05,alleno,"Non male, eh? Mi alleno da una settimana.",2:10:05
+resolved,idiota,adj,1,2:10:09,idiota,Sei un idiota. SÌ.,2:10:09
+resolved,fottersi,verb,1,2:10:49,fottiti,Ah ... fottiti.,2:10:49
+resolved,adattare,verb,1,2:10:54,adatta,Non si adatta più. - Qui.,2:10:54
+resolved,colpa,noun,1,2:11:53,colpa,"Ero arrabbiato, perché non è colpa di uno, Ma il mio.",2:11:53
+resolved,imprenditore,noun,1,2:11:59,imprenditore,"Cosa volevo essere, l'imprenditore?",2:11:59
+resolved,allevare,verb,1,2:12:02,allevare,Ho dovuto costruirmi una cabina come questa e allevare due mucche.,2:12:02
+resolved,cabina,noun,1,2:12:02,cabina,Ho dovuto costruirmi una cabina come questa e allevare due mucche.,2:12:02
+resolved,costruirmi,verb,1,2:12:02,costruirmi,Ho dovuto costruirmi una cabina come questa e allevare due mucche.,2:12:02
+resolved,denaro,noun,1,2:12:12,denaro,Non so nulla di denaro.,2:12:12
+resolved,porre,verb,1,2:12:17,porre,"Ad un certo punto della vita, si deve Fermarsi e porre domande, giusto?",2:12:17
+resolved,capace,adj,1,2:12:25,capace,Sono capace di vivere da solo in montagna.,2:12:25
+resolved,nevicare,verb,1,2:16:20,nevicato,Ha nevicato molto.,2:16:20
+resolved,cugino,noun,1,2:16:22,cugini,I cugini di Bruno erano preoccupati.,2:16:22
+resolved,preoccupato,adj,1,2:16:22,preoccupati,I cugini di Bruno erano preoccupati.,2:16:22
+resolved,elicottero,noun,1,2:16:25,elicottero,Hanno chiesto aiuto e Una squadra è salita con un elicottero.,2:16:25
+resolved,salita,noun,1,2:16:25,salita,Hanno chiesto aiuto e Una squadra è salita con un elicottero.,2:16:25
+resolved,squadra,noun,1,2:16:25,squadra,Hanno chiesto aiuto e Una squadra è salita con un elicottero.,2:16:25
+resolved,cane,noun,1,2:16:42,cani,"Hanno anche cercato l'area circostante Con i cani, ma non hanno trovato nulla.",2:16:42
+resolved,circostante,adj,1,2:16:42,circostante,"Hanno anche cercato l'area circostante Con i cani, ma non hanno trovato nulla.",2:16:42
+resolved,breve,adj,1,2:16:50,breve,"In breve, hanno deciso Che non ha senso continuare a cercare.",2:16:50
+resolved,senso,noun,1,2:16:50,senso,"In breve, hanno deciso Che non ha senso continuare a cercare.",2:16:50
+resolved,sciogliere,verb,1,2:17:04,scioglie,Dicono che lo troveranno Quando la neve si scioglie.,2:17:04
+resolved,mentire,verb,1,2:17:37,mentendo,"Ho detto di no, ma stavo mentendo.",2:17:37
+resolved,buco,noun,1,2:19:16,buco,con un buco nel tetto.,2:19:16
+resolved,vagare,verb,1,2:19:56,vagare,"Tutto ciò che rimane è vagare le otto montagne,",2:19:56
+resolved,alto,adj,1,2:20:03,alto,"al primo e al più alto, Ho perso un amico.",2:20:03
+excluded_name,ah,,19,,,,
+excluded_name,alessandra,,2,,,,
+excluded_name,alessandro,,1,,,,
+excluded_name,alpi,,1,,,,
+excluded_name,altrimenti,,1,,,,
+excluded_name,and,,1,,,,
+excluded_name,anita,,6,,,,
+excluded_name,apri,,1,,,,
+excluded_name,argh,,4,,,,
+excluded_name,asmi,,1,,,,
+excluded_name,aspettare,,6,,,,
+excluded_name,austria,,1,,,,
+excluded_name,barbara,,1,,,,
+excluded_name,berto,,12,,,,
+excluded_name,bird,,1,,,,
+excluded_name,breithorn,,1,,,,
+excluded_name,bruno,,60,,,,
+excluded_name,butter,,1,,,,
+excluded_name,cammineremo,,2,,,,
+excluded_name,cannavaro,,2,,,,
+excluded_name,capita,,1,,,,
+excluded_name,carino,,3,,,,
+excluded_name,cattivo,,1,,,,
+excluded_name,cell,,1,,,,
+excluded_name,chainsaw,,1,,,,
+excluded_name,concentrati,,1,,,,
+excluded_name,continuerei,,1,,,,
+excluded_name,crea,,1,,,,
+excluded_name,curve,,1,,,,
+excluded_name,dammi,,2,,,,
+excluded_name,decidi,,2,,,,
+excluded_name,diamo,,1,,,,
+excluded_name,dio,,4,,,,
+excluded_name,documentari,,2,,,,
+excluded_name,dog,,1,,,,
+excluded_name,drola,,2,,,,
+excluded_name,ecco,,5,,,,
+excluded_name,ehilà,,1,,,,
+excluded_name,fanculo,,3,,,,
+excluded_name,fava,,1,,,,
+excluded_name,feed,,1,,,,
+excluded_name,fermarsi,,1,,,,
+excluded_name,fi,,2,,,,
+excluded_name,finiscili,,1,,,,
+excluded_name,frances,,1,,,,
+excluded_name,francesca,,1,,,,
+excluded_name,giovanni,,1,,,,
+excluded_name,go,,1,,,,
+excluded_name,grana,,6,,,,
+excluded_name,grand,,1,,,,
+excluded_name,grenon,,4,,,,
+excluded_name,guasti,,1,,,,
+excluded_name,guglielmina,,2,,,,
+excluded_name,gusti,,1,,,,
+excluded_name,himalaya,,1,,,,
+excluded_name,hm,,4,,,,
+excluded_name,hmm,,23,,,,
+excluded_name,infatti,,1,,,,
+excluded_name,john,,1,,,,
+excluded_name,juventus,,1,,,,
+excluded_name,krpaya,,2,,,,
+excluded_name,lara,,8,,,,
+excluded_name,lascialo,,1,,,,
+excluded_name,lisco,,1,,,,
+excluded_name,lyskamm,,1,,,,
+excluded_name,mad,,1,,,,
+excluded_name,man,,1,,,,
+excluded_name,maneater,,1,,,,
+excluded_name,mantiene,,1,,,,
+excluded_name,massimo,,1,,,,
+excluded_name,mettilo,,1,,,,
+excluded_name,monte,,2,,,,
+excluded_name,muoviamo,,1,,,,
+excluded_name,my,,2,,,,
+excluded_name,namaste,,7,,,,
+excluded_name,namasté,,1,,,,
+excluded_name,natale,,2,,,,
+excluded_name,nepal,,4,,,,
+excluded_name,odio,,1,,,,
+excluded_name,omo,,2,,,,
+excluded_name,ottima,,1,,,,
+excluded_name,ovviamente,,1,,,,
+excluded_name,passato,,1,,,,
+excluded_name,path,,1,,,,
+excluded_name,paul,,1,,,,
+excluded_name,pietro,,33,,,,
+excluded_name,poof,,1,,,,
+excluded_name,porcu,,1,,,,
+excluded_name,prendi,,3,,,,
+excluded_name,puri,,5,,,,
+excluded_name,purò,,6,,,,
+excluded_name,qual,,4,,,,
+excluded_name,r,,1,,,,
+excluded_name,resta,,1,,,,
+excluded_name,roy,,5,,,,
+excluded_name,scenderò,,1,,,,
+excluded_name,servadza,,1,,,,
+excluded_name,servadzo,,2,,,,
+excluded_name,shithouse,,1,,,,
+excluded_name,sii,,1,,,,
+excluded_name,sogna,,1,,,,
+excluded_name,sonia,,3,,,,
+excluded_name,spero,,2,,,,
+excluded_name,sumeru,,2,,,,
+excluded_name,svizzera,,1,,,,
+excluded_name,the,,1,,,,
+excluded_name,torino,,11,,,,
+excluded_name,tournalin,,1,,,,
+excluded_name,veramente,,3,,,,
+excluded_name,viaggiare,,1,,,,
+excluded_name,wi,,2,,,,
+excluded_name,wild,,1,,,,
+excluded_name,wilhelmina,,1,,,,
+excluded_name,yak,,2,,,,
+ignored_number,000,,3,,,,
+ignored_number,10,,2,,,,
+ignored_number,100,,2,,,,
+ignored_number,1000,,1,,,,
+ignored_number,11,,1,,,,
+ignored_number,12,,1,,,,
+ignored_number,13,,1,,,,
+ignored_number,14,,1,,,,
+ignored_number,15,,1,,,,
+ignored_number,150,,1,,,,
+ignored_number,183,,1,,,,
+ignored_number,1984,,2,,,,
+ignored_number,1994,,1,,,,
+ignored_number,20,,4,,,,
+ignored_number,21,,1,,,,
+ignored_number,25,,1,,,,
+ignored_number,3010,,1,,,,
+ignored_number,31,,1,,,,
+ignored_number,37,,1,,,,
+ignored_number,62,,1,,,,
+ignored_number,9,,1,,,,
+unresolved,abbava,,1,,,,
+unresolved,alpiner,,2,,,,
+unresolved,build,,1,,,,
+unresolved,casthorn,,1,,,,
+unresolved,diaul,,1,,,,
+unresolved,disturbhi,,1,,,,
+unresolved,father,,1,,,,
+unresolved,giardiamo,,1,,,,
+unresolved,hello,,1,,,,
+unresolved,here,,1,,,,
+unresolved,hey,,4,,,,
+unresolved,huh,,1,,,,
+unresolved,iares,,1,,,,
+unresolved,ibexes,,1,,,,
+unresolved,ingarpa,,1,,,,
+unresolved,isn',,1,,,,
+unresolved,language,,1,,,,
+unresolved,means,,1,,,,
+unresolved,plateau,,1,,,,
+unresolved,rifrestenuto,,1,,,,
+unresolved,river,,1,,,,
+unresolved,sati,,2,,,,
+unresolved,svuotamoci,,1,,,,
+unresolved,ta,,1,,,,
+unresolved,um,,1,,,,
+unresolved,unkrk,,1,,,,
