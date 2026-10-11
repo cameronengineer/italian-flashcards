@@ -18,10 +18,27 @@ A run switches ``VERBOSE`` off, which hides the detail single commands print
 from __future__ import annotations
 
 import time
+import json
+import threading
+from datetime import datetime, timezone
+from pathlib import Path
 
 VERBOSE = True
 WIDTH = 64
 _PAD = " " * 6
+EVENT_FILE: Path | None = None
+_event_lock = threading.Lock()
+
+
+def event(name: str, **data) -> None:
+    """Durable diagnostics per run, without provider prompts or private source text."""
+    if EVENT_FILE is None:
+        return
+    row = {"at": datetime.now(timezone.utc).isoformat(), "event": name, **data}
+    with _event_lock:
+        EVENT_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with EVENT_FILE.open("a", encoding="utf-8") as file:
+            file.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
 def rule() -> None:

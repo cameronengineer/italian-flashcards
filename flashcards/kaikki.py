@@ -26,6 +26,7 @@ import tempfile
 from pathlib import Path
 import sqlite3
 import time
+import threading
 import urllib.request
 import zlib
 from contextlib import closing
@@ -230,9 +231,7 @@ def import_stream(url: str = KAIKKI_URL, *, progress_every=50_000):
         with closing(sqlite3.connect(target)) as conn:
             if conn.execute("PRAGMA quick_check").fetchone()[0] != "ok":
                 raise ValueError("Dictionary integrity check failed")
-        if _ro.cache_info().currsize:
-            _ro().close()
-        _ro.cache_clear()
+        _close_read_connection()
         if KAIKKI_DB.exists():
             # Keep the fetched etymology pages; they are slow to re-fetch.
             with closing(sqlite3.connect(target)) as conn:
@@ -259,6 +258,8 @@ def version():
 
 # ── Lookup ─────────────────────────────────────────────────────────────────
 
+_read_lock = threading.RLock()
+
 
 @lru_cache(maxsize=1)
 def _ro() -> sqlite3.Connection:
@@ -268,9 +269,18 @@ def _ro() -> sqlite3.Connection:
 
 
 def _close_read_connection():
-    if _ro.cache_info().currsize:
-        _ro().close()
-        _ro.cache_clear()
+    with _read_lock:
+        if _ro.cache_info().currsize:
+            _ro().close()
+            _ro.cache_clear()
+
+
+def _read(sql, parameters):
+    # check_same_thread=False permits sharing; it does not protect Python's
+    # statement cache/cursors. Hold the lock through fetchall, not just execute.
+    # Provider calls and remote etymology requests stay outside this lock.
+    with _read_lock:
+        return _ro().execute(sql, parameters).fetchall()
 
 
 atexit.register(_close_read_connection)
@@ -278,13 +288,9 @@ atexit.register(_close_read_connection)
 
 def entries(word: str, pos: str | None = None) -> list[dict]:
     """Lemma entries for a word (any POS unless given), best match first."""
-    rows = (
-        _ro()
-        .execute(
-            "SELECT word, pos, data FROM entries WHERE plain = ?" + (" AND pos = ?" if pos else ""),
-            (plain(word), pos) if pos else (plain(word),),
-        )
-        .fetchall()
+    rows = _read(
+        "SELECT word, pos, data FROM entries WHERE plain = ?" + (" AND pos = ?" if pos else ""),
+        (plain(word), pos) if pos else (plain(word),),
     )
     out = [json.loads(zlib.decompress(r["data"])) for r in rows]
     exact = normalise_spelling(word)
@@ -294,7 +300,7 @@ def entries(word: str, pos: str | None = None) -> list[dict]:
 
 def lemmas_for(form: str) -> list[tuple[str, str, str]]:
     """(lemma, pos, tags) for an inflected form, e.g. 'andiamo' → [('andare', 'verb', …)]."""
-    rows = _ro().execute("SELECT lemma, pos, tags FROM forms WHERE plain = ?", (plain(form),)).fetchall()
+    rows = _read("SELECT lemma, pos, tags FROM forms WHERE plain = ?", (plain(form),))
     seen, out = set(), []
     for r in rows:
         key = (r["lemma"], r["pos"])

@@ -293,6 +293,15 @@ CREATE TABLE IF NOT EXISTS mnemonics (
     created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ── FILM_GLOSSES: word-for-word English of the film lines on cards ──────
+CREATE TABLE IF NOT EXISTS film_glosses (
+    key         TEXT PRIMARY KEY,           -- md5 of the line as shown (lexicon.film_line_key)
+    italian     TEXT NOT NULL,
+    words       TEXT NOT NULL,              -- JSON [{"it": …, "en": …}], in line order
+    model       TEXT,
+    created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ── LEGACY_NOTES: weekly index of the v3 notes still in Anki ───────────
 CREATE TABLE IF NOT EXISTS legacy_notes (
     note_id     INTEGER PRIMARY KEY,
@@ -623,6 +632,17 @@ def _m7_meaning_contracts(conn):
 
 
 #: Ordered schema migrations. Index ``i`` upgrades ``user_version`` i → i+1.
+def _m8_no_human_review(conn: sqlite3.Connection) -> None:
+    """Words are no longer held for human review: Claude's doubts are kept as
+    information. Held words with written content become ready; any without
+    go back to the queue."""
+    conn.execute(
+        "UPDATE lexemes SET status = CASE WHEN id IN (SELECT lexeme_id FROM senses WHERE active=1) "
+        "THEN 'ready' ELSE 'new' END WHERE status='needs_review'"
+    )
+    conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
+
+
 MIGRATIONS = [
     _m1_portable_identity,
     _m2_facts_and_audits,
@@ -631,6 +651,7 @@ MIGRATIONS = [
     _m5_integrity,
     _m6_queue_recovery,
     _m7_meaning_contracts,
+    _m8_no_human_review,
 ]
 SCHEMA_VERSION = len(MIGRATIONS)
 

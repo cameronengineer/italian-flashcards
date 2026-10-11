@@ -152,7 +152,11 @@ def noun_variant(lx, sense, plural=False):
 
 
 def note_hold(conn, key):
-    """A known unsuitable published form is suspended, preserving its review log."""
+    """Reason a drill isn't published: it is removed from Anki automatically.
+
+    Covers verb forms unsuitable for the meaning and noun-phrase plurals whose
+    gender or form is ambiguous. Generation data and reasons stay stored.
+    """
     if key.startswith("nphrase:"):
         parts = key.split(":")
         if len(parts) >= 4 and parts[3] == "plural":

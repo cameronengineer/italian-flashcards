@@ -1,6 +1,5 @@
 """Regressions for the seven findings in the 10 October follow-up review."""
 
-import csv
 import json
 import sqlite3
 import tempfile
@@ -20,45 +19,13 @@ from flashcards import (
     paths,
     pipeline,
     planning,
-    quality,
     queue,
     reconcile,
     semantics,
     kaikki,
 )
-from flashcards.commands import review, movie
+from flashcards.commands import movie
 from .support import database, lexeme, desired
-
-
-class ApprovalTests(unittest.TestCase):
-    def test_stale_approval_is_rejected_and_mark_retained_for_review(self):
-        c = database(self)
-        lexeme(c, status="needs_review")
-        with (
-            tempfile.TemporaryDirectory() as folder,
-            patch.object(review, "REVIEW_FILE", Path(folder) / "review.csv"),
-        ):
-            review.write_review_file(c)
-            review.REVIEW_FILE.write_text(review.REVIEW_FILE.read_text().replace("\n,casa,", "\nyes,casa,"))
-            c.execute("UPDATE lexemes SET gender='masculine',issues='[\"changed issue\"]'")
-            c.commit()
-            self.assertEqual(review.apply_review_file(c), 0)
-            review.write_review_file(c)
-            with review.REVIEW_FILE.open() as fh:
-                row = next(csv.DictReader(fh))
-            self.assertEqual(row["approve"], "")
-            self.assertIn("Previous mark 'yes'", row["review_status"])
-            self.assertIn("changed issue", row["why_held"])
-            self.assertEqual(c.execute("SELECT status FROM lexemes").fetchone()[0], "needs_review")
-
-    def test_changed_sense_grammar_invalidates_exported_approval(self):
-        c = database(self)
-        lexeme(c, status="needs_review")
-        overrides.save_senses(c, "x", [{"prompt": "house"}], "human")
-        row = c.execute("SELECT * FROM lexemes").fetchone()
-        before = review.content_hash(c, row)
-        c.execute('UPDATE senses SET features=\'{"plural_gender":"masculine"}\'')
-        self.assertNotEqual(before, review.content_hash(c, row))
 
 
 class MeaningTests(unittest.TestCase):
@@ -323,29 +290,19 @@ class CueReviewTests(unittest.TestCase):
         )
         self.assertFalse(content_review.language_direction_warning("il computer", "the computer"))
 
-    def test_cue_override_requires_current_version_and_stops_applying_after_content_change(self):
-        c = database(self)
-        lexeme(c)
-        fields = desired(c)
-        digest = quality.note_hash(fields)
-        c.execute(
-            "INSERT INTO cue_overrides VALUES(?,?,?,?,?)",
-            (fields["Key"], digest, "dwelling", "home", "Reviewed distinction"),
-        )
-        changed = dict(fields)
-        content_review.apply_overrides(c, fields["Key"], changed)
-        self.assertEqual(changed["Hint"], "dwelling")
-        self.assertIn("Also accepted: home", changed["Note"])
-        changed = {**fields, "English": "building"}
-        content_review.apply_overrides(c, fields["Key"], changed)
-        self.assertEqual(changed["Hint"], "")
-
 
 class PipelineTests(unittest.TestCase):
-    def run_fixture(self, *, late_approval=False, rejected=False):
+    def run_fixture(self, *, flagged=False, rejected=False, retry_fixture=False, image_failure=False):
         c = database(self)
-        lexeme(c, status="needs_review" if late_approval else "ready")
+        lexeme(c, status="ready")
+        if flagged:  # Claude doubted the dictionary data: recorded, never a hold
+            c.execute("UPDATE lexemes SET issues=?", (json.dumps(["Gender looks wrong"]),))
         overrides.save_senses(c, "x", [{"prompt": "house"}], "human")
+        if retry_fixture:
+            c.execute(
+                "INSERT INTO ai_jobs(kind,subject,status,attempts,error,next_retry_at) "
+                "VALUES('lexeme_enrich','x','pending',1,'old failure','2099-01-01')"
+            )
         c.commit()
         seen = []
         with tempfile.TemporaryDirectory() as folder, ExitStack() as stack:
@@ -356,7 +313,12 @@ class PipelineTests(unittest.TestCase):
             connect = db.connect
             stack.enter_context(patch.object(db, "connect", side_effect=lambda: connect(db_path)))
             stack.enter_context(patch.multiple(paths, PROJECT_ROOT=root, DB_PATH=db_path))
-            stack.enter_context(patch.object(review, "REVIEW_FILE", root / "review.csv"))
+            stack.enter_context(
+                patch(
+                    "flashcards.commands.share.export_decks",
+                    return_value={"written": [], "unchanged": 0, "missing_media": 0},
+                )
+            )
             stack.enter_context(patch("flashcards.backup.snapshot"))
             stack.enter_context(patch("flashcards.backup.anki_snapshot", return_value=None))
             stack.enter_context(patch.object(lists, "load", return_value=[]))
@@ -365,6 +327,37 @@ class PipelineTests(unittest.TestCase):
             for name in ("import_human_edits", "sync_if_changed", "export_jsonl"):
                 stack.enter_context(patch("flashcards.lexicon." + name, return_value=None))
             stack.enter_context(patch.object(queue, "plan", return_value={}))
+            if retry_fixture:
+                calls = []
+
+                def drain(conn, **kw):
+                    calls.append(True)
+                    if len(calls) == 1:
+                        self.assertIsNone(conn.execute("SELECT next_retry_at FROM ai_jobs").fetchone()[0])
+                        conn.execute(
+                            "UPDATE ai_jobs SET error='new failure',next_retry_at=datetime('now','+5 minutes')"
+                        )
+                        if image_failure:
+                            conn.execute(
+                                "INSERT INTO ai_jobs(kind,subject,status,attempts,error) "
+                                "VALUES('image','x','failed',3,'image generation failed')"
+                            )
+                        conn.commit()
+                        result = {"lexeme_enrich": {"done": 0, "failed": 1}}
+                        if image_failure:
+                            result["image"] = {"done": 0, "failed": 1}
+                        return result
+                    if len(calls) == 2:
+                        conn.execute(
+                            "UPDATE ai_jobs SET status='done',error=NULL,next_retry_at=NULL "
+                            "WHERE kind='lexeme_enrich'"
+                        )
+                        conn.commit()
+                        return {"lexeme_enrich": {"done": 1, "failed": 0}}
+                    return {}
+
+                stack.enter_context(patch.object(queue, "drain", side_effect=drain))
+                wait = stack.enter_context(patch.object(queue.STOP, "wait", return_value=False))
             stack.enter_context(patch.object(notes, "image_exists", return_value=True))
             stack.enter_context(patch.object(notes, "_img", return_value=""))
             stack.enter_context(
@@ -380,44 +373,51 @@ class PipelineTests(unittest.TestCase):
                 return reconcile.Plan(rejected=["vocab:x:0"] if rejected and len(seen) == 1 else [])
 
             stack.enter_context(patch.object(reconcile, "run", side_effect=sync))
-            if late_approval:
-                with closing(connect(db_path)) as target:
-                    review.write_review_file(target)
-
-            def compress(**kw):
-                if late_approval:
-                    review.REVIEW_FILE.write_text(
-                        review.REVIEW_FILE.read_text().replace("\n,casa,", "\nyes,casa,")
-                    )
-                return {}
-
-            stack.enter_context(patch("flashcards.commands.media.compress", side_effect=compress))
+            stack.enter_context(patch("flashcards.commands.media.compress", return_value={}))
             args = SimpleNamespace(
                 no_sync=False,
                 keep_old=False,
-                no_ai=True,
-                images=0,
+                no_ai=not retry_fixture,
+                images=1 if image_failure else 0,
                 audio=0,
                 audio_workers=1,
                 batches=20,
                 once=False,
             )
             code = pipeline.run(args)
+            self.last_summary = json.loads((root / "audit_reports/run_latest.json").read_text())
+            history = list((root / "audit_reports/runs").glob("*.json"))
+            self.assertEqual(len(history), 1)
+            self.assertEqual(json.loads(history[0].read_text()), self.last_summary)
+            if retry_fixture:
+                wait.assert_called_once()
+                self.assertGreater(wait.call_args.args[0], 290)
             with closing(connect(db_path)) as target:
                 ready = target.execute("SELECT ready FROM v4_notes WHERE key='vocab:x:0'").fetchone()[0]
             return code, seen, ready
 
-    def test_late_approval_reaches_final_sync_in_same_run(self):
-        code, seen, ready = self.run_fixture(late_approval=True)
-        self.assertEqual((code, seen, ready), (0, [0, 1], 1))
+    def test_flagged_word_is_published_without_review(self):
+        code, seen, ready = self.run_fixture(flagged=True)
+        self.assertEqual((code, seen, ready), (0, [1, 1], 1))
 
     def test_partial_result_and_external_changes_are_checked_at_final_sync(self):
         self.assertEqual(self.run_fixture(rejected=True)[:2], (0, [1, 1]))
         self.assertEqual(self.run_fixture()[:2], (0, [1, 1]))
 
+    def test_retries_continue_without_relaunch_and_recovered_failure_exits_successfully(self):
+        self.assertEqual(self.run_fixture(retry_fixture=True)[0], 0)
+        work = self.last_summary["stages"]["work"]
+        self.assertEqual(work["written"], {"lexeme_enrich": 1})
+        self.assertEqual(work["failed_attempts"], {"lexeme_enrich": 1})
+        self.assertEqual(self.last_summary["backlog"]["failed"], 0)
+
+    def test_unresolved_image_failure_still_sets_failure_exit(self):
+        self.assertEqual(self.run_fixture(retry_fixture=True, image_failure=True)[0], 1)
+        self.assertEqual(self.last_summary["unresolved_image_failures"], 1)
+
 
 class HorizonIntegrationTests(unittest.TestCase):
-    def test_generation_and_publication_use_same_budget_and_verb_pairs(self):
+    def test_publication_respects_budget_while_generation_completes_selected_verb(self):
         c = database(self)
         lexeme(
             c,
@@ -444,7 +444,8 @@ class HorizonIntegrationTests(unittest.TestCase):
                 for tense, persons in payload["forms"].items()
                 for person in persons
             }
-            self.assertEqual(requested, {key for key in expected["keys"] if key.startswith("form:")})
+            self.assertEqual(requested, {"form:v:presente:io", "form:v:presente:tu"})
+            self.assertGreater(requested, {key for key in expected["keys"] if key.startswith("form:")})
             self.assertEqual(expected["new_directions"], 3)
             notes.build(c)
             inside = {

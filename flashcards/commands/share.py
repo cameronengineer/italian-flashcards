@@ -129,3 +129,129 @@ def run(*, decks: list[str] | None = None, out: Path | None = None, include_priv
     )
     print(f"  {len(rows)} notes in {len(by_deck)} deck(s), {len(pkg.media_files)} media files → {out}")
     return 0
+
+
+# ── Your own deck files (written by every run) ─────────────────────────────
+
+
+def export_decks(conn) -> dict:
+    """``decks/<deck>.apkg`` for every deck with ready notes — a portable copy
+    of everything the run publishes (film lines included). A deck's file is
+    rebuilt only when its notes change. Returns {"written": [...], "unchanged": n,
+    "missing_media": n}.
+
+    These are exports, not how your own Anki is updated (that happens directly
+    through AnkiConnect); importing them into the same Anki profile would
+    duplicate notes.
+    """
+    require_current_notes(conn)
+    model = genanki.Model(
+        SHARE_MODEL_ID,
+        MODEL_NAME,
+        fields=[{"name": f} for f in FIELDS],
+        templates=[{"name": t["Name"], "qfmt": t["Front"], "afmt": t["Back"]} for t in TEMPLATES],
+        css=CSS,
+        sort_field_index=0,
+    )
+    by_deck: dict[str, list] = {}
+    for row in conn.execute("SELECT * FROM v4_notes WHERE ready = 1 ORDER BY sort_order"):
+        if not reasons(conn, row["key"], row["lexeme_id"], json.loads(row["fields_json"])):
+            by_deck.setdefault(row["deck"], []).append(row)
+    DECKS_DIR.mkdir(exist_ok=True)
+    manifest_path = DECKS_DIR / ".exports.json"
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        manifest = {}
+    if not isinstance(manifest, dict):
+        manifest = {}
+    result = {"written": [], "unchanged": 0, "missing_media": 0, "archived": 0}
+    current = {}
+    names = {name: slugify(name) for name in by_deck}
+    for slug in set(names.values()):
+        matches = [name for name, value in names.items() if value == slug]
+        if len(matches) > 1:
+            for name in matches:
+                names[name] += "-" + md5_hex(name)[:8]
+    for deck_name, rows in sorted(by_deck.items()):
+        out = DECKS_DIR / f"{names[deck_name]}.apkg"
+        fields_of = {r["key"]: json.loads(r["fields_json"]) for r in rows}
+        media = {img or snd for f in fields_of.values() for img, snd in _MEDIA.findall(" ".join(f.values()))}
+        found = {m: locate(m) for m in sorted(media)}
+        missing = [m for m, p in found.items() if p is None]
+        result["missing_media"] += len(missing)
+        # Never replace a complete package with one containing broken media.
+        if missing:
+            if deck_name in manifest:
+                current[deck_name] = manifest[deck_name]
+            continue
+        signature = md5_hex(
+            json.dumps(
+                {
+                    "format": 2,
+                    "model": [MODEL_NAME, SHARE_MODEL_ID, FIELDS, TEMPLATES, CSS],
+                    "notes": [(r["key"], r["fields_json"], r["tags"], r["sort_order"]) for r in rows],
+                    "media": {m: [p.stat().st_size, p.stat().st_mtime_ns] for m, p in found.items()},
+                },
+                sort_keys=True,
+            )
+        )
+        previous = manifest.get(deck_name, {})
+        output_state = [out.stat().st_size, out.stat().st_mtime_ns] if out.exists() else None
+        if (
+            isinstance(previous, dict)
+            and previous.get("signature") == signature
+            and previous.get("file_state") == output_state
+            and output_state
+        ):
+            result["unchanged"] += 1
+            current[deck_name] = previous
+            continue
+        deck = genanki.Deck(
+            int(md5_hex(deck_name)[:8], 16) % (1 << 30) + (1 << 30),
+            deck_name,
+            description=f"Generated with italian-flashcards. Dictionary content: {ATTRIBUTION}.",
+        )
+        for r in rows:
+            fields = fields_of[r["key"]]
+            note = genanki.Note(
+                model=model,
+                fields=[fields.get(f, "") for f in FIELDS],
+                guid=genanki.guid_for(r["key"]),
+                tags=r["tags"].split(),
+                due=r["sort_order"],
+            )
+            if "fc::dormant" in note.tags:
+                for card in note.cards:
+                    card.suspend = True
+            deck.add_note(note)
+        pkg = genanki.Package([deck])
+        pkg.media_files = [str(p) for p in found.values()]
+        tmp = out.with_suffix(".apkg.tmp")
+        pkg.write_to_file(str(tmp))
+        tmp.replace(out)
+        current[deck_name] = {
+            "filename": out.name,
+            "signature": signature,
+            "file_state": [out.stat().st_size, out.stat().st_mtime_ns],
+        }
+        result["written"].append(out)
+    # Archive obsolete generated packages, preserving all their embedded media.
+    for name, previous in manifest.items():
+        if name in by_deck:
+            continue
+        filename = (
+            previous.get("filename", f"{slugify(name)}.apkg")
+            if isinstance(previous, dict)
+            else f"{slugify(name)}.apkg"
+        )
+        if Path(filename).name != filename or not filename.endswith(".apkg"):
+            continue
+        old = DECKS_DIR / filename
+        if old.exists():
+            archive = DECKS_DIR / "archive"
+            archive.mkdir(exist_ok=True)
+            old.replace(archive / f"{old.stem}-{uuid4().hex[:8]}.apkg")
+            result["archived"] += 1
+    atomic_json(manifest_path, current)
+    return result

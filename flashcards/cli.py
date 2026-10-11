@@ -6,12 +6,12 @@
                                --no-ai  --no-sync  --keep-old
 
 Extras (./run.sh <name> …):
-  movie       Coverage report + word list for a film (datasets/<film>.csv).
+  movie       Coverage report + word list for a film (inputs/movies/<film>/words.csv).
   practice    Translation practice from words you've learnt; mistakes become cards.
   learnt      Export every word you've graduated.
   leech       Suspend + tag cards you keep failing (--doctor: memory aids).
   audit       Have Claude double-check finished cards.
-  review      List everything that needs a look (approve words in review.csv).
+  review      What Claude flagged (information only; nothing is held back).
   share       Export cards as an .apkg for someone else.
   doctor      Health report.  data-review: data-quality census.
   recovery    Create / verify / restore a recovery bundle.
@@ -250,8 +250,6 @@ def cmd_audit(args) -> int:
 def cmd_review(args) -> int:
     from .commands import review
 
-    if args.action == "approve":
-        return review.approve(lemmas=args.lemmas, all_=args.all, reason=args.reason)
     return review.run(limit=args.limit)
 
 
@@ -296,7 +294,7 @@ def cmd_retire(args):
             raise ValueError("A retirement reason is required")
         conn.execute("INSERT OR REPLACE INTO retirements(key,reason) VALUES(?,?)", (args.key, args.reason))
         conn.commit()
-    print("Retirement reason recorded. Inspect plan; studied notes remain protected.")
+    print("Retirement reason recorded. The next sync may remove this note, including its study history.")
     return 0
 
 
@@ -356,7 +354,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--media-root", type=Path)
     sp.add_argument("--destination", type=Path)
     sp.set_defaults(func=cmd_recovery)
-    sp = sub.add_parser("retire", help="Record an explicit reason for retiring an unstudied note.")
+    sp = sub.add_parser(
+        "retire", help="Record an explicit reason for retiring a note, including studied notes."
+    )
     sp.add_argument("key")
     sp.add_argument("--reason", required=True)
     sp.set_defaults(func=cmd_retire)
@@ -380,7 +380,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument(
         "--kind",
         action="append",
-        choices=["lexeme_enrich", "phrase_enrich", "verb_prompts", "disambiguate", "image"],
+        choices=["lexeme_enrich", "phrase_enrich", "verb_prompts", "disambiguate", "film_gloss", "image"],
     )
     sp.add_argument(
         "--batches", type=int, default=None, help="Stop after N batches (default: until the queue is done)."
@@ -391,9 +391,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("notes", help="Compute the desired Anki notes.").set_defaults(func=cmd_notes)
     sub.add_parser("plan", help="Dry run of `apply`.").set_defaults(func=cmd_plan)
     sp = sub.add_parser("apply", help="Sync Anki.")
-    sp.add_argument(
-        "--keep-old", action="store_true", help="Keep unstudied old cards that have a replacement."
-    )
+    sp.add_argument("--keep-old", action="store_true", help="Keep obsolete notes instead of deleting them.")
     sp.add_argument("--allow-retire", action="store_true", help=argparse.SUPPRESS)  # now the default
     sp.set_defaults(func=cmd_apply)
 
@@ -435,7 +433,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument(
         "--keep-old",
         action="store_true",
-        help="Keep unstudied old cards even when their replacement is in Anki.",
+        help="Keep obsolete notes instead of deleting them (studied or unstudied).",
     )
     sp.add_argument("--allow-retire", action="store_true", help=argparse.SUPPRESS)  # now the default
     sp.set_defaults(func=cmd_run)
@@ -481,11 +479,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--out", type=Path, default=None)
     sp.set_defaults(func=cmd_audit)
 
-    sp = sub.add_parser("review", help="Items needing a human look (review approve …).")
-    sp.add_argument("action", nargs="?", choices=["list", "approve"], default="list")
-    sp.add_argument("lemmas", nargs="*")
-    sp.add_argument("--all", action="store_true")
-    sp.add_argument("--reason", default="Reviewed by user")
+    sp = sub.add_parser("review", help="What Claude flagged (information only).")
     sp.add_argument("--limit", type=int, default=20)
     sp.set_defaults(func=cmd_review)
 

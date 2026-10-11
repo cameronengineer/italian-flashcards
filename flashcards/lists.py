@@ -90,7 +90,17 @@ def load_plan(path: Path = PLAN_PATH) -> dict:
             raise ValueError(f"plan.toml: {key} must be a positive integer")
     for table, keys in (
         ("cards", {"noun_phrases", "cognates", "patterns"}),
-        ("conjugation", {"tenses", "full_forms_top", "max_full_verbs"}),
+        (
+            "conjugation",
+            {
+                "tenses",
+                "learning_tenses",
+                "learning_imperative_persons",
+                "deck",
+                "full_forms_top",
+                "max_full_verbs",
+            },
+        ),
     ):
         if not isinstance(plan.get(table, {}), dict) or set(plan.get(table, {})) - keys:
             raise ValueError(f"plan.toml: invalid {table} settings")
@@ -100,8 +110,29 @@ def load_plan(path: Path = PLAN_PATH) -> dict:
     from .grammar import TENSES
 
     conjugation = plan.get("conjugation", {})
-    if any(t not in TENSES for t in conjugation.get("tenses", [])):
-        raise ValueError("plan.toml: unknown conjugation tense")
+    for key, choices in (
+        ("tenses", TENSES),
+        ("learning_tenses", TENSES),
+        ("learning_imperative_persons", ("tu", "Lei", "noi", "voi")),
+    ):
+        values = conjugation.get(key, [])
+        if (
+            not isinstance(values, list)
+            or any(v not in choices for v in values)
+            or len(set(values)) != len(values)
+        ):
+            raise ValueError(f"plan.toml: conjugation.{key} must contain unique supported values")
+    if "learning_tenses" in conjugation and not set(conjugation["learning_tenses"]) <= set(
+        conjugation.get("tenses", TENSES)
+    ):
+        raise ValueError("plan.toml: learning tenses must also be generated")
+    deck = conjugation.get("deck", "Italian::Verbs")
+    if (
+        not isinstance(deck, str)
+        or not deck.startswith("Italian::")
+        or any(not part.strip() for part in deck.split("::"))
+    ):
+        raise ValueError("plan.toml: conjugation.deck must be a named deck within Italian")
     for key in ("full_forms_top", "max_full_verbs"):
         if key in conjugation and (type(conjugation[key]) is not int or conjugation[key] < 0):
             raise ValueError(f"plan.toml: {key} must be a nonnegative integer")

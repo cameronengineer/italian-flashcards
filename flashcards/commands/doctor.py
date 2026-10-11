@@ -76,8 +76,8 @@ def report():
         if "metadata" in tables:
             result["checkpoints"] = dict(conn.execute("SELECT key,value FROM metadata"))
         if "lexemes" in tables:
-            result["needs_review"] = conn.execute(
-                "SELECT count(*) FROM lexemes WHERE status='needs_review'"
+            result["flagged_by_claude"] = conn.execute(
+                "SELECT count(*) FROM lexemes WHERE coalesce(issues,'[]') NOT IN ('[]','')"
             ).fetchone()[0]
     return result
 

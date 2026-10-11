@@ -1,30 +1,8 @@
-import tempfile
 import unittest
-from pathlib import Path
 from unittest.mock import patch
 
 from flashcards import reconcile
-from flashcards.commands import review
 from .support import database, lexeme
-
-
-class ReviewFileTests(unittest.TestCase):
-    def test_marked_words_are_released_and_the_rest_listed_again(self):
-        c = database(self)
-        lexeme(c, "a", status="needs_review", lemma="casa")
-        lexeme(c, "b", status="needs_review", lemma="cane")
-        with (
-            tempfile.TemporaryDirectory() as folder,
-            patch.object(review, "REVIEW_FILE", Path(folder) / "review.csv"),
-        ):
-            self.assertEqual(review.write_review_file(c), 2)
-            text = review.REVIEW_FILE.read_text()
-            review.REVIEW_FILE.write_text(text.replace("\n,casa,", "\nyes,casa,"))
-            self.assertEqual(review.apply_review_file(c), 1)
-            self.assertEqual(review.write_review_file(c), 1)
-            self.assertIn("cane", review.REVIEW_FILE.read_text())
-        statuses = dict(c.execute("SELECT lemma, status FROM lexemes"))
-        self.assertEqual(statuses, {"casa": "ready", "cane": "needs_review"})
 
 
 class LegacyIndexTests(unittest.TestCase):
@@ -90,25 +68,3 @@ class RemovedListTests(unittest.TestCase):
         keys = {r[0] for r in c.execute("SELECT key FROM retirements")}
         self.assertEqual(keys, {"vocab:gone:0", "form:gone:presente:io", "gloss:e1|it_to_en"})
         self.assertEqual(n, 3)
-
-
-class FilmPrivacyTests(unittest.TestCase):
-    def test_ai_text_quoting_a_film_line_stays_out_of_the_export(self):
-        import json
-
-        from flashcards import lexicon
-
-        c = database(self)
-        lexeme(c, "x", lemma="montagna")
-        film_line = "lassù in montagna non arriva mai nessuno"
-        c.execute(
-            "UPDATE list_items SET context=? WHERE lexeme_id='x'", (json.dumps({"example": film_line}),)
-        )
-        c.execute(
-            "INSERT INTO senses(lexeme_id,idx,prompt,note,provenance) VALUES('x',0,'mountain',?,'claude:test')",
-            (f"As in the film: '{film_line}'",),
-        )
-        c.commit()
-        text = lexicon.export_jsonl(c).read_text(encoding="utf-8")
-        self.assertIn("mountain", text)
-        self.assertNotIn("arriva mai", text)

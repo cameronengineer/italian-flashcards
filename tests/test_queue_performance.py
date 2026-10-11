@@ -156,6 +156,7 @@ class QueueRecoveryTests(unittest.TestCase):
                 return_value={"roots": {"ready", "new"}, "verbs": {"ready", "new"}},
             ),
             patch.object(queue, "verb_forms", return_value={"presente": {"io": ("vado", "vado")}}),
+            patch.object(queue, "full_form_verbs", return_value={"ready", "new"}),
             patch.object(queue, "image_exists", return_value=True),
         ):
             queue.plan(c)

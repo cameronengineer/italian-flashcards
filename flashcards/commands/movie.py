@@ -6,16 +6,19 @@ report shows how many more roots — taken in order of how often the film
 uses them — get you to 90 / 95 / 98 % coverage, and the current card workload at your daily introduction limit. This is not
 a prediction of learning time or comprehension.
 
-The dataset (``datasets/<list>.csv``) has one row per root: lemma, part of
-speech, count, first appearance, frequency (SUBTLEX zipf), forms heard and
-the example line. It stays out of git (it contains subtitle text).
+The word list (``inputs/movies/<film>/words.csv``, in git next to the
+subtitles) has one row per root: lemma, part of speech, count, first
+appearance, forms heard and the example line. Every run rewrites it when the
+lists are re-read.
 """
 
 from __future__ import annotations
 
 import csv
+import io
 import math
 from collections import Counter
+from pathlib import Path
 from contextlib import closing
 from datetime import date
 
@@ -23,7 +26,7 @@ from .. import srt
 from ..db import connect, init_schema
 from ..lexicon import lexeme_id
 from ..lists import load, load_plan
-from ..paths import DATASETS_DIR
+from ..runtime import atomic_text
 from ..util import print_banner, table
 
 
@@ -96,6 +99,37 @@ def workload(conn):
         if row["lexeme_id"]:
             costs[row["lexeme_id"]] += planned["costs"][row["key"]]
     return costs
+
+
+def write_word_list(l) -> Path:
+    """``inputs/movies/<film>/words.csv`` next to the subtitles: one row per root
+    (lemma, part of speech, count, first appearance, forms heard, example line)
+    plus the tokens that aren't words to learn. Derived from the subtitles only,
+    so it changes only when they do."""
+    _cues, stream = srt.analyze(l.path)
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["status", "lemma", "pos", "count", "first_seen", "forms", "example", "example_at"])
+    for item in srt.word_items(l.path):
+        ctx = item.context
+        writer.writerow(
+            [
+                "resolved",
+                item.lemma,
+                item.pos,
+                ctx["count"],
+                ctx["first_seen"],
+                " ".join(ctx["forms"]),
+                ctx["example"],
+                ctx["example_at"],
+            ]
+        )
+    other = Counter((t.status, t.text.lower()) for t in stream if t.status != "resolved")
+    for (status, token), count in sorted(other.items()):
+        writer.writerow([status, token, "", count, "", "", "", ""])
+    out = l.path.parent / "words.csv"
+    atomic_text(out, buf.getvalue())
+    return out
 
 
 def headlines(conn) -> list[str]:
@@ -191,40 +225,5 @@ def run(list_id: str | None = None, *, export: bool = True) -> int:
                 f"  watch date {deadline}: {max(0, left)} days available" + (" (overdue)" if left < 0 else "")
             )
         if export:
-            DATASETS_DIR.mkdir(exist_ok=True)
-            out = DATASETS_DIR / f"{l.id}.csv"
-            with out.open("w", newline="", encoding="utf-8") as fh:
-                writer = csv.writer(fh)
-                writer.writerow(
-                    [
-                        "status",
-                        "lemma",
-                        "pos",
-                        "count",
-                        "first_seen",
-                        "known",
-                        "forms",
-                        "example",
-                        "example_at",
-                    ]
-                )
-                for item in srt.word_items(l.path):
-                    lid = mappings.get((item.lemma, item.pos), lexeme_id(item.lemma, item.pos))
-                    writer.writerow(
-                        [
-                            "resolved",
-                            item.lemma,
-                            item.pos,
-                            item.context["count"],
-                            item.context["first_seen"],
-                            lid in known,
-                            " ".join(item.context["forms"]),
-                            item.context["example"],
-                            item.context["example_at"],
-                        ]
-                    )
-                other = Counter((t.status, t.text.lower()) for t in stream if t.status != "resolved")
-                for (status, token), count in sorted(other.items()):
-                    writer.writerow([status, token, "", count, "", "", "", "", ""])
-            print(f"  local dataset: {out}")
+            print(f"  word list: {write_word_list(l)}")
     return 0
