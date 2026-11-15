@@ -110,6 +110,7 @@ class EtymologyChainTests(unittest.TestCase):
             patch.object(queue.kaikki, "etymology_source", return_value=("la", "casa")),
             patch.object(queue.kaikki, "source_etymology", side_effect=source) as fetch,
             patch.object(queue.kaikki, "glosses", return_value=[]),
+            patch.object(queue.kaikki, "entries", return_value=[]),  # no dictionary index needed
             patch.object(queue.kaikki, "version", return_value="v1"),
         ):
             [job] = queue._add_etymology_chains(c, [job], lock)

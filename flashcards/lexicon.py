@@ -637,6 +637,9 @@ def export_jsonl(conn: sqlite3.Connection) -> Path:
                 "etymology": r["etymology"],
                 "freq_rank": r["freq_rank"],
                 "cognate_rule": r["cognate_rule"],
+                # The text whose hash names this root's image file: the only record,
+                # outside the database, of which existing image belongs to which word.
+                "image_key": r["image_key"],
                 "senses": senses.get(r["id"]),
                 "fact": {
                     "kind": f["kind"],
