@@ -69,3 +69,9 @@ grammar_review.csv
 
 # Personal Anki sync state (note IDs); the database and its backups hold it
 lexicon/identity.csv
+
+# The public website (Render static site): its sample pictures and sounds are
+# committed; the sanitised .apkg downloads are hosted as GitHub release assets.
+!site/samples/*.jpg
+!site/samples/*.mp3
+site/downloads/
