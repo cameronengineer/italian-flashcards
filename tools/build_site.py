@@ -135,11 +135,11 @@ DOWNLOAD_BASE = f"https://github.com/{REPO}/releases/download/{RELEASE_TAG}/"
 GROUPS = [
     (
         "start",
-        "Start here",
-        "New to Italian? Begin here.",
+        "Everyday vocabulary",
+        "Two collections of everyday words and numbers.",
         [
-            ("italian_core_fluent_forever_625", "Fluent Forever 625", "The everyday basics: family, food, home, body, time. The best first deck."),
-            ("italian_basics_numbers", "Numbers", "The ones that trip everyone up (13 vs 30, 60 vs 70), from 0 up to a million."),
+            ("italian_core_fluent_forever_625", "Fluent Forever 625", "Family, food, home, body and time."),
+            ("italian_basics_numbers", "Numbers", "Practice with easily confused numbers, including the teens and tens."),
         ],
     ),
     (
@@ -149,13 +149,13 @@ GROUPS = [
         [
             ("italian_cils_a1", "Level A1 · Beginner", "{new_a1} words for shopping, family, food and getting around."),
             ("italian_cils_a2", "Level A2 · Elementary", "Everyday conversation: work, travel, health, plans. {new_a2} new words, plus all of A1."),
-            ("italian_cils_b1", "Level B1 · Intermediate", "Handle most situations, tell stories, give opinions. {new_b1} new words, plus A1 and A2."),
-            ("italian_cils_b2", "Level B2 · Upper-intermediate", "Follow films and news; argue a point with nuance. {new_b2} new words, plus A1 to B1."),
+            ("italian_cils_b1", "Level B1 · Intermediate", "Situations, stories and opinions. {new_b1} new words, plus A1 and A2."),
+            ("italian_cils_b2", "Level B2 · Upper-intermediate", "Vocabulary for films, news and discussion. {new_b2} new words, plus A1 to B1."),
         ],
     ),
     (
         "films",
-        "Learn from a film",
+        "Film vocabulary",
         "The words of a film, each with the line where it\u2019s spoken and a word-for-word translation.",
         [
             ("italian_movies_le_otto_montagne", "Le otto montagne (2022)", "A drama. Italian to English."),
@@ -164,9 +164,9 @@ GROUPS = [
     ),
     (
         "common",
-        "The words Italians use most",
+        "Frequent words",
         "Ranked by how often they appear in film and TV dialogue.",
-        [("italian_frequency", "Most common verbs & nouns", "About 1,400 words, most useful first.")],
+        [("italian_frequency", "Most common verbs & nouns", "Verbs and nouns from the SUBTLEX-IT frequency list.")],
     ),
     (
         "verbs",
@@ -213,10 +213,10 @@ def _deck_groups(decks: dict, new_at: dict) -> str:
             rows.append(
                 f'''<li>
   <div><b>{e(name)}</b><br>{e(desc.format(**fill))}<br><small>{d["cards"]:,} cards · {_size(d["bytes"])}</small></div>
-  <a href="{DOWNLOAD_BASE}{e(d["file"])}">Download</a>
+  <a href="{DOWNLOAD_BASE}{e(d["file"])}" aria-label="Download {e(name)} deck">Download <span aria-hidden="true">↓</span></a>
 </li>'''
             )
-        out.append(f'<h3>{e(title)}</h3>\n<p class="blurb">{e(blurb)}</p>\n<ul class="decks">\n{chr(10).join(rows)}\n</ul>')
+        out.append(f'<div class="deck-group" id="deck-{gid}"><div class="group-intro"><h3>{e(title)}</h3><p>{e(blurb)}</p></div><ul class="decks">{chr(10).join(rows)}</ul></div>')
     return "\n".join(out)
 
 
@@ -231,12 +231,12 @@ def _sample_html(s: dict) -> str:
     <small>Front</small>
     <div class="word">{e(s["italian"])}</div>
     <div class="ipa">{e(s["ipa"])}</div>
-    <audio controls preload="none" src="samples/{s["slug"]}.mp3"></audio>
+    <audio controls preload="none" aria-label="Pronunciation of {e(s["italian"])}" src="samples/{s["slug"]}.mp3">Your browser does not support audio. <a href="samples/{s["slug"]}.mp3">Download the recording</a>.</audio>
   </div>
   <div class="side">
     <small>Back</small>
     <div class="word">{e(s["english"])}</div>
-    <img src="samples/{s["slug"]}.jpg" alt="" width="512" height="384">
+    <img src="samples/{s["slug"]}.jpg" alt="Illustration for {e(s["english"])}" width="512" height="384">
     <p class="det">{e(s["details"])}</p>
     <p>{e(s["note"])}</p>
     {ex}
