@@ -37,7 +37,7 @@ PRIVATE_DECKS = {"italian_core_tutto_bene"}
 PRIVATE_TAGS = {"list::tutto-bene"}
 
 # Real cards shown on the page: (deck file stem, Italian field).
-SAMPLES = [("italian_cils_a1", "il caffè")]
+SAMPLES = [("italian_cils_a1", "il caffè"), ("italian_verbs_learning_presente", "vedo"), ("italian_noun_phrases", "il loro mondo")]
 _FIELDS = ["Italian", "English", "Hint", "Labels", "Details", "Forms", "IPA", "Example", "Note", "Fact",
            "FactTitle", "Image", "Audio", "Recognition", "Production"]
 
@@ -222,25 +222,26 @@ def _deck_groups(decks: dict, new_at: dict) -> str:
 
 def _sample_html(s: dict) -> str:
     e = _html.escape
+    production = not s["recognition"]
+    label = "Verb form" if s["deck"].startswith("italian_verbs_") else "Noun phrase" if s["deck"] == "italian_noun_phrases" else "Vocabulary"
+    slug = e(s["slug"])
+    picture = f'<img src="samples/{slug}.jpg" alt="Illustration for {e(s["english"])}" width="512" height="384">'
+    audio = f'<audio controls preload="none" aria-label="Pronunciation of {e(s["italian"])}" src="samples/{slug}.mp3">Your browser does not support audio. <a href="samples/{slug}.mp3">Download the recording</a>.</audio>'
+    italian = f'<div class="word" lang="it">{e(s["italian"])}</div><div class="ipa">{e(s["ipa"])}</div>'
+    english = f'<div class="word">{e(s["english"])}</div>'
+    hint = f'<p class="det">{e(s["hint"])}</p>' if s["hint"] else ""
+    front = picture + english + hint if production else italian + audio
+    back = italian + audio if production else english + picture
     ex = ""
     if s["example"]:
-        ex = f'<p class="ex">{e(s["example"][0])}<br><small>{e(s["example"][1])}<br>{e(s["example"][2])}</small></p>'
+        ex = f'<p class="ex"><span lang="it">{e(s["example"][0])}</span><br><small>{e(s["example"][1])}<br>{e(s["example"][2])}</small></p>'
     fact = f'<p class="fact"><b>{e(s["facttitle"] or "Did you know?")}</b> {e(s["fact"])}</p>' if s["fact"] else ""
-    return f'''<div class="sample">
-  <div class="side">
-    <small>Front</small>
-    <div class="word">{e(s["italian"])}</div>
-    <div class="ipa">{e(s["ipa"])}</div>
-    <audio controls preload="none" aria-label="Pronunciation of {e(s["italian"])}" src="samples/{s["slug"]}.mp3">Your browser does not support audio. <a href="samples/{s["slug"]}.mp3">Download the recording</a>.</audio>
-  </div>
-  <div class="side">
-    <small>Back</small>
-    <div class="word">{e(s["english"])}</div>
-    <img src="samples/{s["slug"]}.jpg" alt="Illustration for {e(s["english"])}" width="512" height="384">
-    <p class="det">{e(s["details"])}</p>
-    <p>{e(s["note"])}</p>
-    {ex}
-    {fact}
+    details = " · ".join(x for x in (s["details"], s["forms"]) if x)
+    return f'''<div class="sample-panel" id="sample-{slug}" aria-labelledby="label-{slug}">
+  <h3 id="label-{slug}" class="sample-label">{label} · {"English → Italian" if production else "Italian → English"}</h3>
+  <div class="sample">
+    <div class="side"><small>Front</small>{front}</div>
+    <div class="side"><small>Back</small>{back}<p class="det">{e(details)}</p><p>{e(s["note"])}</p>{ex}{fact}</div>
   </div>
 </div>'''
 
@@ -259,7 +260,7 @@ def render_page(data: dict) -> None:
         "{{VERB_FORMS}}": f"{st['verb_forms'] // 100 * 100:,}+",
         "{{DECK_COUNT}}": str(len(decks)),
         "{{TOTAL_SIZE}}": f"{sum(d['bytes'] for d in decks.values()) / 1e6:,.0f} MB",
-        "{{SAMPLE}}": _sample_html(data["samples"][0]),
+        "{{SAMPLE}}": "\n".join(_sample_html(sample) for sample in data["samples"]),
         "{{BUILT}}": datetime.date.today().strftime("%B %Y"),
     }
     for key, value in swaps.items():

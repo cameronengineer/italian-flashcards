@@ -9,7 +9,7 @@
 <meta property="og:description" content="Italian vocabulary and verb practice, with pictures and recordings. A personal collection, shared freely.">
 <meta property="og:image" content="samples/il-caffe.jpg">
 <meta name="theme-color" content="#f7f4ec">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232F5948'/%3E%3Ctext x='32' y='46' font-family='Georgia,serif' font-size='40' text-anchor='middle' fill='white'%3Ei%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="favicon.png">
 <style>
 :root { color-scheme: light; --bg:#f7f4ec; --paper:#fffefa; --ink:#243d32; --text:#39483f; --muted:#626c62; --line:#d9ded2; --green:#2f5948; --tint:#e9eee5; --gold:#946a2f; --serif:Georgia,'Times New Roman',serif; }
 * { box-sizing:border-box; }
@@ -59,6 +59,12 @@ section { padding:55px 0; border-top:1px solid var(--line); }
 .ex { font-style:italic; }
 .ex small { color:var(--muted); font-style:normal; }
 .fact { text-align:left; background:#f4eddb; padding:13px 16px; border-radius:6px; color:#66502c; }
+.sample-picker { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+.sample-picker button { font:inherit; font-size:14px; color:var(--green); background:transparent; border:1px solid #a5afa2; border-radius:6px; padding:9px 18px; cursor:pointer; }
+.sample-picker button[aria-pressed="true"] { background:var(--green); border-color:var(--green); color:white; }
+.sample-label { font:13px system-ui,sans-serif; color:var(--muted); margin:0 0 14px; }
+.sample-panel + .sample-panel { margin-top:30px; }
+.side:first-child:has(img) .word { margin-top:0; padding-top:0; }
 .caption { color:var(--muted); font-size:12px; margin-top:14px; }
 .instructions { display:grid; grid-template-columns:1fr 2fr; gap:60px; }
 ol { padding:0; margin:0; list-style:none; counter-reset:steps; display:grid; gap:18px; }
@@ -93,7 +99,7 @@ footer .credits { max-width:800px; margin-top:22px; }
  .instructions,.notes { grid-template-columns:1fr; gap:24px; } .deck-group { grid-template-columns:1fr; gap:20px; } .group-intro p { margin-bottom:0; }
  .side { padding:18px; } .word { font-size:32px; } .sample { gap:12px; } .footer-top { flex-wrap:wrap; }
 }
-@media(max-width:480px) { .sample { grid-template-columns:1fr; } .side:first-child .word { padding-top:20px; } .side:first-child audio { margin-bottom:20px; } .decks li { gap:12px; } .decks a { padding:8px 10px; } }
+@media(max-width:480px) { header { align-items:flex-start; flex-direction:column; gap:12px; } nav { flex-wrap:wrap; gap:12px 20px; } .sample { grid-template-columns:1fr; } .side:first-child .word { padding-top:20px; } .side:first-child audio { margin-bottom:20px; } .decks li { gap:12px; } .decks a { padding:8px 10px; } }
 @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
 </style>
 </head>
@@ -102,7 +108,7 @@ footer .credits { max-width:800px; margin-top:22px; }
 <div class="wrap">
 <header>
  <a class="brand" href="#">Italian<span>Flashcards for Anki</span></a>
- <nav aria-label="Main navigation"><a href="#cards">A sample card</a><a href="#decks">The decks</a><a href="#about">About</a></nav>
+ <nav aria-label="Main navigation"><a href="https://blog.cameronengineer.com/">← Blog</a><a href="#cards">A sample card</a><a href="#decks">The decks</a><a href="#about">About</a></nav>
 </header>
 <main id="main">
  <div class="intro">
@@ -118,9 +124,10 @@ footer .credits { max-width:800px; margin-top:22px; }
   </aside>
  </div>
  <section id="cards" aria-labelledby="cards-title">
-  <div class="section-head"><div><p class="eyebrow">Inside the decks</p><h2 id="cards-title">Both sides of a card.</h2></div><p>This example is from the A1 vocabulary deck. The front asks for the meaning; the back adds a picture and a few details.</p></div>
+  <div class="section-head"><div><p class="eyebrow">Inside the decks</p><h2 id="cards-title">Both sides of a card.</h2></div><p>Three real examples: a vocabulary word, a verb form and a noun phrase. Each shows what you see before and after revealing the answer.</p></div>
+  <div class="sample-picker" role="group" aria-label="Sample card type" hidden></div>
   {{SAMPLE}}
-  <p class="caption">A real card from the collection. Use the audio control to hear the recording. Vocabulary cards also practise English → Italian.</p>
+  <p class="caption">Use the audio controls to hear the recordings. Vocabulary cards practise both directions; verb and noun-phrase cards ask for the Italian.</p>
  </section>
  <section id="how" class="instructions" aria-labelledby="how-title">
   <div><p class="eyebrow">Using the files</p><h2 id="how-title">Open them in Anki.</h2></div>
@@ -149,6 +156,26 @@ footer .credits { max-width:800px; margin-top:22px; }
 </div>
 <script>
 (() => {
+ const panels = [...document.querySelectorAll('.sample-panel')];
+ const picker = document.querySelector('.sample-picker');
+ const buttons = panels.map((panel, index) => {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = panel.querySelector('h3').textContent.split(' · ')[0];
+  button.setAttribute('aria-controls', panel.id);
+  button.setAttribute('aria-pressed', String(index === 0));
+  panel.hidden = index !== 0;
+  button.addEventListener('click', () => {
+   document.querySelectorAll('.sample-panel audio').forEach(audio => audio.pause());
+   panels.forEach((other, i) => {
+    other.hidden = i !== index;
+    buttons[i].setAttribute('aria-pressed', String(i === index));
+   });
+  });
+  picker.append(button);
+  return button;
+ });
+ picker.hidden = false;
  const search = document.querySelector('#deck-search');
  const groups = [...document.querySelectorAll('.deck-group')];
  const rows = [...document.querySelectorAll('.decks li')];

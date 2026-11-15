@@ -75,3 +75,6 @@ lexicon/identity.csv
 !site/samples/*.jpg
 !site/samples/*.mp3
 site/downloads/
+
+# Shared site favicon
+!site/favicon.png

@@ -200,6 +200,48 @@
    "note": "Invariable: due caffè. Also means a café.",
    "fact": "Order 'un caffè' in Italy and you get an espresso. Ask for a long milky coffee with a caffè latte. The word came via Ottoman Turkish kahve from Arabic qahwa.",
    "facttitle": "Did you know?"
+  },
+  {
+   "slug": "vedo",
+   "deck": "italian_verbs_learning_presente",
+   "recognition": false,
+   "production": true,
+   "pills": [
+    "verb",
+    "Presente",
+    "io"
+   ],
+   "example": [],
+   "italian": "vedo",
+   "english": "I see",
+   "hint": "",
+   "details": "vedere — to see",
+   "forms": "",
+   "ipa": "",
+   "note": "",
+   "fact": "",
+   "facttitle": ""
+  },
+  {
+   "slug": "il-loro-mondo",
+   "deck": "italian_noun_phrases",
+   "recognition": false,
+   "production": true,
+   "pills": [
+    "noun phrase",
+    "possessive",
+    "singular"
+   ],
+   "example": [],
+   "italian": "il loro mondo",
+   "english": "their world",
+   "hint": "",
+   "details": "il mondo · masculine",
+   "forms": "",
+   "ipa": "",
+   "note": "",
+   "fact": "",
+   "facttitle": ""
   }
  ],
  "stats": {
