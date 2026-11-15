@@ -58,7 +58,7 @@ def _sanitise(src: Path, dst: Path) -> dict:
             z.extractall(tmp)
         db = sqlite3.connect(tmp / "collection.anki2")
         rows = db.execute("SELECT id, flds, tags FROM notes").fetchall()
-        for nid, flds, tags in rows:
+        for nid, _flds, tags in rows:
             kept = " ".join(t for t in tags.split() if t not in PRIVATE_TAGS)
             db.execute("UPDATE notes SET tags=? WHERE id=?", (f" {kept} ", nid))
         db.execute("UPDATE cards SET queue=0 WHERE queue=-1")
@@ -96,7 +96,7 @@ def _samples(public: dict[str, Path]) -> list[dict]:
             z.extract("collection.anki2", tmp)
             db = sqlite3.connect(Path(tmp) / "collection.anki2")
             for (flds,) in db.execute("SELECT flds FROM notes"):
-                row = dict(zip(_FIELDS, flds.split("\x1f")))
+                row = dict(zip(_FIELDS, flds.split("\x1f"), strict=False))
                 if html.unescape(row["Italian"]) != italian:
                     continue
                 ascii_name = unicodedata.normalize("NFKD", html.unescape(italian)).encode("ascii", "ignore").decode()

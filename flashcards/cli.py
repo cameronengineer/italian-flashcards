@@ -271,6 +271,12 @@ def cmd_data_review(args):
     return data_review.run(database=args.database, out=args.out, check_media=not args.skip_media)
 
 
+def cmd_media_inventory(args):
+    from . import media_inventory
+
+    return media_inventory.run(out=args.out, limit=args.limit, rehash=args.rehash)
+
+
 def cmd_recovery(args):
     from . import recovery
 
@@ -337,11 +343,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--out", type=Path)
     sp.add_argument("--limit", type=int)
     sp.add_argument("--rehash", action="store_true")
-    sp.set_defaults(
-        func=lambda args: __import__("flashcards.media_inventory", fromlist=["run"]).run(
-            out=args.out, limit=args.limit, rehash=args.rehash
-        )
-    )
+    sp.set_defaults(func=cmd_media_inventory)
     sp = sub.add_parser("recovery", help="Create, verify, or restore an authoritative recovery bundle.")
     sp.add_argument("action", choices=["create", "verify", "restore"])
     sp.add_argument("path", type=Path)
@@ -402,7 +404,6 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("plan", help="Dry run of `apply`.").set_defaults(func=cmd_plan)
     sp = sub.add_parser("apply", help="Sync Anki.")
     sp.add_argument("--keep-old", action="store_true", help="Keep obsolete notes instead of deleting them.")
-    sp.add_argument("--allow-retire", action="store_true", help=argparse.SUPPRESS)  # now the default
     sp.set_defaults(func=cmd_apply)
 
     sp = sub.add_parser("audio", help="ElevenLabs audio in study order.")
@@ -445,7 +446,6 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Keep obsolete notes instead of deleting them (studied or unstudied).",
     )
-    sp.add_argument("--allow-retire", action="store_true", help=argparse.SUPPRESS)  # now the default
     sp.set_defaults(func=cmd_run)
 
     sp = sub.add_parser("movie", help="Coverage report + dataset for a film list.")

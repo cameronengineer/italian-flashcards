@@ -14,9 +14,6 @@ from contextlib import closing
 from pathlib import Path
 
 from PIL import Image
-from elevenlabs import VoiceSettings
-from elevenlabs.client import ElevenLabs
-from elevenlabs.core.api_error import ApiError
 
 from ..db import connect, managed_decks
 from ..paths import (
@@ -85,7 +82,9 @@ def _audio_texts(conn, decks: list[str] | None = None) -> list[str]:
 
 
 # ── Audio generation ─────────────────────────────────────────────────────────
-def _gen_audio(client: ElevenLabs, text: str, dest: Path) -> None:
+def _gen_audio(client, text: str, dest: Path) -> None:
+    from elevenlabs import VoiceSettings
+
     cfg = settings.audio
     if dest.exists():
         raise ValueError(f"Existing media is preserved; refusing overwrite: {dest}")
@@ -115,9 +114,11 @@ class OutOfCredit(RuntimeError):
     """ElevenLabs has no credit left this period: the rest waits for the next run."""
 
 
-def _speak(client: ElevenLabs, text: str, dest: Path, out_of_credit: threading.Event) -> None:
+def _speak(client, text: str, dest: Path, out_of_credit: threading.Event) -> None:
     """One recording. Busy (too many at once / rate limit) or a server hiccup:
     wait and retry. Out of credit: stop asking for the rest of this run."""
+    from elevenlabs.core.api_error import ApiError
+
     for attempt in range(8):
         if out_of_credit.is_set():
             raise OutOfCredit("skipped: ElevenLabs credits used up")
@@ -166,6 +167,8 @@ def generate_audio(workers: int = 10, limit: int | None = None, decks: list[str]
     if not pending:
         return {"generated": 0, "failed": 0, "pending": len(pending_all)}
     api_key = load_key_file(ELEVENLABS_KEY_FILE)
+    from elevenlabs.client import ElevenLabs  # only needed when there is audio to make
+
     client = ElevenLabs(api_key=api_key)
 
     out_of_credit = threading.Event()

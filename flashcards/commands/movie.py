@@ -139,6 +139,7 @@ def headlines(conn) -> list[str]:
     known = known_roots(conn)
     per_day = load_plan().get("new_cards_per_day", 25)
     deadlines = {p["list"]: p.get("by") for p in load_plan().get("priority", [])}
+    costs = None  # the same for every film: worked out once, and only if a film is installed
     out = []
     for l in load():
         if l.kind != "movie" or not l.path or not l.path.exists():
@@ -150,9 +151,9 @@ def headlines(conn) -> list[str]:
             for t in stream
             if t.status == "resolved"
         )
-        cover = coverage(
-            counts, known, sum(t.status == "unresolved" for t in stream), per_day, workload(conn)
-        )
+        if costs is None:
+            costs = workload(conn)
+        cover = coverage(counts, known, sum(t.status == "unresolved" for t in stream), per_day, costs)
         if not cover["total"]:
             continue
         text = f"{l.title}: estimated vocabulary coverage {cover['known'] / cover['total']:.0%}"

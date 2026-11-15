@@ -82,7 +82,6 @@ def audit_priority(conn, rows):
             row["key"] in ambiguous
             or row.get("card_type") == "form"
             or row.get("lexeme_id") in unusual
-            or "cafe" in row.get("tags", "")
         )
         return (not high_risk, row.get("sort_order", 0), row["key"])
 

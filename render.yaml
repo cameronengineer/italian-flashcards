@@ -1,6 +1,6 @@
 # Render Blueprint: the public landing page (static site, served from ./site).
 # The .apkg downloads are not in git; they are GitHub release assets
-# (see flashcards/commands/site.py, DOWNLOAD_BASE).
+# (see tools/build_site.py, DOWNLOAD_BASE).
 services:
   - type: web
     runtime: static
