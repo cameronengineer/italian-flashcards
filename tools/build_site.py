@@ -142,7 +142,6 @@ def _samples(public: dict[str, Path]) -> list[dict]:
 REPO = "cameronengineer/italian-flashcards"
 RELEASE_TAG = "decks"
 DOWNLOAD_BASE = f"https://github.com/{REPO}/releases/download/{RELEASE_TAG}/"
-RENDER_SERVICE = "parola-italian-flashcards"
 
 # (title, blurb, [(deck file stem, name, one-line description)])
 GROUPS = [

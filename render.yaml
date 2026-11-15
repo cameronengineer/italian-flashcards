@@ -4,7 +4,7 @@
 services:
   - type: web
     runtime: static
-    name: parola-italian-flashcards
+    name: italian-flashcards
     buildCommand: echo "static site, nothing to build"
     staticPublishPath: ./site
     envVars:
