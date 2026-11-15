@@ -3,7 +3,7 @@
   "italian_basics_numbers": {
    "file": "italian_basics_numbers.apkg",
    "bytes": 967080,
-   "sha256": "84d1ff160256104bbfee8e8e8ab07e9103aafde62d15be51637a71f919327b27",
+   "sha256": "860f68e7f35cb76026bc38997c0a4277a21bffc4105bb3d82d254056eb1f46d7",
    "notes": 54,
    "cards": 108,
    "tutto_left": 0
@@ -11,7 +11,7 @@
   "italian_cils_a1": {
    "file": "italian_cils_a1.apkg",
    "bytes": 7685053,
-   "sha256": "a21855156c8b49210781e7cc2e74f1b0a06b31e09095c0c9a16219027ffe074b",
+   "sha256": "6eacdc02740810821abd974bb0140b5c69f794227d882e6d5e390d4bb96983be",
    "notes": 482,
    "cards": 960,
    "tutto_left": 0
@@ -19,7 +19,7 @@
   "italian_cils_a2": {
    "file": "italian_cils_a2.apkg",
    "bytes": 16715660,
-   "sha256": "3f5ac21255b68b5af4a43f81c3ccd2d5a72cafa7f0d47d07c570b9ebdd346098",
+   "sha256": "bb72f33e46d1e98bc847026215610e3d32fa9766b2132f15058d932a23d9b5b8",
    "notes": 1033,
    "cards": 2062,
    "tutto_left": 0
@@ -27,7 +27,7 @@
   "italian_cils_b1": {
    "file": "italian_cils_b1.apkg",
    "bytes": 25202108,
-   "sha256": "d0d8bd3cd3b2e5865c89a199af37524dc4cf99b81cd1d78a9d4d820e81f1e5d4",
+   "sha256": "f3cea4114d3207cb8ebd9e5e9c7a504607141e3004273fee809158710a3dc572",
    "notes": 1530,
    "cards": 3056,
    "tutto_left": 0
@@ -35,7 +35,7 @@
   "italian_cils_b2": {
    "file": "italian_cils_b2.apkg",
    "bytes": 34580360,
-   "sha256": "475eec609a76458593e0d6d72da7a7033c1a143ef6ba1da02071237caa23e3e1",
+   "sha256": "5e33f5c9e6052673f067cc282ae7ebf2cda4d773999ebe606cd765660f8c3187",
    "notes": 2068,
    "cards": 4131,
    "tutto_left": 0
@@ -43,7 +43,7 @@
   "italian_cognates": {
    "file": "italian_cognates.apkg",
    "bytes": 4696239,
-   "sha256": "dc0ba65f12a001e87c9444d1815519a14c16757173b14927032be37594dc5a76",
+   "sha256": "f7398b14ea1a3e4d7a12b30b718896399154c3fdaaee9cda367f87b8c6fb352d",
    "notes": 255,
    "cards": 255,
    "tutto_left": 0
@@ -51,7 +51,7 @@
   "italian_core_fluent_forever_625": {
    "file": "italian_core_fluent_forever_625.apkg",
    "bytes": 9714119,
-   "sha256": "b034ab7464cc5ad952dd5dbbc003be3d0c95e32025d678a7a187f2093eb313de",
+   "sha256": "68314c7e92e9ed36f99aa90c313fbc50f54ef6b8f2354c340118abf4d87cdc33",
    "notes": 597,
    "cards": 1194,
    "tutto_left": 0
@@ -59,7 +59,7 @@
   "italian_frequency": {
    "file": "italian_frequency.apkg",
    "bytes": 24100368,
-   "sha256": "7384e53d8026c95167153a33e3fafb3f5708d0002af0aaf0a161b18afc401142",
+   "sha256": "0af8eb7cad7c597c4971b6a34881cec00abce96c66a75f4da701fd6af137c662",
    "notes": 1377,
    "cards": 2749,
    "tutto_left": 0
@@ -67,7 +67,7 @@
   "italian_movies_benvenuti_al_sud": {
    "file": "italian_movies_benvenuti_al_sud.apkg",
    "bytes": 14617678,
-   "sha256": "50664b94dc1a295a5c43df6ea44e67cbaf29cf4779a64fc4e78b207569e77ca4",
+   "sha256": "376b616ca3cf1aacfdbf25a93f7d3b141426a8ca33c04f4a32490d773f1fa741",
    "notes": 895,
    "cards": 895,
    "tutto_left": 0
@@ -75,7 +75,7 @@
   "italian_movies_le_otto_montagne": {
    "file": "italian_movies_le_otto_montagne.apkg",
    "bytes": 13980388,
-   "sha256": "0e3a2bfc15ac241ef2142518d09a2030c02b71d800fb19df294f2a657872f113",
+   "sha256": "e7d39e79076597f3d4a256881a2c6c249f5f20e03b634b29fb93fb52bcd4724d",
    "notes": 841,
    "cards": 1546,
    "tutto_left": 0
@@ -83,7 +83,7 @@
   "italian_noun_phrases": {
    "file": "italian_noun_phrases.apkg",
    "bytes": 48401765,
-   "sha256": "6653350d8d46704c0888601b3b2fd5a41e9f40002829fb7031ec799a9d8152e1",
+   "sha256": "77b77e86531dcb90a3f4201e7b2fee0e6cf727028ee47c0e68ac35f7ad6dbb7e",
    "notes": 3163,
    "cards": 3163,
    "tutto_left": 0
@@ -91,7 +91,7 @@
   "italian_verbs_more_tenses_condizionale_passato": {
    "file": "italian_verbs_more_tenses_condizionale_passato.apkg",
    "bytes": 8934273,
-   "sha256": "439c58ef728a94114742a2d3e41367bf1c89fd2260c0e24c59e813770e0d67cd",
+   "sha256": "c4655117221a632c3b6dce3805d7edf53ae0bb84d377c5f7598788f99e42de9b",
    "notes": 688,
    "cards": 688,
    "tutto_left": 0
@@ -99,7 +99,7 @@
   "italian_verbs_more_tenses_condizionale_presente": {
    "file": "italian_verbs_more_tenses_condizionale_presente.apkg",
    "bytes": 7800959,
-   "sha256": "88cdee08ca974c614412fd6b4ab2bfe336ef5ba60bdcac3290f3946d3ecc9797",
+   "sha256": "5b456ae2376711f0c3713313c5fb77afcc78235cd4265269cb1513e23bb11d95",
    "notes": 700,
    "cards": 700,
    "tutto_left": 0
@@ -107,7 +107,7 @@
   "italian_verbs_more_tenses_imperativo_con_noi": {
    "file": "italian_verbs_more_tenses_imperativo_con_noi.apkg",
    "bytes": 1612213,
-   "sha256": "07602c0937d5def7a39ae831afac0c833a5a6a2540c270a747ed8b5923bfc52d",
+   "sha256": "1c906532147125143ad765eef9c72db89cf310423778857440b8b9e1ffcfdfb4",
    "notes": 98,
    "cards": 98,
    "tutto_left": 0
@@ -115,7 +115,7 @@
   "italian_verbs_more_tenses_imperativo_con_voi": {
    "file": "italian_verbs_more_tenses_imperativo_con_voi.apkg",
    "bytes": 1634033,
-   "sha256": "23af7c10274859bb4ce5df8c8840d0ff13beece6c011d389218b6397e4ed89f3",
+   "sha256": "f37bfc0b00f2367c9d684a1c09eee98c49edb5f4afacd87ffd0a30848388c423",
    "notes": 100,
    "cards": 100,
    "tutto_left": 0
@@ -123,7 +123,7 @@
   "italian_verbs_learning_futuro_semplice": {
    "file": "italian_verbs_learning_futuro_semplice.apkg",
    "bytes": 7432643,
-   "sha256": "e7032cda9c26188e0f530aea8a8b25d1dd1f8dd448ea54e813d5ac4184bc85bb",
+   "sha256": "115a1a95291179e5a04ff7e31a78353bc7ec3e905d4bbf980c857c708f50739b",
    "notes": 700,
    "cards": 700,
    "tutto_left": 0
@@ -131,7 +131,7 @@
   "italian_verbs_learning_imperativo_con_lei": {
    "file": "italian_verbs_learning_imperativo_con_lei.apkg",
    "bytes": 1527471,
-   "sha256": "b3950d6f18fc11722168e95b9347b63ff7b8cc0526f87f950b339f9ef02493e6",
+   "sha256": "324f3e80fd9cc374dc8a0d01ecf96ca47701bf6717a88178938e8b5ace181696",
    "notes": 98,
    "cards": 98,
    "tutto_left": 0
@@ -139,7 +139,7 @@
   "italian_verbs_learning_imperativo_con_tu": {
    "file": "italian_verbs_learning_imperativo_con_tu.apkg",
    "bytes": 1535738,
-   "sha256": "1c834290bfa4849da1a6626f5ab541f5f3f9c7110cb226101730c8dee78681c8",
+   "sha256": "9fe526205a124323518ddf7ba5f6aa4faa533af07c8acba8586220630971d899",
    "notes": 100,
    "cards": 100,
    "tutto_left": 0
@@ -147,7 +147,7 @@
   "italian_verbs_learning_imperfetto": {
    "file": "italian_verbs_learning_imperfetto.apkg",
    "bytes": 7346869,
-   "sha256": "dd9f7342d822332d0a69cc1bfa54475c5d6ca0d834d59c6cf358421935872d97",
+   "sha256": "81387806433c7721a9d7b6e46da38891ea11d4df2614c71b4e1577a9a8f5fa6b",
    "notes": 700,
    "cards": 700,
    "tutto_left": 0
@@ -155,7 +155,7 @@
   "italian_verbs_learning_passato_prossimo": {
    "file": "italian_verbs_learning_passato_prossimo.apkg",
    "bytes": 7911073,
-   "sha256": "3f06a4c4bad06e08b1bed1a1a16c0628c08160573b5f2cb9131d2dae783bd45e",
+   "sha256": "cf3bedb3aeb57679fae0be252220c3ed5fe1fb6d0c17bfea21c34621cf0fd33d",
    "notes": 688,
    "cards": 688,
    "tutto_left": 0
@@ -163,7 +163,7 @@
   "italian_verbs_learning_presente": {
    "file": "italian_verbs_learning_presente.apkg",
    "bytes": 6847691,
-   "sha256": "ea82e999d24d6d84d87c9d3dc068025b1f677a8eaba6dc58ab1252b4686ffe2a",
+   "sha256": "3ac8be7f6a0cc15353c36224d030d1c304be689fe99c4fc5966329bd6aaae398",
    "notes": 700,
    "cards": 700,
    "tutto_left": 0
@@ -171,7 +171,7 @@
   "italian_verbs_learning_presente_progressivo": {
    "file": "italian_verbs_learning_presente_progressivo.apkg",
    "bytes": 8246173,
-   "sha256": "8c9c49ebdde905e7cc0e9cf0e9acc522d6ad7aa4c5e4807c7906f45abe339da6",
+   "sha256": "9c3b88b6708854b4e17e6f88ea99cf411b70a83ab9e1e08a70bc2c04d2aba568",
    "notes": 634,
    "cards": 634,
    "tutto_left": 0
@@ -200,220 +200,6 @@
    "note": "Invariable: due caffè. Also means a café.",
    "fact": "Order 'un caffè' in Italy and you get an espresso. Ask for a long milky coffee with a caffè latte. The word came via Ottoman Turkish kahve from Arabic qahwa.",
    "facttitle": "Did you know?"
-  },
-  {
-   "slug": "la-farmacia",
-   "deck": "italian_cils_a1",
-   "recognition": true,
-   "production": true,
-   "pills": [
-    "noun"
-   ],
-   "example": [],
-   "italian": "la farmacia",
-   "english": "pharmacy",
-   "hint": "",
-   "details": "feminine · plural: le farmacie",
-   "forms": "",
-   "ipa": "/far.maˈt͡ʃi.a/",
-   "note": "The shop (chemist's, drugstore). The pharmacist is il/la farmacista.",
-   "fact": "Italian pharmacies are marked by a lit green cross. They take turns staying open at night and on holidays as the 'farmacia di turno'.",
-   "facttitle": "Did you know?"
-  },
-  {
-   "slug": "il-pane",
-   "deck": "italian_cils_a1",
-   "recognition": true,
-   "production": true,
-   "pills": [
-    "noun"
-   ],
-   "example": [
-    "“No, sempre tè con latte freddo sul lato, un po 'di pane tostato”",
-    "word for word: No, always tea with milk cold on-the side, a bit 'of bread toasted",
-    "— Benvenuti al Sud (2010), 0:29:05"
-   ],
-   "italian": "il pane",
-   "english": "bread",
-   "hint": "",
-   "details": "masculine",
-   "forms": "",
-   "ipa": "/ˈpa.ne/",
-   "note": "Usually uncountable; pane tostato = toast.",
-   "fact": "Comes from Latin panis. English 'companion' literally means 'someone you share bread with' (com- 'with' + panis), and 'pantry' was once a bread store.",
-   "facttitle": "English link"
-  },
-  {
-   "slug": "il-tifoso",
-   "deck": "italian_core_fluent_forever_625",
-   "recognition": true,
-   "production": true,
-   "pills": [
-    "core word"
-   ],
-   "example": [],
-   "italian": "il tifoso",
-   "english": "fan",
-   "hint": "sports supporter",
-   "details": "masculine · plural: i tifosi",
-   "forms": "",
-   "ipa": "/tiˈfo.zo/",
-   "note": "Mainly for sports. Feminine: la tifosa. Fare il tifo per = to support (a team).",
-   "fact": "It comes from tifo, which means typhus. Fans are pictured as gripped by a feverish passion.",
-   "facttitle": "Origin"
-  },
-  {
-   "slug": "il-cane",
-   "deck": "italian_core_fluent_forever_625",
-   "recognition": true,
-   "production": true,
-   "pills": [
-    "core word"
-   ],
-   "example": [
-    "“anche gli animali: gatti, cani,”",
-    "word for word: also the animals: cats, dogs,",
-    "— Benvenuti al Sud (2010), 0:14:34"
-   ],
-   "italian": "il cane",
-   "english": "dog",
-   "hint": "",
-   "details": "masculine · plural: i cani",
-   "forms": "",
-   "ipa": "/ˈka.ne/",
-   "note": "Cagna = female dog. Attenti al cane = beware of the dog.",
-   "fact": "It can also mean 'awful' after a noun: fa un freddo cane means it's bitterly cold. A bad actor or singer can also be called un cane.",
-   "facttitle": "Usage"
-  },
-  {
-   "slug": "il-sole",
-   "deck": "italian_core_fluent_forever_625",
-   "recognition": true,
-   "production": true,
-   "pills": [
-    "core word"
-   ],
-   "example": [
-    "“Sai, quando il sole scende nel mare?”",
-    "word for word: You-know, when the sun goes-down into-the sea?",
-    "— Benvenuti al Sud (2010), 1:01:59"
-   ],
-   "italian": "il sole",
-   "english": "sun",
-   "hint": "",
-   "details": "masculine",
-   "forms": "",
-   "ipa": "/ˈso.le/",
-   "note": "Prendere il sole = to sunbathe. C'è il sole = it's sunny.",
-   "fact": "Comes from Latin sol, which also gave English 'solar' and 'solstice'. Even English 'sun' goes back to the same ancient Indo-European root.",
-   "facttitle": "English link"
-  },
-  {
-   "slug": "la-strada",
-   "deck": "italian_core_fluent_forever_625",
-   "recognition": true,
-   "production": true,
-   "pills": [
-    "core word"
-   ],
-   "example": [
-    "“A Eboli prendi la strada costiera,”",
-    "word for word: At Eboli you-take the road coastal,",
-    "— Benvenuti al Sud (2010), 0:18:14"
-   ],
-   "italian": "la strada",
-   "english": "road, street",
-   "hint": "",
-   "details": "feminine · plural: le strade",
-   "forms": "",
-   "ipa": "/ˈstra.da/",
-   "note": "Also 'way': sulla strada giusta = on the right track. Per strada = in the street.",
-   "fact": "From Latin via strāta, 'paved road'. Old English borrowed the same Latin word early on, and it became English 'street'.",
-   "facttitle": "English link"
-  },
-  {
-   "slug": "il-mare",
-   "deck": "italian_core_fluent_forever_625",
-   "recognition": true,
-   "production": true,
-   "pills": [
-    "core word"
-   ],
-   "example": [
-    "“Una di queste sere Ti invito a cena al mare,”",
-    "word for word: One of these evenings you I-invite to dinner at-the sea,",
-    "— Benvenuti al Sud (2010), 0:44:31"
-   ],
-   "italian": "il mare",
-   "english": "sea",
-   "hint": "",
-   "details": "masculine · plural: i mari",
-   "forms": "",
-   "ipa": "/ˈma.re/",
-   "note": "Andare al mare = to go to the seaside or beach.",
-   "fact": "From Latin mare, the source of English 'marine' and 'maritime'.",
-   "facttitle": "English link"
-  },
-  {
-   "slug": "scendi",
-   "deck": "italian_verbs_learning_presente",
-   "recognition": false,
-   "production": true,
-   "pills": [
-    "verb",
-    "Presente",
-    "tu"
-   ],
-   "example": [],
-   "italian": "scendi",
-   "english": "you go down / you are going down",
-   "hint": "",
-   "details": "scendere — to go down, to descend",
-   "forms": "",
-   "ipa": "",
-   "note": "",
-   "fact": "",
-   "facttitle": ""
-  },
-  {
-   "slug": "generoso",
-   "deck": "italian_cognates",
-   "recognition": false,
-   "production": true,
-   "pills": [
-    "cognate"
-   ],
-   "example": [],
-   "italian": "generoso",
-   "english": "generous",
-   "hint": "",
-   "details": "-oso = -ous · like famoso, delizioso, nervoso",
-   "forms": "",
-   "ipa": "",
-   "note": "",
-   "fact": "",
-   "facttitle": ""
-  },
-  {
-   "slug": "la-mia-piscina",
-   "deck": "italian_noun_phrases",
-   "recognition": false,
-   "production": true,
-   "pills": [
-    "noun phrase",
-    "possessive",
-    "singular"
-   ],
-   "example": [],
-   "italian": "la mia piscina",
-   "english": "my swimming pool",
-   "hint": "",
-   "details": "la piscina · feminine",
-   "forms": "",
-   "ipa": "",
-   "note": "",
-   "fact": "",
-   "facttitle": ""
   }
  ],
  "stats": {

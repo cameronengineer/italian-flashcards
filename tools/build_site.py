@@ -37,19 +37,7 @@ PRIVATE_DECKS = {"italian_core_tutto_bene"}
 PRIVATE_TAGS = {"list::tutto-bene"}
 
 # Real cards shown on the page: (deck file stem, Italian field).
-SAMPLES = [
-    ("italian_cils_a1", "il caffè"),
-    ("italian_cils_a1", "la farmacia"),
-    ("italian_cils_a1", "il pane"),
-    ("italian_core_fluent_forever_625", "il tifoso"),
-    ("italian_core_fluent_forever_625", "il cane"),
-    ("italian_core_fluent_forever_625", "il sole"),
-    ("italian_core_fluent_forever_625", "la strada"),
-    ("italian_core_fluent_forever_625", "il mare"),
-    ("italian_verbs_learning_presente", "scendi"),
-    ("italian_cognates", "generoso"),
-    ("italian_noun_phrases", "la mia piscina"),
-]
+SAMPLES = [("italian_cils_a1", "il caffè")]
 _FIELDS = ["Italian", "English", "Hint", "Labels", "Details", "Forms", "IPA", "Example", "Note", "Fact",
            "FactTitle", "Image", "Audio", "Recognition", "Production"]
 
@@ -148,7 +136,7 @@ GROUPS = [
     (
         "start",
         "Start here",
-        "No Italian yet? Begin with these two.",
+        "New to Italian? Begin here.",
         [
             ("italian_core_fluent_forever_625", "Fluent Forever 625", "The everyday basics: family, food, home, body, time. The best first deck."),
             ("italian_basics_numbers", "Numbers", "The ones that trip everyone up (13 vs 30, 60 vs 70), from 0 up to a million."),
@@ -157,7 +145,7 @@ GROUPS = [
     (
         "levels",
         "Words by level",
-        "Based on the CILS exam levels. Each level already includes the words from the levels below it, so you only need one.",
+        "Based on the CILS exam levels. Each level includes the levels below it, so you only need one.",
         [
             ("italian_cils_a1", "Level A1 · Beginner", "{new_a1} words for shopping, family, food and getting around."),
             ("italian_cils_a2", "Level A2 · Elementary", "Everyday conversation: work, travel, health, plans. {new_a2} new words, plus all of A1."),
@@ -168,22 +156,22 @@ GROUPS = [
     (
         "films",
         "Learn from a film",
-        "Each word comes with the real line where it is spoken, plus a word-for-word translation. Watch the film afterwards and it clicks.",
+        "The words of a film, each with the line where it\u2019s spoken and a word-for-word translation.",
         [
-            ("italian_movies_le_otto_montagne", "Le otto montagne (2022)", "The words of this drama, in the order you’ll meet them. Italian to English."),
-            ("italian_movies_benvenuti_al_sud", "Benvenuti al Sud (2010)", "The words of this comedy, in the order you’ll meet them. Italian to English."),
+            ("italian_movies_le_otto_montagne", "Le otto montagne (2022)", "A drama. Italian to English."),
+            ("italian_movies_benvenuti_al_sud", "Benvenuti al Sud (2010)", "A comedy. Italian to English."),
         ],
     ),
     (
         "common",
         "The words Italians use most",
-        "Ranked by how often they turn up in real film and TV dialogue.",
+        "Ranked by how often they appear in film and TV dialogue.",
         [("italian_frequency", "Most common verbs & nouns", "About 1,400 words, most useful first.")],
     ),
     (
         "verbs",
         "Verbs, one tense at a time",
-        "Each card is a single verb form, like “we will eat” → mangeremo. Do one tense until it clicks.",
+        "Each card is one verb form, like “we will eat” → mangeremo.",
         [
             ("italian_verbs_learning_presente", "Present", "I eat, you eat, they eat."),
             ("italian_verbs_learning_passato_prossimo", "Past · I have eaten", "The everyday past tense."),
@@ -201,7 +189,7 @@ GROUPS = [
     (
         "extras",
         "Extra practice",
-        "Small decks that fix common stumbling blocks.",
+        "Small decks for common stumbling blocks.",
         [
             ("italian_noun_phrases", "The little words", "il, la, un, del, nel, mio… in front of 3,000 real nouns. English → Italian only."),
             ("italian_cognates", "Words you already know", "Italian words that look like English: generoso = generous."),
@@ -219,31 +207,42 @@ def _deck_groups(decks: dict, new_at: dict) -> str:
     fill = {f"new_{k}": f"{v:,}" for k, v in new_at.items()}
     out = []
     for gid, title, blurb, items in GROUPS:
-        cards = []
+        rows = []
         for stem, name, desc in items:
             d = decks[stem]
-            desc = desc.format(**fill)
-            cards.append(
-                f'''<article class="deck">
-  <div>
-    <h4>{e(name)}</h4>
-    <p>{e(desc)}</p>
-  </div>
-  <div class="deck-foot">
-    <span class="meta">{d["cards"]:,} cards · {_size(d["bytes"])}</span>
-    <a class="btn btn-small" href="{DOWNLOAD_BASE}{e(d["file"])}" rel="nofollow">Download</a>
-  </div>
-</article>'''
+            rows.append(
+                f'''<li>
+  <div><b>{e(name)}</b><br>{e(desc.format(**fill))}<br><small>{d["cards"]:,} cards · {_size(d["bytes"])}</small></div>
+  <a href="{DOWNLOAD_BASE}{e(d["file"])}">Download</a>
+</li>'''
             )
-        out.append(
-            f'''<div class="group" id="{gid}">
-  <div class="group-head"><h3>{e(title)}</h3><p>{e(blurb)}</p></div>
-  <div class="deck-grid">
-{chr(10).join(cards)}
+        out.append(f'<h3>{e(title)}</h3>\n<p class="blurb">{e(blurb)}</p>\n<ul class="decks">\n{chr(10).join(rows)}\n</ul>')
+    return "\n".join(out)
+
+
+def _sample_html(s: dict) -> str:
+    e = _html.escape
+    ex = ""
+    if s["example"]:
+        ex = f'<p class="ex">{e(s["example"][0])}<br><small>{e(s["example"][1])}<br>{e(s["example"][2])}</small></p>'
+    fact = f'<p class="fact"><b>{e(s["facttitle"] or "Did you know?")}</b> {e(s["fact"])}</p>' if s["fact"] else ""
+    return f'''<div class="sample">
+  <div class="side">
+    <small>Front</small>
+    <div class="word">{e(s["italian"])}</div>
+    <div class="ipa">{e(s["ipa"])}</div>
+    <audio controls preload="none" src="samples/{s["slug"]}.mp3"></audio>
+  </div>
+  <div class="side">
+    <small>Back</small>
+    <div class="word">{e(s["english"])}</div>
+    <img src="samples/{s["slug"]}.jpg" alt="" width="512" height="384">
+    <p class="det">{e(s["details"])}</p>
+    <p>{e(s["note"])}</p>
+    {ex}
+    {fact}
   </div>
 </div>'''
-        )
-    return "\n".join(out)
 
 
 def render_page(data: dict) -> None:
@@ -258,10 +257,9 @@ def render_page(data: dict) -> None:
         "{{DECKS}}": _deck_groups(decks, st["new_at"]),
         "{{WORDS}}": f"{st['words'] // 100 * 100:,}+",
         "{{VERB_FORMS}}": f"{st['verb_forms'] // 100 * 100:,}+",
-        "{{FACT_PERCENT}}": f"{round(st['fact_share'] * 100 / 5) * 5}%",
         "{{DECK_COUNT}}": str(len(decks)),
         "{{TOTAL_SIZE}}": f"{sum(d['bytes'] for d in decks.values()) / 1e6:,.0f} MB",
-        "{{SAMPLES_JSON}}": json.dumps(data["samples"], ensure_ascii=False).replace("</", "<\\/"),
+        "{{SAMPLE}}": _sample_html(data["samples"][0]),
         "{{BUILT}}": datetime.date.today().strftime("%B %Y"),
     }
     for key, value in swaps.items():
