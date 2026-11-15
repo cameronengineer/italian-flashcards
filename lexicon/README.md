@@ -6,8 +6,7 @@ database on every run:
 | File | Contents |
 |---|---|
 | `lexemes.jsonl` | One root word per line: lemma, part of speech, display form, gender, plural, forms, IPA, etymology, card senses (prompt / hint / note / also), fun fact, status, and per-field `provenance` (`kaikki`, `rule`, `claude:<model>`, `human`). |
-| `lists.jsonl` | Which list each root comes from, its rank and the source's own gloss. Movie example lines are deliberately excluded (subtitle text stays local). |
-| `identity.csv` | Every note key ever sent to Anki — the drift guard uses it to protect review history. |
+| `lists.jsonl` | Which list each root comes from, its rank and the source's own gloss (only the lists in `lists.toml`; film example lines are in each film's `words.csv`). |
 
 **Editing:** change a field in `lexemes.jsonl` and set its provenance to
 `"human"` (e.g. `"provenance": {"senses": "human"}`); the next run applies it

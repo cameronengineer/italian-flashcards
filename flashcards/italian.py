@@ -13,6 +13,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import unicodedata
 
@@ -387,6 +388,37 @@ def cognate(italian: str, english: str) -> tuple[float, str | None]:
             if score > best + 0.02:
                 best, rule = score, name
     return best, rule
+
+
+def gives_away(english: str, italian: str, hint: str = "") -> bool:
+    """True when a card's English prompt or hint offers a look-alike of the Italian
+    answer next to a real translation ("priority", hint "precedence; right of way"
+    → la precedenza). A prompt that is itself the look-alike ("nation" → la
+    nazione, "calm" + hint "noun") is the natural translation and left alone."""
+
+    def pieces(text):
+        out = []
+        for top in re.split(r"[,;/](?![^()]*\))", text):
+            main = re.sub(r"\(.*?\)", "", top).strip()
+            if main:
+                out.append(main)
+            out += [p.strip() for inner in re.findall(r"\((.*?)\)", top) for p in re.split(r"[,;/]", inner) if p.strip()]
+        return out
+
+    it = plain(italian.lower())
+
+    def alike(piece):
+        for word in re.findall(r"[a-zA-Z]+", piece):
+            w = plain(word.lower())
+            if len(w) < 4:
+                continue
+            common = len(os.path.commonprefix([w, it]))
+            if (common >= 5 and common >= 0.6 * min(len(w), len(it))) or jaro(w, it) >= 0.85:
+                return True
+        return False
+
+    prompt = [alike(p) for p in pieces(english)]
+    return (any(prompt) or any(alike(p) for p in pieces(hint))) and not all(prompt)
 
 
 # ── Tokenising subtitle text ───────────────────────────────────────────────

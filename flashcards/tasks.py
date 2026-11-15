@@ -62,13 +62,17 @@ class TaskSpec:
         )
 
 
-def _obj(props: dict, required: list[str] | None = None) -> dict:
+def _obj(props: dict, optional: tuple[str, ...] = ()) -> dict:
     return {
         "type": "object",
         "properties": props,
-        "required": required if required is not None else list(props),
+        "required": [k for k in props if k not in optional],
         "additionalProperties": False,
     }
+
+
+#: Leaving these out means "keep the entry".
+_OPTIONAL_IGNORE = ("ignore", "ignore_reason")
 
 
 _STR = {"type": "string"}
@@ -137,9 +141,17 @@ _FACT_RULES = (
     "documented detail, but never invent. Good facts: origin story, a surprising link to an "
     "English word, a false-friend warning, a cultural note. Plain English, at most 220 "
     "characters, no markdown, do not start with the word itself.",
-    "If a draft_fact is given, keep it only if it is consistent with the sourced etymology; "
-    "otherwise rewrite or drop it.",
     "fact.kind: etymology | english_link | false_friend | culture | usage; fact.confidence 0–1.",
+)
+
+_IGNORE_RULE = (
+    "ignore: true only when this entry should not be a flashcard at all: it is not Italian, it is a "
+    "person or place name, a stray abbreviation or letter, a fragment of a bad parse, or a rare "
+    "secondary use whose ordinary meaning is studied on another card (also_listed_as shows the "
+    "other parts of speech this word has in the lists, e.g. the noun l'entrare when the verb "
+    "entrare is listed). ignore_reason: one short sentence saying why (name the other card if "
+    "that is the reason). Otherwise ignore=false and ignore_reason empty. When in doubt, keep it. "
+    "Fill in every other field either way."
 )
 
 _FEATURES = _obj(
@@ -172,15 +184,17 @@ LEXEME_ENRICH = TaskSpec(
         "(e.g. 'right' → hint 'direction'). Empty otherwise.",
         "register: formal | colloquial | vulgar | literary | regional | archaic, or empty.",
         "note: a short usage note for the back of the card (≤ 120 characters), or empty.",
-        "source_id: select the supporting ID from meaning_evidence.candidates. Retain the same "
-        "dictionary meaning ID when only wording changes; never merge distinct homonyms. "
-        "features: give sense-specific persons, auxiliary and construction for verbs; [] means "
-        "unrestricted persons. Event meanings use it/they, not I/we happen. For nouns give singular "
-        "gender and the plural, plural gender and English plural that fit THIS meaning. "
-        "Leave inapplicable feature strings empty. Do not guess a plural for an ambiguous meaning.",
+        "source_id: the source_id (m1, m2 …) of the meaning_evidence candidate this sense is; "
+        "never merge distinct homonyms.",
+        "features: for verbs, persons lists the subjects this meaning is used with — leave it [] "
+        "(any subject) unless the meaning genuinely restricts them (event meanings use it/they, "
+        "not I/we happen); give the auxiliary and construction. For nouns give singular gender and "
+        "the plural, plural gender and English plural that fit THIS meaning. Leave inapplicable "
+        "feature strings empty. Do not guess a plural for an ambiguous meaning.",
         "english_plural: for nouns, the English plural of the prompt (house → houses); else empty.",
         "verified: false and list issues when the dictionary data looks wrong (gender, part of "
         "speech, meaning) — say what you believe is right. Empty issues when it checks out.",
+        _IGNORE_RULE,
         *_FACT_RULES,
     ),
     schema=_obj(
@@ -206,6 +220,8 @@ LEXEME_ENRICH = TaskSpec(
                         "english_plural": _STR,
                         "verified": _BOOL,
                         "issues": {"type": "array", "items": _STR},
+                        "ignore": _BOOL,
+                        "ignore_reason": _STR,
                         "fact": _obj(
                             {
                                 "has_fact": _BOOL,
@@ -214,12 +230,13 @@ LEXEME_ENRICH = TaskSpec(
                                 "confidence": _CONF,
                             }
                         ),
-                    }
+                    },
+                    _OPTIONAL_IGNORE,
                 ),
             }
         }
     ),
-    timeout=900,
+    timeout=None,  # [ai] timeout
 )
 
 PHRASE_ENRICH = TaskSpec(
@@ -232,6 +249,8 @@ PHRASE_ENRICH = TaskSpec(
         "hint: at most 4 words when the English could be said several ways in Italian; else empty.",
         "note: short usage note (≤ 120 characters) or empty.",
         "verified: false with issues if the Italian has a mistake (say the correction).",
+        "ignore: true only if this is not Italian or is too garbled to fix; ignore_reason says why "
+        "in one sentence. Otherwise ignore=false and ignore_reason empty. When in doubt, keep it.",
     ),
     schema=_obj(
         {
@@ -245,12 +264,15 @@ PHRASE_ENRICH = TaskSpec(
                         "note": _STR,
                         "verified": _BOOL,
                         "issues": {"type": "array", "items": _STR},
-                    }
+                        "ignore": _BOOL,
+                        "ignore_reason": _STR,
+                    },
+                    _OPTIONAL_IGNORE,
                 ),
             }
         }
     ),
-    timeout=900,
+    timeout=None,  # [ai] timeout
 )
 
 VERB_PROMPTS = TaskSpec(
@@ -269,7 +291,7 @@ VERB_PROMPTS = TaskSpec(
         "specific reason (not appropriate for this meaning/construction, invalid form, etc.). "
         "Never silently omit a pair. Respect usage.persons, auxiliary and construction. "
         "For event subjects use it/they; do not translate succedere (happen) as I happen. "
-        "Exclude modal imperatives that are not ordinarily used. Preserve usable existing prompts.",
+        "Exclude imperatives that are not ordinarily used.",
         "Never include Italian. Keep each prompt under 50 characters.",
     ),
     schema=_obj(
@@ -298,7 +320,7 @@ VERB_PROMPTS = TaskSpec(
             }
         }
     ),
-    timeout=900,
+    timeout=None,  # [ai] timeout
 )
 
 DISAMBIGUATE = TaskSpec(
@@ -402,7 +424,102 @@ CARD_AUDITS = TaskSpec(
             }
         }
     ),
-    timeout=900,
+    timeout=None,  # [ai] timeout
+)
+
+
+CUE_CHECK = TaskSpec(
+    name="cue_check",
+    instruction="Each flashcard asks the learner to produce the Italian word from its English prompt "
+    "and hint. Rewrite prompts and hints that give the answer away. Return one entry per input id.",
+    rules=(
+        "A prompt or hint gives the answer away when it offers an English word that looks like the "
+        "Italian answer, as an alternative, in brackets or in the hint (precedence → la precedenza, "
+        "licence → la licenza).",
+        "Remove those look-alikes when another natural translation remains: 'priority (precedence; right "
+        "of way)' → 'priority (right of way)'; 'licence, permit' → 'permit'; 'fight, combat' → 'fight'.",
+        "Keep a look-alike when it is the only natural English for this meaning (nation → la nazione, "
+        "piano (instrument) → il pianoforte), or when the prompt would otherwise point to a different "
+        "word; then return the prompt unchanged.",
+        "The result must still clearly mean this Italian word, not a different one (for categorico, "
+        "'categorical, flat' must not become just 'flat'). The given hint separates this word from "
+        "others with the same English: keep that job, minus any look-alike ('precedence; right of way' "
+        "→ 'right of way').",
+        "english: the prompt to show; hint: the hint to show (at most 4 words, or empty). Never "
+        "include Italian.",
+    ),
+    schema=_obj(
+        {"cues": {"type": "array", "items": _obj({"id": _STR, "english": _STR, "hint": _STR})}}
+    ),
+)
+
+
+NOUN_NUMBER = TaskSpec(
+    name="noun_number",
+    instruction="For each Italian noun, decide which form its flashcard should teach for the meaning "
+    "it is learned with (english, note). Return one entry per input id.",
+    rules=(
+        "Teach the most common usage. number = plural when Italians mostly use this noun in the plural, "
+        "so a learner should learn the plural (gli occhiali = glasses, le forbici = scissors, i "
+        "pantaloni = trousers, gli spaghetti). This includes plurals that are much more common than the "
+        "singular with a shifted meaning: choose plural and give that meaning (i soldi = money rather "
+        "than il soldo = penny; i mobili = furniture rather than il mobile = piece of furniture).",
+        "number = singular when this meaning is normally only used in the singular and a plural would "
+        "sound odd to a learner (la gente = people, il latte = milk, la fame = hunger, il sangue = blood).",
+        "number = both for an ordinary countable noun (la casa / le case): the card shows the singular "
+        "and its plural. When unsure, both.",
+        "english: only when number is plural, the natural English for the plural as the card's prompt "
+        "(glasses, scissors, money, furniture, spaghetti); otherwise empty.",
+    ),
+    schema=_obj(
+        {
+            "nouns": {
+                "type": "array",
+                "items": _obj(
+                    {
+                        "id": _STR,
+                        "number": {"type": "string", "enum": ["singular", "plural", "both"]},
+                        "english": _STR,
+                    }
+                ),
+            }
+        }
+    ),
+)
+
+
+FACT_CHECK = TaskSpec(
+    name="fact_check",
+    instruction="Check the 'did you know?' fact shown on each Italian flashcard (the word and its "
+    "meaning are given). Return one entry per input id.",
+    rules=(
+        "keep: the fact is accurate and genuinely helps an English speaker remember this word.",
+        "fix: mostly good, but one claim must go or be corrected. text: the corrected fact in the same "
+        "plain style (at most 220 characters, no markdown, not starting with the word). Only remove or "
+        "correct claims; never add new ones.",
+        "drop: inaccurate or doubtful, dull, or mainly about something other than this word.",
+        "English words in a fact must be everyday words a typical adult native English speaker knows. "
+        "A claim that English borrowed or uses an Italian word is only fine for common English words "
+        "(pizza, piano, balcony); remove it for words most people have never heard (passeggiata, "
+        "estival, aestivation), and drop the fact if nothing useful is left.",
+        "text: empty unless the verdict is fix. reason: a few words.",
+    ),
+    schema=_obj(
+        {
+            "facts": {
+                "type": "array",
+                "items": _obj(
+                    {
+                        "id": _STR,
+                        "verdict": {"type": "string", "enum": ["keep", "fix", "drop"]},
+                        "text": _STR,
+                        "reason": _STR,
+                    }
+                ),
+            }
+        }
+    ),
+    timeout=None,  # [ai] timeout
 )
 
 
@@ -430,5 +547,5 @@ FILM_GLOSS = TaskSpec(
             }
         }
     ),
-    timeout=900,
+    timeout=None,  # [ai] timeout
 )

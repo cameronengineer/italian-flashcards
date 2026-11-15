@@ -146,6 +146,6 @@ class LinguisticCorpusTests(unittest.TestCase):
         self.assertEqual(fields["form:speak:presente:io"]["English"], "I speak / I am speaking")
         self.assertEqual(fields["nphrase:home:poss-loro:plural"]["Italian"], "le loro case")
         self.assertEqual(fields["mistake:m"]["English"], "I am hungry")
-        pattern = next(r["fields"] for r in rows if r["card_type"] == "cognate")
-        self.assertIn("station", pattern["English"])
-        self.assertIn("-zione", pattern["Italian"])
+        station = fields["cognate:stazione"]
+        self.assertEqual((station["English"], station["Hint"]), ("station", ""))
+        self.assertIn("-zione = -tion", station["Details"])

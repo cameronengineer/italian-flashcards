@@ -10,9 +10,9 @@ and lemmatises every token:
 3. clitic stripping for forms like *dimmelo* / *andiamoci*.
 
 Character names are dropped (capitalised mid-sentence and never seen in
-lowercase). The result is one :class:`lists.Item` per lemma with its count,
-first appearance and an example cue — the cue text is stored only in the
-local database (subtitle text is never committed).
+lowercase; a capital at the start of a subtitle line or a sentence doesn't
+count). The result is one :class:`lists.Item` per lemma with its count,
+first appearance and an example cue line.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from . import kaikki
-from .italian import normalise_spelling, plain, tokens
+from .italian import _TOKEN, normalise_spelling, plain, tokens
 from .paths import INPUTS_DIR
 
 _TIME = re.compile(r"(\d+):(\d+):(\d+)[,.](\d+)\s*-->")
@@ -46,6 +46,14 @@ class Cue:
     index: int
     start_ms: int
     text: str
+    #: The cleaned subtitle lines (``text`` joins them); line starts are sentence starts.
+    lines: tuple[str, ...] = ()
+
+
+def _clean(text: str) -> str:
+    for pattern, repl in _CLEAN:
+        text = pattern.sub(repl, text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def parse(path: Path) -> list[Cue]:
@@ -59,14 +67,14 @@ def parse(path: Path) -> list[Cue]:
         if not m:
             continue
         h, mi, s, ms = map(int, m.groups())
-        text = " ".join(l for l in lines if not _TIME.search(l) and not l.strip().isdigit())
+        body = [l for l in lines if not _TIME.search(l) and not l.strip().isdigit()]
+        text = " ".join(body)
         if _AD.search(text):
             continue
-        for pattern, repl in _CLEAN:
-            text = pattern.sub(repl, text)
-        text = re.sub(r"\s+", " ", text).strip()
+        text = _clean(text)
         if text:
-            cues.append(Cue(len(cues), ((h * 60 + mi) * 60 + s) * 1000 + ms, text))
+            start = ((h * 60 + mi) * 60 + s) * 1000 + ms
+            cues.append(Cue(len(cues), start, text, tuple(filter(None, map(_clean, body)))))
     return cues
 
 
@@ -271,11 +279,12 @@ def analyze(path: Path):
     lowercase = set()
     capital_mid = set()
     for cue in cues:
-        for i, tok in enumerate(tokens(cue.text)):
-            if tok[:1].islower():
-                lowercase.add(tok.lower())
-            elif i > 0 and tok[:1].isupper():
-                capital_mid.add(tok.lower())
+        for line in cue.lines or (cue.text,):
+            for tok, sentence_start in _line_tokens(line):
+                if tok[:1].islower():
+                    lowercase.add(tok.lower())
+                elif not sentence_start and tok[:1].isupper():
+                    capital_mid.add(tok.lower())
     out = []
     for cue in cues:
         for tok in tokens(cue.text):
@@ -291,6 +300,17 @@ def analyze(path: Path):
                 AnalyzedToken(tok, cue.index, "resolved" if got else "unresolved", *(got or (None, None)))
             )
     return cues, out
+
+
+def _line_tokens(line: str):
+    """(token, starts a sentence) for one subtitle line: the first token, and
+    any token after . ! ? … or an opening quote/dash."""
+    line = line.replace("’", "'")
+    previous = 0
+    for i, m in enumerate(_TOKEN.finditer(line)):
+        gap = line[previous : m.start()]
+        yield m.group(), i == 0 or any(ch in gap for ch in ".!?…«\"“-–—")
+        previous = m.end()
 
 
 def word_items(path: Path) -> list:

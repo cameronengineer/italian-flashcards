@@ -237,19 +237,25 @@ class BatchRecoveryTests(unittest.TestCase):
 
 class SuspensionAndTimingTests(unittest.TestCase):
     def test_only_new_suspensions_are_sent_and_counted(self):
-        plan = reconcile.Plan(suspend=[10, 10, 20, 30])
-        cards = [{"cardId": 10, "queue": -1}, {"cardId": 20, "queue": 2}, {}]
-        with patch.object(
-            reconcile, "invoke", side_effect=lambda action, **kw: cards if action == "cardsInfo" else True
-        ) as invoke:
+        plan = reconcile.Plan(suspend=[10, 10, 20, 30, 40])
+        cards = [{"cardId": 10, "queue": -1}, {"cardId": 20, "queue": 2}, {}, {"cardId": 40, "queue": 2}]
+        # Card 40 was moved by you out of the pipeline's decks: never touched.
+        decks = {"Italian::Verbs": [10, 20, 30], "ZCam's Decks - Old::Italian - Verbs": [40]}
+
+        def anki(action, **kw):
+            if action == "cardsInfo":
+                return [c for c in cards if not c or c["cardId"] in kw["cards"]]
+            return decks if action == "getDecks" else True
+
+        with patch.object(reconcile, "invoke", side_effect=anki) as invoke:
             reconcile._suspend_active(plan)
         self.assertEqual(plan.suspended, 1)
         self.assertIn("1 newly suspended", plan.result())
         self.assertEqual(invoke.call_args_list[-1].kwargs, {"cards": [20]})
         plan = reconcile.Plan(suspend=[10])
-        with patch.object(reconcile, "invoke", return_value=[cards[0]]) as invoke:
+        with patch.object(reconcile, "invoke", side_effect=anki) as invoke:
             reconcile._suspend_active(plan)
-        self.assertEqual(invoke.call_count, 1)
+        self.assertEqual([c.args[0] for c in invoke.call_args_list], ["getDecks", "cardsInfo"])
         self.assertEqual(plan.result(), "up to date")
 
     def test_wait_time_is_counted_once_and_gate_reopens(self):

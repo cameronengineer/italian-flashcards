@@ -103,20 +103,6 @@ def audit_coverage(conn):
     return result
 
 
-def apply_overrides(conn, key, fields):
-    """Retain previously saved human corrections without a manual review gate."""
-    import html
-
-    row = conn.execute("SELECT * FROM cue_overrides WHERE key=?", (key,)).fetchone()
-    if row and row["content_hash"] == quality.note_hash(fields):
-        if row["hint"]:
-            fields["Hint"] = html.escape(row["hint"])
-        if row["alternatives"]:
-            fields["Note"] = " · ".join(
-                filter(None, [fields.get("Note"), "Also accepted: " + html.escape(row["alternatives"])])
-            )
-
-
 def grammar_holds(conn):
     from .semantics import note_hold, form_suffix
 

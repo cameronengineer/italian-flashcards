@@ -43,12 +43,6 @@ def reasons(conn, key, lexeme_id, fields):
             result.append("missing root")
         elif lx[0] != "ready" and lx[1] not in {"num", "letter"}:
             result.append("awaiting verification")
-    if key.startswith("form:") and lexeme_id:
-        job = conn.execute(
-            "SELECT status FROM ai_jobs WHERE kind='verb_prompts' AND subject=?", (lexeme_id,)
-        ).fetchone()
-        if job and job[0] != "done":
-            result.append("awaiting verb prompts")
     if settings.audit.block_failures:
         a = conn.execute(
             "SELECT card_hash,verdict FROM audits WHERE natural_key=? AND direction='note'", (key,)

@@ -66,3 +66,6 @@ docs/
 review.csv
 cue_review.csv
 grammar_review.csv
+
+# Personal Anki sync state (note IDs); the database and its backups hold it
+lexicon/identity.csv

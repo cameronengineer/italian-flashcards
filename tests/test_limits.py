@@ -67,21 +67,22 @@ class SenseIdentityTests(unittest.TestCase):
         overrides.save_senses(c, "x", [{"prompt": "home", "source_id": "dictionary:dwelling"}], "claude:test")
         self.assertEqual(self._active(c), [(0, "home")])
 
-    def test_unchanged_prompts_keep_identity_when_reordered(self):
+    def test_first_meaning_is_always_idx_0_and_the_others_keep_identity(self):
         c = database(self)
         lexeme(c)
         overrides.save_senses(c, "x", [{"prompt": "house"}, {"prompt": "family"}], "claude:test")
         overrides.save_senses(
             c, "x", [{"prompt": "family"}, {"prompt": "house"}, {"prompt": "home"}], "claude:test"
         )
-        self.assertEqual(self._active(c), [(0, "house"), (1, "family"), (2, "home")])
+        # The main meaning swaps places with the old one; a new meaning gets a new idx.
+        self.assertEqual(self._active(c), [(0, "family"), (1, "house"), (2, "home")])
 
     def test_removed_sense_is_archived_and_duplicates_collapse(self):
         c = database(self)
         lexeme(c)
         overrides.save_senses(c, "x", [{"prompt": "house"}, {"prompt": "family"}], "claude:test")
         overrides.save_senses(c, "x", [{"prompt": "family"}, {"prompt": "Family "}], "claude:test")
-        self.assertEqual(self._active(c), [(1, "family")])
+        self.assertEqual(self._active(c), [(0, "family")])
         archived = c.execute("SELECT prompt FROM senses WHERE lexeme_id='x' AND active=0").fetchall()
         self.assertEqual([r[0] for r in archived], ["house"])
 

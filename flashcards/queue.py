@@ -24,7 +24,7 @@ import traceback
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from . import codex, kaikki, overrides, report
+from . import codex, kaikki, overrides, report, semantics
 from .db import transaction
 from .runtime import writer_lock
 from .validation import validate
@@ -33,10 +33,19 @@ from .ai import AI, AIUnavailable, AIResponseError, _gate
 from .pool import STOP
 from .settings import settings
 from .facts import normalise as fact_key
-from .italian import conjugation_class
+from .italian import conjugation_class, definite_article, gives_away, with_article
 from .planning import study_order, full_form_verbs, plan_tenses, verb_forms, MODEL_VERBS
 from .lexicon import film_examples, film_line_key, image_exists
-from .tasks import DISAMBIGUATE, FILM_GLOSS, LEXEME_ENRICH, PHRASE_ENRICH, VERB_PROMPTS
+from .tasks import (
+    CUE_CHECK,
+    DISAMBIGUATE,
+    FACT_CHECK,
+    FILM_GLOSS,
+    LEXEME_ENRICH,
+    NOUN_NUMBER,
+    PHRASE_ENRICH,
+    VERB_PROMPTS,
+)
 from .util import md5_hex, print_banner
 
 BATCH = {
@@ -45,9 +54,22 @@ BATCH = {
     "verb_prompts": 3,
     "disambiguate": 8,
     "film_gloss": 25,
+    "fact_check": 25,
+    "noun_number": 40,
+    "cue_check": 40,
     "image": 1,
 }
-ORDER = ["lexeme_enrich", "phrase_enrich", "verb_prompts", "disambiguate", "film_gloss", "image"]
+ORDER = [
+    "lexeme_enrich",
+    "phrase_enrich",
+    "verb_prompts",
+    "disambiguate",
+    "film_gloss",
+    "fact_check",
+    "noun_number",
+    "cue_check",
+    "image",
+]
 DETERMINISTIC_POS = ("num", "letter")
 SPECS = {
     "lexeme_enrich": LEXEME_ENRICH,
@@ -55,6 +77,9 @@ SPECS = {
     "verb_prompts": VERB_PROMPTS,
     "disambiguate": DISAMBIGUATE,
     "film_gloss": FILM_GLOSS,
+    "fact_check": FACT_CHECK,
+    "noun_number": NOUN_NUMBER,
+    "cue_check": CUE_CHECK,
 }
 TEXT_ROOTS = {
     "lexeme_enrich": "words",
@@ -62,17 +87,19 @@ TEXT_ROOTS = {
     "verb_prompts": "verbs",
     "disambiguate": "groups",
     "film_gloss": "lines",
+    "fact_check": "facts",
+    "noun_number": "nouns",
+    "cue_check": "cues",
 }
 
 
 # ── Planning ───────────────────────────────────────────────────────────────
 
 
-# Payload fields that are not inputs: ``draft_fact`` is the previous answer
-# (it changes every time the job runs) and the dictionary version is already
-# reflected in the dictionary senses themselves. Fingerprinting them would
-# reopen every finished job after each run or dictionary rebuild.
-_VOLATILE = ("draft_fact", "dictionary_version", "existing_senses", "existing_prompts")
+# Payload fields that are not inputs: the dictionary version is already
+# reflected in the dictionary senses themselves. Fingerprinting it would
+# reopen every finished job after each dictionary rebuild.
+_VOLATILE = ("dictionary_version",)
 
 
 #: 2: the model is no longer part of a job's identity.
@@ -90,7 +117,7 @@ def _fingerprint(kind: str, payload: dict) -> str:
     spec = SPECS.get(kind)
     if not spec:
         return md5_hex(json.dumps(inputs, sort_keys=True))
-    task = spec.task(inputs)
+    task = spec.task(_model_view(inputs))
     return md5_hex(
         json.dumps(
             {
@@ -98,6 +125,7 @@ def _fingerprint(kind: str, payload: dict) -> str:
                 "messages": task.messages(),
                 "schema": task.schema,
                 "version": settings.ai.task_version,
+                "local": {k: v for k, v in inputs.items() if k.startswith("_")},
             },
             ensure_ascii=False,
             sort_keys=True,
@@ -126,11 +154,8 @@ def _enqueue(conn, kind, subject, priority, payload, *, reopen=False):
         "next_retry_at=CASE WHEN ? THEN NULL ELSE next_retry_at END WHERE id=?",
         (priority, encoded, fingerprint, status, changed or revive, changed or revive, previous["id"]),
     )
-    if changed and kind in ("lexeme_enrich", "phrase_enrich"):
-        conn.execute(
-            "UPDATE lexemes SET status='new' WHERE id=?",
-            (subject,),
-        )
+    # A word being rewritten keeps its current card (status stays 'ready'):
+    # Anki is updated in place when the new answer arrives.
     if changed or revive:
         conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
     return status == "pending" and previous["status"] != "pending"
@@ -161,7 +186,9 @@ def plan(conn):
         return _enqueue(conn, kind, subject, priority, payload, **kw)
 
     for lx in conn.execute("SELECT * FROM lexemes WHERE id IN (SELECT lexeme_id FROM list_items)").fetchall():
-        if lx["id"] not in selected:
+        # An ignored word has no cards, but is asked again when the task changes
+        # (a stronger model may disagree with a weaker one).
+        if lx["id"] not in selected and not lx["ignored"]:
             continue
         pri = order[lx["id"]]
         if lx["pos"] not in DETERMINISTIC_POS:
@@ -188,6 +215,8 @@ def plan(conn):
                 (lx["id"],),
             )
         ]
+        if lx["ignored"]:
+            continue
         if not image_exists(lx["image_key"]) and not (policies and all(p == "disabled" for p in policies)):
             # Images wait for usable semantics; deterministic subjects need no enrichment.
             if lx["pos"] in DETERMINISTIC_POS or lx["status"] == "ready":
@@ -198,12 +227,21 @@ def plan(conn):
                     {"image_key": lx["image_key"], "subject": lx["id"]},
                     reopen=True,
                 )
+    # Words still being (re)written: what depends on their meaning (verb prompts,
+    # cue groups) waits for the new answer instead of being written twice.
+    unsettled = {
+        r[0]
+        for r in conn.execute(
+            "SELECT subject FROM ai_jobs WHERE kind IN ('lexeme_enrich','phrase_enrich') "
+            "AND status IN ('pending','running')"
+        )
+    }
     generation_verbs = full_form_verbs(conn)
     if planned.get("budget") is not None:
         generation_verbs &= selected
     for vid in generation_verbs:
         lx = conn.execute("SELECT * FROM lexemes WHERE id=?", (vid,)).fetchone()
-        if lx["status"] == "ready" and verb_forms(lx):
+        if lx["status"] == "ready" and vid not in unsettled and verb_forms(lx):
             added["verb_prompts"] += enqueue(
                 "verb_prompts",
                 vid,
@@ -218,14 +256,25 @@ def plan(conn):
     for r in conn.execute(
         # Every group of words sharing a prompt, hinted or not, so a task_version
         # bump redoes the hints too (the payload leaves out hint/also: stable).
-        "SELECT s.*,l.pos,l.display FROM senses s JOIN lexemes l ON l.id=s.lexeme_id WHERE s.active=1 AND s.idx=0 AND l.status='ready'"
+        "SELECT s.*,l.pos,l.display FROM senses s JOIN lexemes l ON l.id=s.lexeme_id "
+        "WHERE s.active=1 AND s.idx=0 AND l.status='ready' AND l.ignored IS NULL"
     ):
         if r["lexeme_id"] in selected and not overrides.is_human(conn, r["lexeme_id"], "senses"):
             groups[(r["prompt"].strip().lower(), r["pos"])].append(dict(r))
+    # Rewriting a word replaces its senses (and their hints): its groups run again.
+    finished = dict(
+        conn.execute(
+            "SELECT subject, updated_at FROM ai_jobs WHERE kind IN ('lexeme_enrich','phrase_enrich') "
+            "AND status='done'"
+        ).fetchall()
+    )
+    compared = dict(
+        conn.execute("SELECT subject, updated_at FROM ai_jobs WHERE kind='disambiguate' AND status='done'")
+    )
     for (prompt, _pos), words in groups.items():
-        if len(words) < 2:
-            continue
         ids = sorted(w["lexeme_id"] for w in words)
+        if len(words) < 2 or unsettled.intersection(ids):
+            continue
         subject = md5_hex(prompt + "|" + str(ids))
         payload = {
             "prompt": prompt,
@@ -235,8 +284,9 @@ def plan(conn):
                 for w in words
             ],
         }
+        rewritten = subject in compared and any(finished.get(i, "") > compared[subject] for i in ids)
         added["disambiguate"] += enqueue(
-            "disambiguate", subject, min(order.get(i, 1 << 30) for i in ids), payload
+            "disambiguate", subject, min(order.get(i, 1 << 30) for i in ids), payload, reopen=rewritten
         )
     # Word-for-word English for the film line each card shows (one job per distinct
     # line). Every line is planned, so a task_version bump redoes the glosses too.
@@ -253,6 +303,84 @@ def plan(conn):
         added["film_gloss"] += enqueue(
             "film_gloss", key, pri, {"id": key, "italian": line}, reopen=key not in glossed
         )
+    # Every fact shown on a card is checked once (again whenever its text changes).
+    min_confidence = settings.facts.min_confidence
+    checks = {}
+    for lx in conn.execute(
+        "SELECT id, lemma, display FROM lexemes WHERE ignored IS NULL AND id IN (SELECT lexeme_id FROM list_items)"
+    ).fetchall():
+        key = fact_key(lx["lemma"])
+        if lx["id"] in selected and lx["id"] not in unsettled and key not in checks:
+            checks[key] = lx
+    for f in conn.execute(
+        "SELECT word, fact FROM word_facts WHERE has_fact=1 AND confidence>=? AND coalesce(model,'')!='human'",
+        (min_confidence,),
+    ).fetchall():
+        lx = checks.get(f["word"])
+        if lx and f["fact"]:
+            sense = semantics.primary(conn, lx["id"])
+            added["fact_check"] += enqueue(
+                "fact_check",
+                f["word"],
+                order.get(lx["id"], 1 << 30),
+                {
+                    "id": f["word"],
+                    "italian": lx["display"],
+                    "meaning": sense["prompt"] if sense else "",
+                    "fact": f["fact"],
+                },
+            )
+    # Which form each noun's card teaches (gli occhiali, la gente, la casa / le case).
+    for lx in conn.execute(
+        "SELECT * FROM lexemes WHERE pos='noun' AND status='ready' AND ignored IS NULL "
+        "AND id IN (SELECT lexeme_id FROM list_items)"
+    ).fetchall():
+        sense = semantics.primary(conn, lx["id"])
+        if not sense or lx["id"] not in selected or lx["id"] in unsettled:
+            continue
+        if overrides.is_human(conn, lx["id"], "display"):
+            continue  # your own form wins
+        plural = semantics.noun_variant(lx, sense, plural=True)
+        added["noun_number"] += enqueue(
+            "noun_number",
+            lx["id"],
+            order.get(lx["id"], 1 << 30),
+            {
+                "id": lx["id"],
+                "italian": lx["display"],
+                "plural": with_article(definite_article(plural[0], plural[1], True), plural[0])
+                if plural
+                else lx["plural"],
+                "english": sense["prompt"],
+                "note": sense["note"] or "",
+            },
+        )
+    # English prompts or hints that give the Italian away ("priority" + hint "precedence; right
+    # of way" → la precedenza). Checked once the word's cue-group hint is written.
+    comparing = {
+        i
+        for (payload,) in conn.execute(
+            "SELECT payload FROM ai_jobs WHERE kind='disambiguate' AND status IN ('pending','running')"
+        )
+        for i in json.loads(payload or "{}").get("ids", [])
+    }
+    for r in conn.execute(
+        "SELECT l.id, l.lemma, l.display, s.prompt, s.hint FROM lexemes l JOIN senses s ON s.lexeme_id=l.id "
+        "AND s.active=1 AND s.idx=0 WHERE l.status='ready' AND l.ignored IS NULL "
+        "AND l.pos NOT IN ('phrase','num','letter') AND l.id IN (SELECT lexeme_id FROM list_items)"
+    ).fetchall():
+        if r["id"] not in selected or r["id"] in unsettled | comparing:
+            continue
+        if overrides.is_human(conn, r["id"], "senses"):
+            continue
+        hint = r["hint"] or ""
+        if gives_away(r["prompt"], r["lemma"], hint):
+            added["cue_check"] += enqueue(
+                "cue_check",
+                r["id"],
+                order.get(r["id"], 1 << 30),
+                {"id": r["id"], "italian": r["display"], "english": r["prompt"], "hint": hint},
+            )
     for row in conn.execute("SELECT id,kind,subject FROM ai_jobs WHERE status='pending'").fetchall():
         if (row["kind"], row["subject"]) not in active:
             conn.execute(
@@ -314,15 +442,45 @@ def _kaikki_entry(lx: sqlite3.Row) -> dict | None:
     return found[0] if found else None
 
 
-def _lexeme_payload(conn, lx: sqlite3.Row) -> dict:
-    from . import semantics
+def _meaning_candidates(conn, lx) -> tuple[list[dict], dict[str, str]]:
+    """The meanings Claude chooses from, with short IDs (m1, m2 … in a stable
+    order), and the map back to their stable source IDs.
 
+    Empty fields, list row numbers and repeats of the same list gloss are left
+    out: they cost tokens and tell Claude nothing.
+    """
+    candidates, ids, seen = [], {}, set()
+    for c in semantics.evidence(conn, lx)["candidates"]:
+        glosses = tuple(c["glosses"])
+        if c["source_id"].startswith("source:"):
+            if glosses in seen:
+                continue
+            seen.add(glosses)
+        short = f"m{len(candidates) + 1}"
+        ids[short] = c["source_id"]
+        context = {k: v for k, v in (c.get("context") or {}).items() if k != "row"}
+        candidates.append(
+            {
+                k: v
+                for k, v in {**c, "context": context, "source_id": short}.items()
+                if v not in (None, "", [], {})
+            }
+        )
+    return candidates, ids
+
+
+def _lexeme_payload(conn, lx: sqlite3.Row) -> dict:
+    """What Claude is told about a word: source data only, never an earlier
+    answer, so a ``task_version`` bump really regenerates from scratch."""
     entry = _kaikki_entry(lx)
-    meaning_evidence = semantics.evidence(conn, lx)
-    chain = lx["etymology_chain"]
-    draft = conn.execute(
-        "SELECT fact, kind FROM word_facts WHERE word = ? AND has_fact = 1", (fact_key(lx["lemma"]),)
-    ).fetchone()
+    candidates, meaning_ids = _meaning_candidates(conn, lx)
+    also = [
+        r[0]
+        for r in conn.execute(
+            "SELECT DISTINCT pos FROM lexemes WHERE lemma=? AND id!=? AND id IN (SELECT lexeme_id FROM list_items) ORDER BY pos",
+            (lx["lemma"], lx["id"]),
+        )
+    ]
     return {
         k: v
         for k, v in {
@@ -331,26 +489,24 @@ def _lexeme_payload(conn, lx: sqlite3.Row) -> dict:
             "lemma": lx["lemma"],
             "pos": lx["pos"],
             "gender": lx["gender"],
-            "dictionary_senses": [g for c in meaning_evidence["candidates"] for g in c["glosses"]],
-            "meaning_evidence": meaning_evidence,
-            "existing_senses": [
-                dict(r)
-                for r in conn.execute(
-                    "SELECT idx,prompt,source_id FROM senses WHERE lexeme_id=? AND active=1 ORDER BY idx",
-                    (lx["id"],),
-                )
-            ],
+            "meaning_evidence": {"candidates": candidates},
+            "also_listed_as": also,
             "plural": lx["plural"],
             "forms": json.loads(lx["forms_json"] or "{}"),
             "source_entry": entry.get("word") if entry else None,
             "list_glosses": _list_glosses(conn, lx["id"]),
             "contexts": _context_lines(conn, lx["id"]),
             "etymology": lx["etymology"],
-            "etymology_source": chain,
-            "draft_fact": draft["fact"] if draft else None,
+            "etymology_source": lx["etymology_chain"],
+            "_meaning_ids": meaning_ids,
         }.items()
         if v
     }
+
+
+def _model_view(payload: dict) -> dict:
+    """A payload as Claude sees it: keys starting with ``_`` stay local."""
+    return {k: v for k, v in payload.items() if not k.startswith("_")}
 
 
 def _add_etymology_chains(conn, jobs: list[sqlite3.Row], lock=None) -> list[sqlite3.Row]:
@@ -389,29 +545,25 @@ def _add_etymology_chains(conn, jobs: list[sqlite3.Row], lock=None) -> list[sqli
 
 
 def _verb_payload(conn, lx):
-    """Generate the complete verb family, including forms disabled for publication.
+    """Every form of the verb family, including tenses kept Dormant in Anki.
 
-    The study horizon selects verbs, but never truncates their stored grammar.
-    Explicit AI exclusions are completed outcomes, not missing prompts.
+    Forms the meaning rules out (``semantics.form_exclusion``: e.g. no
+    imperative of potere) are not asked for. The study horizon selects verbs,
+    but never truncates their stored grammar.
     """
-    from . import semantics
-
     sense = semantics.primary(conn, lx["id"])
-    forms = {t: {p: d for p, (d, _a) in persons.items()} for t, persons in verb_forms(lx, sense).items()}
+    rules = semantics.usage(lx, sense)
+    forms = {
+        t: {p: d for p, (d, _a) in persons.items() if not semantics.form_exclusion(lx["lemma"], rules, t, p)}
+        for t, persons in verb_forms(lx, sense).items()
+    }
     return {
         "id": lx["id"],
         "infinitive": lx["lemma"],
         "meaning": sense["prompt"] if sense else (_list_glosses(conn, lx["id"]) or [""])[0],
         "source_id": sense["source_id"] if sense else None,
-        "usage": semantics.usage(lx, sense),
-        "forms": forms,
-        "existing_prompts": [
-            dict(r)
-            for r in conn.execute(
-                "SELECT tense,person,english FROM form_prompts WHERE lexeme_id=? AND source_id=?",
-                (lx["id"], sense["source_id"] if sense else None),
-            )
-        ],
+        "usage": rules,
+        "forms": {t: persons for t, persons in forms.items() if persons},
     }
 
 
@@ -420,11 +572,12 @@ def _verb_payload(conn, lx):
 
 def _apply_lexeme(conn, word, model):
     lx = conn.execute("SELECT * FROM lexemes WHERE id=?", (word["id"],)).fetchone()
-    if not lx or not word.get("senses"):
+    if not lx or not (word.get("senses") or word.get("ignore")):
         raise ValueError("Missing lexeme or senses")
     prov = json.loads(lx["provenance"] or "{}")
-    if not overrides.is_human(conn, lx["id"], "senses"):
-        overrides.save_senses(conn, lx["id"], word["senses"], f"claude:{model}")
+    if word.get("senses") and not overrides.is_human(conn, lx["id"], "senses"):
+        # One meaning per card: the first (most obvious) one.
+        overrides.save_senses(conn, lx["id"], word["senses"][:1], f"claude:{model}")
         prov["senses"] = f"claude:{model}"
     # Claude's doubts about the dictionary data are kept (``./run.sh review``
     # lists them) but never hold a word back: there is no human review step.
@@ -436,8 +589,8 @@ def _apply_lexeme(conn, word, model):
         else word.get("english_plural") or None
     )
     conn.execute(
-        "UPDATE lexemes SET english_plural=?,status=?,issues=?,provenance=?,updated_at=CURRENT_TIMESTAMP WHERE id=?",
-        (plural, status, json.dumps(issues), json.dumps(prov, sort_keys=True), lx["id"]),
+        "UPDATE lexemes SET english_plural=?,status=?,issues=?,ignored=?,provenance=?,updated_at=CURRENT_TIMESTAMP WHERE id=?",
+        (plural, status, json.dumps(issues), _ignored(conn, word), json.dumps(prov, sort_keys=True), lx["id"]),
     )
     f = word.get("fact") or {}
     if not overrides.is_human(conn, lx["id"], "fact"):
@@ -459,17 +612,27 @@ def _apply_lexeme(conn, word, model):
 
 def _apply_phrase(conn, p, model):
     lx = conn.execute("SELECT * FROM lexemes WHERE id=?", (p["id"],)).fetchone()
-    if not lx or not (p.get("prompt") or "").strip():
+    if not lx or not ((p.get("prompt") or "").strip() or p.get("ignore")):
         raise ValueError("Missing phrase or prompt")
-    if not overrides.is_human(conn, p["id"], "senses"):
+    if (p.get("prompt") or "").strip() and not overrides.is_human(conn, p["id"], "senses"):
         overrides.save_senses(conn, p["id"], [p], f"claude:{model}")
     issues = [x for x in p.get("issues", []) if x.strip()]
     conn.execute(
-        "UPDATE lexemes SET status='ready',issues=? WHERE id=?",
-        (json.dumps(issues), p["id"]),
+        "UPDATE lexemes SET status='ready',issues=?,ignored=? WHERE id=?",
+        (json.dumps(issues), _ignored(conn, p), p["id"]),
     )
     overrides.apply(conn, p["id"])
     return True
+
+
+def _ignored(conn, answer) -> str | None:
+    """Claude's reason this entry should not be a card at all, or None.
+
+    Your own edit to a word's meaning (``lexemes.jsonl``) always keeps it.
+    """
+    if not answer.get("ignore") or overrides.is_human(conn, answer["id"], "senses"):
+        return None
+    return (answer.get("ignore_reason") or "").strip() or "Not a useful flashcard"
 
 
 def _validate_text_result(kind, payloads, jobs, result):
@@ -489,7 +652,10 @@ def _validate_text_result(kind, payloads, jobs, result):
             f"missing={missing}, extra={extra}, duplicates={duplicates}"
         )
     for item in returned:
-        if kind == "lexeme_enrich" and (
+        ignored = bool(item.get("ignore"))  # an ignored entry needs no card text
+        if kind == "lexeme_enrich" and ignored:
+            item["senses"] = [s for s in item["senses"] if s["prompt"].strip()]
+        if kind == "lexeme_enrich" and not ignored and (
             not item["senses"] or any(not s["prompt"].strip() for s in item["senses"])
         ):
             raise ValueError("Empty sense response")
@@ -506,11 +672,20 @@ def _validate_text_result(kind, payloads, jobs, result):
                 raise ValueError("Empty word-for-word gloss")
             if _letters("".join(w["it"] for w in item["words"])) != _letters(line):
                 raise ValueError("Word-for-word gloss must cover every word of the line, in order")
-        if kind == "phrase_enrich" and not item["prompt"].strip():
+        if kind == "cue_check" and not 0 < len(item["english"].strip()) <= 80:
+            raise ValueError("A card prompt must be 1–80 characters")
+        if kind == "noun_number" and len(item["english"]) > 80:
+            raise ValueError("Noun English prompt too long")
+        if kind == "fact_check" and item["verdict"] == "fix" and not 0 < len(item["text"].strip()) <= 300:
+            raise ValueError("A fixed fact needs its corrected text (at most 300 characters)")
+        if kind == "phrase_enrich" and not ignored and not item["prompt"].strip():
             raise ValueError("Empty phrase prompt")
         if kind == "verb_prompts":
             payload = next(p for p in payloads if p["id"] == item["id"])
             requested = {(t, p) for t, ps in payload["forms"].items() for p in ps}
+            # Forms that weren't asked for (e.g. an invented "imperativo io") are dropped.
+            for field in ("prompts", "exclusions"):
+                item[field] = [p for p in item[field] if (p["tense"], p["person"]) in requested]
             accepted = [(p["tense"], p["person"]) for p in item["prompts"]]
             excluded = [(p["tense"], p["person"]) for p in item["exclusions"]]
             if set(accepted + excluded) != requested or len(accepted + excluded) != len(requested):
@@ -525,14 +700,6 @@ def _validate_text_result(kind, payloads, jobs, result):
                 not p["reason"].strip() for p in item["exclusions"]
             ):
                 raise ValueError("Empty verb prompt or exclusion reason")
-            rules = payload.get("usage", {})
-            for prompt in item["prompts"]:
-                if rules.get("persons") and prompt["person"] not in rules["persons"]:
-                    raise ValueError("Verb prompt uses a person excluded by its meaning")
-                if prompt["tense"] == "imperativo" and (
-                    rules.get("no_imperative") or payload.get("infinitive") in {"dovere", "potere"}
-                ):
-                    raise ValueError("Unsuitable imperative must be explicitly excluded")
 
 
 def _letters(text: str) -> str:
@@ -580,9 +747,11 @@ def _run_text_batch(ai, kind, jobs, conn, lock):
         if not isinstance(payload, dict):
             raise ValueError(f"{kind} job {job['id']} has an invalid input object")
         payloads.append(payload)
-    feedback = [f"{j['subject']}: {j['error']}" for j in jobs if j["attempts"] and j["error"]]
+    feedback = [
+        f"{j['subject']}: {j['error'].removeprefix(INVALID)}" for j in jobs if j["attempts"] and j["error"]
+    ]
     task = SPECS[kind].task(
-        {TEXT_ROOTS[kind]: payloads},
+        {TEXT_ROOTS[kind]: [_model_view(p) for p in payloads]},
         rules=(
             "Answer only the CURRENT input IDs and forms. Correct these validation failures "
             "from the previous attempt (which may have requested a larger batch): " + "; ".join(feedback),
@@ -610,9 +779,26 @@ def _run_text_batch(ai, kind, jobs, conn, lock):
     with lock, transaction(conn):
         for item in returned:
             if kind == "lexeme_enrich":
-                evidence = next(p.get("meaning_evidence", {}) for p in payloads if p["id"] == item["id"])
-                for sense in item["senses"]:
-                    sense["context"] = json.dumps(evidence, ensure_ascii=False, sort_keys=True)
+                payload = next(p for p in payloads if p["id"] == item["id"])
+                # Claude saw short meaning IDs (m1, m2 …); store the stable ones.
+                ids = payload.get("_meaning_ids", {})
+                evidence = [
+                    {**c, "source_id": ids.get(c["source_id"], c["source_id"])}
+                    for c in payload.get("meaning_evidence", {}).get("candidates", [])
+                ]
+                item = {
+                    **item,
+                    "senses": [
+                        {
+                            **sense,
+                            "source_id": ids.get(sense["source_id"], sense["source_id"]),
+                            "context": json.dumps(
+                                {"candidates": evidence}, ensure_ascii=False, sort_keys=True
+                            ),
+                        }
+                        for sense in item["senses"]
+                    ],
+                }
                 _apply_lexeme(conn, item, task.model)
             elif kind == "phrase_enrich":
                 _apply_phrase(conn, item, task.model)
@@ -637,6 +823,37 @@ def _run_text_batch(ai, kind, jobs, conn, lock):
                         (item["id"], pr["tense"], pr["person"], pr["english"].strip(), source_id)
                         for pr in item["prompts"]
                     ],
+                )
+            elif kind == "cue_check":
+                conn.execute(
+                    "INSERT OR REPLACE INTO cue_fixes(lexeme_id, prompt, source_hint, english, hint) "
+                    "VALUES(?,?,?,?,?)",
+                    (
+                        item["id"],
+                        next(p["english"] for p in payloads if p["id"] == item["id"]),
+                        next(p.get("hint", "") for p in payloads if p["id"] == item["id"]),
+                        item["english"].strip(),
+                        item["hint"].strip() or None,
+                    ),
+                )
+            elif kind == "noun_number":
+                conn.execute(
+                    "UPDATE lexemes SET card_number=?, card_english=? WHERE id=?",
+                    (
+                        item["number"],
+                        item["english"].strip() if item["number"] == "plural" and item["english"].strip() else None,
+                        item["id"],
+                    ),
+                )
+            elif kind == "fact_check":
+                conn.execute(
+                    "UPDATE word_facts SET checked=?, checked_text=? WHERE word=? AND fact=?",
+                    (
+                        item["verdict"],
+                        item["text"].strip() if item["verdict"] == "fix" else None,
+                        item["id"],
+                        next(p["fact"] for p in payloads if p["id"] == item["id"]),
+                    ),
                 )
             elif kind == "film_gloss":
                 conn.execute(
@@ -671,6 +888,9 @@ KIND_NAME = {
     "verb_prompts": "verbs",
     "disambiguate": "cue groups",
     "film_gloss": "film lines",
+    "fact_check": "facts",
+    "noun_number": "nouns",
+    "cue_check": "prompts",
     "image": "images",
 }
 
@@ -682,6 +902,9 @@ def count_label(kind, n):
         "verb_prompts": "verb",
         "disambiguate": "cue group",
         "film_gloss": "film line",
+        "fact_check": "fact check",
+        "noun_number": "noun",
+        "cue_check": "prompt check",
         "image": "image",
     }
     return report.plural(n, singular[kind])
@@ -704,6 +927,10 @@ def _wave_text(wave) -> list[str]:
 def _label(conn, kind, jobs) -> str:
     if kind == "film_gloss":
         return report.plural(len(jobs), "line")
+    if kind == "fact_check":
+        return ", ".join(j["subject"] for j in jobs[:3]) + (f" +{len(jobs) - 3}" if len(jobs) > 3 else "")
+    if kind in ("noun_number", "cue_check"):
+        return report.plural(len(jobs), "word")
     if kind != "disambiguate":
         return _describe(conn, jobs)
     words = [w["italian"] for j in jobs for w in json.loads(j["payload"] or "{}").get("words", [])]
@@ -805,6 +1032,7 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
     client = AI(conn, lock)
     owner = uuid4().hex
     workers = max(1, settings.ai.concurrency)
+    image_slots = max(1, settings.images.concurrency)
 
     def work(kind, jobs, number, label):
         started = time.monotonic()
@@ -837,6 +1065,11 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
 
     def failure(jobs, exc):
         errors = exc.failures if isinstance(exc, PartialBatchError) else {j["id"]: str(exc) for j in jobs}
+        if isinstance(exc, (ValueError, AIResponseError)):
+            # Claude answered, but not validly: a fresh run won't change that by itself
+            # (``retry_failed(transient_only=True)`` skips these); a new prompt, input or
+            # task_version reopens the job automatically.
+            errors = {jid: INVALID + message for jid, message in errors.items()}
         with lock, transaction(conn):
             conn.executemany(
                 "UPDATE ai_jobs SET status=CASE WHEN attempts>=2 THEN 'failed' ELSE 'pending' END,"
@@ -875,7 +1108,14 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
             while available_kinds and (max_batches is None or batch_no < max_batches):
                 wave = []
                 wave_kinds = list(available_kinds)
-                while wave_kinds and len(wave) < workers and (max_batches is None or batch_no < max_batches):
+                texts, image_keys = 0, set()  # Claude slots used; images in this wave
+                while wave_kinds and (max_batches is None or batch_no < max_batches):
+                    if texts >= workers:
+                        wave_kinds = [k for k in wave_kinds if k == "image"]
+                    if "image" in wave_kinds and len(image_keys) >= image_slots:
+                        wave_kinds.remove("image")
+                    if not wave_kinds:
+                        break
                     marks = ",".join("?" for _ in wave_kinds)
                     first = conn.execute(
                         f"SELECT * FROM ai_jobs WHERE status='pending' AND kind IN ({marks}) "
@@ -894,33 +1134,45 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
                         # Isolate a previously failed text job on its next attempt;
                         # one bad member must not keep poisoning the same whole batch.
                         size = 1 if first["attempts"] else BATCH[kind]
+                        # Images made together must not share a destination file.
+                        other_keys = sorted(image_keys) if kind == "image" else []
                         jobs = conn.execute(
                             "SELECT * FROM ai_jobs WHERE status='pending' AND kind=? AND priority<? "
                             "AND (attempts>0)=? "
                             "AND (next_retry_at IS NULL OR next_retry_at<=datetime('now')) "
-                            "ORDER BY priority,id LIMIT ?",
-                            (kind, band_end, bool(first["attempts"]), size),
+                            + (
+                                "AND coalesce(json_extract(payload,'$.image_key'),'') NOT IN "
+                                f"({','.join('?' for _ in other_keys)}) "
+                                if other_keys
+                                else ""
+                            )
+                            + "ORDER BY priority,id LIMIT ?",
+                            (kind, band_end, bool(first["attempts"]), *other_keys, size),
                         ).fetchall()
                         conn.executemany(
                             "UPDATE ai_jobs SET status='running',owner=?,started_at=CURRENT_TIMESTAMP WHERE id=?",
                             [(owner, j["id"]) for j in jobs],
                         )
+                    if not jobs:
+                        wave_kinds.remove(kind)
+                        continue
                     batch_no += 1
                     label = _label(conn, kind, jobs)
                     wave.append((kind, jobs, batch_no, label))
                     if kind == "image":
                         images_started += 1
-                        # Media subjects can share a destination. Publish one image
-                        # per wave, alongside independent text work.
-                        wave_kinds.remove("image")
+                        image_keys.add(json.loads(jobs[0]["payload"] or "{}").get("image_key") or "")
                         if image_limit is not None and images_started >= image_limit:
                             available_kinds.remove("image")
+                            wave_kinds.remove("image")
+                    else:
+                        texts += 1
                 if not wave:
                     break
                 report.line("asking " + " · ".join(_wave_text(wave)) + " …")
                 # Planning is finished before threads start. Input updates, cache
                 # writes, result transactions and failure accounting share one lock.
-                pool = ThreadPoolExecutor(max_workers=workers)
+                pool = ThreadPoolExecutor(max_workers=workers + image_slots)
                 try:
                     futures = {pool.submit(work, *item): item for item in wave}
                     for future in as_completed(futures):
@@ -951,7 +1203,7 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
                             )
                             exhausted = sum(j["attempts"] >= 2 for j in jobs if j["id"] in failed_ids)
                             retry_note = (
-                                f"{exhausted} exhausted; rerun after reviewing the error"
+                                f"{exhausted} exhausted; retried when the task or input changes"
                                 if exhausted == nfailed
                                 else "retry after 5m; bounded to 3 attempts"
                             )
@@ -1018,10 +1270,20 @@ def status(conn: sqlite3.Connection) -> list[tuple]:
     ]
 
 
-def retry_failed(conn: sqlite3.Connection, kind: str | None = None, *, include_deferred=False) -> int:
+#: Prefix of the stored error when Claude's answer failed validation.
+INVALID = "invalid answer: "
+
+
+def retry_failed(
+    conn: sqlite3.Connection, kind: str | None = None, *, include_deferred=False, transient_only=False
+) -> int:
+    """Put failed jobs back in the queue (and, with ``include_deferred``, end
+    retry cooldowns). ``transient_only`` leaves invalid answers alone: asking
+    the same question again would fail the same way."""
+    failed = "status = 'failed'" + (f" AND coalesce(error,'') NOT LIKE '{INVALID}%'" if transient_only else "")
     cur = conn.execute(
         "UPDATE ai_jobs SET attempts=CASE WHEN status='failed' THEN 0 ELSE attempts END, "
-        "status = 'pending', next_retry_at=NULL WHERE (status = 'failed'"
+        f"status = 'pending', next_retry_at=NULL WHERE (({failed})"
         + (
             " OR (status='pending' AND error IS NOT NULL AND next_retry_at>datetime('now'))"
             if include_deferred
@@ -1043,8 +1305,7 @@ def refresh(conn: sqlite3.Connection, list_id: str) -> int:
             "UPDATE ai_jobs SET status = 'pending', attempts = 0, force_refresh=1, next_retry_at=NULL WHERE subject = ? AND kind IN ('lexeme_enrich', 'phrase_enrich')",
             (lid,),
         )
-        conn.execute("UPDATE lexemes SET status = 'new' WHERE id = ?", (lid,))
-        # Keep the last complete senses while replacement content is pending.
+        # The current card stays published until the new answer replaces it.
     if ids:
         conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
     conn.commit()

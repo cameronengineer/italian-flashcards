@@ -82,12 +82,14 @@ def load_plan(path: Path = PLAN_PATH) -> dict:
     from datetime import date
 
     plan = tomllib.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
-    allowed = {"new_cards_per_day", "horizon_days", "priority", "conjugation", "cards"}
+    allowed = {"new_cards_per_day", "horizon_days", "priority", "conjugation", "cards", "shuffle_window"}
     if set(plan) - allowed:
         raise ValueError(f"plan.toml: unknown keys {sorted(set(plan) - allowed)}")
     for key in ("new_cards_per_day", "horizon_days"):
         if key in plan and (type(plan[key]) is not int or plan[key] <= 0):
             raise ValueError(f"plan.toml: {key} must be a positive integer")
+    if "shuffle_window" in plan and (type(plan["shuffle_window"]) is not int or plan["shuffle_window"] < 0):
+        raise ValueError("plan.toml: shuffle_window must be a nonnegative integer")
     for table, keys in (
         ("cards", {"noun_phrases", "cognates", "patterns"}),
         (
@@ -457,7 +459,7 @@ def _read_numbers(l: ListDef) -> list[Item]:
 
 def _read_movie(l: ListDef) -> list[Item]:
     """Words of a film, by frequency, with count, first appearance and an
-    example cue index (the line text stays in the DB, never in git)."""
+    example line (also written to ``inputs/movies/<film>/words.csv``)."""
     return srt.word_items(l.path)
 
 

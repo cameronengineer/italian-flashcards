@@ -6,7 +6,7 @@ import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
-from flashcards import reconcile, content_review, quality
+from flashcards import reconcile
 from flashcards.commands import share
 from .support import database, desired, lexeme
 
@@ -186,15 +186,3 @@ class DormancyTests(unittest.TestCase):
             state["leech"] = False
             reconcile._sync_dormancy(c, reconcile.Plan(profile="Test"), {key: 10})
             self.assertEqual(state["queue"], 2)
-
-    def test_saved_cue_corrections_survive_retiring_the_manual_review_workflow(self):
-        c = database(self)
-        lexeme(c)
-        fields = desired(c)
-        c.execute(
-            "INSERT INTO cue_overrides(key,content_hash,hint,alternatives,reason) VALUES(?,?,?,?,?)",
-            (fields["Key"], quality.note_hash(fields), "dwelling", "home", "prior correction"),
-        )
-        content_review.apply_overrides(c, fields["Key"], fields)
-        self.assertEqual(fields["Hint"], "dwelling")
-        self.assertIn("Also accepted: home", fields["Note"])

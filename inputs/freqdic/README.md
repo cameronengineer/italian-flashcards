@@ -21,3 +21,10 @@ The underlying data comes from the SUBTLEX-IT project:
 - Project overview: https://osf.io/zg7sc/overview
 
 See the original distribution for citation information and usage terms.
+
+## Licence
+
+SUBTLEX-IT is released under the Creative Commons Attribution-NonCommercial-ShareAlike
+licence (CC BY-NC-SA). `subtlex-it.cleaned.csv` is a derivative of it and is shared
+under the same licence, for non-commercial use, with attribution to the SUBTLEX-IT
+authors (Crepaldi et al.).

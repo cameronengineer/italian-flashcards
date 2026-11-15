@@ -44,10 +44,11 @@ def _normal(text):
 
 
 def save_senses(conn, lexeme_id, values, provenance):
-    """Preserve exact/source-anchored meanings; never recycle an unmatched old idx.
+    """Store a word's meanings. The first is the main meaning and always idx 0;
+    further meanings keep the idx of the old meaning they match (by dictionary
+    source or wording), else get a new one.
 
-    Human edits may explicitly retain idx with same_meaning=true. An unverified
-    legacy meaning can be paraphrased only through that reviewed mapping.
+    Human edits may explicitly retain idx with same_meaning=true.
     """
     from .util import md5_hex
 
@@ -109,8 +110,22 @@ def save_senses(conn, lexeme_id, values, provenance):
 
         validate(feats, {**_FEATURES, "required": []}, "sense.features")
         wanted.append(
-            (idx, prompt, s, source, context, json.dumps(feats, ensure_ascii=False, sort_keys=True))
+            [idx, prompt, s, source, context, json.dumps(feats, ensure_ascii=False, sort_keys=True)]
         )
+    # The first meaning is the card's main meaning and always idx 0, so its note
+    # keys (vocab:<id>:0, verb forms, noun phrases) never change when a new answer
+    # picks another dictionary sense: the existing Anki notes are updated in place.
+    if wanted and wanted[0][0] != 0:
+        # Swap places with whatever held idx 0, keeping the old meaning (archived
+        # or not) under the new main meaning's former idx.
+        moved = wanted[0][0]
+        conn.execute("UPDATE senses SET idx=-1 WHERE lexeme_id=? AND idx=0", (lexeme_id,))
+        conn.execute("UPDATE senses SET idx=0 WHERE lexeme_id=? AND idx=?", (lexeme_id, moved))
+        conn.execute("UPDATE senses SET idx=? WHERE lexeme_id=? AND idx=-1", (moved, lexeme_id))
+        for other in wanted[1:]:
+            if other[0] == 0:
+                other[0] = moved
+        wanted[0][0] = 0
     conn.execute("UPDATE senses SET active=0 WHERE lexeme_id=?", (lexeme_id,))
     for idx, prompt, s, source, context, feats in wanted:
         conn.execute(

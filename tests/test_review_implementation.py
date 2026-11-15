@@ -29,16 +29,17 @@ from .support import database, lexeme, desired
 
 
 class MeaningTests(unittest.TestCase):
-    def test_new_meaning_cannot_recycle_studied_identity(self):
+    def test_new_main_meaning_keeps_the_card_and_archives_the_old_meaning(self):
         c = database(self)
         lexeme(c)
         overrides.save_senses(c, "x", [{"prompt": "house"}], "claude:test")
         c.execute("INSERT INTO identity(key,guid,kind,note_id) VALUES('vocab:x:0','','v4',7)")
         overrides.save_senses(c, "x", [{"prompt": "legislative chamber"}], "claude:test")
         rows = list(c.execute("SELECT idx,prompt,active FROM senses ORDER BY idx"))
-        self.assertEqual([tuple(r) for r in rows], [(0, "house", 0), (1, "legislative chamber", 1)])
+        self.assertEqual([tuple(r) for r in rows], [(0, "legislative chamber", 1), (1, "house", 0)])
         self.assertEqual(c.execute("SELECT note_id FROM identity").fetchone()[0], 7)
-        self.assertEqual(semantics.form_suffix(semantics.primary(c, "x")), ":sense-1")
+        # Same note keys: vocab:x:0, and verb forms / noun phrases without a suffix.
+        self.assertEqual(semantics.form_suffix(semantics.primary(c, "x")), "")
 
     def test_explicit_paraphrase_requires_review_and_keeps_key(self):
         c = database(self)

@@ -1,6 +1,6 @@
 # What you want to learn. Each [[list]] is a source of words; a word that
-# appears in several lists is ONE note in Anki, filed in the deck of its
-# highest-priority list (see plan.toml) and tagged list::<id> for every list.
+# appears in several lists has its own card in EACH list's deck (no
+# deduplication), tagged list::<id> for every list it is in.
 #
 # kinds:
 #   csv      italian,english CSV (words, expressions or sentences)
@@ -22,6 +22,16 @@ shareable = false
 title = "Le otto montagne (2022)"
 path = "movies/eight-mountains/subs.it.srt"
 deck = "Italian::Movies::Le otto montagne"
+recognition_only = true
+
+[[list]]
+id = "benvenuti-al-sud"
+kind = "movie"
+optional = true
+shareable = false
+title = "Benvenuti al Sud (2010)"
+path = "movies/benvenuti-al-sud/subs.it.srt"
+deck = "Italian::Movies::Benvenuti al Sud"
 recognition_only = true
 
 [[list]]

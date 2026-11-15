@@ -19,7 +19,6 @@ import re
 from collections import defaultdict
 import hashlib
 import io
-import csv
 from dataclasses import asdict
 from uuid import uuid4
 import sqlite3
@@ -500,7 +499,7 @@ def _retire_removed_lists(conn: sqlite3.Connection, removed: list[str], paths: d
     keys = [
         key
         for (key,) in conn.execute("SELECT key FROM identity WHERE kind='v4'")
-        if key.split(":")[0] in ("vocab", "phrase", "form", "nphrase") and key.split(":")[1] not in still
+        if key.split(":")[0] in ("vocab", "phrase", "form", "nphrase", "cognate") and key.split(":")[1] not in still
     ]
     files = [paths[i] for i in removed if paths.get(i)]
     if files:
@@ -595,10 +594,13 @@ def film_examples(conn: sqlite3.Connection) -> dict[str, dict]:
 def export_jsonl(conn: sqlite3.Connection) -> Path:
     """lexicon/lexemes.jsonl + lexicon/lists.jsonl (sorted, diff-friendly).
 
-    Film lines aren't repeated here; they live with the subtitles in
-    ``inputs/movies/<film>/words.csv``.
+    Only the lists in lists.toml are exported: a list taken out (and words only
+    it had) leaves the files at once, even before the next run re-reads the
+    lists. Film lines aren't repeated here.
     """
     LEXICON_DIR.mkdir(exist_ok=True)
+    configured = sorted(l.id for l in lists_mod.load())
+    marks = ",".join("?" for _ in configured)
     senses: dict[str, list] = {}
     for s in conn.execute("SELECT * FROM senses WHERE active=1 ORDER BY lexeme_id, idx"):
         senses.setdefault(s["lexeme_id"], []).append(
@@ -616,7 +618,9 @@ def export_jsonl(conn: sqlite3.Connection) -> Path:
     out = LEXICON_DIR / "lexemes.jsonl"
     with io.StringIO() as fh:
         for r in conn.execute(
-            "SELECT * FROM lexemes WHERE id IN (SELECT lexeme_id FROM list_items) ORDER BY lemma, pos"
+            f"SELECT * FROM lexemes WHERE id IN (SELECT lexeme_id FROM list_items WHERE list_id IN ({marks})) "
+            "ORDER BY lemma, pos",
+            configured,
         ):
             f = facts.get(fact_key(r["lemma"]))
             rec = {
@@ -634,8 +638,16 @@ def export_jsonl(conn: sqlite3.Connection) -> Path:
                 "freq_rank": r["freq_rank"],
                 "cognate_rule": r["cognate_rule"],
                 "senses": senses.get(r["id"]),
-                "fact": {"kind": f["kind"], "text": f["fact"], "confidence": f["confidence"]} if f else None,
+                "fact": {
+                    "kind": f["kind"],
+                    "text": f["checked_text"] if f["checked"] == "fix" and f["checked_text"] else f["fact"],
+                    "confidence": f["confidence"],
+                    "checked": f["checked"],
+                }
+                if f and f["checked"] != "drop"
+                else None,
                 "status": r["status"],
+                "ignored": r["ignored"],
                 "provenance": json.loads(r["provenance"] or "{}"),
             }
             fh.write(
@@ -649,8 +661,10 @@ def export_jsonl(conn: sqlite3.Connection) -> Path:
         atomic_text(out, fh.getvalue())
     with io.StringIO() as fh:
         for r in conn.execute(
-            """SELECT li.list_id, li.rank, li.raw, li.hint, l.lemma, l.pos, li.context
-               FROM list_items li JOIN lexemes l ON l.id = li.lexeme_id ORDER BY li.list_id, li.rank"""
+            f"""SELECT li.list_id, li.rank, li.raw, li.hint, l.lemma, l.pos, li.context
+               FROM list_items li JOIN lexemes l ON l.id = li.lexeme_id WHERE li.list_id IN ({marks})
+               ORDER BY li.list_id, li.rank""",
+            configured,
         ):
             ctx = json.loads(r["context"]) if r["context"] else {}
             ctx.pop("example", None)  # already in inputs/movies/<film>/words.csv
@@ -670,13 +684,7 @@ def export_jsonl(conn: sqlite3.Connection) -> Path:
                 + "\n"
             )
         atomic_text(LEXICON_DIR / "lists.jsonl", fh.getvalue())
-    buf = io.StringIO()
-    writer = csv.writer(buf)
-    columns = ("key", "guid", "kind", "first_seen", "note_id", "profile", "card_ids")
-    writer.writerow(columns)
-    for row in conn.execute("SELECT * FROM identity ORDER BY key"):
-        writer.writerow([row[c] for c in columns])
-    atomic_text(LEXICON_DIR / "identity.csv", buf.getvalue())
+    # Note identities (your Anki note IDs) stay in the database and its backups.
     return out
 
 

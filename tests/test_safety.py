@@ -142,10 +142,10 @@ class GenerationTests(unittest.TestCase):
     def test_finished_jobs_are_not_reopened_by_their_own_output(self):
         c = database(self)
         lexeme(c)
-        payload = {"id": "x", "italian": "la casa", "draft_fact": "old fact"}
+        payload = {"id": "x", "italian": "la casa", "dictionary_version": "old"}
         queue._enqueue(c, "lexeme_enrich", "x", 1, payload)
         c.execute("UPDATE ai_jobs SET status='done'")
-        self.assertFalse(queue._enqueue(c, "lexeme_enrich", "x", 1, {**payload, "draft_fact": "new fact"}))
+        self.assertFalse(queue._enqueue(c, "lexeme_enrich", "x", 1, {**payload, "dictionary_version": "new"}))
         self.assertEqual(c.execute("SELECT status FROM ai_jobs").fetchone()[0], "done")
         self.assertTrue(queue._enqueue(c, "lexeme_enrich", "x", 1, {**payload, "italian": "la casetta"}))
 

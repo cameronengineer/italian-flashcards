@@ -8,7 +8,7 @@ from pathlib import Path
 from dataclasses import replace
 from unittest.mock import patch
 
-from flashcards import ai, cli, db, queue
+from flashcards import ai, cli, db, overrides, queue
 from .support import database, lexeme
 
 
@@ -146,6 +146,7 @@ class QueueRecoveryTests(unittest.TestCase):
     def test_plan_repairs_ready_verb_and_cancels_unready_verb(self):
         c = database(self)
         lexeme(c, lid="ready", pos="verb", lemma="andare")
+        overrides.save_senses(c, "ready", [{"prompt": "to go"}], "claude:test")  # written: settled
         lexeme(c, lid="new", pos="verb", lemma="venire", status="new")
         for lid in ("ready", "new"):
             c.execute("INSERT INTO ai_jobs(kind,subject) VALUES('verb_prompts',?)", (lid,))

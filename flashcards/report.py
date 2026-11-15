@@ -66,6 +66,36 @@ def line(text: str) -> None:
     print(f"{_PAD}{time.strftime('%H:%M')}  {text}", flush=True)
 
 
+class Progress:
+    """Timestamped progress lines for long media work, at most every ``every`` seconds:
+
+    ``14:02  audio     1,250 / 5,985 · 3 failed · 41/min · ~1h 55m left``
+    """
+
+    def __init__(self, label: str, total: int, every: float = 60) -> None:
+        self.label, self.total, self.every = label, total, every
+        self.done = self.failed = 0
+        self.started = self.said = time.monotonic()
+        line(f"{label:<9} {total:,} to make …")
+
+    def tick(self, ok: bool = True) -> None:
+        self.done += 1
+        self.failed += not ok
+        now = time.monotonic()
+        if now - self.said >= self.every and self.done < self.total:
+            self.said = now
+            line(self._status(now))
+
+    def _status(self, now: float) -> str:
+        per_second = self.done / max(now - self.started, 1e-9)
+        left = (self.total - self.done) / per_second if per_second else 0
+        return (
+            f"{self.label:<9} {self.done:,} / {self.total:,}"
+            + (f" · {self.failed:,} failed" if self.failed else "")
+            + f" · {per_second * 60:,.0f}/min · ~{duration(left)} left"
+        )
+
+
 def detail(text: str = "") -> None:
     """Shown by single commands; hidden during a run."""
     if VERBOSE:

@@ -8,6 +8,7 @@ from __future__ import annotations
 import shutil
 import json
 import subprocess
+import threading
 from dataclasses import asdict
 from contextlib import closing
 from pathlib import Path
@@ -15,6 +16,7 @@ from pathlib import Path
 from PIL import Image
 from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
+from elevenlabs.core.api_error import ApiError
 
 from ..db import connect, managed_decks
 from ..paths import (
@@ -26,7 +28,7 @@ from ..paths import (
     ensure_dirs,
 )
 from .. import report
-from ..pool import run_pool
+from ..pool import STOP, run_pool
 from ..settings import settings
 from ..util import (
     audio_filename,
@@ -54,7 +56,12 @@ def _audio_texts(conn, decks: list[str] | None = None) -> list[str]:
         if decks:
             where += f" AND deck IN ({','.join('?' * len(decks))})"
             params = list(decks)
-        rows = conn.execute(f"SELECT * FROM v4_notes {where} ORDER BY sort_order", params).fetchall()
+        # Study order, with Dormant verb forms (suspended in Anki) last.
+        rows = conn.execute(
+            f"SELECT * FROM v4_notes {where} "
+            "ORDER BY instr(' ' || tags || ' ', ' fc::dormant ') > 0, sort_order",
+            params,
+        ).fetchall()
         return list(
             dict.fromkeys(
                 r["audio_text"]
@@ -104,6 +111,35 @@ def _gen_audio(client: ElevenLabs, text: str, dest: Path) -> None:
     tmp.replace(dest)
 
 
+class OutOfCredit(RuntimeError):
+    """ElevenLabs has no credit left this period: the rest waits for the next run."""
+
+
+def _speak(client: ElevenLabs, text: str, dest: Path, out_of_credit: threading.Event) -> None:
+    """One recording. Busy (too many at once / rate limit) or a server hiccup:
+    wait and retry. Out of credit: stop asking for the rest of this run."""
+    for attempt in range(8):
+        if out_of_credit.is_set():
+            raise OutOfCredit("skipped: ElevenLabs credits used up")
+        try:
+            return _gen_audio(client, text, dest)
+        except ApiError as exc:
+            detail = exc.body.get("detail", {}) if isinstance(exc.body, dict) else {}
+            detail = detail if isinstance(detail, dict) else {"message": str(detail)}
+            status = str(detail.get("status") or detail.get("code") or "")
+            message = str(detail.get("message") or exc.body)[:160]
+            # Out of credit: never wait, whatever the status code.
+            if "quota" in status or "credit" in message.lower():
+                out_of_credit.set()
+                raise OutOfCredit(f"ElevenLabs credits used up: {message}") from None
+            if exc.status_code == 429 or (exc.status_code or 0) >= 500:
+                if STOP.wait(min(30, 2**attempt)):
+                    raise KeyboardInterrupt from None
+                continue
+            raise RuntimeError(f"ElevenLabs {exc.status_code} {status}: {message}") from None
+    raise RuntimeError("ElevenLabs still busy after 8 tries")
+
+
 def generate_audio(workers: int = 10, limit: int | None = None, decks: list[str] | None = None) -> dict:
     if report.VERBOSE:
         print_banner("media: generate audio (ElevenLabs)")
@@ -132,11 +168,14 @@ def generate_audio(workers: int = 10, limit: int | None = None, decks: list[str]
     api_key = load_key_file(ELEVENLABS_KEY_FILE)
     client = ElevenLabs(api_key=api_key)
 
+    out_of_credit = threading.Event()
+
     def work(text: str) -> str:
-        _gen_audio(client, text, AUDIO_DIR / audio_filename(text))
+        _speak(client, text, AUDIO_DIR / audio_filename(text), out_of_credit)
         return audio_filename(text)
 
     generated = failed = 0
+    progress = report.Progress("audio", len(pending))
     for text, res in run_pool(
         pending,
         work,
@@ -144,6 +183,9 @@ def generate_audio(workers: int = 10, limit: int | None = None, decks: list[str]
         label="audio",
         describe=lambda t: t[:60],
     ):
+        if isinstance(res, OutOfCredit):
+            break  # the rest is made next run, once credits are back
+        progress.tick(not isinstance(res, Exception))
         if isinstance(res, Exception):
             failed += 1
         else:
@@ -152,7 +194,12 @@ def generate_audio(workers: int = 10, limit: int | None = None, decks: list[str]
                 record(conn, AUDIO_DIR / res, subject=text, kind="audio", spec=asdict(settings.audio))
                 conn.commit()
     report.detail(f"  done: generated={generated}, failed={failed}")
-    return {"generated": generated, "failed": failed, "pending": len(pending_all) - generated}
+    return {
+        "generated": generated,
+        "failed": failed,
+        "pending": len(pending_all) - generated,
+        "out_of_credit": out_of_credit.is_set(),
+    }
 
 
 def generate_audio_per_deck(
@@ -255,6 +302,7 @@ def compress(workers: int = 8) -> dict:
             continue
         done = skipped = failed = 0
         orig = comp = 0
+        progress = report.Progress(f"compress {label}" if len(srcs) > 50 else label, len(srcs))
         for _src, res in run_pool(
             srcs,
             work_fn,
@@ -263,6 +311,7 @@ def compress(workers: int = 8) -> dict:
             progress_every=max(1, len(srcs) // 10),
             describe=lambda p: p.name,
         ):
+            progress.tick(not isinstance(res, Exception))
             if isinstance(res, Exception):
                 failed += 1
                 continue

@@ -1,0 +1,1330 @@
+status,lemma,pos,count,first_seen,forms,example,example_at
+resolved,essere,verb,448,0:01:36,è sono sei essere,"Bello, non è vero? - Milano è fantastica.",0:01:57
+resolved,il,article,343,0:01:38,il la l' lo,Cambierà le nostre vite. Chi è?,0:02:00
+resolved,un,article,203,0:03:22,un una un' uno,È come se fosse un intero villaggio sono stati cancellati dalla mappa.,0:03:22
+resolved,non,adv,175,0:01:38,non,"Bello, non è vero? - Milano è fantastica.",0:01:57
+resolved,avere,verb,158,0:02:51,ho ha hai hanno,Qualcuno disabile ha ottenuto il lavoro.,0:03:34
+resolved,di,prep,155,0:03:17,di della d' delle,"102 morti dall'inizio dell'anno, 1.300 negli ultimi dieci.",0:03:17
+resolved,a,prep,117,0:03:28,a alle all',Che cos'è? - Nessun trasferimento a Milano.,0:03:28
+resolved,che,pron,95,0:02:09,che,Che cos'è? - Nessun trasferimento a Milano.,0:03:28
+resolved,per,prep,79,0:01:25,per,"Per vivere a Milano, una persona deve essere handicappato?",0:03:37
+resolved,e,conj,72,0:04:04,e,Non andremo dalla nonna e il nonno a Milano?,0:04:04
+resolved,fare,verb,69,0:02:44,fatto fare fa fai,"Non era tuo amico ""Lascia fare a me"" Mario ti aiuta?",0:03:43
+resolved,stare,verb,65,0:02:53,stai sto sta stanno,Cosa stai facendo per noi? - Non è colpa di nessuno.,0:03:58
+resolved,ti,pron,63,0:02:12,ti,"Non era tuo amico ""Lascia fare a me"" Mario ti aiuta?",0:03:43
+resolved,potere,verb,60,0:02:44,posso puoi può potresti,Non posso credere di aver sposato un tale ...,0:13:48
+resolved,qui,adv,58,0:02:46,qui,O resta qui e sposa Pina. - Chi è lei?,0:04:23
+resolved,andare,verb,57,0:04:04,vai andare va andiamo,Non andremo dalla nonna e il nonno a Milano?,0:04:04
+resolved,cosa,noun,54,0:02:09,cosa cose,Cosa stai facendo per noi? - Non è colpa di nessuno.,0:03:58
+resolved,ci,pron,53,0:02:53,ci c',C'è un'altra apertura a Milano.,0:05:29
+resolved,dire,verb,52,0:03:48,detto dire dico dicono,Ti ho detto che Mario è un ciaparatt!,0:03:48
+resolved,in,prep,51,0:02:30,in nella nelle negli,Ministro Maroni in visita alla capitale regionale.,0:03:13
+resolved,dovere,verb,50,0:03:37,devi devo deve dobbiamo,"Per vivere a Milano, una persona deve essere handicappato?",0:03:37
+resolved,questo,pron,48,0:09:55,questo quest' queste questi,Ma se questo compromette il mio trasferimento ...,0:09:55
+resolved,no,adv,43,0:01:33,no,"Non dire Roma! - No, molto più a sud.",0:11:10
+resolved,da,prep,43,0:02:46,da dalla dall' dal,"102 morti dall'inizio dell'anno, 1.300 negli ultimi dieci.",0:03:17
+resolved,mi,pron,42,0:05:18,mi,Mi sto facendo il culo a Hicksville per 15 anni.,0:05:18
+resolved,volere,verb,40,0:05:57,vuoi vuole volevo voglio,Vuole il tè. - Hai un mal di pancia?,0:29:47
+resolved,ma,conj,40,0:06:08,ma,Ma se questo compromette il mio trasferimento ...,0:09:55
+resolved,come,conj,39,0:03:22,come,È come se fosse un intero villaggio sono stati cancellati dalla mappa.,0:03:22
+resolved,con,prep,34,0:09:11,con,Uno recente per una persona con mobilità ridotta,0:09:11
+resolved,se,conj,31,0:03:22,se,È come se fosse un intero villaggio sono stati cancellati dalla mappa.,0:03:22
+resolved,quando,conj,31,0:14:25,quando,"Lo so perché quando ero giovane,",0:14:25
+resolved,tuo,det,30,0:04:07,tua tuoi tue,"Andrai comunque all'American School, tua madre ti prenderà",0:04:07
+resolved,mio,det,29,0:09:36,mia,L'appartamento vicino alla mia gente ...,0:12:43
+resolved,capire,verb,28,0:02:57,capisco capito capire capisci,Parlano solo di shitkick e tu non puoi capire una parola.,0:14:41
+resolved,perché,conj,28,0:09:36,perché perche,"È un assegno semplice ma necessario, perché spesso",0:09:59
+resolved,venire,verb,28,0:12:17,venuto vieni venire viene,"Signor direttore, signore ... - Ciao, per favore, vieni.",0:12:17
+resolved,prendere,verb,26,0:04:07,prendi preso prenderò prendendo,"Andrai comunque all'American School, tua madre ti prenderà",0:04:07
+resolved,vedere,verb,25,0:05:08,vediamo vedere vedi visto,"È importante vedere negli occhi di una persona ""normale""",0:09:43
+resolved,parlare,verb,25,0:05:24,parlare parli parlando parlerò,"Aiutami, o Silvia non mi parlerà più",0:05:24
+resolved,tutto,det,24,0:05:51,tutto,E le buone notizie? - Questo è tutto.,0:11:42
+resolved,signore,noun,24,0:06:13,signor signore,"Signor direttore, signore ... - Ciao, per favore, vieni.",0:12:17
+resolved,ciao,intj,22,0:01:23,ciao,"Signor direttore, signore ... - Ciao, per favore, vieni.",0:12:17
+resolved,sapere,verb,22,0:02:53,sai so sapendo sapevo,Sai quanto suo padre mette sul suo conto ogni mese?,0:04:35
+resolved,buono,adj,22,0:03:55,buona buon buono buone,Ho delle buone notizie e alcune cattive.,0:10:50
+resolved,o,conj,20,0:04:23,o,O resta qui e sposa Pina. - Chi è lei?,0:04:23
+resolved,te,pron,20,0:05:53,te,"Quando pensi di capire, sai che stanno scopando con te,",0:14:45
+resolved,caffè,noun,20,0:26:14,caffè,Gradiresti un caffè? - Non a quest'ora.,0:26:14
+resolved,così,adv,19,0:01:36,così,Era così benna? non potresti girare il timone?,0:23:03
+resolved,portare,verb,19,0:01:41,portato porteremo portami porti,Portami in un albergo. - Non l'ho capito.,0:24:17
+resolved,grazia,noun,18,0:01:31,grazie,"Venendo? - No, grazie, non ho fame.",0:37:15
+resolved,casa,noun,18,0:04:16,casa case,"diventerai un avvocato, Sposarsi e comprare una casa",0:04:16
+resolved,mio,pron,18,0:07:03,mio miei mie,Ma se questo compromette il mio trasferimento ...,0:09:55
+resolved,due,num,18,0:09:04,due,Ci sono due applicazioni di trasferimento nel tuo nome,0:09:04
+resolved,quello,pron,18,0:15:12,quello quella quelle quelli,"Sì, quelle case di merda sono fatti con l'amianto.",0:15:12
+resolved,chi,pron,17,0:02:00,chi,Cambierà le nostre vite. Chi è?,0:02:00
+resolved,lei,pron,17,0:04:23,lei,O resta qui e sposa Pina. - Chi è lei?,0:04:23
+resolved,tutto,pron,17,0:06:08,tutti,essere considerato come tutti gli altri.,0:09:40
+resolved,bene,adv,17,0:10:13,bene,"Ma non è il tuo caso, starai bene a Milano.",0:10:13
+resolved,solo,adv,17,0:13:53,solo,Parlano solo di shitkick e tu non puoi capire una parola.,0:14:41
+resolved,sud,noun,16,0:02:30,sud,"Non dire Roma! - No, molto più a sud.",0:11:10
+resolved,tuo,pron,16,0:03:43,tuo,"Non era tuo amico ""Lascia fare a me"" Mario ti aiuta?",0:03:43
+resolved,più,adv,16,0:04:20,più,nella piazza più grande di Milano!,0:04:20
+resolved,suo,det,16,0:04:35,suo sua suoi,Sai quanto suo padre mette sul suo conto ogni mese?,0:04:35
+resolved,direttore,noun,16,0:05:57,direttore direttori,"Signor direttore, signore ... - Ciao, per favore, vieni.",0:12:17
+resolved,anche,adv,16,0:14:34,anche,"Ti farò sistemare, cambia anche i fogli.",0:25:46
+resolved,me,pron,15,0:01:25,me,"Non era tuo amico ""Lascia fare a me"" Mario ti aiuta?",0:03:43
+resolved,al,prep,15,0:02:17,al,"Quindi, pensi che sia più fresco al chiuso, ma ci sono 50 ° C!",0:15:05
+resolved,arrivare,verb,15,0:11:14,arriva arrivato arrivi arrivano,"Sicilia? - No, prima che arrivi la Campania.",0:11:14
+resolved,pensare,verb,15,0:14:45,pensi penso pensando pensato,"Quando pensi di capire, sai che stanno scopando con te,",0:14:45
+resolved,poco,adv,15,0:18:20,po,Alta Calabria? Ci deve essere un po 'di elettricità statica.,0:18:20
+resolved,dove,adv,14,0:02:05,dove,"Non ho vestiti leggeri, o dove dormire",0:11:27
+resolved,madre,noun,14,0:04:07,madre,"Andrai comunque all'American School, tua madre ti prenderà",0:04:07
+resolved,del,prep,14,0:04:27,del,"La figlia del pizzaiolo a ""The Reef"".",0:04:27
+resolved,ne,pron,14,0:10:30,ne n',Nel frattempo lo segnalerò. - Se n'è andato.,0:24:03
+resolved,mangiare,verb,14,0:12:39,mangiare mangia mangiarlo mangi,"Ora di mangiare? - Sì, è pronto.",0:12:39
+resolved,tu,pron,14,0:14:41,tu,Parlano solo di shitkick e tu non puoi capire una parola.,0:14:41
+resolved,io,pron,14,0:21:48,io,"Volpe, sono io, sono qui. - Dove sei?",0:21:48
+resolved,anno,noun,13,0:02:46,anni anno,"102 morti dall'inizio dell'anno, 1.300 negli ultimi dieci.",0:03:17
+resolved,ora,adv,13,0:12:04,ora,"Ora di mangiare? - Sì, è pronto.",0:12:39
+resolved,mamma,noun,12,0:01:25,mamma,La mamma ha scritto i nomi nell'interfono.,0:12:46
+resolved,cosa,pron,12,0:03:28,cos',Che cos'è? - Nessun trasferimento a Milano.,0:03:28
+resolved,lì,adv,12,0:05:40,lì,Il cattivo? - Sarai lì per due anni.,0:11:48
+resolved,molto,adv,12,0:08:42,molto,"Non dire Roma! - No, molto più a sud.",0:11:10
+resolved,ragazzo,noun,12,0:16:40,ragazzo ragazza,"Sii un bravo ragazzo, fai quello che dice la mamma.",0:16:40
+resolved,si,pron,12,0:31:46,si,"Non perdere tempo, c'è una linea che si forma.",0:35:28
+resolved,chiamare,verb,11,0:02:12,chiamerò chiama chiamare chiamato,Chiamerò un'ambulanza. - Non c'è modo!,0:22:55
+resolved,lavoro,noun,11,0:02:17,lavoro,Qualcuno disabile ha ottenuto il lavoro.,0:03:34
+resolved,alla,prep,11,0:03:13,alla,Ministro Maroni in visita alla capitale regionale.,0:03:13
+resolved,amico,noun,11,0:03:43,amico amici,"Non era tuo amico ""Lascia fare a me"" Mario ti aiuta?",0:03:43
+resolved,noi,pron,11,0:03:58,noi,Cosa stai facendo per noi? - Non è colpa di nessuno.,0:03:58
+resolved,quindi,adv,11,0:06:48,quindi,Quindi il cavolo e la scorza di maiale raschiata.,0:06:48
+resolved,altro,pron,11,0:09:17,altro altri,e altri sei mesi fa in cui il richiedente è normale.,0:09:17
+resolved,qualcosa,pron,11,0:09:49,qualcosa,Mi hanno trovato qualcosa di molto meglio.,0:13:10
+resolved,fuori,adv,11,0:10:30,fuori,È più caldo dentro che fuori?,0:15:10
+resolved,questo,det,11,0:20:14,questa,"Questa strada ti irrita, è sempre pieno zeppo.",0:20:14
+resolved,lui,pron,10,0:05:43,lui,Lui si ferma. E questo è per le tende.,0:43:46
+resolved,primo,adj,10,0:07:38,prima primo,"Sicilia? - No, prima che arrivi la Campania.",0:11:14
+resolved,piacere,verb,10,0:08:08,piacerebbe piace piacciono piacerà,Mi piacerebbe fare domanda per un Postamat.,0:35:58
+resolved,vicino,adj,10,0:11:19,vicino vicina vicini,L'appartamento vicino alla mia gente ...,0:12:43
+resolved,niente,pron,10,0:16:06,niente,"Continua a muoverti, non è successo niente.",1:11:50
+resolved,forse,adv,10,0:17:01,forse,Forse per prenderlo loro ... - Hai ragione. Che idiota.,0:17:01
+resolved,mai,adv,10,0:26:16,mai,"Con tutte queste scale, come potrebbero mai derubarci?",0:39:10
+resolved,moglie,noun,10,0:48:22,moglie,Includeremo tua moglie nel programma di protezione.,1:16:55
+resolved,lasciare,verb,9,0:01:38,lascia lasciato lascialo lasciare,"Non era tuo amico ""Lascia fare a me"" Mario ti aiuta?",0:03:43
+resolved,vita,noun,9,0:02:00,vita vite,Cambierà le nostre vite. Chi è?,0:02:00
+resolved,persona,noun,9,0:03:37,persona persone,"Per vivere a Milano, una persona deve essere handicappato?",0:03:37
+resolved,nuovo,adj,9,0:04:42,nuovo nuova,"Questo è Alberto Colombo, il tuo nuovo manager.",0:17:58
+resolved,dare,verb,9,0:10:19,dato darò darti dai,Un caffè per darti il ​​benvenuto?,0:33:11
+resolved,piccolo,adj,9,0:17:23,piccolo piccola piccoli,Ci sono ratti? Forse piccoli topi.,0:25:56
+resolved,vero,adj,8,0:01:57,vero,"Bello, non è vero? - Milano è fantastica.",0:01:57
+resolved,problema,noun,8,0:02:17,problemi problema,"Questo è il problema, sono tutti shitkicker,",0:14:30
+resolved,giusto,adj,8,0:02:59,giusto,"Questo è quello che hai provato per dire alla stazione, giusto?",1:20:26
+resolved,vivere,verb,8,0:03:37,vivere vivono viviamo vissuto,"Per vivere a Milano, una persona deve essere handicappato?",0:03:37
+resolved,quanto,adv,8,0:04:35,quanto,Sai quanto suo padre mette sul suo conto ogni mese?,0:04:35
+resolved,sul,prep,8,0:04:35,sul,Sai quanto suo padre mette sul suo conto ogni mese?,0:04:35
+resolved,ufficio,noun,8,0:05:11,ufficio,"Lavoriamo all'ufficio postale, non la CIA!",0:05:11
+resolved,provare,verb,8,0:07:38,provato provarlo proviamo provare,Devi anche provare la mpepata delle cozze,0:45:39
+resolved,su,prep,8,0:08:10,su sulla,Un'altra persona handicappata rotolato su di noi?,0:13:06
+resolved,sempre,adv,8,0:08:20,sempre,"Sono bambini, sempre tagliando le gomme.",0:08:20
+resolved,nel,prep,8,0:09:04,nel,Ci sono due applicazioni di trasferimento nel tuo nome,0:09:04
+resolved,tutto,adj,8,0:15:33,tutte tutta,o tifo con tutta quella spazzatura in giro.,0:15:33
+resolved,signora,noun,8,0:30:06,signora,"Madame, come sta Madame? - Chi è una signora?",0:30:06
+resolved,bere,verb,8,0:33:14,bere bevono bevi beviamo,Bere caffè tutto ciò che fai qui? Ne ho già avuto 3!,0:33:14
+resolved,allora,adv,7,0:01:33,allora,"Il divano diventa ""così-f"". - Allora è facile.",0:46:14
+resolved,nessuno,adj,7,0:03:28,nessuno nessun,Che cos'è? - Nessun trasferimento a Milano.,0:03:28
+resolved,trasferimento,noun,7,0:03:28,trasferimento,Che cos'è? - Nessun trasferimento a Milano.,0:03:28
+resolved,diventare,verb,7,0:04:16,diventa diventerai diventare,"diventerai un avvocato, Sposarsi e comprare una casa",0:04:16
+resolved,lavorare,verb,7,0:05:11,lavorare lavoriamo lavorato,"Lavoriamo all'ufficio postale, non la CIA!",0:05:11
+resolved,cercare,verb,7,0:07:17,cercando cerca cercata,Un ragazzo cerca di essere educato!,0:34:08
+resolved,aspettare,verb,7,0:07:23,aspetta aspettare aspettarti aspettiamo,Riguarda il tuo trasferimento. - Fagli aspettare un momento.,0:07:23
+resolved,favore,noun,7,0:08:28,favore,"Signor direttore, signore ... - Ciao, per favore, vieni.",0:12:17
+resolved,domani,adv,7,0:42:52,domani,"Ci vediamo domani. - No, dobbiamo portarti dentro.",0:42:52
+resolved,succo,noun,7,1:08:24,succo,Un po 'di succo di frutta allora.,1:08:24
+resolved,sicuro,adj,6,0:01:26,sicuro,Non sono sicuro di averlo capito.,1:13:52
+resolved,bello,adj,6,0:01:57,bello bellissimo bella bellissima,"Bello, non è vero? - Milano è fantastica.",0:01:57
+resolved,grande,adj,6,0:04:20,grande grandi,nella piazza più grande di Milano!,0:04:20
+resolved,entrare,verb,6,0:05:08,entra entrato entrare,"No, sono entrato in un bar e loro mi hanno arrestato.",1:12:23
+resolved,altro,adj,6,0:05:29,altra,C'è un'altra apertura a Milano.,0:05:29
+resolved,perdere,verb,6,0:06:03,perdere perdi perderà,"Non perdere tempo, c'è una linea che si forma.",0:35:28
+resolved,bambino,noun,6,0:06:50,bambini bambino,"I bambini, l'area per le coppie è dall'altra parte",0:06:50
+resolved,modo,noun,6,0:10:33,modo,Siamo amici. - Non c'è modo!,0:10:33
+resolved,dormire,verb,6,0:11:27,dormendo dormire dormano,"Non ho vestiti leggeri, o dove dormire",0:11:27
+resolved,sì,adv,6,0:12:39,sì,"Ora di mangiare? - Sì, è pronto.",0:12:39
+resolved,meglio,adv,6,0:13:10,meglio,Mi hanno trovato qualcosa di molto meglio.,0:13:10
+resolved,loro,pron,6,0:14:38,loro,Forse per prenderlo loro ... - Hai ragione. Che idiota.,0:17:01
+resolved,caldo,adj,6,0:14:57,caldo,E che calore laggiù! - È caldo?,0:14:57
+resolved,conoscere,verb,6,0:39:06,conosci conoscono conosciamo conosco,L'abbiamo fatto in amicizia. - Non ci conosciamo nemmeno!,0:44:07
+resolved,sentire,verb,6,0:40:27,sentito senti sentirà sentire,Ho sentito la voce di una donna.,0:48:46
+resolved,milanese,noun,6,0:54:43,milanesi milanese,"I milanesi l'hanno portato, è tutto ammuffito",1:03:03
+resolved,frutta,noun,6,1:08:24,frutta,Un po 'di succo di frutta allora.,1:08:24
+resolved,facile,adj,5,0:01:36,facile,"Il divano diventa ""così-f"". - Allora è facile.",0:46:14
+resolved,stasera,adv,5,0:02:12,stasera,"Ho un navigatore GPS, Ci vediamo stasera.",0:18:24
+resolved,benvenuto,noun,5,0:02:30,benvenuto benvenuti,Un caffè per darti il ​​benvenuto?,0:33:11
+resolved,qualcuno,pron,5,0:03:34,qualcuno,Qualcuno disabile ha ottenuto il lavoro.,0:03:34
+resolved,poi,adv,5,0:04:11,poi,"se dipendesse da tuo padre ... Poi università a Milano,",0:04:11
+resolved,mettere,verb,5,0:04:35,mette messo metterò,Sai quanto suo padre mette sul suo conto ogni mese?,0:04:35
+resolved,come,pron,5,0:04:44,com',Com'è la vita lì? - E 'piuttosto difficile.,0:15:15
+resolved,correre,verb,5,0:05:14,corri correndo corrono correre,"Tranquillo, sto correndo un rischio enorme! - Che cosa?",0:05:14
+resolved,via,noun,5,0:05:32,via,In un mese il manager in Via Valparaiso è in pensione.,0:05:32
+resolved,quel,det,5,0:05:35,quel quei,Devo ottenere quel lavoro. - Abbassa la voce!,0:05:35
+resolved,regista,noun,5,0:05:45,regista,L'ha preso l'altro regista. - È un ladro.,0:24:00
+resolved,morto,adj,5,0:06:05,morto,"Se lo scoprono, sei morto.",0:06:05
+resolved,parte,noun,5,0:06:50,parte parti,"I bambini, l'area per le coppie è dall'altra parte",0:06:50
+resolved,quale,pron,5,0:07:20,quale,Non riesco a vedere un blasted .... - Quale gesso?,0:21:51
+resolved,tempo,noun,5,0:08:34,tempo,Da quanto tempo sei stato disabilitato?,0:08:34
+resolved,idiota,adj,5,0:10:35,idiota,Non sono amico di un idiota chi gioca handicappato.,0:10:35
+resolved,dopo,adv,5,0:13:26,dopo,Perché non le parli di questo? - Dopo.,1:32:04
+resolved,passare,verb,5,0:13:34,passato passerà passare passa,Per ottenere la posizione a Milano Mi sono passato come disabile.,0:13:34
+resolved,paura,noun,5,0:14:03,paura,"Mammina, ho paura di Château de l'Abbè!",0:14:03
+resolved,parola,noun,5,0:14:41,parola,Parlano solo di shitkick e tu non puoi capire una parola.,0:14:41
+resolved,dentro,adv,5,0:15:10,dentro,È più caldo dentro che fuori?,0:15:10
+resolved,giro,noun,5,0:15:33,giro,o tifo con tutta quella spazzatura in giro.,0:15:33
+resolved,indossare,verb,5,0:16:57,indossa indossando indosserà indossano,"E se piove, cosa indosserà la cara cosa?",0:55:37
+resolved,li,pron,5,0:25:52,li,"Sono palle di falena, La mamma li mette dappertutto.",0:25:52
+resolved,posto,noun,5,0:26:01,posto,"No, stanno affittando la porta accanto, un posto di una stanza.",0:26:01
+resolved,buongiorno,noun,5,0:29:57,buongiorno,Buongiorno.,0:29:57
+resolved,bisogno,noun,5,0:30:40,bisogno,"Così tanto, non c'è bisogno,",0:30:40
+resolved,nostro,pron,5,0:32:42,nostro nostri,"Little Costabile, uno dei nostri più grandi dipendenti.",0:32:42
+resolved,nord,noun,5,0:33:04,nord,"Sei del ""nor-d""? - No, dal ""nord"".",0:33:04
+resolved,finestra,noun,5,0:36:40,finestra finestre,Trash è stato buttato fuori dalla finestra.,0:50:08
+resolved,insieme,adv,5,0:41:07,insieme,"Mattia e io siamo cresciuti insieme, è un bravo ragazzo.",0:41:07
+resolved,fuoco,noun,5,0:43:36,fuochi fuoco,Hanno fatto fuochi d'artificio per generazioni.,0:43:36
+resolved,minuto,adj,5,0:53:53,minuto,Siamo giù uno. - Solo per un minuto.,0:53:53
+resolved,volta,noun,5,1:02:27,volta volte,"No, se posso, questa volta Ti sto portando qualcosa.",1:02:27
+resolved,profumo,noun,5,1:15:15,profumo profumi,"e non troppo profumo, asciuga le mucose del ragazzo,",1:15:15
+resolved,nulla,pron,4,0:02:44,nulla,"Non dice mai di no, nemmeno a sua madre, non rischia mai nulla.",1:05:38
+resolved,inizio,noun,4,0:03:17,inizio,"102 morti dall'inizio dell'anno, 1.300 negli ultimi dieci.",0:03:17
+resolved,ottenere,verb,4,0:03:34,ottenere ottenuto,Qualcuno disabile ha ottenuto il lavoro.,0:03:34
+resolved,handicappato,noun,4,0:03:37,handicappato,"Per vivere a Milano, una persona deve essere handicappato?",0:03:37
+resolved,aiutare,verb,4,0:03:43,aiuta aiutami aiutato aiuterò,"Non era tuo amico ""Lascia fare a me"" Mario ti aiuta?",0:03:43
+resolved,papà,noun,4,0:03:52,papà,"Papà, cosa significa?",0:03:52
+resolved,padre,noun,4,0:04:11,padre,"se dipendesse da tuo padre ... Poi università a Milano,",0:04:11
+resolved,restare,verb,4,0:04:23,restare resta restiamo,O resta qui e sposa Pina. - Chi è lei?,0:04:23
+resolved,mese,noun,4,0:04:35,mese mesi,Sai quanto suo padre mette sul suo conto ogni mese?,0:04:35
+resolved,ogni,adj,4,0:04:35,ogni,Sai quanto suo padre mette sul suo conto ogni mese?,0:04:35
+resolved,pazzo,adj,4,0:05:04,pazzo,Sei pazzo?,0:05:04
+resolved,scusare,verb,4,0:06:34,scusami scusate,Scusami.,0:06:34
+resolved,momento,noun,4,0:06:45,momento momenti,Riguarda il tuo trasferimento. - Fagli aspettare un momento.,0:07:23
+resolved,alcuno,pron,4,0:08:08,alcuni alcune,Ho delle buone notizie e alcune cattive.,0:10:50
+resolved,nome,noun,4,0:09:04,nome nomi,Ci sono due applicazioni di trasferimento nel tuo nome,0:09:04
+resolved,stesso,adj,4,0:09:23,stesso stessa,Fai attenzione alla tua auto e a te stesso.,0:19:35
+resolved,diverso,adj,4,0:09:49,diverso diversi,Sono molto diversi da noi. - Certamente.,0:51:54
+resolved,succedere,verb,4,0:10:09,succede succederà succedendo,Succede molto spesso.,0:10:09
+resolved,addio,noun,4,0:10:22,addio,Nessun disturbo. Addio.,0:10:22
+resolved,dispiacere,verb,4,0:10:43,dispiace dispiaciuto,Mi dispiace. - Come dico a Silvia?,0:12:06
+resolved,peggio,adv,4,0:10:54,peggio,Sono stato sospeso? - Peggio.,0:10:54
+resolved,trasferire,verb,4,0:11:03,trasferito trasferire trasferita,Gli ho detto che avevo chiesto di trasferire.,1:05:48
+resolved,caro,adj,4,0:12:36,cara caro cari,"E se piove, cosa indosserà la cara cosa?",0:55:37
+resolved,dimenticare,verb,4,0:12:54,dimenticato dimenticherei dimenticare,"Sono quasi tutti dal profondo sud, lo dimenticherei.",0:12:54
+resolved,cena,noun,4,0:13:04,cena,Dovrei essere lì a cena. - Stai camminando?,0:18:09
+resolved,ciò,pron,4,0:13:23,ciò,"Fantastico, non è vero? - Prima di ciò.",0:13:23
+resolved,gorgonzola,noun,4,0:14:08,gorgonzola,Proclamo il Signor Petazzoni illustre accademico di gorgonzola P.D.O.!,0:14:12
+resolved,D,noun,4,0:14:12,d,Proclamo il Signor Petazzoni illustre accademico di gorgonzola P.D.O.!,0:14:12
+resolved,c,noun,4,0:15:00,c,"Non in inverno, ma d'estate colpisce a 40 ° C.",0:15:00
+resolved,chiudere,verb,4,0:15:05,chiuso chiudi chiudendo chiudo,"Quindi, pensi che sia più fresco al chiuso, ma ci sono 50 ° C!",0:15:05
+resolved,colera,noun,4,0:15:29,colera,"Una morte violenta, o di colera,",0:15:29
+resolved,bravo,adj,4,0:16:40,bravo brava,"Sii un bravo ragazzo, fai quello che dice la mamma.",0:16:40
+resolved,usare,verb,4,0:16:53,usalo usiamo usi usa,"È la protezione solare SPF 50, usalo specialmente ...",0:16:53
+resolved,appena,adv,4,0:18:02,appena,"È appena arrivato, Mi piacerebbe vederti nei suoi panni,",0:40:57
+resolved,troppo,adv,4,0:19:16,troppo,"Ciao, licenza e registrazione. - Stavo andando troppo veloce?",0:19:16
+resolved,tenere,verb,4,0:19:45,tieni tenere tenerlo,"A 300 metri, tenere la sinistra",0:19:45
+resolved,male,adv,4,0:23:07,male,Ti ho fatto un po 'male? - La mia ascella?,0:23:07
+resolved,porta,noun,4,0:26:01,porta,"No, stanno affittando la porta accanto, un posto di una stanza.",0:26:01
+resolved,notte,noun,4,0:26:07,notte,Buona notte.,0:26:07
+resolved,sera,noun,4,0:26:16,sera sere,"Una di queste sere Ti invito a cena al mare,",0:44:31
+resolved,tè,noun,4,0:29:05,tè,"No, sempre tè con latte freddo sul lato, un po 'di pane tostato",0:29:05
+resolved,zabaione,noun,4,0:30:58,zabaione,"Prendi delle salsicce, lo zabaione è per me.",0:30:58
+resolved,davvero,adv,4,0:31:37,davvero,Sto davvero bene così com'è. - Assaggiarlo.,0:31:37
+resolved,sangue,noun,4,0:31:50,sangue,È cioccolato con sangue di maiale.,0:31:50
+resolved,sembrare,verb,4,0:32:22,sembra sembrano,Questo ragazzo? Sembra l'uomo della Michelin.,0:32:22
+resolved,offrire,verb,4,0:32:32,offrono offri offra,"Ti offri un caffè? - No, devo lavorare.",0:32:32
+resolved,ancora,adv,4,0:34:39,ancora,Ho 35 anni e tu ancora portami spuntini?,0:34:39
+resolved,voi,pron,4,0:35:52,voi,Che cosa possiamo fare per voi?,0:35:52
+resolved,ascoltare,verb,4,0:38:17,ascoltare ascoltassi ascoltando ascoltami,Sei qui per ascoltare i problemi critici che ho notato,0:38:17
+resolved,muovere,verb,4,0:39:03,muoverti muove,E prima delle 16 nessuno si muove.,0:39:03
+resolved,mandato,noun,4,0:39:32,mandato,È stato mandato qui o è venuto da solo?,0:39:32
+resolved,successo,noun,4,0:43:10,successo,Che è successo? - Perché sei qui?,0:43:10
+resolved,meraviglioso,adj,4,0:43:24,meraviglioso meravigliosi,Ho lavorato nel sud e Ho dei ricordi meravigliosi.,1:00:04
+resolved,artificio,noun,4,0:43:36,artificio,Hanno fatto fuochi d'artificio per generazioni.,0:43:36
+resolved,ecco,adv,4,0:43:43,ecco,Ecco come lo mangi. - Con la muffa?,1:03:07
+resolved,nemmeno,adv,4,0:44:07,nemmeno,L'abbiamo fatto in amicizia. - Non ci conosciamo nemmeno!,0:44:07
+resolved,mare,noun,4,0:44:24,mare,"Una di queste sere Ti invito a cena al mare,",0:44:31
+resolved,assaggiare,verb,4,0:45:24,assaggiare assaggia assaggiala,Perché assaggiare? Andiamo a mangiare tutto!,0:45:27
+resolved,lettera,noun,4,0:46:28,lettera lettere,Ma queste lettere non si perdono.,0:46:28
+resolved,donna,noun,4,0:46:56,donna donne,Come quando vedi una bella donna.,0:46:56
+resolved,settimana,noun,4,0:48:36,settimane settimana,Quanto bene ti conosco. - Torno fra due settimane.,0:48:36
+resolved,sparare,verb,4,0:51:39,sparare sparato spararti,Dov'è Mattia? - Ha sparato per un'ora.,0:51:39
+resolved,maglione,noun,4,0:55:25,maglioni maglione,"Devo mandargli questo, è un maglione che ho fatto.",0:55:25
+resolved,felice,adj,4,0:57:01,felici felice,Sono tutti felici di averti qui.,0:57:01
+resolved,sotto,prep,4,0:59:37,sotto,Le donne indossano corde a forma di G sotto i loro vestiti neri?,0:59:37
+resolved,chiedere,verb,4,1:05:48,chiesto chiedi chiedessi,Gli ho detto che avevo chiesto di trasferire.,1:05:48
+resolved,pericoloso,adj,4,1:07:13,pericoloso pericolosa,"No, è pericoloso, questi qui, al massimo.",1:07:13
+resolved,amare,verb,4,1:11:11,amo ama,"Nonostante tutto, lei ti ama, perché non essere sincero?",1:24:37
+resolved,giocare,verb,3,0:01:38,giocare gioca,Non sono amico di un idiota chi gioca handicappato.,0:10:35
+resolved,fantastico,adj,3,0:01:57,fantastico fantastica,"Bello, non è vero? - Milano è fantastica.",0:01:57
+resolved,cambiare,verb,3,0:02:00,cambierà cambia cambiare,Cambierà le nostre vite. Chi è?,0:02:00
+resolved,nostro,det,3,0:02:00,nostra nostre,Cambierà le nostre vite. Chi è?,0:02:00
+resolved,essere|stare,verb,3,0:03:22,stati stata,È come se fosse un intero villaggio sono stati cancellati dalla mappa.,0:03:22
+resolved,significare,verb,3,0:03:52,significa,"Papà, cosa significa?",0:03:52
+resolved,nonna,noun,3,0:04:04,nonna,Non andremo dalla nonna e il nonno a Milano?,0:04:04
+resolved,comunque,adv,3,0:04:07,comunque,"Andrai comunque all'American School, tua madre ti prenderà",0:04:07
+resolved,manager,noun,3,0:05:32,manager,In un mese il manager in Via Valparaiso è in pensione.,0:05:32
+resolved,pensione,noun,3,0:05:32,pensione,In un mese il manager in Via Valparaiso è in pensione.,0:05:32
+resolved,là,adv,3,0:05:40,là,Sono le 7:28 qui e là?,0:18:04
+resolved,applicazione,noun,3,0:08:10,applicazione applicazioni,Ci sono due applicazioni di trasferimento nel tuo nome,0:09:04
+resolved,avanti,adv,3,0:09:02,avanti,Per favore vai avanti.,0:09:02
+resolved,normale,adj,3,0:09:17,normale normali,e altri sei mesi fa in cui il richiedente è normale.,0:09:17
+resolved,semplice,adj,3,0:09:59,semplice,"È un assegno semplice ma necessario, perché spesso",0:09:59
+resolved,falso,adj,3,0:10:04,false falso,le persone fanno dichiarazioni false per ottenere una posizione a Milano.,0:10:04
+resolved,orribile,adj,3,0:11:22,orribile,"Orribile! Chi è? - Mio padre, riposa la sua anima.",0:43:33
+resolved,lunedì,noun,3,0:11:25,lunedì,Cominci lunedì.,0:11:25
+resolved,mandare,verb,3,0:11:36,mandando mando,Dove mi stanno mandando? - A Castellabate.,0:11:36
+resolved,amore,noun,3,0:12:36,amore,"Amore? Non posso venire stasera, forse domani.",1:12:08
+resolved,credere,verb,3,0:13:48,credere creduto,Non posso credere di aver sposato un tale ...,0:13:48
+resolved,affare,noun,3,0:14:22,affare affari,L'Italia meridionale è un pessimo affare.,0:14:22
+resolved,camorra,noun,3,0:14:54,camorra,ma sono tutti nella camorra.,0:14:54
+resolved,difficile,adj,3,0:15:15,difficile,Com'è la vita lì? - E 'piuttosto difficile.,0:15:15
+resolved,morire,verb,3,0:15:26,muori,"Come dicono, ""Vedi Napoli e poi muori.""",0:15:26
+resolved,fame,noun,3,0:15:51,fame,"Venendo? - No, grazie, non ho fame.",0:37:15
+resolved,topo,noun,3,0:16:47,topi topo,"È una trappola per topi, quindi non mordono i piedi.",0:16:47
+resolved,borsa,noun,3,0:17:48,borsa,Ti ho visto aprire quella borsa.,1:06:45
+resolved,tornare,verb,3,0:17:50,tornerà tornerai tornerò,"Se hai qualcosa da dire, ok, se no, tornerò al festival.",1:34:37
+resolved,presto,adv,3,0:17:55,presto,"Qui ci sediamo, al più presto.",0:20:03
+resolved,strada,noun,3,0:18:14,strada,"A Eboli prendi la strada costiera,",0:18:14
+resolved,alto,adj,3,0:18:20,alto alta,Alta Calabria? Ci deve essere un po 'di elettricità statica.,0:18:20
+resolved,veloce,adj,3,0:19:16,veloce,"Ciao, licenza e registrazione. - Stavo andando troppo veloce?",0:19:16
+resolved,rubare,verb,3,0:23:20,ruberanno rubarmelo ruberà,Posso lasciare la macchina qui? Non lo ruberanno?,0:23:20
+resolved,togliere,verb,3,0:25:18,togliti togli togliere,"Non è difficile parlare come noi, basta togliere l'ultima vocale.",0:46:07
+resolved,latte,noun,3,0:29:00,latte,Thé con latte. - Che ne dici del caffè?,0:29:00
+resolved,pane,noun,3,0:29:05,pane,"No, sempre tè con latte freddo sul lato, un po 'di pane tostato",0:29:05
+resolved,buttare,verb,3,0:29:51,buttato buttiamo,"Non lo so, mi ha confuso un po ', mi ha buttato fuori.",0:29:51
+resolved,confuso,adj,3,0:29:51,confuso,"Non lo so, mi ha confuso un po ', mi ha buttato fuori.",0:29:51
+resolved,posta,noun,3,0:32:12,posta,"I cammelli erano soliti portare la posta, il regista era un beduino.",0:32:12
+resolved,uomo,noun,3,0:32:22,uomo,Questo ragazzo? Sembra l'uomo della Michelin.,0:32:22
+resolved,già,adv,3,0:33:14,già,Bere caffè tutto ciò che fai qui? Ne ho già avuto 3!,0:33:14
+resolved,aprire,verb,3,0:33:52,apriamo aprire apro,"Sei in ritardo, sono le 9. - Apriamo sempre alle 9.",0:33:52
+resolved,tra,prep,3,0:34:02,tra,"Qual è la differenza tra ""nor-d"" e ""north""?",0:34:02
+resolved,orecchio,noun,3,0:34:14,orecchio orecchie,prendendo le curve con un orecchio a terra.,0:40:15
+resolved,durante,prep,3,0:34:19,durante,Durante l'orario d'ufficio vestiamoci in modo appropriato.,0:34:19
+resolved,orario,noun,3,0:34:19,orario,Durante l'orario d'ufficio vestiamoci in modo appropriato.,0:34:19
+resolved,sudare,verb,3,0:34:25,sudare sudiamo,Questo ragazzo vuole che sudiamo sangue. Vedrai.,0:34:25
+resolved,viaggio,noun,3,0:34:54,viaggio,Ti ho portato un CD per il viaggio.,0:51:37
+resolved,fino,prep,3,0:35:31,fino,Vuoi essere qui fino al tramonto?,0:35:31
+resolved,dove,pron,3,0:38:21,dov',e voglio parlare di te. Dov'è Volpe?,0:38:21
+resolved,telecamera,noun,3,0:38:32,telecamera telecamere,Vorrei una porta d'acciaio e telecamere dentro e fuori.,0:38:32
+resolved,pausa,noun,3,0:38:37,pausa,"Ora di inizio: 8 del mattino, pausa pranzo dalle 13 alle 2",0:38:37
+resolved,funzionare,verb,3,0:38:54,funziona,"Ora che funziona tra di noi, rovino tutto?",1:24:31
+resolved,smettere,verb,3,0:40:54,smetti smettila smettere,Taglialo fuori! Smetti di essere un pagliaccio.,0:40:54
+resolved,trattare,verb,3,0:41:01,tratta trattato,"Quando si tratta di mangiare, tu sei sempre il primo",0:45:30
+resolved,personale,adj,3,0:41:15,personali personale,Problemi personali non può essere scaricato su altri.,0:41:15
+resolved,adesso,adv,3,0:43:57,adesso,Chi ruberà il tuo portafoglio adesso?,0:43:57
+resolved,imparare,verb,3,0:44:11,impareremo imparare imparato,Devi imparare a dire di no.,1:07:36
+resolved,ok,intj,3,0:44:37,ok,"Ok, allora me ne vado. - Volevo sapere...",1:34:11
+resolved,prova,noun,3,0:47:15,prova,"Prova a ordinare un piatto. - Tra di noi sicuramente, ma ...",0:47:15
+resolved,baffo,noun,3,0:48:53,baffi,"Corto e grasso, con i baffi.",0:48:53
+resolved,città,noun,3,0:49:42,città,"Perché, non è così che è fatto? - Forse nella tua città.",0:49:42
+resolved,festival,noun,3,0:50:27,festival,Questo festival è molto popolare. - San Costabile è il patrono.,0:50:27
+resolved,coraggio,noun,3,0:52:18,coraggio,"Non essere il tuo solito coraggio-diavolo,",0:52:18
+resolved,eroe,noun,3,0:52:21,eroe,Non voglio essere la vedova di un eroe.,0:52:21
+resolved,giorno,noun,3,0:55:33,giorni giorno,Due o tre giorni. - Due o tre?,0:55:33
+resolved,tre,num,3,0:55:33,tre,Due o tre giorni. - Due o tre?,0:55:33
+resolved,piangere,verb,3,0:58:01,piange piangendo,Un estraneo che viene al Sud piange quando arriva e quando se ne va.,0:58:01
+resolved,cinque,num,3,1:00:29,cinque,Cosa vuole questo ragazzo? - Batti il ​​cinque.,1:17:03
+resolved,sole,noun,3,1:01:59,sole soli,"Sai, quando il sole scende nel mare?",1:01:59
+resolved,bacio,noun,3,1:03:37,bacio,Che ne dici di un bacio?,1:03:37
+resolved,moto,noun,3,1:04:24,moto,"Sei venuto su una nuova moto, eh? - No, a piedi.",1:04:24
+resolved,cocaina,noun,3,1:06:35,cocaina,La cocaina non lo farà mai risolvere i problemi personali.,1:06:35
+resolved,risolvere,verb,3,1:06:35,risolto risolvere,La cocaina non lo farà mai risolvere i problemi personali.,1:06:35
+resolved,continuare,verb,3,1:11:50,continua continueremo,"Continua a muoverti, non è successo niente.",1:11:50
+resolved,verità,noun,3,1:13:35,verità,"Ho provato a dirle la verità, ma lei non mi ha creduto",1:13:35
+resolved,negozio,noun,3,1:26:43,negozio,Qui? - Stavo cercando un negozio di profumi.,1:26:43
+resolved,marsala,noun,3,1:29:07,marsala,"Con il marsala, quando usa quello ...",1:31:13
+resolved,euro,noun,2,0:01:26,euro,Sicuro. - 5 euro.,0:01:26
+resolved,ricevuta,noun,2,0:01:31,ricevuta,"Ecco la tua lettera raccomandata, la sua ricevuta,",1:09:24
+resolved,scarpa,noun,2,0:03:05,scarpe,Scarpe!,0:03:05
+resolved,morto,noun,2,0:03:17,morti,"102 morti dall'inizio dell'anno, 1.300 negli ultimi dieci.",0:03:17
+resolved,ultimo,adj,2,0:03:17,ultimi ultima,"102 morti dall'inizio dell'anno, 1.300 negli ultimi dieci.",0:03:17
+resolved,intero,adj,2,0:03:22,intero,È come se fosse un intero villaggio sono stati cancellati dalla mappa.,0:03:22
+resolved,disabile,noun,2,0:03:34,disabile,Qualcuno disabile ha ottenuto il lavoro.,0:03:34
+resolved,colpa,noun,2,0:03:58,colpa,Cosa stai facendo per noi? - Non è colpa di nessuno.,0:03:58
+resolved,nonno,noun,2,0:04:04,nonno,Non andremo dalla nonna e il nonno a Milano?,0:04:04
+resolved,comprare,verb,2,0:04:16,comprare,"diventerai un avvocato, Sposarsi e comprare una casa",0:04:16
+resolved,sposarsi,verb,2,0:04:16,sposarsi sposarmi,"diventerai un avvocato, Sposarsi e comprare una casa",0:04:16
+resolved,the,noun,2,0:04:27,the thé,"La figlia del pizzaiolo a ""The Reef"".",0:04:27
+resolved,conto,noun,2,0:04:35,conto,Sai quanto suo padre mette sul suo conto ogni mese?,0:04:35
+resolved,bastoncino,noun,2,0:04:39,bastoncini,Bastoncini di pesce!,0:04:39
+resolved,pesce,noun,2,0:04:39,pesce,Bastoncini di pesce!,0:04:39
+resolved,mostro,noun,2,0:04:44,mostro mostri,"Se li mostri hai le palle, corrono.",0:52:14
+resolved,postale,adj,2,0:05:11,postale,"Lavoriamo all'ufficio postale, non la CIA!",0:05:11
+resolved,enorme,adj,2,0:05:14,enorme,"Tranquillo, sto correndo un rischio enorme! - Che cosa?",0:05:14
+resolved,rischio,noun,2,0:05:14,rischio,"Tranquillo, sto correndo un rischio enorme! - Che cosa?",0:05:14
+resolved,fregare,verb,2,0:05:21,fregati,"Abbiamo vissuto ovunque, non ne siamo fregati.",1:37:29
+resolved,urlare,verb,2,0:05:21,urlare urlando,"Scapece stava urlando, ma non ho potuto capire!",1:36:09
+resolved,voce,noun,2,0:05:35,voce,Devo ottenere quel lavoro. - Abbassa la voce!,0:05:35
+resolved,zitto,adj,2,0:05:45,zitto,"Zitto, idiota, la tua ma stills ti porta spuntini.",1:04:03
+resolved,arrivo,noun,2,0:06:08,arrivo,Ma lo fanno tutti! - Arrivo!,0:06:08
+resolved,preparare,verb,2,0:06:40,prepara preparo,"Prepara il burro e il brodo, poi sedano, carota e cipolla.",0:06:40
+resolved,maiale,noun,2,0:06:48,maiale,Quindi il cavolo e la scorza di maiale raschiata.,0:06:48
+resolved,area,noun,2,0:06:50,area,"I bambini, l'area per le coppie è dall'altra parte",0:06:50
+resolved,ispettore,noun,2,0:07:17,ispettore,Un ispettore ti sta cercando.,0:07:17
+resolved,centrale,adj,2,0:07:20,centrale,Quale ispettore? - Dall'ufficio centrale.,0:07:20
+resolved,controllare,verb,2,0:08:08,controllare controllato,Mi piacerebbe controllare alcuni dettagli,0:08:08
+resolved,aiuto,noun,2,0:08:18,aiuto,Volete aiuto?,0:08:18
+resolved,sedersi,verb,2,0:08:28,siediti,Per favore siediti.,0:08:28
+resolved,giovane,adj,2,0:08:42,giovane,"Lo so perché quando ero giovane,",0:14:25
+resolved,terribile,adj,2,0:08:49,terribile,"Terribile, a sud tutti i poliziotti hanno i baffi.",1:01:47
+resolved,spesso,adv,2,0:09:59,spesso,"È un assegno semplice ma necessario, perché spesso",0:09:59
+resolved,posizione,noun,2,0:10:04,posizione,le persone fanno dichiarazioni false per ottenere una posizione a Milano.,0:10:04
+resolved,caso,noun,2,0:10:13,caso,"Ma non è il tuo caso, starai bene a Milano.",0:10:13
+resolved,cattivo,adj,2,0:10:50,cattive cattivo,Ho delle buone notizie e alcune cattive.,0:10:50
+resolved,notizia,noun,2,0:10:50,notizie,Ho delle buone notizie e alcune cattive.,0:10:50
+resolved,cominciare,verb,2,0:11:25,cominci cominciare,"È una novità, ma va bene per cominciare.",0:43:21
+resolved,vestito,noun,2,0:11:27,vestiti,"Non ho vestiti leggeri, o dove dormire",0:11:27
+resolved,appartamento,noun,2,0:11:32,appartamento,C'è un appartamento per il manager.,0:11:32
+resolved,uccidere,verb,2,0:11:59,ucciderà ucciderò,"Due anni a Napoli, mi ucciderà!",0:11:59
+resolved,pronto,adj,2,0:12:39,pronto pronta,"Ora di mangiare? - Sì, è pronto.",0:12:39
+resolved,gente,noun,2,0:12:43,gente,L'appartamento vicino alla mia gente ...,0:12:43
+resolved,scrivere,verb,2,0:12:46,scritto,La mamma ha scritto i nomi nell'interfono.,0:12:46
+resolved,trovare,verb,2,0:13:10,trovato trovarci,Mi hanno trovato qualcosa di molto meglio.,0:13:10
+resolved,affascinante,adj,2,0:13:17,affascinante,"Castellabate, una località affascinante vicino a Napoli.",0:13:17
+resolved,località,noun,2,0:13:17,località,"Castellabate, una località affascinante vicino a Napoli.",0:13:17
+resolved,sposato,adj,2,0:13:48,sposato,Non posso credere di aver sposato un tale ...,0:13:48
+resolved,mammina,noun,2,0:14:03,mammina,"Mammina, ho paura di Château de l'Abbè!",0:14:03
+resolved,abituato,adj,2,0:14:28,abituata,mia madre era abituata scopare un shitkicker.,0:14:28
+resolved,scopare,verb,2,0:14:28,scopare scopando,mia madre era abituata scopare un shitkicker.,0:14:28
+resolved,animale,noun,2,0:14:34,animali,"anche gli animali: gatti, cani,",0:14:34
+resolved,faccia,noun,2,0:14:49,faccia facce,"sono simpatici per la tua faccia, ""ospitalità"",",0:14:49
+resolved,calore,noun,2,0:14:57,calore,E che calore laggiù! - È caldo?,0:14:57
+resolved,laggiù,adv,2,0:14:57,laggiù,E che calore laggiù! - È caldo?,0:14:57
+resolved,colpire,verb,2,0:15:00,colpisce colpisci,"Non in inverno, ma d'estate colpisce a 40 ° C.",0:15:00
+resolved,fresco,adj,2,0:15:05,fresco fresche,"Quindi, pensi che sia più fresco al chiuso, ma ci sono 50 ° C!",0:15:05
+resolved,morte,noun,2,0:15:29,morte,"Una morte violenta, o di colera,",0:15:29
+resolved,violento,adj,2,0:15:29,violenta violento,"Una morte violenta, o di colera,",0:15:29
+resolved,disgustoso,adj,2,0:15:37,disgustoso,"Il bagno è intasato, niente acqua, è disgustoso!",1:21:40
+resolved,appetito,noun,2,0:15:45,appetito,Buon appetito.,0:15:45
+resolved,temperatura,noun,2,0:15:53,temperature temperatura,"Temperature superiori a 35 ° C: febbre, shock, meningite ...",0:15:53
+resolved,qual,adj,2,0:16:00,qual,"Qual è la differenza tra ""nor-d"" e ""north""?",0:34:02
+resolved,fortuna,noun,2,0:16:20,fortuna,Per fortuna era un no milanese!,1:10:03
+resolved,piede,noun,2,0:16:47,piedi,"È una trappola per topi, quindi non mordono i piedi.",0:16:47
+resolved,protezione,noun,2,0:16:53,protezione,"È la protezione solare SPF 50, usalo specialmente ...",0:16:53
+resolved,solare,adj,2,0:16:53,solare,"È la protezione solare SPF 50, usalo specialmente ...",0:16:53
+resolved,ragione,noun,2,0:17:01,ragione,Forse per prenderlo loro ... - Hai ragione. Che idiota.,0:17:01
+resolved,camminare,verb,2,0:18:09,camminando camminare,Dovrei essere lì a cena. - Stai camminando?,0:18:09
+resolved,guardare,verb,2,0:18:36,guarda,"Guarda, ti chiamo quando arrivo.",0:18:36
+resolved,licenza,noun,2,0:19:16,licenza,"Ciao, licenza e registrazione. - Stavo andando troppo veloce?",0:19:16
+resolved,registrazione,noun,2,0:19:16,registrazione,"Ciao, licenza e registrazione. - Stavo andando troppo veloce?",0:19:16
+resolved,fratello,noun,2,0:19:30,fratello fratelli,"Capisco, Ho un fratello in Kosovo.",0:19:30
+resolved,metro,noun,2,0:19:45,metri,"A 300 metri, tenere la sinistra",0:19:45
+resolved,sinistra,noun,2,0:19:45,sinistra,"A 300 metri, tenere la sinistra",0:19:45
+resolved,lontano,adj,2,0:20:07,lontano,È lontano a Castellabate?,0:20:07
+resolved,discorso,noun,2,0:20:23,discorsi discorso,Che tipo di discorsi è quello?,0:20:23
+resolved,tipo,noun,2,0:20:23,tipo,Che tipo di discorsi è quello?,0:20:23
+resolved,riuscire,verb,2,0:21:51,riesco,Non riesco a vedere un blasted .... - Quale gesso?,0:21:51
+resolved,linea,noun,2,0:21:58,linea,"Non perdere tempo, c'è una linea che si forma.",0:35:28
+resolved,ladro,noun,2,0:24:00,ladro ladri,L'ha preso l'altro regista. - È un ladro.,0:24:00
+resolved,segnalare,verb,2,0:24:03,segnalerò segnalerai,Nel frattempo lo segnalerò. - Se n'è andato.,0:24:03
+resolved,ottimo,adj,2,0:24:14,ottimo,La mamma fa un ottimo caffè.,0:29:04
+resolved,gentile,adj,2,0:24:59,gentile,È gentile da parte tua ospitarmi.,0:24:59
+resolved,divano,noun,2,0:25:40,divano,"Mi accamperò sul divano, Non posso restare qui",0:25:40
+resolved,dappertutto,adv,2,0:25:52,dappertutto,"Sono palle di falena, La mamma li mette dappertutto.",0:25:52
+resolved,palla,noun,2,0:25:52,palle,"Sono palle di falena, La mamma li mette dappertutto.",0:25:52
+resolved,esplosivo,noun,2,0:26:55,esplosivi,Esplosivi!,0:26:55
+resolved,puzza,noun,2,0:28:37,puzza,Cos'è questa puzza?,0:28:37
+resolved,senso,noun,2,0:28:50,senso,Cosa vuoi te stesso? - Senso?,0:28:50
+resolved,colazione,noun,2,0:28:52,colazione,"Non hai fatto colazione, la tua tazza è qui.",1:28:29
+resolved,ora,noun,2,0:28:55,ore,Quindi comportati correttamente durante le ore di lavoro.,1:06:29
+resolved,tostato,adj,2,0:29:05,tostato,"No, sempre tè con latte freddo sul lato, un po 'di pane tostato",0:29:05
+resolved,tazza,noun,2,0:30:30,tazza,Questa è stata la mia tazza da quando ero un bambino.,0:30:30
+resolved,salsiccia,noun,2,0:30:58,salsicce salsiccia,"Prendi delle salsicce, lo zabaione è per me.",0:30:58
+resolved,mattina,noun,2,0:31:02,mattina mattine,Lo fa per me ogni mattina con uova fresche.,0:31:02
+resolved,uovo,noun,2,0:31:02,uova,Lo fa per me ogni mattina con uova fresche.,0:31:02
+resolved,immaginare,verb,2,0:31:05,immaginare immaginalo,Immaginalo! - Ma restiamo aperti fino alle 6,0:37:12
+resolved,delizioso,adj,2,0:31:13,delizioso,"È delizioso, ma io non ...",0:31:13
+resolved,dessert,noun,2,0:31:32,dessert,Ma a lui non piacciono i maglioni fagli un dessert,0:56:09
+resolved,assaggiarlo,verb,2,0:31:37,assaggiarlo,Sto davvero bene così com'è. - Assaggiarlo.,0:31:37
+resolved,cioccolato,noun,2,0:31:43,cioccolato,"È buono, una specie di cioccolato.",0:31:43
+resolved,solito,adj,2,0:32:12,soliti solito,"I cammelli erano soliti portare la posta, il regista era un beduino.",0:32:12
+resolved,gioco,noun,2,0:32:16,gioco giochi,Ti stai prendendo gioco di me? - No...,0:32:16
+resolved,tardo,adj,2,0:32:30,tardi,Potresti venire un po 'più tardi!,0:40:09
+resolved,patrono,noun,2,0:33:01,patrono,"È il nome del nostro santo patrono, non sono correlati",0:33:01
+resolved,bocca,noun,2,0:33:42,bocca,Chiudi la bocca o ti prenderanno le mosche.,0:33:42
+resolved,servizio,noun,2,0:33:47,servizi servizio,"Maria Flagello, posta assicurata e servizi finanziari.",0:33:47
+resolved,ovviamente,adv,2,0:33:58,ovviamente,Mi faresti vedere il mio ufficio? - Ovviamente.,0:33:58
+resolved,spuntino,noun,2,0:34:39,spuntini,Ho 35 anni e tu ancora portami spuntini?,0:34:39
+resolved,mozzarella,noun,2,0:34:42,mozzarella,"È una mozzarella di qualità perché ""ooze-s mil-k"".",1:00:31
+resolved,partire,verb,2,0:34:54,partendo partire,Deve diventare indipendente. - A partire da quando?,1:22:06
+resolved,nastro,noun,2,0:34:56,nastro,Hai un verme a nastro. - Quando ero un bambino!,0:34:56
+resolved,verme,noun,2,0:34:56,verme,Hai un verme a nastro. - Quando ero un bambino!,0:34:56
+resolved,frittata,noun,2,0:35:00,frittata,"Inoltre, se mangia la frittata, il prosciutto e il pane,",0:35:00
+resolved,inoltre,adv,2,0:35:00,inoltre,"Inoltre, se mangia la frittata, il prosciutto e il pane,",0:35:00
+resolved,forma,noun,2,0:35:28,forma,"Non perdere tempo, c'è una linea che si forma.",0:35:28
+resolved,tramonto,noun,2,0:35:31,tramonto,Vuoi essere qui fino al tramonto?,0:35:31
+resolved,gestire,verb,2,0:35:46,gestirò gestisci,Gestirò quest'uomo continui con gli altri.,0:35:46
+resolved,ricevere,verb,2,0:36:17,riceve ricevi,Questo amico riceve la sua pensione accreditato sul suo account,0:36:17
+resolved,senza,prep,2,0:36:24,senza,Senza sudare sangue.,0:36:24
+resolved,ripetere,verb,2,0:36:34,ripetere,Non capisco una parola potresti ripetere chiaramente?,1:35:02
+resolved,pranzo,noun,2,0:36:56,pranzo,Che cos'è? - Stiamo chiudendo per pranzo.,0:36:56
+resolved,vicinanza,noun,2,0:37:03,vicinanze,Dal treno che ho visto una bellissima spiaggia nelle vicinanze.,1:16:14
+resolved,realtà,noun,2,0:39:26,realtà,"ma in realtà sono scuri, tozzi.",0:59:24
+resolved,guidare,verb,2,0:40:12,guidare guiderò,"Posso guidare come un professionista, anche",0:40:12
+resolved,piatto,noun,2,0:40:22,piatti piatto,Dovevo lavare i piatti della mamma? Tutti quei corsi ...,0:40:22
+resolved,invitare,verb,2,0:40:35,invitato,"L'ho invitato a casa mia, si è rinchiuso",0:40:35
+resolved,portafoglio,noun,2,0:40:38,portafoglio,"e nascosi il suo portafoglio, ho paura di rubarmelo.",0:40:38
+resolved,taglialo,verb,2,0:40:54,taglialo,Taglialo fuori! Smetti di essere un pagliaccio.,0:40:54
+resolved,carino,adj,2,0:43:30,carino carina,"È così carino da parte di tutti voi, anche le foto!",0:43:30
+resolved,tenda,noun,2,0:43:46,tende,Lui si ferma. E questo è per le tende.,0:43:46
+resolved,ringraziare,verb,2,0:44:02,ringraziarti,Non so come ringraziarti.,0:44:02
+resolved,schiena,noun,2,0:44:39,schiena,"Ma tu sei nostro ospite. - Non posso, la mia schiena ...",0:44:39
+resolved,soppressata,noun,2,0:45:09,soppressata,"Frittata di bianchetti, cianfotta, zuppa cecata e soppressata.",0:45:09
+resolved,cazzo,noun,2,0:46:02,cazzo,Un cazzo per un rubinetto.,0:46:02
+resolved,vocale,adj,2,0:46:07,vocale,"Non è difficile parlare come noi, basta togliere l'ultima vocale.",0:46:07
+resolved,T,noun,2,0:46:19,t,"Plate diventa ""pla-t"", questo sarebbe ""per-k"",",0:46:19
+resolved,riciclare,verb,2,0:46:31,ricicliamo,Non buttiamo mai niente. - Ricicliamo.,0:46:31
+resolved,u,noun,2,0:46:52,u,"""U"" e ""A"" sono insieme, è stupore.",0:46:53
+resolved,ordinare,verb,2,0:47:15,ordinare,"Prova a ordinare un piatto. - Tra di noi sicuramente, ma ...",0:47:15
+resolved,idea,noun,2,0:47:19,idea,Prova una dimostrazione pratica. - È una buona idea.,0:47:19
+resolved,fallo,noun,2,0:47:23,fallo,"Fallo veloce, Non voglio perdere il tramonto.",1:01:55
+resolved,fretta,noun,2,0:47:26,fretta,Fretta.,0:47:26
+resolved,tanto,adj,2,0:47:59,tanti tante,Stai bene? Ti ho lasciato tanti messaggi.,0:47:59
+resolved,mentire,verb,2,0:48:21,mentire mentito,ma le ho mentito sulla mia vita qui.,1:13:32
+resolved,soffrire,verb,2,0:48:24,soffrendo,"Più lei pensa che io stia soffrendo, il più bello mi tratta,",1:13:46
+resolved,oggi,adv,2,0:50:15,oggi,"Oggi organico, Carta del giovedì, bicchiere del sabato.",0:50:15
+resolved,multare,verb,2,0:50:24,multato multare,Devo multare per eccesso di velocità.,1:01:51
+resolved,qualsiasi,adj,2,0:52:26,qualsiasi,E mangiano qualsiasi cosa in qualsiasi momento.,0:52:26
+resolved,rifiutare,verb,2,0:52:32,rifiutare,"Non puoi, avrai un ictus, puoi rifiutare",0:52:32
+resolved,rifiuto,noun,2,0:52:44,rifiuti,Apro casa mia e tu rifiuti il ​​mio caffè?,1:08:17
+resolved,nipote,noun,2,0:55:21,nipote,Conosci mio nipote Peppe?,0:55:21
+resolved,creare,verb,2,0:56:18,crea creato,"Abbiamo creato una strana magia, è stato meglio da quando ci siamo separati.",1:27:34
+resolved,rovinare,verb,2,0:57:17,rovinare rovino,Perché essere coinvolti in ... Puoi rovinare ...,0:57:17
+resolved,arrabbiato,adj,2,0:58:07,arrabbiato,"È vero, quando sono venuto qui Ero arrabbiato.",0:58:07
+resolved,lassù,adv,2,0:58:13,lassù,"Sto bene qui, ma la mia casa è lassù.",0:58:13
+resolved,venerdì,noun,2,0:58:43,venerdì,È venerdì. - Non vai a casa?,0:58:43
+resolved,presentare,verb,2,0:59:29,presentano presentare,"Verso le 11:30 si presentano, a 2 in spiaggia.",0:59:29
+resolved,spiaggia,noun,2,0:59:29,spiaggia,"Verso le 11:30 si presentano, a 2 in spiaggia.",0:59:29
+resolved,nero,adj,2,0:59:37,neri nero,Le donne indossano corde a forma di G sotto i loro vestiti neri?,0:59:37
+resolved,sporco,adj,2,0:59:43,sporchi sporco,"Forse ho usato i termini sporco, violento, shitkickers.",1:14:30
+resolved,ricordo,noun,2,1:00:04,ricordi,Ho lavorato nel sud e Ho dei ricordi meravigliosi.,1:00:04
+resolved,innamorato,adj,2,1:00:14,innamorato,Mi sono innamorato!,1:00:14
+resolved,S,noun,2,1:00:31,s,"È una mozzarella di qualità perché ""ooze-s mil-k"".",1:00:31
+resolved,scendere,verb,2,1:01:59,scende scenderò,"Sai, quando il sole scende nel mare?",1:01:59
+resolved,salutare,verb,2,1:02:17,salutare,Ti ho portato qualcuno chi vuole salutare.,1:33:15
+resolved,ecco,intj,2,1:02:24,eccoti eccoci,"Eccoti, ti va un po '?",1:02:24
+resolved,peperone,noun,2,1:03:16,peperoni,"Non come noi, mangiamo peperoni ripieni.",1:03:16
+resolved,ripieno,noun,2,1:03:16,ripieni,"Non come noi, mangiamo peperoni ripieni.",1:03:16
+resolved,eh,intj,2,1:04:24,eh,"Sei venuto su una nuova moto, eh? - No, a piedi.",1:04:24
+resolved,responsabilità,noun,2,1:04:32,responsabilità,Mi assumerò la responsabilità personale spiegare.,1:04:32
+resolved,spiegare,verb,2,1:04:32,spiegare,Mi assumerò la responsabilità personale spiegare.,1:04:32
+resolved,attento,adj,2,1:04:44,attento,Attento.,1:04:44
+resolved,rapporto,noun,2,1:05:05,rapporto,Un altro rapporto è troppo. - Lo difendi?,1:05:05
+resolved,rimanere,verb,2,1:05:30,rimane rimasti,Siamo stati insieme per un anno questo è tutto ciò che mi rimane.,1:05:30
+resolved,consegna,noun,2,1:06:41,consegne consegna,La cocaina che usi quando effettui le consegne.,1:06:41
+resolved,ovunque,adv,2,1:06:58,ovunque,"Ovunque consegna la posta, offrono io un po ', di sera sono un disastro.",1:06:58
+resolved,prossimo,adj,2,1:08:52,prossimo prossima,Il prossimo? - La casa dei Scapece.,1:08:52
+resolved,vergine,adj,2,1:10:21,vergine,Vergine Immacolata ...,1:10:21
+resolved,locale,adj,2,1:12:14,locale,Sono al posto di polizia locale.,1:12:14
+resolved,strano,adj,2,1:13:58,strano strana,"Abbiamo creato una strana magia, è stato meglio da quando ci siamo separati.",1:27:34
+resolved,pagina,noun,2,1:15:01,pagina,"Il suo libro è sul comodino, lui è a pagina 11,",1:15:01
+resolved,odore,noun,2,1:15:20,odore,"Cos'è questo odore? Alcool, di nuovo?",1:15:57
+resolved,treno,noun,2,1:16:14,treno,Dal treno che ho visto una bellissima spiaggia nelle vicinanze.,1:16:14
+resolved,chiaro,adj,2,1:17:49,chiaro,Tutto chiaro.,1:17:49
+resolved,preoccuparsi,verb,2,1:18:34,preoccuparti,"Non preoccuparti, presto saremo a casa.",1:18:34
+resolved,ordine,noun,2,1:20:33,ordini ordine,Non muoverti fino a ulteriori ordini!,1:20:33
+resolved,scorso,adj,2,1:20:51,scorsa,L'ho risolto la settimana scorsa.,1:20:51
+resolved,abituare,verb,2,1:21:44,abituato abituati,Ci sono abituato ma tu non devi essere.,1:21:44
+resolved,permettere,verb,2,1:21:47,permetterti permetterlo,"Non posso permetterti di vivere in un posto come questo,",1:21:47
+resolved,famiglia,noun,2,1:22:16,famiglia,"È vero, colera, minacce, ""Sacrifico per la mia famiglia.""",1:27:26
+resolved,finire,verb,2,1:22:54,finiamo finito,"Finiamo con un'esplosione, bruciamo il municipio.",1:22:54
+resolved,serio,adj,2,1:23:16,serio,Sii serio.,1:23:16
+resolved,separare,verb,2,1:27:34,separati,"Abbiamo creato una strana magia, è stato meglio da quando ci siamo separati.",1:27:34
+resolved,proprio,adv,2,1:28:51,proprio,"Non interrompermi, ho capito l'intero discorso proprio qui.",1:28:51
+resolved,amante,noun,2,1:35:43,amante,"Ora posso andare, il mio meglio per il tuo amante.",1:35:43
+resolved,palloncino,noun,1,0:01:23,palloncino,Ciao. Palloncino?,0:01:23
+resolved,compralo,verb,1,0:01:25,compralo,"Mamma, compralo per me?",0:01:25
+resolved,piccione,noun,1,0:01:38,piccioni,Non i piccioni! - Lascialo giocare.,0:01:38
+resolved,malattia,noun,1,0:01:41,malattie,Portano malattie.,0:01:41
+resolved,criptococcosi,noun,1,0:01:43,criptococcosi,"Criptococcosi,",0:01:43
+resolved,aspergillosi,noun,1,0:01:47,aspergillosi,"aspergillosi, istoplasmosi ...",0:01:47
+resolved,istoplasmosi,noun,1,0:01:47,istoplasmosi,"aspergillosi, istoplasmosi ...",0:01:47
+resolved,indovinare,verb,1,0:02:05,indovina,Indovina dove siamo?,0:02:05
+resolved,ottimismo,noun,1,0:02:20,ottimismo,"Ottimismo, Silvia!",0:02:20
+resolved,maledizione,noun,1,0:02:23,maledizione,Che schifo! - Maledizione!,0:02:23
+resolved,schifo,noun,1,0:02:23,schifo,Che schifo! - Maledizione!,0:02:23
+resolved,promettere,verb,1,0:02:51,promesso,Hai promesso!,0:02:51
+resolved,contare,verb,1,0:02:53,contando,Sai che ci stavo contando.,0:02:53
+resolved,però,adv,1,0:02:59,però,"Non è giusto, però.",0:02:59
+resolved,centro,noun,1,0:03:11,centro,"Napoli: spari in centro,",0:03:11
+resolved,sparo,noun,1,0:03:11,spari,"Napoli: spari in centro,",0:03:11
+resolved,capitale,noun,1,0:03:13,capitale,Ministro Maroni in visita alla capitale regionale.,0:03:13
+resolved,ministro,noun,1,0:03:13,ministro,Ministro Maroni in visita alla capitale regionale.,0:03:13
+resolved,regionale,adj,1,0:03:13,regionale,Ministro Maroni in visita alla capitale regionale.,0:03:13
+resolved,visita,noun,1,0:03:13,visita,Ministro Maroni in visita alla capitale regionale.,0:03:13
+resolved,dieci,num,1,0:03:17,dieci,"102 morti dall'inizio dell'anno, 1.300 negli ultimi dieci.",0:03:17
+resolved,cancellare,verb,1,0:03:22,cancellati,È come se fosse un intero villaggio sono stati cancellati dalla mappa.,0:03:22
+resolved,mappa,noun,1,0:03:22,mappa,È come se fosse un intero villaggio sono stati cancellati dalla mappa.,0:03:22
+resolved,villaggio,noun,1,0:03:22,villaggio,È come se fosse un intero villaggio sono stati cancellati dalla mappa.,0:03:22
+resolved,priorità,noun,1,0:03:40,priorità,"Hanno priorità, è giusto.",0:03:40
+resolved,dipendere,verb,1,0:04:11,dipendesse,"se dipendesse da tuo padre ... Poi università a Milano,",0:04:11
+resolved,università,noun,1,0:04:11,università,"se dipendesse da tuo padre ... Poi università a Milano,",0:04:11
+resolved,avvocato,noun,1,0:04:16,avvocato,"diventerai un avvocato, Sposarsi e comprare una casa",0:04:16
+resolved,piazza,noun,1,0:04:20,piazza,nella piazza più grande di Milano!,0:04:20
+resolved,sposo,noun,1,0:04:23,sposa,O resta qui e sposa Pina. - Chi è lei?,0:04:23
+resolved,figlia,noun,1,0:04:27,figlia,"La figlia del pizzaiolo a ""The Reef"".",0:04:27
+resolved,pizzaiolo,noun,1,0:04:27,pizzaiolo,"La figlia del pizzaiolo a ""The Reef"".",0:04:27
+resolved,brutto,adj,1,0:04:32,brutta,Non è brutta.,0:04:32
+resolved,tranquillo,adj,1,0:05:14,tranquillo,"Tranquillo, sto correndo un rischio enorme! - Che cosa?",0:05:14
+resolved,culo,noun,1,0:05:18,culo,Mi sto facendo il culo a Hicksville per 15 anni.,0:05:18
+resolved,apertura,noun,1,0:05:29,apertura,C'è un'altra apertura a Milano.,0:05:29
+resolved,abbassare,verb,1,0:05:35,abbassa,Devo ottenere quel lavoro. - Abbassa la voce!,0:05:35
+resolved,occupare,verb,1,0:05:48,occupato,"No, non sono occupato.",0:05:48
+resolved,apporre,verb,1,0:05:51,apposto,Tutto apposto.,0:05:51
+resolved,intendere,verb,1,0:05:53,intendevo,Non intendevo te.,0:05:53
+resolved,scoprire,verb,1,0:06:05,scoprono,"Se lo scoprono, sei morto.",0:06:05
+resolved,arrivederci,intj,1,0:06:13,arrivederci,"Grazie signore, arrivederci.",0:06:13
+resolved,brodo,noun,1,0:06:40,brodo,"Prepara il burro e il brodo, poi sedano, carota e cipolla.",0:06:40
+resolved,burro,noun,1,0:06:40,burro,"Prepara il burro e il brodo, poi sedano, carota e cipolla.",0:06:40
+resolved,carota,noun,1,0:06:40,carota,"Prepara il burro e il brodo, poi sedano, carota e cipolla.",0:06:40
+resolved,cipolla,noun,1,0:06:40,cipolla,"Prepara il burro e il brodo, poi sedano, carota e cipolla.",0:06:40
+resolved,sedano,noun,1,0:06:40,sedano,"Prepara il burro e il brodo, poi sedano, carota e cipolla.",0:06:40
+resolved,cavolo,noun,1,0:06:48,cavolo,Quindi il cavolo e la scorza di maiale raschiata.,0:06:48
+resolved,raschiato,verb,1,0:06:48,raschiata,Quindi il cavolo e la scorza di maiale raschiata.,0:06:48
+resolved,scorza,noun,1,0:06:48,scorza,Quindi il cavolo e la scorza di maiale raschiata.,0:06:48
+resolved,coppia,noun,1,0:06:50,coppie,"I bambini, l'area per le coppie è dall'altra parte",0:06:50
+resolved,fermarsi,verb,1,0:07:03,fermati,"Fermati, è mio marito!",0:07:03
+resolved,marito,noun,1,0:07:03,marito,"Fermati, è mio marito!",0:07:03
+resolved,veramente,adv,1,0:07:08,veramente,Veramente?,0:07:08
+resolved,riguardare,verb,1,0:07:23,riguarda,Riguarda il tuo trasferimento. - Fagli aspettare un momento.,0:07:23
+resolved,dannazione,noun,1,0:07:38,dannazione,"Dannazione, avrei dovuto provarlo prima.",0:07:38
+resolved,borghetto,noun,1,0:08:01,borghetti,"Ciao, Alberto Colombo. - Borghetti.",0:08:01
+resolved,dettaglio,noun,1,0:08:08,dettagli,Mi piacerebbe controllare alcuni dettagli,0:08:08
+resolved,gomma,noun,1,0:08:20,gomme,"Sono bambini, sempre tagliando le gomme.",0:08:20
+resolved,tagliando,noun,1,0:08:20,tagliando,"Sono bambini, sempre tagliando le gomme.",0:08:20
+resolved,disabilitato,adj,1,0:08:34,disabilitato,Da quanto tempo sei stato disabilitato?,0:08:34
+resolved,memoria,noun,1,0:08:46,memoria,La memoria è sfocata.,0:08:46
+resolved,sfocato,adj,1,0:08:46,sfocata,La memoria è sfocata.,0:08:46
+resolved,rivivere,verb,1,0:08:49,rivivere,È terribile rivivere quel trauma.,0:08:49
+resolved,trauma,noun,1,0:08:49,trauma,È terribile rivivere quel trauma.,0:08:49
+resolved,muscolare,adj,1,0:08:55,muscolari,Spasmi muscolari.,0:08:55
+resolved,spasmo,noun,1,0:08:55,spasmi,Spasmi muscolari.,0:08:55
+resolved,mobilità,noun,1,0:09:11,mobilità,Uno recente per una persona con mobilità ridotta,0:09:11
+resolved,recente,adj,1,0:09:11,recente,Uno recente per una persona con mobilità ridotta,0:09:11
+resolved,ridotto,adj,1,0:09:11,ridotta,Uno recente per una persona con mobilità ridotta,0:09:11
+resolved,cui,pron,1,0:09:17,cui,e altri sei mesi fa in cui il richiedente è normale.,0:09:17
+resolved,richiedente,noun,1,0:09:17,richiedente,e altri sei mesi fa in cui il richiedente è normale.,0:09:17
+resolved,entrambi,adj,1,0:09:26,entrambi,Sono entrambi miei.,0:09:26
+resolved,sano,adj,1,0:09:31,sana,L'ho fatto come una persona sana ...,0:09:31
+resolved,considerare,verb,1,0:09:40,considerato,essere considerato come tutti gli altri.,0:09:40
+resolved,importante,adj,1,0:09:43,importante,"È importante vedere negli occhi di una persona ""normale""",0:09:43
+resolved,occhio,noun,1,0:09:43,occhi,"È importante vedere negli occhi di una persona ""normale""",0:09:43
+resolved,pietà,noun,1,0:09:49,pietà,qualcosa di diverso dalla pietà,0:09:49
+resolved,onorevole,adj,1,0:09:52,onorevole,È molto onorevole. - Grazie.,0:09:52
+resolved,compromettere,verb,1,0:09:55,compromette,Ma se questo compromette il mio trasferimento ...,0:09:55
+resolved,assegno,noun,1,0:09:59,assegno,"È un assegno semplice ma necessario, perché spesso",0:09:59
+resolved,necessario,adj,1,0:09:59,necessario,"È un assegno semplice ma necessario, perché spesso",0:09:59
+resolved,dichiarazione,noun,1,0:10:04,dichiarazioni,le persone fanno dichiarazioni false per ottenere una posizione a Milano.,0:10:04
+resolved,vergognoso,adj,1,0:10:11,vergognoso,È vergognoso.,0:10:11
+resolved,fastidio,noun,1,0:10:19,fastidio,Non ti darò più fastidio.,0:10:19
+resolved,disturbo,noun,1,0:10:22,disturbo,Nessun disturbo. Addio.,0:10:22
+resolved,completamente,adv,1,0:10:30,completamente,Ne sei completamente fuori.,0:10:30
+resolved,sospeso,adj,1,0:10:54,sospeso,Sono stato sospeso? - Peggio.,0:10:54
+resolved,leggere,adj,1,0:11:27,leggeri,"Non ho vestiti leggeri, o dove dormire",0:11:27
+resolved,minimo,noun,1,0:11:52,minimo,Minimo - Due anni a Napoli!,0:11:52
+resolved,grave,adj,1,0:11:54,gravi,"È o il Sud, o licenziato per reati gravi!",0:11:54
+resolved,licenziare,verb,1,0:11:54,licenziato,"È o il Sud, o licenziato per reati gravi!",0:11:54
+resolved,reato,noun,1,0:11:54,reati,"È o il Sud, o licenziato per reati gravi!",0:11:54
+resolved,interfono,noun,1,0:12:46,interfono,La mamma ha scritto i nomi nell'interfono.,0:12:46
+resolved,profondo,adj,1,0:12:54,profondo,"Sono quasi tutti dal profondo sud, lo dimenticherei.",0:12:54
+resolved,quasi,adv,1,0:12:54,quasi,"Sono quasi tutti dal profondo sud, lo dimenticherei.",0:12:54
+resolved,handicappata,noun,1,0:13:06,handicappata,Un'altra persona handicappata rotolato su di noi?,0:13:06
+resolved,rotolare,verb,1,0:13:06,rotolato,Un'altra persona handicappata rotolato su di noi?,0:13:06
+resolved,superare,verb,1,0:13:39,superato,Ti sei superato ...,0:13:39
+resolved,jack,noun,1,0:13:43,jack,Che jack ...,0:13:43
+resolved,tale,det,1,0:13:48,tale,Non posso credere di aver sposato un tale ...,0:13:48
+resolved,letto,noun,1,0:13:58,letto,"Chicco, pigiama, a letto.",0:13:58
+resolved,pigiama,noun,1,0:13:58,pigiama,"Chicco, pigiama, a letto.",0:13:58
+resolved,accademico,noun,1,0:14:12,accademico,Proclamo il Signor Petazzoni illustre accademico di gorgonzola P.D.O.!,0:14:12
+resolved,illustre,adj,1,0:14:12,illustre,Proclamo il Signor Petazzoni illustre accademico di gorgonzola P.D.O.!,0:14:12
+resolved,proclamare,verb,1,0:14:12,proclamo,Proclamo il Signor Petazzoni illustre accademico di gorgonzola P.D.O.!,0:14:12
+resolved,meridionale,noun,1,0:14:22,meridionale,L'Italia meridionale è un pessimo affare.,0:14:22
+resolved,pessimo,adj,1,0:14:22,pessimo,L'Italia meridionale è un pessimo affare.,0:14:22
+resolved,cane,noun,1,0:14:34,cani,"anche gli animali: gatti, cani,",0:14:34
+resolved,gatto,noun,1,0:14:34,gatti,"anche gli animali: gatti, cani,",0:14:34
+resolved,mucca,noun,1,0:14:38,mucche,"mucche, polli, vitelli, tutti loro!",0:14:38
+resolved,pollo,noun,1,0:14:38,polli,"mucche, polli, vitelli, tutti loro!",0:14:38
+resolved,vitello,noun,1,0:14:38,vitelli,"mucche, polli, vitelli, tutti loro!",0:14:38
+resolved,ospitalità,noun,1,0:14:49,ospitalità,"sono simpatici per la tua faccia, ""ospitalità"",",0:14:49
+resolved,simpatico,adj,1,0:14:49,simpatici,"sono simpatici per la tua faccia, ""ospitalità"",",0:14:49
+resolved,estate,noun,1,0:15:00,estate,"Non in inverno, ma d'estate colpisce a 40 ° C.",0:15:00
+resolved,inverno,noun,1,0:15:00,inverno,"Non in inverno, ma d'estate colpisce a 40 ° C.",0:15:00
+resolved,amianto,noun,1,0:15:12,amianto,"Sì, quelle case di merda sono fatti con l'amianto.",0:15:12
+resolved,merda,noun,1,0:15:12,merda,"Sì, quelle case di merda sono fatti con l'amianto.",0:15:12
+resolved,piuttosto,adv,1,0:15:15,piuttosto,Com'è la vita lì? - E 'piuttosto difficile.,0:15:15
+resolved,disonesto,noun,1,0:15:23,disonesti,tutti gli altri sono disonesti.,0:15:23
+resolved,spazzatura,noun,1,0:15:33,spazzatura,o tifo con tutta quella spazzatura in giro.,0:15:33
+resolved,tifo,noun,1,0:15:33,tifo,o tifo con tutta quella spazzatura in giro.,0:15:33
+resolved,soluzione,noun,1,0:15:39,soluzione,Ma ho una soluzione per il Sud:,0:15:39
+resolved,parcheggio,noun,1,0:15:42,parcheggio,solo un enorme parcheggio.,0:15:42
+resolved,febbre,noun,1,0:15:53,febbre,"Temperature superiori a 35 ° C: febbre, shock, meningite ...",0:15:53
+resolved,meningite,noun,1,0:15:53,meningite,"Temperature superiori a 35 ° C: febbre, shock, meningite ...",0:15:53
+resolved,shock,noun,1,0:15:53,shock,"Temperature superiori a 35 ° C: febbre, shock, meningite ...",0:15:53
+resolved,superiore,adj,1,0:15:53,superiori,"Temperature superiori a 35 ° C: febbre, shock, meningite ...",0:15:53
+resolved,estintore,noun,1,0:16:09,estintore,Quanto può essere caldo? Ho un estintore.,0:16:09
+resolved,sperare,verb,1,0:16:23,spero,Lo spero.,0:16:23
+resolved,mordere,verb,1,0:16:47,mordono,"È una trappola per topi, quindi non mordono i piedi.",0:16:47
+resolved,trappola,noun,1,0:16:47,trappola,"È una trappola per topi, quindi non mordono i piedi.",0:16:47
+resolved,specialmente,adv,1,0:16:53,specialmente,"È la protezione solare SPF 50, usalo specialmente ...",0:16:53
+resolved,orologio,noun,1,0:16:57,orologio,Stai indossando il tuo orologio?,0:16:57
+resolved,cappello,noun,1,0:17:43,cappellino,Indossa il tuo cappellino!,0:17:43
+resolved,costiero,adj,1,0:18:14,costiera,"A Eboli prendi la strada costiera,",0:18:14
+resolved,elettricità,noun,1,0:18:20,elettricità,Alta Calabria? Ci deve essere un po 'di elettricità statica.,0:18:20
+resolved,statica,noun,1,0:18:20,statica,Alta Calabria? Ci deve essere un po 'di elettricità statica.,0:18:20
+resolved,navigatore,noun,1,0:18:24,navigatore,"Ho un navigatore GPS, Ci vediamo stasera.",0:18:24
+resolved,birra,noun,1,0:18:35,birra,Birra?,0:18:35
+resolved,bloccare,verb,1,0:19:19,bloccando,"Troppo lento, stai bloccando il traffico.",0:19:19
+resolved,lento,adj,1,0:19:19,lento,"Troppo lento, stai bloccando il traffico.",0:19:19
+resolved,traffico,noun,1,0:19:19,traffico,"Troppo lento, stai bloccando il traffico.",0:19:19
+resolved,mente,noun,1,0:19:24,mente,"La mia mente vagava, Vado a Napoli.",0:19:24
+resolved,vagare,verb,1,0:19:24,vagava,"La mia mente vagava, Vado a Napoli.",0:19:24
+resolved,attenzione,noun,1,0:19:35,attenzione,Fai attenzione alla tua auto e a te stesso.,0:19:35
+resolved,auto,noun,1,0:19:35,auto,Fai attenzione alla tua auto e a te stesso.,0:19:35
+resolved,sedere,verb,1,0:20:03,sediamo,"Qui ci sediamo, al più presto.",0:20:03
+resolved,rotolarsi,verb,1,0:20:10,rotolati,Penso che alcuni di loro siano rotolati.,0:20:10
+resolved,irritare,verb,1,0:20:14,irrita,"Questa strada ti irrita, è sempre pieno zeppo.",0:20:14
+resolved,pieno,adj,1,0:20:14,pieno,"Questa strada ti irrita, è sempre pieno zeppo.",0:20:14
+resolved,zeppo,adj,1,0:20:14,zeppo,"Questa strada ti irrita, è sempre pieno zeppo.",0:20:14
+resolved,destinazione,noun,1,0:21:38,destinazione,Sei arrivato a destinazione.,0:21:38
+resolved,gesso,noun,1,0:21:51,gesso,Non riesco a vedere un blasted .... - Quale gesso?,0:21:51
+resolved,ambulanza,noun,1,0:22:55,ambulanza,Chiamerò un'ambulanza. - Non c'è modo!,0:22:55
+resolved,benna,noun,1,0:23:03,benna,Era così benna? non potresti girare il timone?,0:23:03
+resolved,girare,verb,1,0:23:03,girare,Era così benna? non potresti girare il timone?,0:23:03
+resolved,timone,noun,1,0:23:03,timone,Era così benna? non potresti girare il timone?,0:23:03
+resolved,ascella,noun,1,0:23:07,ascella,Ti ho fatto un po 'male? - La mia ascella?,0:23:07
+resolved,macchina,noun,1,0:23:20,macchina,Posso lasciare la macchina qui? Non lo ruberanno?,0:23:20
+resolved,mobile,noun,1,0:23:49,mobili,Non ci sono mobili.,0:23:49
+resolved,rubato,adj,1,0:23:55,rubato,Chi l'ha rubato?,0:23:55
+resolved,denunciare,verb,1,0:23:57,denuncio,"Ti denuncio, ti mando in prigione!",0:23:57
+resolved,prigione,noun,1,0:23:57,prigione,"Ti denuncio, ti mando in prigione!",0:23:57
+resolved,frattempo,adv,1,0:24:03,frattempo,Nel frattempo lo segnalerò. - Se n'è andato.,0:24:03
+resolved,fuggitivo,adj,1,0:24:06,fuggitivo,"Un fuggitivo? - No, ha controllato.",0:24:06
+resolved,saltare,verb,1,0:24:10,saltato,È saltato fuori.,0:24:10
+resolved,gracchiare,verb,1,0:24:12,gracchiato,Ha gracchiato. - Non capisco.,0:24:12
+resolved,albergo,noun,1,0:24:17,albergo,Portami in un albergo. - Non l'ho capito.,0:24:17
+resolved,hotel,noun,1,0:24:20,hotel,Ci deve essere un hotel in giro.,0:24:20
+resolved,periodo,noun,1,0:24:23,periodo,"In questo periodo dell'anno, a quest'ora? Mi stai prendendo in giro?",0:24:23
+resolved,ospitare,verb,1,0:24:59,ospitarmi,È gentile da parte tua ospitarmi.,0:24:59
+resolved,fanatico,noun,1,0:25:22,fanatica,Mia madre è fanatica della sporcizia.,0:25:22
+resolved,sporcizia,noun,1,0:25:22,sporcizia,Mia madre è fanatica della sporcizia.,0:25:22
+resolved,passo,noun,1,0:25:26,passi,Guarda i tuoi passi.,0:25:26
+resolved,accampare,verb,1,0:25:40,accamperò,"Mi accamperò sul divano, Non posso restare qui",0:25:40
+resolved,scatola,noun,1,0:25:44,scatola,Sposterò la scatola.,0:25:44
+resolved,spostare,verb,1,0:25:44,sposterò,Sposterò la scatola.,0:25:44
+resolved,foglio,noun,1,0:25:46,fogli,"Ti farò sistemare, cambia anche i fogli.",0:25:46
+resolved,sistemare,verb,1,0:25:46,sistemare,"Ti farò sistemare, cambia anche i fogli.",0:25:46
+resolved,falena,noun,1,0:25:52,falena,"Sono palle di falena, La mamma li mette dappertutto.",0:25:52
+resolved,ratto,noun,1,0:25:56,ratti,Ci sono ratti? Forse piccoli topi.,0:25:56
+resolved,accanto,adv,1,0:26:01,accanto,"No, stanno affittando la porta accanto, un posto di una stanza.",0:26:01
+resolved,affittare,verb,1,0:26:01,affittando,"No, stanno affittando la porta accanto, un posto di una stanza.",0:26:01
+resolved,stanza,noun,1,0:26:01,stanza,"No, stanno affittando la porta accanto, un posto di una stanza.",0:26:01
+resolved,gradire,verb,1,0:26:14,gradiresti,Gradiresti un caffè? - Non a quest'ora.,0:26:14
+resolved,tisana,noun,1,0:26:16,tisana,"Mai la sera, forse tisana.",0:26:16
+resolved,importare,verb,1,0:26:20,importa,"Non importa, va bene.",0:26:20
+resolved,drogato,noun,1,0:26:47,drogato,Un drogato.,0:26:47
+resolved,santa,noun,1,0:26:56,santa,"Santa madre, è nella camorra!",0:26:56
+resolved,freddo,noun,1,0:29:05,freddo,"No, sempre tè con latte freddo sul lato, un po 'di pane tostato",0:29:05
+resolved,lato,noun,1,0:29:05,lato,"No, sempre tè con latte freddo sul lato, un po 'di pane tostato",0:29:05
+resolved,yogurt,noun,1,0:29:09,yogurt,"e un semplice yogurt, grazie.",0:29:09
+resolved,camino,noun,1,0:29:21,camino,L'avrei messo lì. - Quello è lo sfiato del camino.,0:29:21
+resolved,sfiatare,verb,1,0:29:21,sfiato,L'avrei messo lì. - Quello è lo sfiato del camino.,0:29:21
+resolved,sporcare,verb,1,0:29:28,sporcare,Non volevo sporcare nulla.,0:29:28
+resolved,bozza,noun,1,0:29:35,bozza,C'era una bozza.,0:29:35
+resolved,mal,noun,1,0:29:47,mal,Vuole il tè. - Hai un mal di pancia?,0:29:47
+resolved,pancia,noun,1,0:29:47,pancia,Vuole il tè. - Hai un mal di pancia?,0:29:47
+resolved,cura,noun,1,0:29:55,cura,Mi prenderò cura di lui.,0:29:55
+resolved,tanto,adv,1,0:30:40,tanto,"Così tanto, non c'è bisogno,",0:30:40
+resolved,fetta,noun,1,0:30:44,fetta,Ho sempre il tè e forse una fetta di pane tostato.,0:30:44
+resolved,offesa,noun,1,0:30:50,offesa,"Devi mangiare, o lei sarà offesa.",0:30:50
+resolved,dinamite,noun,1,0:31:05,dinamite,È dinamite! - Posso immaginare.,0:31:05
+resolved,assaggio,noun,1,0:31:18,assaggio,Un assaggio.,0:31:18
+resolved,dolce,adj,1,0:31:35,dolce,"Mamma, un po 'di dolce per il regista.",0:31:35
+resolved,specie,noun,1,0:31:43,specie,"È buono, una specie di cioccolato.",0:31:43
+resolved,sanguinaccio,noun,1,0:31:46,sanguinaccio,"Un po ', si chiama sanguinaccio.",0:31:46
+resolved,beduino,noun,1,0:32:12,beduino,"I cammelli erano soliti portare la posta, il regista era un beduino.",0:32:12
+resolved,cammello,noun,1,0:32:12,cammelli,"I cammelli erano soliti portare la posta, il regista era un beduino.",0:32:12
+resolved,va',intj,1,0:32:20,va',Mattia! - Come va'?,0:32:20
+resolved,scherzare,verb,1,0:32:25,scherzando,"Sta scherzando. È il nuovo direttore, da Milano.",0:32:25
+resolved,collaboratore,noun,1,0:32:38,collaboratori,"Aspetta, lascia che ti presenti due collaboratori fedeli.",0:32:38
+resolved,fedele,adj,1,0:32:38,fedeli,"Aspetta, lascia che ti presenti due collaboratori fedeli.",0:32:38
+resolved,presente,adj,1,0:32:38,presenti,"Aspetta, lascia che ti presenti due collaboratori fedeli.",0:32:38
+resolved,dipendente,noun,1,0:32:42,dipendenti,"Little Costabile, uno dei nostri più grandi dipendenti.",0:32:42
+resolved,famoso,adj,1,0:32:46,famoso,Benvenuti nel famoso Castellabate. - Aspettare!,0:32:46
+resolved,anziano,adj,1,0:32:52,anziano,"Grande Costabile, un lavoratore anziano, vicino alla pensione.",0:32:52
+resolved,lavoratore,noun,1,0:32:52,lavoratore,"Grande Costabile, un lavoratore anziano, vicino alla pensione.",0:32:52
+resolved,correlato,verb,1,0:33:01,correlati,"È il nome del nostro santo patrono, non sono correlati",0:33:01
+resolved,santo,adj,1,0:33:01,santo,"È il nome del nostro santo patrono, non sono correlati",0:33:01
+resolved,bambola,noun,1,0:33:31,bambola,"Ciao, bambola, ci vediamo dopo.",0:33:31
+resolved,mosca,noun,1,0:33:42,mosche,Chiudi la bocca o ti prenderanno le mosche.,0:33:42
+resolved,assicurata,noun,1,0:33:47,assicurata,"Maria Flagello, posta assicurata e servizi finanziari.",0:33:47
+resolved,finanziario,adj,1,0:33:47,finanziari,"Maria Flagello, posta assicurata e servizi finanziari.",0:33:47
+resolved,ritardo,noun,1,0:33:52,ritardo,"Sei in ritardo, sono le 9. - Apriamo sempre alle 9.",0:33:52
+resolved,differenza,noun,1,0:34:02,differenza,"Qual è la differenza tra ""nor-d"" e ""north""?",0:34:02
+resolved,educato,adj,1,0:34:08,educato,Un ragazzo cerca di essere educato!,0:34:08
+resolved,subito,adv,1,0:34:10,subito,"Posso dirlo subito, questo ragazzo è una brava persona,",0:34:10
+resolved,suo,adj,1,0:34:14,sue,puoi vedere dalle sue orecchie.,0:34:14
+resolved,appropriato,adj,1,0:34:19,appropriato,Durante l'orario d'ufficio vestiamoci in modo appropriato.,0:34:19
+resolved,vestirsi,verb,1,0:34:19,vestiamoci,Durante l'orario d'ufficio vestiamoci in modo appropriato.,0:34:19
+resolved,merenda,noun,1,0:34:36,merenda,Hai dimenticato la tua merenda.,0:34:36
+resolved,maccheroni,noun,1,0:34:48,maccheroni,E un pezzo di omelette di maccheroni.,0:34:48
+resolved,omelette,noun,1,0:34:48,omelette,E un pezzo di omelette di maccheroni.,0:34:48
+resolved,pezzo,noun,1,0:34:48,pezzo,E un pezzo di omelette di maccheroni.,0:34:48
+resolved,prosciutto,noun,1,0:35:00,prosciutto,"Inoltre, se mangia la frittata, il prosciutto e il pane,",0:35:00
+resolved,completo,adj,1,0:35:09,completo,Sei ancora qui? - Un dipendente completo.,0:35:09
+resolved,dipendente,adj,1,0:35:09,dipendente,Sei ancora qui? - Un dipendente completo.,0:35:09
+resolved,sostituire,verb,1,0:35:22,sostituiremo,"Se lo perdi, lo sostituiremo.",0:35:22
+resolved,cliente,noun,1,0:35:34,cliente,Sto parlando con un cliente Non riesco a fargli perdere la leccata.,0:35:34
+resolved,leccata,noun,1,0:35:34,leccata,Sto parlando con un cliente Non riesco a fargli perdere la leccata.,0:35:34
+resolved,stecchino,noun,1,0:35:38,stecchino,Togli lo stecchino dalla bocca,0:35:38
+resolved,balbettare,verb,1,0:35:42,balbetto,"Ne ho bisogno, quindi non balbetto.",0:35:42
+resolved,continuo,adj,1,0:35:46,continui,Gestirò quest'uomo continui con gli altri.,0:35:46
+resolved,domanda,noun,1,0:35:58,domanda,Mi piacerebbe fare domanda per un Postamat.,0:35:58
+resolved,account,noun,1,0:36:17,account,Questo amico riceve la sua pensione accreditato sul suo account,0:36:17
+resolved,accreditare,verb,1,0:36:17,accreditato,Questo amico riceve la sua pensione accreditato sul suo account,0:36:17
+resolved,contante,noun,1,0:36:21,contanti,quindi può facilmente prelevare contanti.,0:36:21
+resolved,facilmente,adv,1,0:36:21,facilmente,quindi può facilmente prelevare contanti.,0:36:21
+resolved,prelevare,verb,1,0:36:21,prelevare,quindi può facilmente prelevare contanti.,0:36:21
+resolved,terzo,adj,1,0:36:40,terza,Terza finestra.,0:36:40
+resolved,aperto,adj,1,0:37:12,aperti,Immaginalo! - Ma restiamo aperti fino alle 6,0:37:12
+resolved,rapidamente,adv,1,0:37:44,rapidamente,Il tempo passerà rapidamente.,0:37:44
+resolved,critico,noun,1,0:38:17,critici,Sei qui per ascoltare i problemi critici che ho notato,0:38:17
+resolved,notare,verb,1,0:38:17,notato,Sei qui per ascoltare i problemi critici che ho notato,0:38:17
+resolved,riferire,verb,1,0:38:24,riferirai,Ti riferirai.,0:38:24
+resolved,punto,noun,1,0:38:26,punti,Ci sono due punti urgenti: sicurezza e orario di lavoro.,0:38:26
+resolved,sicurezza,noun,1,0:38:26,sicurezza,Ci sono due punti urgenti: sicurezza e orario di lavoro.,0:38:26
+resolved,urgente,adj,1,0:38:26,urgenti,Ci sono due punti urgenti: sicurezza e orario di lavoro.,0:38:26
+resolved,acciaio,noun,1,0:38:32,acciaio,Vorrei una porta d'acciaio e telecamere dentro e fuori.,0:38:32
+resolved,mattino,noun,1,0:38:37,mattino,"Ora di inizio: 8 del mattino, pausa pranzo dalle 13 alle 2",0:38:37
+resolved,terminare,verb,1,0:38:41,termina,il lavoro termina alle 17:00.,0:38:41
+resolved,ricordare,verb,1,0:38:43,ricordarti,Vorrei ricordarti che anche questa è l'Italia.,0:38:43
+resolved,obiezione,noun,1,0:38:46,obiezioni,Obiezioni?,0:38:46
+resolved,occupato,adj,1,0:38:58,occupati,Le persone arrivano all'una all'ora sono occupati prima di quello.,0:38:58
+resolved,rapina,noun,1,0:39:06,rapine,Rapine? Tutti conoscono tutti qui.,0:39:06
+resolved,derubare,verb,1,0:39:10,derubarci,"Con tutte queste scale, come potrebbero mai derubarci?",0:39:10
+resolved,scala,noun,1,0:39:10,scale,"Con tutte queste scale, come potrebbero mai derubarci?",0:39:10
+resolved,criminalità,noun,1,0:39:21,criminalità,Tu neghi quest'area ha un alto tasso di criminalità?,0:39:21
+resolved,negare,verb,1,0:39:21,neghi,Tu neghi quest'area ha un alto tasso di criminalità?,0:39:21
+resolved,tasso,noun,1,0:39:21,tasso,Tu neghi quest'area ha un alto tasso di criminalità?,0:39:21
+resolved,percezione,noun,1,0:39:26,percezione,Non hai percezione della realtà!,0:39:26
+resolved,specialista,noun,1,0:39:28,specialista,Avremo uno specialista per valutare.,0:39:28
+resolved,valutare,verb,1,0:39:28,valutare,Avremo uno specialista per valutare.,0:39:28
+resolved,italiano,adj,1,0:39:38,italiano,Parlami in italiano.,0:39:38
+resolved,ottimizzare,verb,1,0:39:47,ottimizzare,Proviamo a ottimizzare il lavoro.,0:39:47
+resolved,stitico,adj,1,0:39:55,stitico,Sono stitico,0:39:55
+resolved,spingere,verb,1,0:39:59,spingendo,Lo stai spingendo.,0:39:59
+resolved,professionista,noun,1,0:40:12,professionista,"Posso guidare come un professionista, anche",0:40:12
+resolved,curva,noun,1,0:40:15,curve,prendendo le curve con un orecchio a terra.,0:40:15
+resolved,terra,noun,1,0:40:15,terra,prendendo le curve con un orecchio a terra.,0:40:15
+resolved,finalmente,adv,1,0:40:18,finalmente,Finalmente anche Mr. Volpe è qui.,0:40:18
+resolved,corso,noun,1,0:40:22,corsi,Dovevo lavare i piatti della mamma? Tutti quei corsi ...,0:40:22
+resolved,lavare,verb,1,0:40:22,lavare,Dovevo lavare i piatti della mamma? Tutti quei corsi ...,0:40:22
+resolved,ridere,verb,1,0:40:29,ridendo,Perché stai ridendo?,0:40:29
+resolved,rinchiudere,verb,1,0:40:35,rinchiuso,"L'ho invitato a casa mia, si è rinchiuso",0:40:35
+resolved,nascondere,verb,1,0:40:38,nascosi,"e nascosi il suo portafoglio, ho paura di rubarmelo.",0:40:38
+resolved,denunciarti,verb,1,0:40:43,denunciarti,Non forzarmi per denunciarti per la disciplina.,0:40:43
+resolved,disciplina,noun,1,0:40:43,disciplina,Non forzarmi per denunciarti per la disciplina.,0:40:43
+resolved,forzarmi,verb,1,0:40:43,forzarmi,Non forzarmi per denunciarti per la disciplina.,0:40:43
+resolved,insegnare,verb,1,0:40:51,insegnato,Non ti hanno insegnato le buone maniere?,0:40:51
+resolved,maniera,noun,1,0:40:51,maniere,Non ti hanno insegnato le buone maniere?,0:40:51
+resolved,pagliaccio,noun,1,0:40:54,pagliaccio,Taglialo fuori! Smetti di essere un pagliaccio.,0:40:54
+resolved,panno,noun,1,0:40:57,panni,"È appena arrivato, Mi piacerebbe vederti nei suoi panni,",0:40:57
+resolved,crescere,verb,1,0:41:07,cresciuti,"Mattia e io siamo cresciuti insieme, è un bravo ragazzo.",0:41:07
+resolved,complesso,noun,1,0:41:10,complesso,Ma non può insultarmi. - Ha un complesso di Edipo.,0:41:10
+resolved,insultarmi,verb,1,0:41:10,insultarmi,Ma non può insultarmi. - Ha un complesso di Edipo.,0:41:10
+resolved,scaricare,verb,1,0:41:15,scaricato,Problemi personali non può essere scaricato su altri.,0:41:15
+resolved,sfuggire,verb,1,0:41:21,sfuggire,Non posso lasciarlo sfuggire.,0:41:21
+resolved,pavimento,noun,1,0:41:33,pavimento,anche sul pavimento.,0:41:33
+resolved,sorprenderti,verb,1,0:43:14,sorprenderti,"Non aver paura, volevamo sorprenderti.",0:43:14
+resolved,ognuno,pron,1,0:43:17,ognuno,Ognuno di noi ha dato qualcosa.,0:43:17
+resolved,novità,noun,1,0:43:21,novità,"È una novità, ma va bene per cominciare.",0:43:21
+resolved,foto,noun,1,0:43:30,foto,"È così carino da parte di tutti voi, anche le foto!",0:43:30
+resolved,anima,noun,1,0:43:33,anima,"Orribile! Chi è? - Mio padre, riposa la sua anima.",0:43:33
+resolved,riposare,verb,1,0:43:33,riposa,"Orribile! Chi è? - Mio padre, riposa la sua anima.",0:43:33
+resolved,generazione,noun,1,0:43:36,generazioni,Hanno fatto fuochi d'artificio per generazioni.,0:43:36
+resolved,fermo,adj,1,0:43:46,ferma,Lui si ferma. E questo è per le tende.,0:43:46
+resolved,amicizia,noun,1,0:44:07,amicizia,L'abbiamo fatto in amicizia. - Non ci conosciamo nemmeno!,0:44:07
+resolved,rendere,verb,1,0:44:29,reso,Non mi ero reso conto.,0:44:29
+resolved,invito,noun,1,0:44:31,invito,"Una di queste sere Ti invito a cena al mare,",0:44:31
+resolved,ospite,noun,1,0:44:39,ospite,"Ma tu sei nostro ospite. - Non posso, la mia schiena ...",0:44:39
+resolved,bianchetti,noun,1,0:45:09,bianchetti,"Frittata di bianchetti, cianfotta, zuppa cecata e soppressata.",0:45:09
+resolved,cecato,adj,1,0:45:09,cecata,"Frittata di bianchetti, cianfotta, zuppa cecata e soppressata.",0:45:09
+resolved,zuppa,noun,1,0:45:09,zuppa,"Frittata di bianchetti, cianfotta, zuppa cecata e soppressata.",0:45:09
+resolved,acciuga,noun,1,0:45:15,acciughe,"Acciughe ripiene,",0:45:15
+resolved,ripieno,adj,1,0:45:15,ripiene,"Acciughe ripiene,",0:45:15
+resolved,bianco,adj,1,0:45:17,bianchi,fusilli con ragù di carne e fichi cilentani bianchi.,0:45:17
+resolved,carne,noun,1,0:45:17,carne,fusilli con ragù di carne e fichi cilentani bianchi.,0:45:17
+resolved,cilentano,noun,1,0:45:17,cilentani,fusilli con ragù di carne e fichi cilentani bianchi.,0:45:17
+resolved,fico,noun,1,0:45:17,fichi,fusilli con ragù di carne e fichi cilentani bianchi.,0:45:17
+resolved,fusilli,noun,1,0:45:17,fusilli,fusilli con ragù di carne e fichi cilentani bianchi.,0:45:17
+resolved,ragù,noun,1,0:45:17,ragù,fusilli con ragù di carne e fichi cilentani bianchi.,0:45:17
+resolved,cozza,noun,1,0:45:39,cozze,Devi anche provare la mpepata delle cozze,0:45:39
+resolved,tromba,noun,1,0:45:49,tromba,Una tromba!,0:45:49
+resolved,scambiare,verb,1,0:45:57,scambiato,Che ha scambiato una cosa per l'altra,0:45:57
+resolved,rubinetto,noun,1,0:46:02,rubinetto,Un cazzo per un rubinetto.,0:46:02
+resolved,bastare,verb,1,0:46:07,basta,"Non è difficile parlare come noi, basta togliere l'ultima vocale.",0:46:07
+resolved,N,noun,1,0:46:12,n,"Ad esempio, banana diventa ""bana-n"".",0:46:12
+resolved,ad,prep,1,0:46:12,ad,"Ad esempio, banana diventa ""bana-n"".",0:46:12
+resolved,banana,noun,1,0:46:12,banana,"Ad esempio, banana diventa ""bana-n"".",0:46:12
+resolved,esempio,noun,1,0:46:12,esempio,"Ad esempio, banana diventa ""bana-n"".",0:46:12
+resolved,l,num,1,0:46:24,l,"Maschio, ""ma-l"". - Ci hai spazzato via!",0:46:24
+resolved,maschio,noun,1,0:46:24,maschio,"Maschio, ""ma-l"". - Ci hai spazzato via!",0:46:24
+resolved,spazzare,verb,1,0:46:24,spazzato,"Maschio, ""ma-l"". - Ci hai spazzato via!",0:46:24
+resolved,perdono,noun,1,0:46:28,perdono,Ma queste lettere non si perdono.,0:46:28
+resolved,affermativo,adj,1,0:46:38,affermativa,"Una ""E"" diventa affermativa.",0:46:38
+resolved,avvertimento,noun,1,0:46:42,avvertimento,"Una ""O"" è un avvertimento. Un tizio dice ...",0:46:42
+resolved,tizio,noun,1,0:46:42,tizio,"Una ""O"" è un avvertimento. Un tizio dice ...",0:46:42
+resolved,stupore,noun,1,0:46:53,stupore,"""U"" e ""A"" sono insieme, è stupore.",0:46:53
+resolved,fortunato,adj,1,0:46:59,fortunato,Lo colpisci fortunato?,0:46:59
+resolved,inaspettatamente,adv,1,0:47:02,inaspettatamente,O il nuovo direttore arriva inaspettatamente da Milano ...,0:47:02
+resolved,sicuramente,adv,1,0:47:15,sicuramente,"Prova a ordinare un piatto. - Tra di noi sicuramente, ma ...",0:47:15
+resolved,dimostrazione,noun,1,0:47:19,dimostrazione,Prova una dimostrazione pratica. - È una buona idea.,0:47:19
+resolved,pratica,noun,1,0:47:19,pratica,Prova una dimostrazione pratica. - È una buona idea.,0:47:19
+resolved,cameriere,noun,1,0:47:28,cameriere,Cameriere? - Non verrà mai.,0:47:28
+resolved,veneziano,noun,1,0:47:49,veneziano,"Non capisco una parola, lo sono Veneziano, sono qui da due mesi.",0:47:49
+resolved,messaggio,noun,1,0:47:59,messaggi,Stai bene? Ti ho lasciato tanti messaggi.,0:47:59
+resolved,riunione,noun,1,0:48:08,riunione,"Sì, ma ero in riunione.",0:48:08
+resolved,riorganizzare,verb,1,0:48:10,riorganizzare,Devo riorganizzare tutto. - Come stai?,0:48:10
+resolved,accogliente,verb,1,0:48:15,accoglienti,"Bene, sono molto accoglienti.",0:48:15
+resolved,casino,noun,1,0:48:30,casino,"Certo, è dura, è un casino qui.",0:48:30
+resolved,certo,adv,1,0:48:30,certo,"Certo, è dura, è un casino qui.",0:48:30
+resolved,duro,adj,1,0:48:30,dura,"Certo, è dura, è un casino qui.",0:48:30
+resolved,fra,prep,1,0:48:36,fra,Quanto bene ti conosco. - Torno fra due settimane.,0:48:36
+resolved,torno,noun,1,0:48:36,torno,Quanto bene ti conosco. - Torno fra due settimane.,0:48:36
+resolved,pastiera,noun,1,0:48:41,pastiera,Assaggia la pastiera.,0:48:41
+resolved,corto,adj,1,0:48:53,corto,"Corto e grasso, con i baffi.",0:48:53
+resolved,grasso,adj,1,0:48:53,grasso,"Corto e grasso, con i baffi.",0:48:53
+resolved,castoro,noun,1,0:48:56,castoro,Un castoro. - Vicino.,0:48:56
+resolved,mancare,verb,1,0:49:00,manchi,Ci manchi.,0:49:00
+resolved,gattino,noun,1,0:49:04,gattino,"Ciao, gattino.",0:49:04
+resolved,omicidio,noun,1,0:49:28,omicidio,Tentato omicidio.,0:49:28
+resolved,tentare,verb,1,0:49:28,tentato,Tentato omicidio.,0:49:28
+resolved,giornata,noun,1,0:49:48,giornata,Buona giornata.,0:49:48
+resolved,trash,noun,1,0:50:08,trash,Trash è stato buttato fuori dalla finestra.,0:50:08
+resolved,comodità,noun,1,0:50:11,comodità,"Per comodità, ricicliamo.",0:50:11
+resolved,bicchiere,noun,1,0:50:15,bicchiere,"Oggi organico, Carta del giovedì, bicchiere del sabato.",0:50:15
+resolved,carta,noun,1,0:50:15,carta,"Oggi organico, Carta del giovedì, bicchiere del sabato.",0:50:15
+resolved,giovedì,noun,1,0:50:15,giovedì,"Oggi organico, Carta del giovedì, bicchiere del sabato.",0:50:15
+resolved,organico,noun,1,0:50:15,organico,"Oggi organico, Carta del giovedì, bicchiere del sabato.",0:50:15
+resolved,sabato,noun,1,0:50:15,sabato,"Oggi organico, Carta del giovedì, bicchiere del sabato.",0:50:15
+resolved,popolare,adj,1,0:50:27,popolare,Questo festival è molto popolare. - San Costabile è il patrono.,0:50:27
+resolved,francese,adj,1,0:50:35,francese,"È quello che Joachim Murat, il re francese, ha detto.",0:50:35
+resolved,re,noun,1,0:50:35,re,"È quello che Joachim Murat, il re francese, ha detto.",0:50:35
+resolved,frase,noun,1,0:50:38,frase,"È venuto qui a Castellabate, ha scritto quella frase",0:50:38
+resolved,intelligente,adj,1,0:50:57,intelligente,"Ragazza intelligente, la nostra Maria. - Andiamo.",0:50:57
+resolved,volare,verb,1,0:51:24,volate,Queste due settimane sono volate via.,0:51:24
+resolved,piano,noun,1,0:51:27,piano,Vai piano e chiama quando arrivi.,0:51:27
+resolved,fine,noun,1,0:51:35,fine,Passa un buon fine settimana.,0:51:35
+resolved,certamente,adv,1,0:51:54,certamente,Sono molto diversi da noi. - Certamente.,0:51:54
+resolved,capirli,verb,1,0:51:57,capirli,Non puoi capirli.,0:51:57
+resolved,minacciare,verb,1,0:52:03,minacciato,È come essere in Africa. - Eri minacciato?,0:52:03
+resolved,preferire,verb,1,0:52:09,preferirei,Preferirei non dirlo. - Quello che è successo?,0:52:09
+resolved,diavolo,noun,1,0:52:18,diavolo,"Non essere il tuo solito coraggio-diavolo,",0:52:18
+resolved,vedova,noun,1,0:52:21,vedova,Non voglio essere la vedova di un eroe.,0:52:21
+resolved,litro,noun,1,0:52:29,litri,Bevono litri di caffè e ti fanno anche bere,0:52:29
+resolved,ictus,noun,1,0:52:32,ictus,"Non puoi, avrai un ictus, puoi rifiutare",0:52:32
+resolved,svoltare,verb,1,0:52:58,svoltare,A 300 metri svoltare a sinistra,0:52:58
+resolved,unirsi,verb,1,0:53:47,unisciti,"Vieni, unisciti a noi?",0:53:47
+resolved,infortunio,noun,1,0:53:51,infortunio,"No, grazie, un vecchio infortunio ...",0:53:51
+resolved,vecchio,adj,1,0:53:51,vecchio,"No, grazie, un vecchio infortunio ...",0:53:51
+resolved,giù,adv,1,0:53:53,giù,Siamo giù uno. - Solo per un minuto.,0:53:53
+resolved,mendicare,verb,1,0:53:56,mendicare,Rischio di farmi male. - Non farci mendicare.,0:53:56
+resolved,penalità,noun,1,0:54:20,penalità,Era una penalità.,0:54:20
+resolved,calcio,noun,1,0:54:28,calci,Lo prenderò a calci.,0:54:28
+resolved,bombardamento,noun,1,0:54:39,bombardamento,"Corri, un bombardamento!",0:54:39
+resolved,rispedire,verb,1,0:55:13,rispedito,Questo deve essere rispedito.,0:55:13
+resolved,mandargli,verb,1,0:55:25,mandargli,"Devo mandargli questo, è un maglione che ho fatto.",0:55:25
+resolved,piovere,verb,1,0:55:37,piove,"E se piove, cosa indosserà la cara cosa?",0:55:37
+resolved,congelare,verb,1,0:55:42,congelare,Dovrebbe congelare a morte?,0:55:42
+resolved,pacchetto,noun,1,0:55:44,pacchetto,Due o tre giorni? Ma è solo un piccolo pacchetto.,0:55:44
+resolved,cito,adv,1,0:55:57,cito,"Peppe ha detto, cito:",0:55:57
+resolved,frittare,verb,1,0:56:05,fritta,"""deve fare una pasta fritta, perché lei li fa alla grande "".",0:56:05
+resolved,pasta,noun,1,0:56:05,pasta,"""deve fare una pasta fritta, perché lei li fa alla grande "".",0:56:05
+resolved,sciarpa,noun,1,0:56:18,sciarpe,Crea sciarpe. - Non so come.,0:56:18
+resolved,pacifico,adj,1,0:56:58,pacifico,Così pacifico.,0:56:58
+resolved,lamentarmi,verb,1,0:57:12,lamentarmi,Non posso lamentarmi.,0:57:12
+resolved,coinvolgere,verb,1,0:57:17,coinvolti,Perché essere coinvolti in ... Puoi rovinare ...,0:57:17
+resolved,figlio,noun,1,0:57:28,figlio,Si NOI abbiamo un bellissimo figlio di 8 anni.,0:57:28
+resolved,arrendersi,verb,1,0:57:38,arresi,"Ci eravamo arresi con i bambini, una gioia incredibile,",0:57:38
+resolved,gioia,noun,1,0:57:38,gioia,"Ci eravamo arresi con i bambini, una gioia incredibile,",0:57:38
+resolved,incredibile,adj,1,0:57:38,incredibile,"Ci eravamo arresi con i bambini, una gioia incredibile,",0:57:38
+resolved,apprensivo,adj,1,0:57:42,apprensiva,"ma da quando è nato Silvia è apprensiva,",0:57:42
+resolved,nascere,verb,1,0:57:42,nato,"ma da quando è nato Silvia è apprensiva,",0:57:42
+resolved,depresso,adj,1,0:57:46,depresso,"depresso, se l'avessi portata qui ...",0:57:46
+resolved,deprimente,adj,1,0:57:50,deprimente,"Perché, è deprimente qui? Potrebbe superarla.",0:57:50
+resolved,superarla,verb,1,0:57:50,superarla,"Perché, è deprimente qui? Potrebbe superarla.",0:57:50
+resolved,imballaggio,noun,1,0:57:56,imballaggio,"La mossa, la scuola, l'imballaggio ...",0:57:56
+resolved,mossa,noun,1,0:57:56,mossa,"La mossa, la scuola, l'imballaggio ...",0:57:56
+resolved,scuola,noun,1,0:57:56,scuola,"La mossa, la scuola, l'imballaggio ...",0:57:56
+resolved,estraneo,adj,1,0:58:01,estraneo,Un estraneo che viene al Sud piange quando arriva e quando se ne va.,0:58:01
+resolved,figurato,verb,1,0:58:09,figurati,Figurati quando parti! - Io non la penso così.,0:58:09
+resolved,caos,noun,1,0:58:15,caos,"Mi piace la nebbia, la gente, il caos.",0:58:15
+resolved,nebbia,noun,1,0:58:15,nebbia,"Mi piace la nebbia, la gente, il caos.",0:58:15
+resolved,sorpresa,noun,1,0:59:03,sorpresa,Sorpresa!,0:59:03
+resolved,piccoletto,noun,1,0:59:07,piccoletto,"Ciao, piccoletto.",0:59:07
+resolved,attraversare,verb,1,0:59:16,attraversando,Parlaci dell'inferno stai attraversando laggiù.,0:59:16
+resolved,inferno,noun,1,0:59:16,inferno,Parlaci dell'inferno stai attraversando laggiù.,0:59:16
+resolved,parlaci,verb,1,0:59:16,parlaci,Parlaci dell'inferno stai attraversando laggiù.,0:59:16
+resolved,guardandoli,verb,1,0:59:21,guardandoli,"Solo guardandoli, sembrano normali,",0:59:21
+resolved,scuro,adj,1,0:59:24,scuri,"ma in realtà sono scuri, tozzi.",0:59:24
+resolved,tozzo,noun,1,0:59:24,tozzi,"ma in realtà sono scuri, tozzi.",0:59:24
+resolved,verso,prep,1,0:59:29,verso,"Verso le 11:30 si presentano, a 2 in spiaggia.",0:59:29
+resolved,corda,noun,1,0:59:37,corde,Le donne indossano corde a forma di G sotto i loro vestiti neri?,0:59:37
+resolved,igiene,noun,1,0:59:43,igiene,E l'igiene? - Sono sporchi.,0:59:43
+resolved,epidemia,noun,1,0:59:46,epidemia,C'era l'inizio di un'epidemia di colera!,0:59:46
+resolved,endemico,adj,1,0:59:50,endemico,È endemico lì.,0:59:50
+resolved,porto,noun,1,0:59:51,porto,Domani ti porto io e Chicco per le vaccinazioni.,0:59:51
+resolved,vaccinazione,noun,1,0:59:51,vaccinazioni,Domani ti porto io e Chicco per le vaccinazioni.,0:59:51
+resolved,regalo,noun,1,1:00:19,regalo,"Miei cari fratelli, Ti ho portato un piccolo regalo.",1:00:19
+resolved,cinciallegra,noun,1,1:00:26,cinciallegra,"La ""cinciallegra"" di Battipaglia.",1:00:26
+resolved,chilo,noun,1,1:00:29,chili,Sono cinque chili.,1:00:29
+resolved,qualità,noun,1,1:00:31,qualità,"È una mozzarella di qualità perché ""ooze-s mil-k"".",1:00:31
+resolved,trasudare,verb,1,1:00:36,trasuda,Che cosa fa? - Trasuda latte.,1:00:36
+resolved,pentirsi,verb,1,1:00:48,pentirai,"Assaggiala, non ti pentirai.",1:00:48
+resolved,acidare,verb,1,1:00:59,acidi,"Acidico. - ""Acidi-c"".",1:00:59
+resolved,acidico,adj,1,1:00:59,acidico,"Acidico. - ""Acidi-c"".",1:00:59
+resolved,poliziotto,noun,1,1:01:47,poliziotti,"Terribile, a sud tutti i poliziotti hanno i baffi.",1:01:47
+resolved,eccesso,noun,1,1:01:51,eccesso,Devo multare per eccesso di velocità.,1:01:51
+resolved,velocità,noun,1,1:01:51,velocità,Devo multare per eccesso di velocità.,1:01:51
+resolved,salve,intj,1,1:02:14,salve,Salve signora.,1:02:14
+resolved,annusare,verb,1,1:02:32,annusare,"È una specialità della mia zona, annusare la fragranza",1:02:32
+resolved,fragranza,noun,1,1:02:32,fragranza,"È una specialità della mia zona, annusare la fragranza",1:02:32
+resolved,specialità,noun,1,1:02:32,specialità,"È una specialità della mia zona, annusare la fragranza",1:02:32
+resolved,zona,noun,1,1:02:32,zona,"È una specialità della mia zona, annusare la fragranza",1:02:32
+resolved,antipasti,noun,1,1:02:41,antipasti,"È morbido gorgonzola, eccellente per antipasti.",1:02:41
+resolved,eccellente,adj,1,1:02:41,eccellente,"È morbido gorgonzola, eccellente per antipasti.",1:02:41
+resolved,morbido,adj,1,1:02:41,morbido,"È morbido gorgonzola, eccellente per antipasti.",1:02:41
+resolved,frigo,noun,1,1:02:46,frigo,Dovrebbe andare in frigo. Sono fuori.,1:02:46
+resolved,chiamata,noun,1,1:02:49,chiamate,"Aspetta, un po 'di caffè. - Chiamate di servizio.",1:02:49
+resolved,ammuffito,adj,1,1:03:03,ammuffito,"I milanesi l'hanno portato, è tutto ammuffito",1:03:03
+resolved,muffa,noun,1,1:03:07,muffa,Ecco come lo mangi. - Con la muffa?,1:03:07
+resolved,cucina,noun,1,1:03:10,cucina,"È la cucina milanese, raffinato, è totalmente diverso.",1:03:10
+resolved,raffinato,adj,1,1:03:10,raffinato,"È la cucina milanese, raffinato, è totalmente diverso.",1:03:10
+resolved,totalmente,adv,1,1:03:10,totalmente,"È la cucina milanese, raffinato, è totalmente diverso.",1:03:10
+resolved,clown,noun,1,1:04:15,clown,Quel clown ...,1:04:15
+resolved,sistemarsi,verb,1,1:04:22,sistemarsi,Sistemarsi!,1:04:22
+resolved,assumere,verb,1,1:04:32,assumerò,Mi assumerò la responsabilità personale spiegare.,1:04:32
+resolved,eccitare,verb,1,1:04:57,eccita,Mattia si eccita.,1:04:57
+resolved,rissa,noun,1,1:05:00,rissa,"Una rissa fuori dall'ufficio durante l'orario di lavoro,",1:05:00
+resolved,lapidare,verb,1,1:05:03,lapidato,lapidato su chi-sa-cosa.,1:05:03
+resolved,difendere,verb,1,1:05:05,difendi,Un altro rapporto è troppo. - Lo difendi?,1:05:05
+resolved,inutile,adj,1,1:05:12,inutile,"Ma un rapporto è inutile,",1:05:12
+resolved,possibilità,noun,1,1:05:26,possibilità,Non una possibilità!,1:05:26
+resolved,rischiare,verb,1,1:05:38,rischia,"Non dice mai di no, nemmeno a sua madre, non rischia mai nulla.",1:05:38
+resolved,segnalarmi,verb,1,1:06:11,segnalarmi,Che cos'è? Vuoi segnalarmi di nuovo?,1:06:11
+resolved,comportarsi,verb,1,1:06:29,comportati,Quindi comportati correttamente durante le ore di lavoro.,1:06:29
+resolved,corretto,adv,1,1:06:29,correttamente,Quindi comportati correttamente durante le ore di lavoro.,1:06:29
+resolved,effettuare,verb,1,1:06:41,effettui,La cocaina che usi quando effettui le consegne.,1:06:41
+resolved,polvere,noun,1,1:06:49,polvere,"Signore, è una polvere per i fuochi d'artificio.",1:06:49
+resolved,nervo,noun,1,1:06:54,nervi,I miei nervi provengono dal caffè.,1:06:54
+resolved,provenire,verb,1,1:06:54,provengono,I miei nervi provengono dal caffè.,1:06:54
+resolved,disastro,noun,1,1:06:58,disastro,"Ovunque consegna la posta, offrono io un po ', di sera sono un disastro.",1:06:58
+resolved,motocicletta,noun,1,1:07:07,motocicletta,Tranne quella motocicletta del jerk.,1:07:07
+resolved,tranne,prep,1,1:07:07,tranne,Tranne quella motocicletta del jerk.,1:07:07
+resolved,massimo,noun,1,1:07:13,massimo,"No, è pericoloso, questi qui, al massimo.",1:07:13
+resolved,doppio,adj,1,1:07:33,doppia,Non possiamo andare in doppia.,1:07:33
+resolved,avviare,verb,1,1:07:41,avvia,Sono il direttore! Come si avvia?,1:07:41
+resolved,scorrere,verb,1,1:08:54,scorrere,Lo faremo scorrere sotto la porta.,1:08:54
+resolved,consegnarlo,verb,1,1:08:57,consegnarlo,"No, dobbiamo consegnarlo a mano.",1:08:57
+resolved,mano,noun,1,1:08:57,mano,"No, dobbiamo consegnarlo a mano.",1:08:57
+resolved,categorico,adj,1,1:09:01,categorico,"Se offrono il caffè, lo daremo un no Milanese: categorico.",1:09:01
+resolved,zucchero,noun,1,1:09:06,zucchero,"Quanto zucchero? - Due, per favore.",1:09:06
+resolved,limone,noun,1,1:09:17,limone,È il succo di limone che si è fatto da solo.,1:09:17
+resolved,raccomandata,noun,1,1:09:24,raccomandata,"Ecco la tua lettera raccomandata, la sua ricevuta,",1:09:24
+resolved,forte,adj,1,1:09:27,forte,"il succo era molto buono, forse un po 'forte",1:09:27
+resolved,napoletano,noun,1,1:10:07,napoletano,"Se fosse napoletano, saremmo rimasti a cena?",1:10:07
+resolved,liberaci,verb,1,1:10:25,liberaci,Liberaci dal male...,1:10:25
+resolved,capirti,verb,1,1:10:56,capirti,Penso di capirti meglio.,1:10:56
+resolved,cuore,noun,1,1:11:02,cuore,"No, ci capisci con il tuo cuore",1:11:02
+resolved,poeta,noun,1,1:11:05,poeta,Ora sei un poeta.,1:11:05
+resolved,succhiare,verb,1,1:11:41,succhi,"Due succhi di frutta, per favore.",1:11:41
+resolved,manetta,noun,1,1:11:58,manette,"Tortora, le manette!",1:11:58
+resolved,tortora,noun,1,1:11:58,tortora,"Tortora, le manette!",1:11:58
+resolved,polizia,noun,1,1:12:14,polizia,Sono al posto di polizia locale.,1:12:14
+resolved,rapinare,verb,1,1:12:21,rapinato,Sei stato rapinato?,1:12:21
+resolved,arrestare,verb,1,1:12:23,arrestato,"No, sono entrato in un bar e loro mi hanno arrestato.",1:12:23
+resolved,bar,noun,1,1:12:23,bar,"No, sono entrato in un bar e loro mi hanno arrestato.",1:12:23
+resolved,ubriaco,adj,1,1:12:41,ubriaco,Sei ubriaco! - Un succo di frutta locale.,1:12:41
+resolved,mostrare,verb,1,1:12:53,mostrerò,Ti mostrerò pericoloso!,1:12:53
+resolved,guaio,noun,1,1:13:19,guai,Sono nei guai.,1:13:19
+resolved,migliorato,verb,1,1:13:49,migliorata,la nostra relazione è migliorata e lei è meglio,1:13:49
+resolved,relazione,noun,1,1:13:49,relazione,la nostra relazione è migliorata e lei è meglio,1:13:49
+resolved,meno,adv,1,1:14:11,meno,"Stereotipi, più o meno.",1:14:11
+resolved,stereotipare,verb,1,1:14:11,stereotipi,"Stereotipi, più o meno.",1:14:11
+resolved,base,noun,1,1:14:18,base,Come se fossi un po 'di base.,1:14:18
+resolved,noioso,adj,1,1:14:21,noioso,"Simpletons, noioso, che tu gestisci,",1:14:21
+resolved,volgare,adj,1,1:14:28,volgare,sei un po 'volgare.,1:14:28
+resolved,termine,noun,1,1:14:30,termini,"Forse ho usato i termini sporco, violento, shitkickers.",1:14:30
+resolved,usato,adj,1,1:14:30,usato,"Forse ho usato i termini sporco, violento, shitkickers.",1:14:30
+resolved,affrontare,verb,1,1:14:38,affrontare,Per lei ero un eroe affrontare la vita con coraggio.,1:14:38
+resolved,abbandonarmi,verb,1,1:14:42,abbandonarmi,Non abbandonarmi,1:14:42
+resolved,simulato,adj,1,1:14:50,simulato,Sono stato mandato perché Ho simulato di essere handicappato!,1:14:50
+resolved,comodino,noun,1,1:15:01,comodino,"Il suo libro è sul comodino, lui è a pagina 11,",1:15:01
+resolved,libro,noun,1,1:15:01,libro,"Il suo libro è sul comodino, lui è a pagina 11,",1:15:01
+resolved,raggiungere,verb,1,1:15:05,raggiungere,"deve raggiungere la pagina 26, allora può dormire.",1:15:05
+resolved,almeno,adv,1,1:15:09,almeno,Deve lavarsi i denti per almeno un minuto.,1:15:09
+resolved,dente,noun,1,1:15:09,denti,Deve lavarsi i denti per almeno un minuto.,1:15:09
+resolved,lavarsi,verb,1,1:15:09,lavarsi,Deve lavarsi i denti per almeno un minuto.,1:15:09
+resolved,umidificatore,noun,1,1:15:12,umidificatore,"Questo è l'umidificatore,",1:15:12
+resolved,asciugare,verb,1,1:15:15,asciuga,"e non troppo profumo, asciuga le mucose del ragazzo,",1:15:15
+resolved,mucosa,noun,1,1:15:15,mucose,"e non troppo profumo, asciuga le mucose del ragazzo,",1:15:15
+resolved,adulto,adj,1,1:15:20,adulto,"perderà il suo senso dell'olfatto, come un adulto non sentirà l'odore di una perdita di gas.",1:15:20
+resolved,gas,noun,1,1:15:20,gas,"perderà il suo senso dell'olfatto, come un adulto non sentirà l'odore di una perdita di gas.",1:15:20
+resolved,olfatto,noun,1,1:15:20,olfatto,"perderà il suo senso dell'olfatto, come un adulto non sentirà l'odore di una perdita di gas.",1:15:20
+resolved,perdita,noun,1,1:15:20,perdita,"perderà il suo senso dell'olfatto, come un adulto non sentirà l'odore di una perdita di gas.",1:15:20
+resolved,medicina,noun,1,1:15:25,medicine,Vado a prendere la borsa delle medicine.,1:15:25
+resolved,alcool,noun,1,1:15:57,alcool,"Cos'è questo odore? Alcool, di nuovo?",1:15:57
+resolved,informatore,noun,1,1:16:35,informatore,Un informatore ha detto ti rapiranno,1:16:35
+resolved,rapire,verb,1,1:16:35,rapiranno,Un informatore ha detto ti rapiranno,1:16:35
+resolved,accedere,verb,1,1:16:38,accedere,per accedere alla cassaforte.,1:16:38
+resolved,cassaforte,noun,1,1:16:38,cassaforte,per accedere alla cassaforte.,1:16:38
+resolved,accompagnare,verb,1,1:16:42,accompagnarti,Dobbiamo accompagnarti a casa tua.,1:16:42
+resolved,soldo,noun,1,1:16:53,soldi,Vuole soldi?,1:16:53
+resolved,includere,verb,1,1:16:55,includeremo,Includeremo tua moglie nel programma di protezione.,1:16:55
+resolved,programma,noun,1,1:16:55,programma,Includeremo tua moglie nel programma di protezione.,1:16:55
+resolved,battere,verb,1,1:17:03,batti,Cosa vuole questo ragazzo? - Batti il ​​cinque.,1:17:03
+resolved,sacco,noun,1,1:17:16,sacco,ci sono un sacco di cose Bud B B B Bud B B B B Bud B B Bud B B Bud B B B B B B B,1:17:16
+resolved,imboscata,noun,1,1:17:30,imboscata,"Diverso, eravamo paura di un'imboscata.",1:17:30
+resolved,uscire,verb,1,1:17:33,usciamo,Usciamo.,1:17:33
+resolved,attimo,noun,1,1:17:35,attimo,Un attimo.,1:17:35
+resolved,seguici,verb,1,1:18:02,seguici,Seguici.,1:18:02
+resolved,azione,noun,1,1:18:19,azione,Stanno arrivando! Azione!,1:18:19
+resolved,moneta,noun,1,1:18:42,monete,"Signora, poche monete.",1:18:42
+resolved,poco,adj,1,1:18:42,poche,"Signora, poche monete.",1:18:42
+resolved,vincere,verb,1,1:18:52,vinci,"Qui vinci, giochi ...",1:18:52
+resolved,pazzo,noun,1,1:19:00,pazzi,Sono tutti pazzi!,1:19:00
+resolved,originale,adj,1,1:19:03,originali,CD originali qui!,1:19:03
+resolved,oh,intj,1,1:19:29,oh,Oh Signore!,1:19:29
+resolved,allenare,verb,1,1:19:37,allenando,Stai allenando.,1:19:37
+resolved,sindaco,noun,1,1:19:49,sindaco,Il nostro sindaco,1:19:49
+resolved,borsetta,noun,1,1:19:54,borsetta,La mia borsetta!,1:19:54
+resolved,stazione,noun,1,1:20:26,stazione,"Questo è quello che hai provato per dire alla stazione, giusto?",1:20:26
+resolved,ulteriore,adj,1,1:20:33,ulteriori,Non muoverti fino a ulteriori ordini!,1:20:33
+resolved,rilassarsi,verb,1,1:20:47,rilassati,Rilassati ora.,1:20:47
+resolved,squallore,noun,1,1:20:54,squallore,Che squallore!,1:20:54
+resolved,esposizione,noun,1,1:20:58,esposizione,"Ha esposizione a sud, luce solare.",1:20:58
+resolved,luce,noun,1,1:20:58,luce,"Ha esposizione a sud, luce solare.",1:20:58
+resolved,contento,adj,1,1:21:28,contento,Sono contento che tu sia venuto.,1:21:28
+resolved,acqua,noun,1,1:21:40,acqua,"Il bagno è intasato, niente acqua, è disgustoso!",1:21:40
+resolved,bagno,noun,1,1:21:40,bagno,"Il bagno è intasato, niente acqua, è disgustoso!",1:21:40
+resolved,intasato,adj,1,1:21:40,intasato,"Il bagno è intasato, niente acqua, è disgustoso!",1:21:40
+resolved,indipendente,adj,1,1:22:06,indipendente,Deve diventare indipendente. - A partire da quando?,1:22:06
+resolved,organizzarsi,verb,1,1:22:11,organizzati,"Quando siamo organizzati,",1:22:11
+resolved,combattere,verb,1,1:22:26,combattono,"Sono i vicini, combattono tutto il tempo.",1:22:26
+resolved,reggere,verb,1,1:22:35,reggimi,Reggimi.,1:22:35
+resolved,guerriero,noun,1,1:22:47,guerriero,Pensa che dormano? - Il riposo del guerriero.,1:22:47
+resolved,riposo,noun,1,1:22:47,riposo,Pensa che dormano? - Il riposo del guerriero.,1:22:47
+resolved,bruciare,verb,1,1:22:54,bruciamo,"Finiamo con un'esplosione, bruciamo il municipio.",1:22:54
+resolved,esplosione,noun,1,1:22:54,esplosione,"Finiamo con un'esplosione, bruciamo il municipio.",1:22:54
+resolved,municipio,noun,1,1:22:54,municipio,"Finiamo con un'esplosione, bruciamo il municipio.",1:22:54
+resolved,corpo,noun,1,1:23:05,corpo,"No, devo sorvegliare il corpo di sua moglie.",1:23:05
+resolved,sorvegliare,verb,1,1:23:05,sorvegliare,"No, devo sorvegliare il corpo di sua moglie.",1:23:05
+resolved,fingere,verb,1,1:23:26,finto,"È tutto finto qui comunque, giusto?",1:23:26
+resolved,esagerato,adj,1,1:24:14,esagerato,Non pensi di aver esagerato? - Quale organizzazione!,1:24:14
+resolved,organizzazione,noun,1,1:24:14,organizzazione,Non pensi di aver esagerato? - Quale organizzazione!,1:24:14
+resolved,nonostante,prep,1,1:24:37,nonostante,"Nonostante tutto, lei ti ama, perché non essere sincero?",1:24:37
+resolved,sincero,adj,1,1:24:37,sincero,"Nonostante tutto, lei ti ama, perché non essere sincero?",1:24:37
+resolved,accettare,verb,1,1:24:43,accetto,Non accetto consigli da un coglione,1:24:43
+resolved,coglione,noun,1,1:24:43,coglione,Non accetto consigli da un coglione,1:24:43
+resolved,consiglio,noun,1,1:24:43,consigli,Non accetto consigli da un coglione,1:24:43
+resolved,migliore,adj,1,1:24:50,migliore,Non sei migliore di me sul coraggio.,1:24:50
+resolved,preoccupare,verb,1,1:24:57,preoccupi,Ti preoccupi di parlare con tua moglie.,1:24:57
+resolved,mille,num,1,1:26:24,mille,Grazie mille. - Addio.,1:26:24
+resolved,preoccupato,adj,1,1:26:30,preoccupati,Ciao! Che facce! - Eravamo preoccupati.,1:26:30
+resolved,intorno,adv,1,1:26:34,intorno,Sapendo che eri qui intorno da solo ... La città è pericolosa.,1:26:34
+resolved,affatto,adv,1,1:26:38,affatto,Non è come Milano. - Affatto.,1:26:38
+resolved,ce,pron,1,1:26:46,ce,"Non ce ne sono qui, c'è un negozio di città.",1:26:46
+resolved,tesoro,noun,1,1:27:09,tesoro,"Tesoro, indossa questo, potrebbero spararti.",1:27:09
+resolved,vista,noun,1,1:27:17,vista,Fuori dalla mia vista.,1:27:17
+resolved,alcol,noun,1,1:27:22,alcol,"L'alcol, gli amici, il mandolino? - Che cosa?",1:27:22
+resolved,mandolino,noun,1,1:27:22,mandolino,"L'alcol, gli amici, il mandolino? - Che cosa?",1:27:22
+resolved,minaccia,noun,1,1:27:26,minacce,"È vero, colera, minacce, ""Sacrifico per la mia famiglia.""",1:27:26
+resolved,sacrifico,adj,1,1:27:26,sacrifico,"È vero, colera, minacce, ""Sacrifico per la mia famiglia.""",1:27:26
+resolved,magia,noun,1,1:27:34,magia,"Abbiamo creato una strana magia, è stato meglio da quando ci siamo separati.",1:27:34
+resolved,proposito,noun,1,1:27:45,proposito,Devi dimenticare a proposito di Chicco e me.,1:27:45
+resolved,inaffidabile,adj,1,1:27:47,inaffidabile,Sei un padre inaffidabile.,1:27:47
+resolved,vergognare,verb,1,1:27:53,vergognerei,Ti vergognerei dappertutto tutta la Pianura Padana!,1:27:53
+resolved,colino,noun,1,1:28:33,colino,Ti devo parlare. - Prendi il colino?,1:28:33
+resolved,decisione,noun,1,1:28:48,decisione,Ho preso una decisione. - Buon per te.,1:28:48
+resolved,interrompermi,verb,1,1:28:51,interrompermi,"Non interrompermi, ho capito l'intero discorso proprio qui.",1:28:51
+resolved,persino,adv,1,1:29:07,persino,Ci metterò persino il marsala.,1:29:07
+resolved,peccato,noun,1,1:31:30,peccato,Peccato.,1:31:30
+resolved,firmare,verb,1,1:31:34,firmato,"Ha chiesto di essere trasferita, L'ho firmato oggi",1:31:34
+resolved,regione,noun,1,1:31:54,regione,Regione Friuli. - Sotto...,1:31:54
+resolved,divertimento,noun,1,1:32:36,divertimento,"I milanesi sono qui, il divertimento è finito.",1:32:36
+resolved,riguardo,noun,1,1:32:41,riguardo,Devo parlarti urgentemente. - Riguardo a cosa?,1:32:41
+resolved,urgentemente,adv,1,1:32:41,urgentemente,Devo parlarti urgentemente. - Riguardo a cosa?,1:32:41
+resolved,scusaci,verb,1,1:32:44,scusaci,Vieni con me. Scusaci.,1:32:44
+resolved,bastardo,adj,1,1:32:54,bastardo,Che bastardo!,1:32:54
+resolved,attendere,verb,1,1:33:03,attendere,Dove stiamo andando? - Attendere qui.,1:33:03
+resolved,interno,adj,1,1:33:31,interno,Va bene. Andare all'interno.,1:33:31
+resolved,collegare,verb,1,1:33:33,collegato,"Questa è la radio collegato al quadrato,",1:33:33
+resolved,quadrato,noun,1,1:33:33,quadrato,"Questa è la radio collegato al quadrato,",1:33:33
+resolved,radio,noun,1,1:33:33,radio,"Questa è la radio collegato al quadrato,",1:33:33
+resolved,segnale,noun,1,1:33:36,segnale,"se ricevi un segnale, è Scapece.",1:33:36
+resolved,perfetto,adj,1,1:33:45,perfetto,Capire? - No. - Perfetto.,1:33:45
+resolved,e,verb,1,1:34:05,é,Che cosa c'é? - Niente.,1:34:05
+resolved,confermare,verb,1,1:34:21,confermare,Puoi confermare che il Friuli è sotto l'Austria?,1:34:21
+resolved,fusibile,noun,1,1:34:50,fusibile,Fusibile per chiamare il fuoco.,1:34:50
+resolved,musica,noun,1,1:34:56,musica,"La musica è fatta, loro vogliono le 'opere'.",1:34:56
+resolved,chiaramente,adv,1,1:35:02,chiaramente,Non capisco una parola potresti ripetere chiaramente?,1:35:02
+resolved,bugia,noun,1,1:35:46,bugie,Quale amante? - Tutte le tue bugie!,1:35:46
+resolved,apposta,adv,1,1:36:06,apposta,"È colpa mia, ma non l'ho fatto apposta!",1:36:06
+resolved,indietro,adv,1,1:36:13,indietro,Stai indietro.,1:36:13
+resolved,sposare,verb,1,1:37:26,sposati,Ricordi quando ci siamo sposati?,1:37:26
+resolved,liscio,adj,1,1:39:21,liscio,"quando tutto funziona liscio, corri come ladri.",1:39:21
+resolved,qua,adv,1,1:39:39,qua,Ecco qua.,1:39:39
+resolved,cazzone,noun,1,1:40:03,cazzone,"Ti aspettiamo a Nord. Tutti voi, anche il piccolo cazzone.",1:40:03
+resolved,outsider,noun,1,1:40:32,outsider,"Quando un outsider arriva a sud,",1:40:32
+excluded_name,abbè,,2,,,,
+excluded_name,accademia,,1,,,,
+excluded_name,addolorata,,1,,,,
+excluded_name,africa,,1,,,,
+excluded_name,alberto,,4,,,,
+excluded_name,american,,1,,,,
+excluded_name,austria,,2,,,,
+excluded_name,b,,102,,,,
+excluded_name,battipaglia,,1,,,,
+excluded_name,beretta,,1,,,,
+excluded_name,bologna,,1,,,,
+excluded_name,bud,,21,,,,
+excluded_name,budud,,5,,,,
+excluded_name,calabria,,4,,,,
+excluded_name,campania,,1,,,,
+excluded_name,capuozzo,,1,,,,
+excluded_name,castellabate,,10,,,,
+excluded_name,cd,,2,,,,
+excluded_name,ch,,2,,,,
+excluded_name,chicco,,6,,,,
+excluded_name,cia,,1,,,,
+excluded_name,cipro,,2,,,,
+excluded_name,ciro,,2,,,,
+excluded_name,colombo,,5,,,,
+excluded_name,coppola,,1,,,,
+excluded_name,costabile,,7,,,,
+excluded_name,crackling,,1,,,,
+excluded_name,croce,,1,,,,
+excluded_name,cruise,,1,,,,
+excluded_name,de,,2,,,,
+excluded_name,eboli,,1,,,,
+excluded_name,edipo,,1,,,,
+excluded_name,esposito,,1,,,,
+excluded_name,f,,2,,,,
+excluded_name,flagello,,2,,,,
+excluded_name,friuli,,2,,,,
+excluded_name,fuse,,1,,,,
+excluded_name,g,,1,,,,
+excluded_name,gim,,1,,,,
+excluded_name,gps,,1,,,,
+excluded_name,guardia,,1,,,,
+excluded_name,hicksville,,1,,,,
+excluded_name,immacolata,,2,,,,
+excluded_name,impossible,,1,,,,
+excluded_name,invernizzi,,1,,,,
+excluded_name,italia,,2,,,,
+excluded_name,joachim,,1,,,,
+excluded_name,kosovo,,1,,,,
+excluded_name,madame,,6,,,,
+excluded_name,maria,,10,,,,
+excluded_name,mario,,3,,,,
+excluded_name,maroni,,1,,,,
+excluded_name,matarazzo,,1,,,,
+excluded_name,mattia,,12,,,,
+excluded_name,michelin,,1,,,,
+excluded_name,milano,,18,,,,
+excluded_name,mori,,1,,,,
+excluded_name,mr,,2,,,,
+excluded_name,murat,,1,,,,
+excluded_name,nanninella,,1,,,,
+excluded_name,napoli,,11,,,,
+excluded_name,north,,1,,,,
+excluded_name,p,,1,,,,
+excluded_name,padana,,1,,,,
+excluded_name,peppe,,6,,,,
+excluded_name,petazzoni,,1,,,,
+excluded_name,pianura,,1,,,,
+excluded_name,pina,,2,,,,
+excluded_name,pordenone,,3,,,,
+excluded_name,postamat,,3,,,,
+excluded_name,python,,1,,,,
+excluded_name,reef,,1,,,,
+excluded_name,roma,,2,,,,
+excluded_name,rossa,,1,,,,
+excluded_name,saint,,1,,,,
+excluded_name,salerno,,3,,,,
+excluded_name,san,,1,,,,
+excluded_name,scapece,,5,,,,
+excluded_name,school,,1,,,,
+excluded_name,sicilia,,1,,,,
+excluded_name,silvia,,7,,,,
+excluded_name,sparkler,,1,,,,
+excluded_name,spf,,1,,,,
+excluded_name,tom,,1,,,,
+excluded_name,valparaiso,,1,,,,
+excluded_name,volpe,,9,,,,
+excluded_name,wang,,1,,,,
+ignored_number,00,,1,,,,
+ignored_number,1,,1,,,,
+ignored_number,102,,1,,,,
+ignored_number,11,,2,,,,
+ignored_number,13,,1,,,,
+ignored_number,15,,3,,,,
+ignored_number,16,,1,,,,
+ignored_number,17,,1,,,,
+ignored_number,2,,2,,,,
+ignored_number,26,,1,,,,
+ignored_number,28,,2,,,,
+ignored_number,3,,2,,,,
+ignored_number,30,,1,,,,
+ignored_number,300,,3,,,,
+ignored_number,35,,2,,,,
+ignored_number,40,,1,,,,
+ignored_number,5,,1,,,,
+ignored_number,50,,2,,,,
+ignored_number,6,,1,,,,
+ignored_number,62,,1,,,,
+ignored_number,7,,2,,,,
+ignored_number,8,,3,,,,
+ignored_number,9,,3,,,,
+unresolved,acchiappatopi,,1,,,,
+unresolved,ahmed,,1,,,,
+unresolved,all,,2,,,,
+unresolved,andando',,1,,,,
+unresolved,apetta,,1,,,,
+unresolved,bana,,1,,,,
+unresolved,blasted,,1,,,,
+unresolved,cianfotta,,1,,,,
+unresolved,ciaparatt,,3,,,,
+unresolved,cityslicker,,1,,,,
+unresolved,daisy,,1,,,,
+unresolved,facendo',,1,,,,
+unresolved,fired,,1,,,,
+unresolved,illustriosa,,1,,,,
+unresolved,jackass,,3,,,,
+unresolved,jerk,,1,,,,
+unresolved,k,,3,,,,
+unresolved,kni,,1,,,,
+unresolved,little,,2,,,,
+unresolved,mil,,2,,,,
+unresolved,mission,,1,,,,
+unresolved,mpepata,,1,,,,
+unresolved,nocillo,,1,,,,
+unresolved,nor,,3,,,,
+unresolved,oopsy,,1,,,,
+unresolved,ooze,,2,,,,
+unresolved,opere',,1,,,,
+unresolved,oway,,1,,,,
+unresolved,pla,,1,,,,
+unresolved,plate,,1,,,,
+unresolved,reggio,,3,,,,
+unresolved,shakin,,1,,,,
+unresolved,shitkick,,1,,,,
+unresolved,shitkicker,,3,,,,
+unresolved,shitkickers,,2,,,,
+unresolved,sig,,1,,,,
+unresolved,simpletons,,1,,,,
+unresolved,stills,,1,,,,
+unresolved,tape,,1,,,,
+unresolved,teau,,2,,,,
+unresolved,tha,,1,,,,
+unresolved,udud,,1,,,,
+unresolved,ududud,,1,,,,
+unresolved,uppa,,1,,,,
+unresolved,y',,2,,,,

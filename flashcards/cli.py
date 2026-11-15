@@ -380,7 +380,17 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument(
         "--kind",
         action="append",
-        choices=["lexeme_enrich", "phrase_enrich", "verb_prompts", "disambiguate", "film_gloss", "image"],
+        choices=[
+            "lexeme_enrich",
+            "phrase_enrich",
+            "verb_prompts",
+            "disambiguate",
+            "film_gloss",
+            "fact_check",
+            "noun_number",
+            "cue_check",
+            "image",
+        ],
     )
     sp.add_argument(
         "--batches", type=int, default=None, help="Stop after N batches (default: until the queue is done)."

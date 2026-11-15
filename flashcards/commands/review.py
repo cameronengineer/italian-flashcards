@@ -2,13 +2,15 @@
 
 Nothing here holds a card back; there is no human review step.
 
+* words Claude judged not worth a card (``lexemes.ignored``);
 * words where Claude doubted the dictionary data (``lexemes.issues``);
 * notes whose latest audit is warn / fail and still matches the note;
-* fun facts generated but hidden for low confidence;
+* fun facts generated but hidden for low confidence or dropped by Claude's fact check;
 * AI jobs that exhausted their retries.
 
 To change content yourself, edit ``lexicon/lexemes.jsonl`` and mark the
-field ``"provenance": {"field": "human"}`` — human edits always win.
+field ``"provenance": {"field": "human"}`` — human edits always win (a word
+whose senses you edited is never ignored).
 """
 
 from __future__ import annotations
@@ -26,13 +28,20 @@ from .audit import REPORTS_DIR
 
 
 def run(*, limit: int = 20) -> int:
-    print_banner("review — flagged words, audits, hidden facts, failed jobs (information only)")
+    print_banner("review — ignored and flagged words, audits, hidden facts, failed jobs (information only)")
     items: list[dict] = []
     with closing(connect()) as conn:
         from ..content_review import grammar_holds
 
         items.extend(
             {"kind": "ignored drill", "italian": r["key"], "detail": r["reason"]} for r in grammar_holds(conn)
+        )
+        items.extend(
+            {"kind": "ignored word", "italian": f"{r['lemma']} ({r['pos']})", "detail": r["ignored"]}
+            for r in conn.execute(
+                "SELECT lemma, pos, ignored FROM lexemes WHERE ignored IS NOT NULL "
+                "AND id IN (SELECT lexeme_id FROM list_items) ORDER BY lemma"
+            )
         )
         for r in conn.execute(
             "SELECT lemma, pos, issues FROM lexemes WHERE coalesce(issues,'[]') NOT IN ('[]','') "
@@ -68,6 +77,8 @@ def run(*, limit: int = 20) -> int:
             items.append(
                 {"kind": "hidden fact", "italian": f["word"], "detail": f"{f['confidence']:.2f}: {f['fact']}"}
             )
+        for f in conn.execute("SELECT word, fact FROM word_facts WHERE has_fact = 1 AND checked = 'drop'"):
+            items.append({"kind": "dropped fact", "italian": f["word"], "detail": f["fact"]})
         for j in conn.execute("SELECT kind, subject, error FROM ai_jobs WHERE status = 'failed'"):
             lx = conn.execute("SELECT lemma FROM lexemes WHERE id = ?", (j["subject"],)).fetchone()
             items.append(

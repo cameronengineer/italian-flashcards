@@ -124,20 +124,21 @@ class DataContractTests(unittest.TestCase):
         )
         self.assertEqual(planning.known_roots(c), {"x"})
 
-    def test_refresh_holds_old_content_locally_until_reverified(self):
+    def test_refresh_keeps_the_current_card_published_until_rewritten(self):
         c = database(self)
         lexeme(c)
         fields = desired(c)
         queue.refresh(c, "test")
-        self.assertIn("awaiting verification", quality.reasons(c, fields["Key"], "x", fields))
-        self.assertEqual(c.execute("SELECT count(*) FROM v4_notes").fetchone()[0], 1)
+        self.assertEqual(quality.reasons(c, fields["Key"], "x", fields), [])
+        self.assertEqual(c.execute("SELECT status FROM lexemes").fetchone()[0], "ready")
 
-    def test_pending_verb_job_blocks_old_prompt(self):
+    def test_pending_verb_job_keeps_the_current_prompts_published(self):
         c = database(self)
         lexeme(c, pos="verb", lemma="parlare")
         fields = desired(c, key="form:x:presente:io")
         c.execute("INSERT INTO ai_jobs(kind,subject,status) VALUES('verb_prompts','x','pending')")
-        self.assertIn("awaiting verb prompts", quality.reasons(c, fields["Key"], "x", fields))
+        # Prompts for another meaning don't join (source_id), so they never show.
+        self.assertEqual(quality.reasons(c, fields["Key"], "x", fields), [])
 
     def test_stale_generation_blocks_publication_and_audio_selection(self):
         c = database(self)

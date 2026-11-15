@@ -108,13 +108,32 @@ def usage(lx, sense=None):
     return result
 
 
-def exclusion(lx, sense, tense, person):
-    rules = usage(lx, sense)
-    if rules.get("persons") and person not in rules["persons"]:
+_ALL_PERSONS = {"io", "tu", "lui_lei", "noi", "voi", "loro"}
+
+
+def person_allowed(persons, person) -> bool:
+    """``persons`` restricts a meaning to some subjects; empty or all six = any.
+
+    Formal ``Lei`` (imperative) uses the third-person singular, so it follows
+    ``lui_lei``: a list of the six ordinary persons does not exclude it.
+    """
+    allowed = set(persons or ())
+    if not allowed or _ALL_PERSONS <= allowed:
+        return True
+    return person in allowed or (person == "Lei" and "lui_lei" in allowed)
+
+
+def form_exclusion(lemma, rules, tense, person):
+    """Why a (tense, person) form doesn't suit a meaning's usage rules, or None."""
+    if not person_allowed(rules.get("persons"), person):
         return "Person is not used with the selected meaning"
-    if tense == "imperativo" and (rules.get("no_imperative") or lx["lemma"] in {"dovere", "potere"}):
+    if tense == "imperativo" and (rules.get("no_imperative") or lemma in {"dovere", "potere"}):
         return "No ordinary imperative exercise for this meaning"
     return None
+
+
+def exclusion(lx, sense, tense, person):
+    return form_exclusion(lx["lemma"], usage(lx, sense), tense, person)
 
 
 def form_suffix(sense):

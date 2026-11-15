@@ -105,19 +105,28 @@ and production cards. Suspension counts are cards newly suspended this run.
 
 ### Rebuilding everything with a stronger model
 
-In `settings.toml` set `model = "opus"`, `thinking = true` and bump
-`task_version` (e.g. `"5"` → `"6"`), then keep running `./run.sh`. Everything
-Claude wrote is redone in study order — words, phrases, verb forms, hints and
-word-for-word film lines (hints follow once their words are redone). Anki
-cards are **updated in place**, keeping your review history; cards keep their
-old text until the new text arrives. Your human edits, images and audio are
-kept. Changing only `model` affects work still to do.
+`settings.toml` is set up for this now: `model = "opus"`, `effort = "high"`,
+`thinking = true`, `task_version = "7"`. To do it again later, change the model
+and bump `task_version`, then keep running `./run.sh`.
 
-The old `review.csv`, `cue_review.csv` and `grammar_review.csv` files are no
-longer needed or generated. They used to request word approvals, ambiguous-cue
-corrections and grammar checks respectively. `./run.sh review` now lists AI
-flags and ignored drills for information only. Previously saved corrections
-remain in the database and still apply when their content version matches.
+- **Everything Claude wrote is redone from scratch** in study order: words,
+  phrases, verb forms, cue hints and word-for-word film lines. Claude is given
+  only the source data (dictionary, your lists, film lines), never its earlier
+  answer. Verb forms and cue hints follow once their words are redone.
+- **Your cards stay in Anki meanwhile.** They keep their current text until the
+  new text arrives, and are then **updated in place**, keeping your review
+  history. A word's main meaning always keeps the same note, whichever
+  dictionary sense the new answer picks.
+- **Claude may ignore an entry** that shouldn't be a card: not Italian, a name,
+  a stray abbreviation, a bad parse, or a rare second part of speech of a word
+  you already study (e.g. the noun *il camminare* next to the verb). Its notes
+  leave Anki; `./run.sh review` lists ignored words with the reasons. A word
+  whose senses you edited yourself is never ignored.
+- Your own edits, images and audio are kept (media is never regenerated or
+  deleted). Changing only `model` affects work still to do.
+- Opus with thinking uses your plan's limits much faster than Haiku, so a full
+  pass takes days of usage-limit waits. Leave `./run.sh` running, or rerun it;
+  it carries on where it stopped.
 
 Every completed run writes one `.apkg` per ready deck into `decks/`, including
 its images, audio and film examples. Unchanged packages are reused. Changed
@@ -204,9 +213,10 @@ Durable jobs in study order (the film's words first):
 
 | Job | What Claude / Codex does |
 |---|---|
-| words (`lexeme_enrich`) | Given the Wiktionary senses, the lists' own glosses and the film line: choose the sense, write the card prompt + hint + register + note, **check the dictionary data** (doubts are recorded, never a hold), write a fun fact from the sourced etymology — plus one hop further down, fetched from kaikki.org just before the word is enriched (*rubinetto* ← French *robinet* ← *Robin*, "sheep"). 15 words per call. |
+| words (`lexeme_enrich`) | Given the Wiktionary senses, the lists' own glosses and the film line: choose the most obvious meaning (one per card), write the card prompt + hint + register + note, **check the dictionary data** (doubts are recorded, never a hold), write a fun fact from the sourced etymology — plus one hop further down, fetched from kaikki.org just before the word is enriched (*rubinetto* ← French *robinet* ← *Robin*, "sheep"). 15 words per call. |
 | phrases | English prompt + hint for sentences and stems. |
 | verbs | English prompts for the Wiktionary conjugations (forms that don't exist, like the imperative of *dovere*, are left out). |
+| facts (`fact_check`) | Re-read each fun fact shown on a card: keep it, fix it (cut a wrong or obscure claim) or drop it. English words in a fact must be ones a typical native speaker knows. New facts are checked automatically. |
 | cue groups (`disambiguate`) | Compare words sharing an English prompt, adding distinguishing hints. Alternatives are accepted only if correct for the specific hint. One group is a comparison of several words, not another word or another card. |
 | images | Codex draws one flat, text-free illustration per root; every card of that root uses it. Existing images are reused, never deleted. |
 
@@ -249,7 +259,7 @@ without waiting for their image.
 
 | Card type | Deck |
 |---|---|
-| vocab — word, gender · plural or the four adjective forms, IPA, film line, note, fun fact | the root's highest-priority list (`Italian::Movies::…`, `Italian::CILS::A1`, …) |
+| vocab — word, gender · plural or the four adjective forms, IPA, film line, note, fun fact | every list the word is in, one card per list's deck (`Italian::Movies::…`, `Italian::CILS::A1`, …) |
 | phrase — sentences, stems, expressions | same |
 | form — conjugations for model verbs (*parlare, credere, dormire, finire*), irregular verbs and the most frequent N; compound tenses built by rule | `Italian::Verbs::Learning::<Tense>` or `Italian::Verbs::Dormant::<Tense>` |
 | nphrase — rule-built article / preposition / possessive drills | `Italian::Noun Phrases` |

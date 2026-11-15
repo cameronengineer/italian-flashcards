@@ -136,14 +136,16 @@ def _notes(query: str, key_field: str) -> list[AnkiNote]:
 _CARD_INFO = ("ord", "type", "queue", "due", "interval", "lapses", "reps")
 
 
-def _suspend_active(plan):
-    """Cached legacy IDs need a fresh state check; report only actual changes."""
+def _suspend_active(plan, legacy_decks=()):
+    """Cached legacy IDs need a fresh state and deck check; report only actual changes."""
     active = []
     for group in chunks(sorted(set(plan.suspend)), 500):
+        decks = invoke("getDecks", cards=group)
+        owned = {c for deck, cs in decks.items() if deck_owned(deck, legacy_decks) for c in cs}
         active.extend(
             c["cardId"]
             for c in invoke("cardsInfo", cards=group)
-            if c and c.get("queue") is not None and c["queue"] != -1
+            if c and c["cardId"] in owned and c.get("queue") is not None and c["queue"] != -1
         )
     if active:
         if not invoke("suspend", cards=active):
@@ -578,11 +580,68 @@ def build_plan(conn: sqlite3.Connection, *, anki_media: set[str], profile: str =
                 }
             )
     reasons = {r[0]: r[1] for r in conn.execute("SELECT key,reason FROM retirements")}
+    ignored = {r[0]: r[1] for r in conn.execute("SELECT id, ignored FROM lexemes WHERE ignored IS NOT NULL")}
+
+    def ignored_reason(key):
+        parts = key.split(":")
+        if parts[0] in ("vocab", "phrase", "form", "nphrase", "cognate") and len(parts) > 1 and parts[1] in ignored:
+            return f"Claude: not a useful card — {ignored[parts[1]]}"
+        return None
+
+    # A word has a copy of its card in every list it is in; a copy whose list the
+    # word has left goes (the plain key belongs to ``lexemes.key_list``).
+    memberships = defaultdict(set)
+    for r in conn.execute("SELECT lexeme_id, list_id FROM list_items"):
+        memberships[r[0]].add(r[1])
+    key_lists = dict(conn.execute("SELECT id, key_list FROM lexemes WHERE key_list IS NOT NULL").fetchall())
+
+    numbers = dict(conn.execute("SELECT id, card_number FROM lexemes WHERE card_number IN ('singular','plural')"))
+
+    def number_reason(key):
+        # A noun-phrase drill in a number the word isn't used in (un occhiale, i latti).
+        parts = key.split(":")
+        if parts[0] == "nphrase" and len(parts) >= 4 and parts[1] in numbers and parts[3] != numbers[parts[1]]:
+            return f"{parts[3].capitalize()} not used for this noun"
+        return None
+
+    def cognate_reason(key):
+        # One card per word now (the old per-rule cards, or a word whose English
+        # no longer follows its rule).
+        return "No longer a cognate card" if key.startswith("cognate:") else None
+
+    def list_reason(key):
+        parts = key.split(":")
+        if parts[0] not in ("vocab", "phrase") or len(parts) != 3 or parts[1] not in memberships:
+            return None
+        listed = parts[2].partition("@")[2] or key_lists.get(parts[1])
+        return f"No longer in list {listed}" if listed and listed not in memberships[parts[1]] else None
+
     for key, n in v4.items():
-        reason = removed_form(key) or (reasons.get(key) if key not in desired else None)
+        reason = removed_form(key) or (
+            (
+                reasons.get(key)
+                or ignored_reason(key)
+                or list_reason(key)
+                or cognate_reason(key)
+                or number_reason(key)
+            )
+            if key not in desired
+            else None
+        )
+        dependency = None
+        if not reason and key not in desired:
+            # An older key for a card that now has its stable key (the main
+            # meaning is always :0, verb forms/noun phrases have no :sense-N):
+            # removed once that card is confirmed in Anki.
+            current = _current_key(key)
+            if current in desired and desired[current]["ready"]:
+                fields = json.loads(desired[current]["fields_json"])
+                template = "Recognition" if fields.get("Recognition") else "Production"
+                if fields.get(template):
+                    reason, dependency = f"Replaced by {current}", (current, template)
         if reason:
             plan.retire_v4.append(n)
-            plan.retire_dependencies[n.note_id] = None
+            plan.retire_dependencies[n.note_id] = dependency
             plan.retirement_reasons[n.note_id] = reason
         elif key not in desired:
             plan.keep_unmapped += 1
@@ -592,7 +651,9 @@ def build_plan(conn: sqlite3.Connection, *, anki_media: set[str], profile: str =
         if n.note_id in adopted_ids:
             continue
         tgt = targets[n.note_id]
-        reason = removed_form(tgt[0]) if tgt else None
+        reason = None
+        if tgt:
+            reason = removed_form(tgt[0]) or (ignored_reason(tgt[0]) if tgt[0] not in desired else None)
         if tgt and tgt[0] in desired and not json.loads(desired[tgt[0]]["fields_json"]).get(tgt[1]):
             reason = reason or "Card direction disabled in the study plan"
         # Only once the same card exists in v4 (or is served by an adopted note).
@@ -611,6 +672,22 @@ def build_plan(conn: sqlite3.Connection, *, anki_media: set[str], profile: str =
         else:
             plan.keep_unmapped += 1
     return plan
+
+
+def _current_key(key: str) -> str | None:
+    """The stable key an older v4 key's card now has, or None.
+
+    ``vocab:<id>:2`` → ``vocab:<id>:0`` (the main meaning is always :0);
+    ``form:<id>:presente:io:sense-1`` → ``form:<id>:presente:io``.
+    """
+    if ":sense-" in key:
+        return key.split(":sense-")[0]
+    if "@" in key:  # a list's copy of a word (``vocab:<id>:0@<list>``) has no older key
+        return None
+    parts = key.split(":")
+    if parts[0] in ("vocab", "phrase") and len(parts) == 3 and parts[2] != "0":
+        return f"{parts[0]}:{parts[1]}:0"
+    return None
 
 
 # ── Apply ──────────────────────────────────────────────────────────────────
@@ -640,6 +717,53 @@ def ensure_model() -> str:
         invoke("updateModelStyling", model={"name": MODEL_NAME, "css": CSS})
         changed.append("css")
     return "updated " + "+".join(changed) if changed else "ok"
+
+
+#: Deck options preset for the pipeline's decks (a copy of what they used before).
+PRESET = "Italian flashcards"
+_spaced: set[str] = set()  # profiles whose deck options were checked by this process
+
+
+def space_siblings(profile: str) -> int:
+    """Never show a word's Italian → English and English → Italian cards on the
+    same day: Anki's "bury siblings" (new, review and interday learning) on the
+    deck options of the ``Italian`` decks.
+
+    A preset shared with any other deck (e.g. Default, used by ZCam's Decks - Old)
+    is never changed: those Italian decks move to their own copy of it instead.
+    Other settings (new cards per day …) are left as they are. Returns how many
+    decks or presets changed.
+    """
+    if profile in _spaced:
+        return 0
+    configs = {d: invoke("getDeckConfig", deck=d) for d in invoke("deckNames")}
+    configs = {d: c for d, c in configs.items() if isinstance(c, dict) and "id" in c}
+    ours = {d for d in configs if d == "Italian" or d.startswith("Italian::")}
+    shared = {c["id"] for d, c in configs.items() if d not in ours}
+    changed = 0
+    move = sorted(d for d in ours if configs[d]["id"] in shared)
+    if move:
+        preset = next((c["id"] for c in configs.values() if c.get("name") == PRESET), None)
+        if preset is None or preset in shared:
+            preset = invoke("cloneDeckConfigId", name=PRESET, cloneFrom=str(configs[move[0]]["id"]))
+            if not preset:
+                raise RuntimeError("Anki did not create the Italian flashcards deck options preset")
+        if not invoke("setDeckConfigId", decks=move, configId=preset):
+            raise RuntimeError("Anki did not assign the Italian flashcards deck options")
+        changed += len(move)
+    presets = {c["id"]: c for c in (invoke("getDeckConfig", deck=d) for d in sorted(ours))}
+    for config in presets.values():
+        if config["id"] in shared:
+            continue
+        if config["new"].get("bury") and config["rev"].get("bury") and config.get("buryInterdayLearning"):
+            continue
+        config["new"]["bury"] = config["rev"]["bury"] = True
+        config["buryInterdayLearning"] = True
+        if not invoke("saveDeckConfig", config=config):
+            raise RuntimeError("Anki did not save the Italian flashcards deck options")
+        changed += 1
+    _spaced.add(profile)
+    return changed
 
 
 def _upload_media(names: set[str]) -> int:
@@ -763,6 +887,8 @@ def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool =
             | {f["_deck"] for _n, f, _t in plan.adopt}
         ):
             invoke("createDeck", deck=deck)
+        if space_siblings(profile):
+            report.line("Anki: a word's two directions are now never shown on the same day")
         final = {key: n.fields for key, n in plan.v4.items()}  # each v4 note's fields after this sync
         note_of = {key: n.note_id for key, n in plan.v4.items()}
         added_ids = []
@@ -857,7 +983,7 @@ def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool =
                 "INSERT OR REPLACE INTO adoptions VALUES(?,?,?,?)", (f["Key"], t, n.note_id, profile)
             )
         conn.commit()
-        _suspend_active(plan)
+        _suspend_active(plan, _legacy_decks(conn))
         plan.retired = _retire(conn, plan, final, note_of, allow_retire)
         _sync_dormancy(conn, plan, note_of)
         plan.reordered = _reorder(conn, plan, {nid: written.get(nid, {}) for nid in added_ids}, note_of)
@@ -872,6 +998,10 @@ def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool =
                 f"Anki rejected: {plan.rejected[:20]}" if plan.rejected else None,
                 run_id,
             ),
+        )
+        # Each plan is ~0.5 MB; the last 20 are plenty to inspect a recent sync.
+        conn.execute(
+            "DELETE FROM sync_runs WHERE id NOT IN (SELECT id FROM sync_runs ORDER BY created_at DESC LIMIT 20)"
         )
         conn.commit()
         report.detail(
@@ -939,7 +1069,7 @@ def _retire(conn, plan: Plan, final: dict, note_of: dict, allow: bool) -> int:
         report.detail(f"  … retiring up to {len(eligible)} obsolete notes (including studied)")
     legacy_decks = _legacy_decks(conn)
     retire_v4 = {n.note_id for n in plan.retire_v4}
-    retired, gone = 0, []
+    retired, gone, foreign = 0, [], []
     for chunk in chunks(eligible, 200):
         fresh = {n["noteId"]: n for n in invoke("notesInfo", notes=[n.note_id for n in chunk]) if n}
         cards = [c for f in fresh.values() for c in f.get("cards", [])]
@@ -955,12 +1085,18 @@ def _retire(conn, plan: Plan, final: dict, note_of: dict, allow: bool) -> int:
                 raise RuntimeError("Retirement identity changed during sync")
             cs = current.get("cards", [])
             if not all(deck_owned(deck_of.get(c, ""), legacy_decks) for c in cs):
+                foreign.append(n.note_id)  # moved by you out of the pipeline's decks: never touched
                 continue
             doomed.append(n.note_id)
         if doomed:
             invoke("deleteNotes", notes=doomed)
             retired += len(doomed)
             gone += doomed
+    if foreign:
+        # Old notes you moved elsewhere (e.g. an archive folder) are no longer the
+        # pipeline's: drop them from the index so later syncs don't re-plan them.
+        conn.executemany("DELETE FROM legacy_notes WHERE note_id=?", [(i,) for i in foreign])
+        conn.commit()
     if gone:
         plan.removed_ids.update(gone)
         conn.executemany("DELETE FROM legacy_notes WHERE note_id=?", [(i,) for i in gone])

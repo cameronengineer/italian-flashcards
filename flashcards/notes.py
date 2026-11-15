@@ -7,16 +7,17 @@ image; a note is only *ready* (sent to Anki) when its content and image
 exist.
 
 Card types:
-  vocab    one note per root sense — the word, gender/plural or forms, IPA,
+  vocab    one note per root word and list (its main meaning) — gender/plural or forms, IPA,
            film example, usage note, fun fact
   phrase   sentences, stems and fixed expressions
   form     verb forms (model verbs, irregular verbs, the most frequent N)
   nphrase  rule-built noun phrases (article / preposition / possessive …)
-  cognate  one note per cognate rule with its example words
+  cognate  one note per word that follows an English→Italian spelling rule
   mistake  practice errors turned into cards
 
-Notes are filed in the deck of the root's highest-priority list (plan.toml);
-verb forms, noun phrases, cognates and mistakes have their own decks.
+A word gets a note in the deck of every list it is in (no deduplication
+between lists); verb forms, noun phrases, cognates and mistakes have their own
+decks.
 """
 
 from __future__ import annotations
@@ -27,12 +28,12 @@ import json
 import re
 import sqlite3
 from collections import defaultdict
-from urllib.parse import quote
 
 from .cards import FACT_TITLES, labels, labels_html
 from .facts import normalise as fact_key
 from .italian import (
     articulated_phrase,
+    cognate,
     conjugation_class,
     definite_article,
     demonstrative_phrase,
@@ -41,7 +42,7 @@ from .italian import (
     with_article,
 )
 from .lexicon import film_examples, film_line_key, image_exists
-from . import quality, report, semantics
+from . import overrides, quality, report, semantics
 from .db import transaction
 from .ownership import OWNER_TAG
 from .assets import locate, image_for
@@ -76,7 +77,7 @@ FIELDS = [
     "Audio",
     "Recognition",
     "Production",
-    "Source",
+    "Source",  # no longer filled or shown; kept so Anki's notetype keeps its fields
     "Key",
 ]
 DECK_NPHRASES = "Italian::Noun Phrases"
@@ -178,8 +179,13 @@ class _Builder:
             )
         ]
         self.membership: dict[str, list[str]] = defaultdict(list)
-        for r in conn.execute("SELECT list_id, lexeme_id FROM list_items"):
+        self.rank: dict[tuple[str, str], int] = {}
+        for r in conn.execute("SELECT list_id, lexeme_id, rank FROM list_items"):
             self.membership[r["lexeme_id"]].append(r["list_id"])
+            self.rank[(r["lexeme_id"], r["list_id"])] = r["rank"]
+        #: lexeme id → the list whose copy of the word keeps the plain note key
+        #: (newly fixed by this build; ``build`` stores them).
+        self.key_lists: dict[str, str] = {}
         self.context = film_examples(conn)
         self.glosses = {
             r["key"]: json.loads(r["words"]) for r in conn.execute("SELECT key, words FROM film_glosses")
@@ -192,6 +198,7 @@ class _Builder:
             )
         }
         self.mnemonics = {r["key"]: r["mnemonic"] for r in conn.execute("SELECT * FROM mnemonics")}
+        self.cues = {r["lexeme_id"]: r for r in conn.execute("SELECT * FROM cue_fixes")}
 
     # ── helpers ───────────────────────────────────────────────────────────
     def home_list(self, lexeme_id: str) -> str:
@@ -210,10 +217,40 @@ class _Builder:
             self.list_settings.get(l, {}).get("facts", True) for l in self.membership.get(lexeme_id, [])
         )
 
-    def type_label(self, lx) -> str:
-        home = self.home_list(lx["id"])
-        t = self.list_settings.get(home, {}).get("type")
+    def type_label(self, lx, list_id: str | None = None) -> str:
+        t = self.list_settings.get(list_id or self.home_list(lx["id"]), {}).get("type")
         return t or _TYPE_LABEL.get(lx["pos"], lx["pos"])
+
+    def cue(self, lexeme_id: str, prompt: str, hint: str | None) -> tuple[str, str | None]:
+        """(English, hint) for the card: Claude's version without look-alikes of the
+        Italian (``cue_check``) while it still matches the word's prompt and hint."""
+        fix = self.cues.get(lexeme_id)
+        if fix and fix["prompt"] == prompt and fix["source_hint"] == (hint or ""):
+            return fix["english"], fix["hint"]
+        return prompt, hint
+
+    def shown(self, lx, english: str) -> tuple[str, str]:
+        """(Italian, English) a word's card shows: the plural for a noun that is
+        normally plural (gli occhiali = glasses), else its usual form."""
+        if (
+            lx["pos"] != "noun"
+            or lx["card_number"] != "plural"
+            or overrides.is_human(self.conn, lx["id"], "display")
+        ):
+            return lx["display"], english
+        sense = semantics.primary(self.conn, lx["id"])
+        variant = semantics.noun_variant(lx, sense, plural=True) if sense else None
+        word, gender = (variant[0], variant[1]) if variant else (lx["plural"], lx["gender"])
+        if not word or gender not in ("masculine", "feminine"):
+            return lx["display"], english
+        return with_article(definite_article(word, gender, True), word), lx["card_english"] or english
+
+    def list_sort(self, lexeme_id: str, list_id: str) -> int:
+        """New-card order of a word's copy in one list: that list's priority, then
+        its rank in the list; roots you already know go last (as ``study_order``)."""
+        position = self.priority.index(list_id) if list_id in self.priority else len(self.priority)
+        known = 100_000_000 if self.order.get(lexeme_id, 0) >= 100_000_000 else 0
+        return position * 100_000 + self.rank.get((lexeme_id, list_id), 0) + known
 
     def add(
         self,
@@ -250,9 +287,6 @@ class _Builder:
         fields["Image"] = "" if policies and all(p == "disabled" for p in policies) else _img(image_key)
         fields["Recognition"] = "1" if recognition else ""
         fields["Production"] = "1" if production else ""
-        from .content_review import apply_overrides
-
-        apply_overrides(self.conn, key, fields)
         reasons = []
         if blocked:
             reasons.append(blocked)
@@ -277,21 +311,19 @@ class _Builder:
             }
         )
 
-    def fact_fields(self, lx) -> dict:
-        if not self.facts_on(lx["id"]):
+    def fact_fields(self, lx, list_id: str | None = None) -> dict:
+        on = (
+            settings.facts.enabled and self.list_settings.get(list_id, {}).get("facts", True)
+            if list_id
+            else self.facts_on(lx["id"])
+        )
+        if not on:
             return {}
         f = self.facts.get(fact_key(lx["lemma"]))
-        if not f:
+        if not f or f["checked"] == "drop":  # Claude's fact check found it wrong or useless
             return {}
-        return {"Fact": _esc(f["fact"]), "FactTitle": FACT_TITLES.get(f["kind"] or "", "Did you know?")}
-
-    def source_field(self, lx) -> str:
-        """The lists a root comes from, plus the Wiktionary attribution (CC BY-SA)."""
-        source = _esc(", ".join(self.lists[l]["title"] for l in self.membership[lx["id"]] if l in self.lists))
-        if lx["in_kaikki"]:
-            url = f"https://en.wiktionary.org/wiki/{quote(lx['lemma'])}#Italian"
-            source += f' · <a href="{url}">Wiktionary</a> (CC BY-SA)'
-        return source
+        text = f["checked_text"] if f["checked"] == "fix" and f["checked_text"] else f["fact"]
+        return {"Fact": _esc(text), "FactTitle": FACT_TITLES.get(f["kind"] or "", "Did you know?")}
 
     def example_field(self, lexeme_id: str) -> str:
         ctx = self.context.get(lexeme_id)
@@ -310,15 +342,21 @@ class _Builder:
     # ── card types ────────────────────────────────────────────────────────
     def vocab_and_phrases(self):
         rows = self.conn.execute(
-            "SELECT * FROM lexemes WHERE id IN (SELECT lexeme_id FROM list_items)"
+            "SELECT * FROM lexemes WHERE id IN (SELECT lexeme_id FROM list_items) AND ignored IS NULL"
         ).fetchall()
         senses = defaultdict(list)
         for s in self.conn.execute("SELECT * FROM senses WHERE active=1 ORDER BY lexeme_id, idx"):
             senses[s["lexeme_id"]].append(s)
         for lx in rows:
-            sort = self.order.get(lx["id"], 1 << 30) * 10
-            home = self.home_list(lx["id"])
-            deck = self.lists[home]["deck"] if home in self.lists else "Italian::Other"
+            # Every list the word is in gets its own copy of the card, in that
+            # list's deck (no deduplication between lists). One copy keeps the
+            # plain key, fixed once to the list whose deck the word started in, so
+            # existing notes and their review history never move; the others are
+            # keyed ``…:0@<list>``.
+            # (If the word later leaves that list, that copy goes like any other.)
+            key_list = lx["key_list"]
+            if not key_list:
+                key_list = self.key_lists[lx["id"]] = self.home_list(lx["id"])
             tags = [f"list::{l}" for l in self.membership[lx["id"]]] + [f"pos::{lx['pos']}"]
             if lx["cognate_rule"]:
                 tags.append("cognate")
@@ -330,36 +368,43 @@ class _Builder:
                 english = (hint_row[0] if hint_row else lx["lemma"]).split(" / ")[0]
                 sense_rows = [{"prompt": english, "hint": None, "register": None, "note": None, "also": None}]
             else:
-                sense_rows = senses.get(lx["id"]) or []
+                # One card per word: its main (most obvious) meaning only.
+                sense_rows = (senses.get(lx["id"]) or [])[:1]
             blocked = None
             if not sense_rows:
                 blocked = "awaiting AI"
                 sense_rows = [{"prompt": "", "hint": None, "register": None, "note": None, "also": None}]
             card_type = "phrase" if lx["pos"] == "phrase" else "vocab"
-            for ordinal, s in enumerate(sense_rows):
-                i = s["idx"] if "idx" in s.keys() else ordinal
-                details, forms = self._details(lx)
-                note = " · ".join(x for x in (s["note"], f"also: {s['also']}" if s["also"] else None) if x)
-                english = (
-                    " / ".join(dict.fromkeys(x["prompt"] for x in sense_rows))
-                    if ordinal == 0 and len(sense_rows) > 1
-                    else s["prompt"]
-                )
-                production = (
-                    self.production_on(lx["id"]) and english.strip().lower() != lx["display"].strip().lower()
+            s = sense_rows[0]
+            details, forms = self._details(lx)
+            note = " · ".join(x for x in (s["note"], f"also: {s['also']}" if s["also"] else None) if x)
+            prompt, hint = (
+                self.cue(lx["id"], s["prompt"], s["hint"]) if lx["pos"] != "phrase" else (s["prompt"], s["hint"])
+            )
+            italian, english = self.shown(lx, prompt)
+            translated = english.strip().lower() != italian.strip().lower()
+            for list_id in self.membership[lx["id"]]:
+                plain = list_id == key_list
+                # A copy follows its list (e.g. the film list is recognition-only); the
+                # plain-key copy keeps production if any list wants it, so cards you
+                # already study never lose a direction.
+                production = translated and (
+                    self.production_on(lx["id"])
+                    if plain
+                    else not self.list_settings.get(list_id, {}).get("recognition_only")
                 )
                 self.add(
-                    key=f"{card_type}:{lx['id']}:{i}",
+                    key=f"{card_type}:{lx['id']}:0" + ("" if plain else f"@{list_id}"),
                     lexeme_id=lx["id"],
                     card_type=card_type,
-                    deck=deck,
+                    deck=self.lists[list_id]["deck"],
                     fields={
-                        "Italian": _esc(lx["display"]),
+                        "Italian": _esc(italian),
                         "English": _esc(english),
-                        "Hint": _esc(s["hint"]),
+                        "Hint": _esc(hint),
                         "Labels": labels_html(
                             labels(
-                                type=self.type_label(lx),
+                                type=self.type_label(lx, list_id),
                                 extra=f"register: {s['register']}" if s["register"] else None,
                             )
                         ),
@@ -368,17 +413,16 @@ class _Builder:
                         "IPA": _esc(lx["ipa"]),
                         "Example": self.example_field(lx["id"]),
                         "Note": _esc(note),
-                        "Audio": _snd(_spoken(lx["display"])),
-                        "Source": self.source_field(lx),
-                        **(self.fact_fields(lx) if i == 0 else {}),
+                        "Audio": _snd(_spoken(italian)),
+                        **self.fact_fields(lx, list_id),
                     },
                     tags=tags,
-                    sort=sort + i,
+                    sort=self.list_sort(lx["id"], list_id) * 10,
                     image_key=lx["image_key"],
-                    recognition=(ordinal == 0),
+                    recognition=True,
                     production=production,
                     blocked=blocked,
-                    audio_text=_spoken(lx["display"]),
+                    audio_text=_spoken(italian),
                 )
 
     def _details(self, lx) -> tuple[str, str]:
@@ -386,6 +430,11 @@ class _Builder:
             parts = [_GENDER.get(lx["gender"] or "")]
             sense = semantics.primary(self.conn, lx["id"])
             variant = semantics.noun_variant(lx, sense, plural=True) if sense else None
+            if lx["card_number"] == "plural":  # the card shows the plural itself
+                gender = variant[1] if variant else lx["gender"]
+                return f"{_GENDER.get(gender or '', '')} plural".strip(), ""
+            if lx["card_number"] == "singular":  # no plural taught
+                return " · ".join(p for p in parts if p), ""
             if variant:
                 word, gender, _english = variant
                 parts.append("plural: " + with_article(definite_article(word, gender, True), word))
@@ -465,7 +514,6 @@ class _Builder:
                             "Labels": labels_html(labels(type="verb", tense=tense, subject=person)),
                             "Details": _esc(details),
                             "Audio": _snd(audio),
-                            "Source": "conjugation",
                         },
                         tags=["verb-form", f"tense::{tense}", f"verb::{lx['lemma']}"]
                         + ([] if form_is_learning(tense, person, publication) else ["fc::dormant"])
@@ -483,7 +531,7 @@ class _Builder:
             return
         for lx in self.conn.execute(
             """SELECT l.*, s.prompt FROM lexemes l JOIN senses s ON s.lexeme_id = l.id AND s.active=1 AND s.idx = (SELECT min(s2.idx) FROM senses s2 WHERE s2.lexeme_id=l.id AND s2.active=1)
-               WHERE l.pos = 'noun' AND l.status = 'ready'
+               WHERE l.pos = 'noun' AND l.status = 'ready' AND l.ignored IS NULL
                  AND l.id IN (SELECT lexeme_id FROM list_items)"""
         ):
             word = lx["lemma"]
@@ -494,12 +542,20 @@ class _Builder:
                 continue
             en = _first_alt(lx["prompt"])
             en_pl = lx["english_plural"] or ""
-            # Restrict mechanical count-noun drills to entries with usable number data.
-            if not plural_variant or not en_pl or en_pl.casefold() == en.casefold():
-                continue
+            # Drill only the form the word is used in (Claude's noun_number answer).
+            if lx["card_number"] == "plural":
+                if not plural_variant:
+                    continue
+                english = lx["card_english"] or plural_variant[2]
+                variants = [("plural", plural_variant[0], plural_variant[1], english)]
+            elif lx["card_number"] == "singular":
+                variants = [("singular", *singular)]
+            elif not plural_variant or not en_pl or en_pl.casefold() == en.casefold():
+                continue  # mechanical count-noun drills need usable number data
+            else:
+                variants = [("singular", *singular), ("plural", *plural_variant)]
             idx = int(hashlib.md5(word.encode()).hexdigest()[:8], 16) % len(_PHRASE_FAMILIES)
             family, arg = _PHRASE_FAMILIES[idx]
-            variants = [("singular", *singular), ("plural", *plural_variant)]
             for number, form, g, english in variants:
                 english = _first_alt(english)
                 plural = number == "plural"
@@ -541,7 +597,6 @@ class _Builder:
                         ),
                         "Details": _esc(f"{lx['display']} · {_GENDER[g]}"),
                         "Audio": _snd(it),
-                        "Source": "rules",
                     },
                     tags=["noun-phrase", f"noun::{word}"],
                     sort=(self.order.get(lx["id"], 1 << 29) * 10) + 200 + (1 if plural else 0),
@@ -552,38 +607,50 @@ class _Builder:
                 )
 
     def cognate_notes(self):
+        """One card per word whose English turns into the Italian by a spelling
+        rule: "nation" → la nazione, with the rule (-zione = -tion) on the back
+        only, so the front doesn't give it away. Production only (you recognise
+        a cognate anyway); checked against the card's own English."""
         if not load_plan().get("cards", {}).get("cognates", True):
             return
-        groups = defaultdict(list)
+        words = []
         for r in self.conn.execute(
-            """SELECT l.*, s.prompt FROM lexemes l JOIN senses s ON s.lexeme_id = l.id AND s.active=1 AND s.idx = (SELECT min(s2.idx) FROM senses s2 WHERE s2.lexeme_id=l.id AND s2.active=1)
-               WHERE l.cognate_rule IS NOT NULL AND l.cognate_rule != 'similar spelling' AND l.status = 'ready'
-                 AND l.id IN (SELECT lexeme_id FROM list_items) ORDER BY l.freq_rank"""
+            """SELECT l.*, s.prompt FROM lexemes l JOIN senses s ON s.lexeme_id = l.id AND s.active=1 AND s.idx=0
+               WHERE l.status = 'ready' AND l.ignored IS NULL AND l.pos NOT IN ('phrase', 'num', 'letter')
+                 AND l.id IN (SELECT lexeme_id FROM list_items)"""
         ):
-            groups[r["cognate_rule"]].append(r)
-        for rule, words in groups.items():
-            if len(words) < 3:
+            english = _first_alt(r["prompt"]).removeprefix("to ").strip()
+            score, rule = cognate(r["lemma"], english)
+            if not rule or score < 0.88:  # the rule made them match (nation → nazione: 1.0)
                 continue
-            ex = words[:6]
+            # Both words must really end in the rule's suffixes ("salt" is not -al → -ale).
+            it_suffix, en_suffix = [x.strip(" -") for x in rule.split("(")[0].split("=")]
+            if r["lemma"].lower().endswith(it_suffix) and english.lower().endswith(en_suffix):
+                words.append((r, rule))
+        by_rule = defaultdict(list)
+        for r, rule in sorted(words, key=lambda w: (self.order.get(w[0]["id"], 1 << 30), w[0]["id"])):
+            by_rule[rule].append(r)
+        for r, rule in words:
             it_suffix, en_suffix = [x.strip() for x in rule.split("(")[0].split("=")]
+            like = [w["display"] for w in by_rule[rule] if w["id"] != r["id"]][:3]
             self.add(
-                key=f"cognate:{md5_hex(rule)}",
-                lexeme_id=None,
+                key=f"cognate:{r['id']}",
+                lexeme_id=r["id"],
                 card_type="cognate",
                 deck=DECK_COGNATES,
                 fields={
-                    "Italian": _esc(f"{it_suffix}  ·  " + ", ".join(w["display"] for w in ex)),
-                    "English": _esc(f"{en_suffix}  ·  " + ", ".join(_first_alt(w["prompt"]) for w in ex)),
-                    "Labels": labels_html(labels(type="cognate pattern")),
-                    "Details": _esc(f"{len(words)} words in your lists follow this pattern"),
-                    "Note": _esc(rule),
-                    "Source": "rules",
+                    "Italian": _esc(r["display"]),
+                    "English": _esc(r["prompt"]),
+                    "Labels": labels_html(labels(type="cognate")),
+                    "Details": _esc(rule + (f" · like {', '.join(like)}" if like else "")),
+                    "Audio": _snd(_spoken(r["display"])),
                 },
-                tags=["cognate-rule"],
-                sort=3_000_000_000 + len(groups),
-                image_key=ex[0]["image_key"],
-                recognition=True,
+                tags=["cognate", f"cognate::{it_suffix.strip('-')}"],
+                sort=self.order.get(r["id"], 1 << 30) * 10 + 5,
+                image_key=r["image_key"],
+                recognition=False,
                 production=True,
+                audio_text=_spoken(r["display"]),
             )
 
     def mistake_notes(self):
@@ -600,7 +667,6 @@ class _Builder:
                     "Note": _esc(r["note"]),
                     "Labels": labels_html(labels(type="practice mistake")),
                     "Audio": _snd(r["italian"]),
-                    "Source": "practice",
                 },
                 tags=["mistake"],
                 sort=500,
@@ -620,7 +686,34 @@ def candidates(conn):
     b.cognate_notes()
     b.mistake_notes()
     b.notes.sort(key=lambda n: (n["sort"], n["key"]))
+    b.notes = shuffle_within_decks(b.notes, load_plan().get("shuffle_window", 20))
     return b
+
+
+def shuffle_within_decks(notes: list[dict], window: int) -> list[dict]:
+    """A little randomness in each deck's new-card order, so numbers don't go
+    1, 2, 3 and verbs not io, tu, lui… in a row.
+
+    Each note moves at most about ``window`` places within its own deck; the
+    overall order (film first, frequent words first) and how decks interleave
+    are kept. Fixed per note key, so the order is the same on every run.
+    """
+    if window <= 0:
+        return notes
+    slots: dict[str, list[int]] = defaultdict(list)
+    for i, n in enumerate(notes):
+        slots[n["deck"]].append(i)
+    out = list(notes)
+    for positions in slots.values():
+        members = [notes[i] for i in positions]
+
+        def jittered(j, members=members):
+            key = members[j]["key"]
+            return (j + int(md5_hex("order:" + key)[:8], 16) / 0xFFFFFFFF * window, key)
+
+        for slot, j in zip(positions, sorted(range(len(members)), key=jittered), strict=True):
+            out[slot] = members[j]
+    return out
 
 
 def build(conn: sqlite3.Connection) -> dict:
@@ -635,6 +728,9 @@ def build(conn: sqlite3.Connection) -> dict:
             n["ready"] = False
             n["blocked_by"] = ",".join(filter(None, [n["blocked_by"], "outside study horizon"]))
     with transaction(conn):
+        conn.executemany(
+            "UPDATE lexemes SET key_list=? WHERE id=?", [(v, k) for k, v in b.key_lists.items()]
+        )
         conn.execute(
             "INSERT OR REPLACE INTO metadata VALUES('card_plan',?)",
             (
@@ -746,7 +842,6 @@ _EXTRAS = """
   {{#Forms}}<div class="forms">{{Forms}}</div>{{/Forms}}
   {{#Example}}<div class="example">{{Example}}</div>{{/Example}}
   {{#Note}}<div class="note">{{Note}}</div>{{/Note}}
-  {{#Source}}<div class="source">{{Source}}</div>{{/Source}}
   {{#Fact}}<div class="fact"><span class="fact-title">{{FactTitle}}</span>{{Fact}}</div>{{/Fact}}
 """
 

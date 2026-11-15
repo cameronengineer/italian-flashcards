@@ -184,13 +184,14 @@ class VerbPublicationTests(unittest.TestCase):
         self.assertEqual(row["action"], "ignore")
         self.assertIn("Not appropriate", row["reason"])
 
-    def test_potere_imperatives_cannot_be_published_even_if_previously_generated(self):
+    def test_potere_imperatives_are_never_asked_for_or_published(self):
         c = self.fixture(lemma="potere")
         ignored = {("imperativo", person) for person in ("tu", "Lei", "noi", "voi")}
-        self.complete_verb(c, ignored)
+        job = self.complete_verb(c, ignored)  # an answer that excludes them anyway is fine
+        self.assertNotIn("imperativo", json.loads(job["payload"])["forms"])
         queue.plan(c)
         notes.build(c)
-        self.assertEqual(c.execute("SELECT count(*) FROM form_exclusions").fetchone()[0], 4)
+        self.assertEqual(c.execute("SELECT count(*) FROM form_exclusions").fetchone()[0], 0)
         self.assertEqual(
             c.execute("SELECT count(*) FROM v4_notes WHERE key LIKE 'form:%:imperativo:%'").fetchone()[0], 0
         )

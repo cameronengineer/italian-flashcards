@@ -12,7 +12,7 @@ v4 (word-first) tables:
 Operations tables (``OPERATIONS_SQL``): overrides (human edits), identity +
 adoptions + retirements + sync_runs (what was sent to Anki), card_knowledge
 (what you know), source_observations + identity_aliases (input lineage),
-review_decisions, asset_manifest and metadata (checkpoints).
+asset_manifest and metadata (checkpoints).
 
 v3 tables (entries, verb_forms, noun_phrases, cards) are kept read-only so
 studied notes from before v4 can be adopted.
@@ -191,7 +191,7 @@ CREATE TABLE IF NOT EXISTS lexemes (
     cognate_rule     TEXT,
     cognate_score    REAL,
     image_key        TEXT,                  -- text whose md5 names the image file
-    status           TEXT NOT NULL DEFAULT 'new',   -- new | ready | needs_review
+    status           TEXT NOT NULL DEFAULT 'new',   -- new | ready
     issues           TEXT,                  -- verification disagreements (JSON)
     provenance       TEXT,                  -- field → source (JSON)
     updated_at       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -426,11 +426,6 @@ CREATE TABLE IF NOT EXISTS sync_runs (
     id TEXT PRIMARY KEY, profile TEXT NOT NULL, plan_json TEXT NOT NULL,
     status TEXT NOT NULL, error TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE TABLE IF NOT EXISTS review_decisions (
-    subject TEXT NOT NULL, content_hash TEXT NOT NULL, decision TEXT NOT NULL,
-    reason TEXT NOT NULL, author TEXT NOT NULL DEFAULT 'human',
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(subject, content_hash)
-);
 CREATE TABLE IF NOT EXISTS asset_manifest (
     filename TEXT PRIMARY KEY, subject TEXT NOT NULL, kind TEXT NOT NULL,
     spec_hash TEXT NOT NULL, checksum TEXT NOT NULL, metadata TEXT NOT NULL,
@@ -643,6 +638,70 @@ def _m8_no_human_review(conn: sqlite3.Connection) -> None:
     conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
 
 
+def _m9_stable_main_meaning(conn: sqlite3.Connection) -> None:
+    """A word's main meaning is always sense idx 0, so its note keys stay the
+    same whichever dictionary sense an answer picks; Claude may ignore a whole
+    word (``lexemes.ignored``)."""
+    if "ignored" not in {r[1] for r in conn.execute("PRAGMA table_info(lexemes)")}:
+        conn.execute("ALTER TABLE lexemes ADD COLUMN ignored TEXT")
+    rows = conn.execute(
+        "SELECT lexeme_id, min(idx) FROM senses WHERE active=1 GROUP BY lexeme_id HAVING min(idx) > 0"
+    ).fetchall()
+    for lid, main in rows:
+        # Swap the main meaning with whatever (inactive) sense held idx 0.
+        conn.execute("UPDATE senses SET idx=-1 WHERE lexeme_id=? AND idx=0", (lid,))
+        conn.execute("UPDATE senses SET idx=0 WHERE lexeme_id=? AND idx=?", (lid, main))
+        conn.execute("UPDATE senses SET idx=? WHERE lexeme_id=? AND idx=-1", (main, lid))
+    # Unused since the manual review step was dropped (both always empty).
+    conn.execute("DROP TABLE IF EXISTS cue_overrides")
+    conn.execute("DROP TABLE IF EXISTS review_decisions")
+    conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
+
+
+def _m10_one_meaning(conn: sqlite3.Connection) -> None:
+    """Cards show one meaning per word, the main one: extra meanings are archived
+    (their notes leave Anki once the main card is there). Your own edits stay.
+    Facts get Claude's fact-check verdict (keep / fix / drop) and fixed text."""
+    have = {r[1] for r in conn.execute("PRAGMA table_info(word_facts)")}
+    for column in ("checked", "checked_text"):
+        if column not in have:
+            conn.execute(f"ALTER TABLE word_facts ADD COLUMN {column} TEXT")
+    conn.execute(
+        "UPDATE senses SET active=0 WHERE idx>0 AND active=1 AND lexeme_id NOT IN "
+        "(SELECT lexeme_id FROM overrides WHERE field='senses')"
+    )
+    conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
+
+
+def _m11_cards_in_every_list(conn: sqlite3.Connection) -> None:
+    """Every list a word is in gets its own copy of its card. ``key_list`` is the
+    list whose copy keeps the plain note key (set by the next build to the deck
+    the word is in now), so existing notes keep their history and place."""
+    if "key_list" not in {r[1] for r in conn.execute("PRAGMA table_info(lexemes)")}:
+        conn.execute("ALTER TABLE lexemes ADD COLUMN key_list TEXT")
+    conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
+
+
+def _m12_noun_number(conn: sqlite3.Connection) -> None:
+    """Which form a noun's card teaches (Claude's ``noun_number`` answer):
+    'plural' (gli occhiali), 'singular' (la gente: no plural taught) or 'both'."""
+    have = {r[1] for r in conn.execute("PRAGMA table_info(lexemes)")}
+    for column in ("card_number", "card_english"):
+        if column not in have:
+            conn.execute(f"ALTER TABLE lexemes ADD COLUMN {column} TEXT")
+    conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
+
+
+def _m13_cue_fixes(conn: sqlite3.Connection) -> None:
+    """English prompts and hints rewritten so they don't give the Italian away
+    (``cue_check``), kept for the prompt and hint they were made from."""
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS cue_fixes (lexeme_id TEXT PRIMARY KEY, prompt TEXT NOT NULL, "
+        "source_hint TEXT NOT NULL DEFAULT '', english TEXT NOT NULL, hint TEXT)"
+    )
+    conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
+
+
 MIGRATIONS = [
     _m1_portable_identity,
     _m2_facts_and_audits,
@@ -652,6 +711,11 @@ MIGRATIONS = [
     _m6_queue_recovery,
     _m7_meaning_contracts,
     _m8_no_human_review,
+    _m9_stable_main_meaning,
+    _m10_one_meaning,
+    _m11_cards_in_every_list,
+    _m12_noun_number,
+    _m13_cue_fixes,
 ]
 SCHEMA_VERSION = len(MIGRATIONS)
 
@@ -665,6 +729,11 @@ def init_schema(conn: sqlite3.Connection) -> None:
             _m5_integrity(conn)
             _m6_queue_recovery(conn)
             _m7_meaning_contracts(conn)
+            _m9_stable_main_meaning(conn)
+            _m10_one_meaning(conn)
+            _m11_cards_in_every_list(conn)
+            _m12_noun_number(conn)
+            _m13_cue_fixes(conn)
         conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
         conn.commit()
         return

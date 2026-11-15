@@ -143,7 +143,7 @@ def full_form_verbs(conn: sqlite3.Connection) -> set[str]:
     top = int(plan.get("conjugation", {}).get("full_forms_top", 120))
     rows = conn.execute(
         """SELECT id, lemma, irregular, freq_rank FROM lexemes
-           WHERE pos = 'verb' AND forms_json IS NOT NULL
+           WHERE pos = 'verb' AND forms_json IS NOT NULL AND ignored IS NULL
              AND (id IN (SELECT lexeme_id FROM list_items) OR lemma IN (?, ?, ?, ?))""",
         tuple(MODEL_VERBS.values()),
     ).fetchall()

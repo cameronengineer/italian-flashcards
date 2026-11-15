@@ -27,10 +27,21 @@ from . import report
 from .settings import settings
 
 SEGMENTS = 6
+#: Claude's job kinds, in the order the summary lists them.
+_TEXT_KINDS = (
+    "lexeme_enrich",
+    "phrase_enrich",
+    "verb_prompts",
+    "disambiguate",
+    "film_gloss",
+    "fact_check",
+    "noun_number",
+    "cue_check",
+)
 
 #: Why a card waits, in the words the summary uses (first match wins).
 _WAITING_FOR = (
-    ("Claude", ("awaiting AI", "missing content", "awaiting verification", "awaiting verb prompts")),
+    ("Claude", ("awaiting AI", "missing content", "awaiting verification")),
     ("an image", ("image",)),
     ("the study horizon", ("outside study horizon",)),
 )
@@ -67,7 +78,7 @@ def _todo(conn) -> str:
     counts = pending_counts(conn, include_failed=True)
     parts = [
         count_label(k, counts[k])
-        for k in ("lexeme_enrich", "phrase_enrich", "verb_prompts", "disambiguate", "film_gloss")
+        for k in _TEXT_KINDS
         if counts.get(k)
     ]
     return " · ".join(parts)
@@ -193,11 +204,11 @@ def run(args) -> int:
                 words_csv = film.path.parent / "words.csv" if film.kind == "movie" and film.path else None
                 if words_csv and film.path.exists() and (stats is not None or not words_csv.exists()):
                     report.item("film words", str(write_word_list(film).relative_to(PROJECT_ROOT)))
-            retried = queue.retry_failed(conn, include_deferred=True)
+            retried = queue.retry_failed(conn, include_deferred=True, transient_only=True)
             if retried:
                 report.item(
                     "retry",
-                    f"{report.plural(retried, 'job')} from the previous run, including retry cooldowns",
+                    f"{report.plural(retried, 'job')} from the previous run (timeouts, cooldowns)",
                 )
 
             # ── 2. Cards ─────────────────────────────────────────────────
@@ -280,6 +291,8 @@ def run(args) -> int:
                 if audio["failed"]:
                     text += f" · {audio['failed']} failed"
                     code = 1
+                if audio.get("out_of_credit"):
+                    text += " · stopped: ElevenLabs credits used up (the rest is made next run)"
                 if audio.get("pending"):
                     text += f" · {audio['pending']:,} cards still without audio ([run] audio_limit = {args.audio})"
             except (FileNotFoundError, ValueError) as exc:  # no / empty .elevenlabs key
@@ -318,7 +331,10 @@ def run(args) -> int:
             summary["stages"]["decks"] = {**exported, "written": [p.name for p in exported["written"]]}
             flagged = conn.execute(
                 "SELECT count(*) FROM lexemes WHERE coalesce(issues,'[]') NOT IN ('[]','') "
-                "AND id IN (SELECT lexeme_id FROM list_items)"
+                "AND ignored IS NULL AND id IN (SELECT lexeme_id FROM list_items)"
+            ).fetchone()[0]
+            ignored = conn.execute(
+                "SELECT count(*) FROM lexemes WHERE ignored IS NOT NULL AND id IN (SELECT lexeme_id FROM list_items)"
             ).fetchone()[0]
             audited = content_review.audit_coverage(conn)
             summary["audits"] = audited
@@ -387,6 +403,12 @@ def run(args) -> int:
                 f"Claude doubted the dictionary data for {report.plural(flagged, 'word')} "
                 "(published anyway; `./run.sh review` lists them)",
             )
+        if ignored:
+            report.item(
+                "Ignored",
+                f"{report.plural(ignored, 'word')} Claude judged not worth a card "
+                "(not Italian, a name, a duplicate …; `./run.sh review` lists them)",
+            )
         if images_pending or waiting.get("an image"):
             reason = "off ([run] image_limit = 0)" if args.images == 0 else "pending"
             report.item("Images", f"{reason} · {waiting.get('an image', 0):,} notes wait for one")
@@ -394,7 +416,7 @@ def run(args) -> int:
         report.item("Run log", str(run_file.relative_to(PROJECT_ROOT)))
         pending = sum(
             summary["pending"].get(k, 0)
-            for k in ("lexeme_enrich", "phrase_enrich", "verb_prompts", "disambiguate", "film_gloss")
+            for k in _TEXT_KINDS
         )
         if summary["backlog"]["failed"] and not args.no_ai and code == 0:
             code = 1

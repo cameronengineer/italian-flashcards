@@ -81,9 +81,10 @@ class IntegrityTests(unittest.TestCase):
         c.execute("UPDATE lexemes SET display='generated'")
         overrides.apply(c)
         self.assertEqual(c.execute("SELECT display FROM lexemes").fetchone()[0], "HUMAN")
-        first = {r["prompt"]: r["idx"] for r in c.execute("SELECT * FROM senses")}
+        self.assertEqual({r["prompt"]: r["idx"] for r in c.execute("SELECT * FROM senses")}, {"home": 0, "house": 1})
+        # Reordering makes the first listed meaning the main one (idx 0); they swap.
         overrides.save_senses(c, "x", [{"prompt": "house"}, {"prompt": "home"}], "human")
-        self.assertEqual(first, {r["prompt"]: r["idx"] for r in c.execute("SELECT * FROM senses")})
+        self.assertEqual({r["prompt"]: r["idx"] for r in c.execute("SELECT * FROM senses")}, {"house": 0, "home": 1})
         with self.assertRaises(ValueError):
             overrides.set_override(c, "x", "unknown", "x")
 
