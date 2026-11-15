@@ -13,7 +13,7 @@ Extras (./run.sh <name> …):
   audit       Have Claude double-check finished cards.
   review      What Claude flagged (information only; nothing is held back).
   share       Export cards as an .apkg for someone else.
-  doctor      Health report.  data-review: data-quality census.
+  doctor      Health report: tools, settings and a data-quality census.
   recovery    Create / verify / restore a recovery bundle.
   kaikki      Re-download the Wiktionary dictionary.
 
@@ -262,13 +262,7 @@ def cmd_share(args) -> int:
 def cmd_doctor(args):
     from .commands import doctor
 
-    return doctor.run(args.out)
-
-
-def cmd_data_review(args):
-    from .commands import data_review
-
-    return data_review.run(database=args.database, out=args.out, check_media=not args.skip_media)
+    return doctor.run(args.out, database=args.database, check_media=not args.skip_media)
 
 
 def cmd_media_inventory(args):
@@ -329,16 +323,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sub = p.add_subparsers(dest="cmd", required=True, metavar="command")
 
-    sp = sub.add_parser("doctor", help="Read-only workspace health and tool versions.")
-    sp.add_argument("--out", type=Path)
-    sp.set_defaults(func=cmd_doctor)
-    sp = sub.add_parser("data-review", help="Offline data-quality census; no AI, Anki writes, or migrations.")
+    sp = sub.add_parser(
+        "doctor", help="Read-only health report: tools, settings and a data census. No AI, no Anki."
+    )
     sp.add_argument("--database", type=Path, help="Review a SQLite snapshot instead of the live database.")
     sp.add_argument("--out", type=Path)
     sp.add_argument(
         "--skip-media", action="store_true", help="Skip read-only checks of referenced local media."
     )
-    sp.set_defaults(func=cmd_data_review)
+    sp.set_defaults(func=cmd_doctor)
     sp = sub.add_parser("media-inventory", help="Resumable checksum inventory; never changes media.")
     sp.add_argument("--out", type=Path)
     sp.add_argument("--limit", type=int)
@@ -519,7 +512,7 @@ def main(argv: list[str] | None = None) -> int:
         if getattr(args, "limit", None) is not None and args.limit < 0:
             raise ValueError("--limit must be nonnegative")
         read_only = (
-            args.cmd in {"check", "doctor", "data-review", "learnt", "media-inventory"}
+            args.cmd in {"check", "doctor", "learnt", "media-inventory"}
             or (args.cmd == "jobs" and args.action == "status")
             or (args.cmd == "kaikki" and args.action == "status")
             or (args.cmd == "recovery" and args.action in {"verify", "restore"})

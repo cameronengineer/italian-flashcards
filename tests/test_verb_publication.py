@@ -159,13 +159,10 @@ class VerbPublicationTests(unittest.TestCase):
             0,
         )
 
-    def test_horizon_does_not_truncate_stored_verb_family(self):
+    def test_whole_verb_family_is_stored(self):
         c = self.fixture()
-        with patch.object(planning, "horizon_budget", return_value=3):
-            self.complete_verb(c)
-            plan = planning.card_plan(c)
-            notes.build(c)
-        self.assertEqual(plan["new_directions"], 3)
+        self.complete_verb(c)
+        notes.build(c)
         self.assertEqual(c.execute("SELECT count(*) FROM form_prompts").fetchone()[0], 46)
 
     def test_ai_ignore_is_persisted_reported_and_not_retried(self):

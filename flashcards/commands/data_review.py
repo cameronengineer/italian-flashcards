@@ -1,4 +1,4 @@
-"""Offline data-quality census of a consistent SQLite snapshot.
+"""The data half of ``doctor``: a census of a consistent SQLite snapshot.
 
 No migrations, provider calls, Anki calls or media writes. Examples are stable
 record keys, never subtitle lines or private learner text. A zero exit status
@@ -18,7 +18,6 @@ from pathlib import Path
 from .. import paths, quality, content_review
 from ..assets import locate
 from ..db import SCHEMA_VERSION
-from ..runtime import atomic_json
 
 
 def report(conn, *, check_media=True):
@@ -248,11 +247,3 @@ def collect(database: Path | None = None, *, check_media=True):
             source.backup(snapshot)
             snapshot.row_factory = sqlite3.Row
             return report(snapshot, check_media=check_media)
-
-
-def run(*, database=None, out=None, check_media=True):
-    result = collect(database, check_media=check_media)
-    if out:
-        atomic_json(out, result)
-    print(json.dumps(result, ensure_ascii=False, indent=2))
-    return int(result["status"] == "error")

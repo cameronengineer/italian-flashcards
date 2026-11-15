@@ -89,15 +89,16 @@ def source_mappings(conn, list_id):
 
 
 def workload(conn):
+    """lexeme id → new card directions its notes would add to Anki."""
     from ..notes import candidates
-    from ..planning import card_plan
+    from ..planning import new_directions
 
     rows = candidates(conn).notes
-    planned = card_plan(conn, rows)
+    per_note = new_directions(conn, rows)
     costs = Counter()
     for row in rows:
         if row["lexeme_id"]:
-            costs[row["lexeme_id"]] += planned["costs"][row["key"]]
+            costs[row["lexeme_id"]] += per_note[row["key"]]
     return costs
 
 

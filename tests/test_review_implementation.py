@@ -235,25 +235,22 @@ class RetirementTests(unittest.TestCase):
 
 
 class PlanningTests(unittest.TestCase):
-    def test_shared_plan_counts_actual_drills_and_adopted_directions(self):
+    def test_new_directions_count_only_what_is_not_in_anki_yet(self):
         c = database(self)
         lexeme(c)
         candidates = [
-            {"key": key, "lexeme_id": "x", "card_type": kind, "sort": i, "fields": fields}
-            for i, (key, kind, fields) in enumerate(
-                [
-                    ("vocab:x:0", "vocab", {"Recognition": "1", "Production": "1"}),
-                    ("form:x:presente:io", "form", {"Recognition": "", "Production": "1"}),
-                ]
-            )
+            {"key": "vocab:x:0", "tags": [], "fields": {"Recognition": "1", "Production": "1"}},
+            {"key": "form:x:presente:io", "tags": [], "fields": {"Recognition": "", "Production": "1"}},
+            {"key": "form:x:imperativo:noi", "tags": ["fc::dormant"], "fields": {"Production": "1"}},
         ]
-        c.execute("INSERT INTO adoptions VALUES('vocab:x:0','Recognition',1,'Test')")
-        with patch.object(planning, "horizon_budget", return_value=1):
-            plan = planning.card_plan(c, candidates)
-        self.assertEqual(plan["new_directions"], 1)
-        self.assertEqual(plan["keys"], {"vocab:x:0"})
-        self.assertEqual(plan["verbs"], set())
-        self.assertEqual(plan["roots"], {"x"})
+        c.execute(
+            "INSERT INTO card_knowledge(key,direction,card_id,state,interval,lapses,reviews,suspended) "
+            "VALUES('vocab:x:0','Recognition',1,'learning',1,0,1,0)"
+        )
+        self.assertEqual(
+            planning.new_directions(c, candidates),
+            {"vocab:x:0": 1, "form:x:presente:io": 1, "form:x:imperativo:noi": 0},
+        )
 
     def test_published_verb_family_stays_when_root_becomes_known(self):
         c = database(self)
@@ -416,43 +413,3 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(self.run_fixture(retry_fixture=True, image_failure=True)[0], 1)
         self.assertEqual(self.last_summary["unresolved_image_failures"], 1)
 
-
-class HorizonIntegrationTests(unittest.TestCase):
-    def test_publication_respects_budget_while_generation_completes_selected_verb(self):
-        c = database(self)
-        lexeme(
-            c,
-            "v",
-            pos="verb",
-            lemma="parlare",
-            forms=json.dumps({"forms": {"presente": {"io": "parlo", "tu": "parli"}}}),
-        )
-        overrides.save_senses(c, "v", [{"prompt": "to speak"}], "human")
-        c.commit()
-        with (
-            patch.object(planning, "horizon_budget", return_value=3),
-            patch.object(notes, "full_form_verbs", return_value={"v"}),
-            patch.object(notes, "image_exists", return_value=True),
-            patch.object(queue, "image_exists", return_value=True),
-        ):
-            expected = planning.card_plan(c)
-            queue.plan(c)
-            payload = json.loads(
-                c.execute("SELECT payload FROM ai_jobs WHERE kind='verb_prompts'").fetchone()[0]
-            )
-            requested = {
-                f"form:v:{tense}:{person}"
-                for tense, persons in payload["forms"].items()
-                for person in persons
-            }
-            self.assertEqual(requested, {"form:v:presente:io", "form:v:presente:tu"})
-            self.assertGreater(requested, {key for key in expected["keys"] if key.startswith("form:")})
-            self.assertEqual(expected["new_directions"], 3)
-            notes.build(c)
-            inside = {
-                r[0]
-                for r in c.execute(
-                    "SELECT key FROM v4_notes WHERE coalesce(blocked_by,'') NOT LIKE '%outside study horizon%'"
-                )
-            }
-            self.assertEqual(inside, expected["keys"])

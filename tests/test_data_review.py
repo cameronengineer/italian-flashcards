@@ -351,5 +351,5 @@ class OutputTests(unittest.TestCase):
     def test_missing_review_database_is_not_created(self):
         with tempfile.TemporaryDirectory() as folder:
             missing = Path(folder) / "missing.sqlite"
-            self.assertEqual(cli.main(["data-review", "--database", str(missing)]), 1)
+            self.assertEqual(cli.main(["doctor", "--database", str(missing)]), 1)
             self.assertFalse(missing.exists())

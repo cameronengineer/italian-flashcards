@@ -1,4 +1,4 @@
-"""Read-only workspace health, study budget, and tool-version report."""
+"""Read-only health report: workspace, tools, study budget and a data census."""
 
 import importlib.metadata
 import json
@@ -23,7 +23,6 @@ def report():
         "tools": {},
         "dependencies": {},
         "daily_card_budget": config.get("new_cards_per_day", 25),
-        "horizon_days": config.get("horizon_days"),
         "assets_per_run": {"images": settings.run.image_limit, "audio": settings.run.audio_limit},
     }
     for name in ("claude", "codex", "ffmpeg"):
@@ -82,8 +81,14 @@ def report():
     return result
 
 
-def run(out=None):
+def run(out=None, *, database=None, check_media=True):
+    """Workspace health plus the data census. ``database`` reviews a snapshot
+    instead of the live database (and must exist)."""
+    from . import data_review
+
     result = report()
+    if database is not None or paths.DB_PATH.exists():
+        result["data"] = data_review.collect(database, check_media=check_media)
     print(json.dumps(result, ensure_ascii=False, indent=2))
     if out:
         atomic_json(out, result)
@@ -92,6 +97,7 @@ def run(out=None):
             result["configuration_errors"]
             or result.get("foreign_key_violations")
             or result.get("schema", 0) > SCHEMA_VERSION
-            or result.get("database_status") != "ok"
+            or result.get("database_status", "ok") not in ("ok", "missing; initialize with lexicon")
+            or result.get("data", {}).get("status") == "error"
         )
     )

@@ -6,10 +6,8 @@ new_cards_per_day = 25       # used for the "you'll finish by …" estimate
 # A little randomness in each deck's new-card order: a card moves at most about
 # this many places (so numbers don't go 1, 2, 3 …). 0 = strict list order.
 shuffle_window = 20
-# Optional study horizon: only prepare (AI) and publish new cards for this many
-# days of study beyond what's already in Anki. Leave it unset to work through
-# everything in study order and let Anki's daily new-card limit pace you.
-# horizon_days = 14
+# Every word is prepared and published in study order; Anki's daily new-card
+# limit paces what you see.
 
 [[priority]]
 list = "eight-mountains"

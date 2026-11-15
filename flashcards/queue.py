@@ -170,10 +170,15 @@ def plan(conn):
             "INSERT OR REPLACE INTO metadata VALUES('fingerprint_version',?)", (FINGERPRINT_VERSION,)
         )
     order = study_order(conn)
-    from .planning import card_plan
-
-    planned = card_plan(conn)
-    selected = planned["roots"]
+    generation_verbs = full_form_verbs(conn)
+    # Every root that has cards: each listed word Claude hasn't ignored, plus the
+    # verbs with full conjugation cards (the model verbs needn't be in a list).
+    selected = generation_verbs | {
+        r[0]
+        for r in conn.execute(
+            "SELECT id FROM lexemes WHERE ignored IS NULL AND id IN (SELECT lexeme_id FROM list_items)"
+        )
+    }
     added = defaultdict(int)
     senses = {r[0] for r in conn.execute("SELECT DISTINCT lexeme_id FROM senses WHERE active=1")}
     dictionary = kaikki.version()
@@ -236,9 +241,6 @@ def plan(conn):
             "AND status IN ('pending','running')"
         )
     }
-    generation_verbs = full_form_verbs(conn)
-    if planned.get("budget") is not None:
-        generation_verbs &= selected
     for vid in generation_verbs:
         lx = conn.execute("SELECT * FROM lexemes WHERE id=?", (vid,)).fetchone()
         if lx["status"] == "ready" and vid not in unsettled and verb_forms(lx):
@@ -548,8 +550,7 @@ def _verb_payload(conn, lx):
     """Every form of the verb family, including tenses kept Dormant in Anki.
 
     Forms the meaning rules out (``semantics.form_exclusion``: e.g. no
-    imperative of potere) are not asked for. The study horizon selects verbs,
-    but never truncates their stored grammar.
+    imperative of potere) are not asked for.
     """
     sense = semantics.primary(conn, lx["id"])
     rules = semantics.usage(lx, sense)

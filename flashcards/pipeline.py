@@ -43,7 +43,6 @@ _TEXT_KINDS = (
 _WAITING_FOR = (
     ("Claude", ("awaiting AI", "missing content", "awaiting verification")),
     ("an image", ("image",)),
-    ("the study horizon", ("outside study horizon",)),
 )
 
 

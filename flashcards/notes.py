@@ -717,27 +717,12 @@ def shuffle_within_decks(notes: list[dict], window: int) -> list[dict]:
 
 
 def build(conn: sqlite3.Connection) -> dict:
-    from .planning import card_plan
-
     if report.VERBOSE:
         print_banner("notes — desired Anki state")
     b = candidates(conn)
-    plan = card_plan(conn, b.notes)
-    for n in b.notes:
-        if n["key"] not in plan["keys"]:
-            n["ready"] = False
-            n["blocked_by"] = ",".join(filter(None, [n["blocked_by"], "outside study horizon"]))
     with transaction(conn):
         conn.executemany(
             "UPDATE lexemes SET key_list=? WHERE id=?", [(v, k) for k, v in b.key_lists.items()]
-        )
-        conn.execute(
-            "INSERT OR REPLACE INTO metadata VALUES('card_plan',?)",
-            (
-                json.dumps(
-                    {k: sorted(v) if isinstance(v, set) else v for k, v in plan.items()}, sort_keys=True
-                ),
-            ),
         )
         conn.execute("DELETE FROM v4_notes")
         conn.executemany(

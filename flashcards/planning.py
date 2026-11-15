@@ -1,8 +1,4 @@
-"""Shared card budgeting and deterministic verb derivation, without provider calls.
-
-Materialization is imported lazily from notes so jobs and publication select the
-same candidates instead of maintaining separate root and card budgets.
-"""
+"""Study order and deterministic verb derivation, without provider calls."""
 
 import json
 import sqlite3
@@ -59,17 +55,6 @@ def known_roots(conn):
     return {lid for lid, values in by_root.items() if all(values)}
 
 
-def horizon_budget(plan: dict | None = None) -> int | None:
-    """New-card slots ahead of what is already in Anki, or None (no horizon).
-
-    Opt-in via ``horizon_days`` in plan.toml. Without it every root is worked
-    on in study order and Anki's daily new-card limit does the pacing.
-    """
-    plan = load_plan() if plan is None else plan
-    days = plan.get("horizon_days")
-    return None if not days else plan.get("new_cards_per_day", 25) * days
-
-
 def published_directions(conn):
     result = {(r["key"], r["direction"]) for r in conn.execute("SELECT key,direction FROM adoptions")}
     result |= {(r["key"], r["direction"]) for r in conn.execute("SELECT key,direction FROM card_knowledge")}
@@ -82,55 +67,17 @@ def published_directions(conn):
     return result
 
 
-def card_plan(conn, candidates=None):
-    """Actual note directions, shared by AI selection and publication.
+def new_directions(conn, notes) -> dict[str, int]:
+    """note key → how many of its card directions are not in Anki yet.
 
-    Missing enrichment is represented by its current placeholder; after enrichment
-    the expanded candidates are budgeted again. No estimated drill counts are used.
+    Dormant verb forms cost nothing: they are published suspended.
     """
-    if candidates is None:
-        from .notes import candidates as materialize
-
-        candidates = materialize(conn).notes
-    budget = horizon_budget()
-    remaining = budget
     published = published_directions(conn)
-    keys, roots, verbs, costs = set(), set(), set(), {}
-    total = 0
-    for note in sorted(candidates, key=lambda n: (n["sort"], n["key"])):
+    costs = {}
+    for note in notes:
         directions = {(note["key"], d) for d in ("Recognition", "Production") if note["fields"].get(d)}
-        cost = 0 if "fc::dormant" in note.get("tags", []) else len(directions - published)
-        costs[note["key"]] = cost
-        maintained = bool(directions & published)
-        if remaining is not None and cost > remaining and not maintained:
-            continue
-        # Published notes continue to be maintained, but newly enabled directions
-        # consume slots too. No new directions are enabled on a maintenance exception.
-        if remaining is not None and cost > remaining:
-            for _key, d in directions - published:
-                note["fields"][d] = ""
-            cost = 0
-        if remaining is not None:
-            remaining -= cost
-        total += cost
-        keys.add(note["key"])
-        if note["lexeme_id"]:
-            roots.add(note["lexeme_id"])
-            if note["card_type"] == "form":
-                verbs.add(note["lexeme_id"])
-    return {
-        "keys": keys,
-        "roots": roots,
-        "verbs": verbs,
-        "new_directions": total,
-        "budget": budget,
-        "remaining": remaining,
-        "costs": costs,
-    }
-
-
-def selected_roots(conn):
-    return card_plan(conn)["roots"]
+        costs[note["key"]] = 0 if "fc::dormant" in note.get("tags", []) else len(directions - published)
+    return costs
 
 
 # ── Verb budget (also used by notes.py) ───────────────────────────────────

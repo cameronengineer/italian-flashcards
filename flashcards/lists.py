@@ -82,12 +82,13 @@ def load_plan(path: Path = PLAN_PATH) -> dict:
     from datetime import date
 
     plan = tomllib.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
-    allowed = {"new_cards_per_day", "horizon_days", "priority", "conjugation", "cards", "shuffle_window"}
+    allowed = {"new_cards_per_day", "priority", "conjugation", "cards", "shuffle_window"}
+    if "horizon_days" in plan:
+        raise ValueError("plan.toml: horizon_days was removed; delete it (Anki's daily limit paces new cards)")
     if set(plan) - allowed:
         raise ValueError(f"plan.toml: unknown keys {sorted(set(plan) - allowed)}")
-    for key in ("new_cards_per_day", "horizon_days"):
-        if key in plan and (type(plan[key]) is not int or plan[key] <= 0):
-            raise ValueError(f"plan.toml: {key} must be a positive integer")
+    if "new_cards_per_day" in plan and (type(plan["new_cards_per_day"]) is not int or plan["new_cards_per_day"] <= 0):
+        raise ValueError("plan.toml: new_cards_per_day must be a positive integer")
     if "shuffle_window" in plan and (type(plan["shuffle_window"]) is not int or plan["shuffle_window"] < 0):
         raise ValueError("plan.toml: shuffle_window must be a nonnegative integer")
     for table, keys in (
