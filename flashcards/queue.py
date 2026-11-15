@@ -33,8 +33,8 @@ from .ai import AI, AIUnavailable, AIResponseError, _gate
 from .pool import STOP
 from .settings import settings
 from .facts import normalise as fact_key
-from .italian import conjugation_class, definite_article, gives_away, with_article
-from .planning import study_order, full_form_verbs, plan_tenses, verb_forms, MODEL_VERBS
+from .italian import definite_article, gives_away, with_article
+from .planning import study_order, full_form_verbs, verb_forms
 from .lexicon import film_examples, film_line_key, image_exists
 from .tasks import (
     CUE_CHECK,
