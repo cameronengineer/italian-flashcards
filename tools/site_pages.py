@@ -68,10 +68,16 @@ if (location.hostname === 'italian-flashcards-lyh2.onrender.com') {{
 def schema(page, title, path, items=None):
     url = ORIGIN + path
     graph = [
+        {'@type': 'Person', '@id': ORIGIN + '/#creator', 'name': 'Cameron', 'url': 'https://blog.cameronengineer.com/'},
         {'@type': 'WebSite', '@id': ORIGIN + '/#website', 'url': ORIGIN + '/', 'name': 'Italian Flashcards', 'inLanguage': 'en'},
         {'@type': 'CollectionPage' if items else 'WebPage', '@id': url + '#page', 'url': url, 'name': title,
-         'inLanguage': 'en', 'isPartOf': {'@id': ORIGIN + '/#website'}},
+         'inLanguage': 'en', 'author': {'@id': ORIGIN + '/#creator'}, 'isPartOf': {'@id': ORIGIN + '/#website'}},
     ]
+    if path != '/':
+        graph.append({'@type': 'BreadcrumbList', 'itemListElement': [
+            {'@type': 'ListItem', 'position': 1, 'name': 'Italian Flashcards', 'item': ORIGIN + '/'},
+            {'@type': 'ListItem', 'position': 2, 'name': title, 'item': url},
+        ]})
     if items:
         graph.append({'@type': 'ItemList', 'itemListElement': [
             {'@type': 'ListItem', 'position': i, 'name': name, 'url': ORIGIN + link}
@@ -92,6 +98,9 @@ def build(data, api):
     for stem, name, _desc in entries:
         homepage = homepage.replace(f'<b>{e(name)}</b>', f'<b><a class="deck-title" href="{deck_path(stem)}">{e(name)}</a></b>')
     homepage = homepage.replace('Italian, a little<br>at a time.', 'Italian flashcards<br>for Anki.')
+    homepage = homepage.replace('These are the flashcards I made for studying Italian.', 'Free Italian Anki flashcards for English speakers, made for my own Italian study.')
+    homepage = homepage.replace('Shared freely for use in', 'Made by <a href="https://blog.cameronengineer.com/">Cameron</a>. Shared freely for use in')
+    homepage = homepage.replace('\n</main>', '<section id="study-guides"><h2>Choosing and using Italian flashcards</h2><p>New to the collection? These guides explain the differences between the decks and how to use them alongside your other Italian study.</p><ul><li><a href="/italian-anki-decks-for-beginners/">Italian Anki decks for beginners: choosing a first deck</a></li><li><a href="/how-to-study-italian-with-anki/">How to study Italian with Anki flashcards</a></li></ul></section>\n</main>')
     homepage = homepage.replace('\n</main>', '\n' + faq_html() + '\n</main>')
     homepage = homepage.replace('</style>', '''.decks .deck-title { border:0; padding:0; font:inherit; text-decoration:underline; text-decoration-color:var(--line); }
 .decks .deck-title:hover { background:transparent; text-decoration-color:var(--green); }
@@ -105,11 +114,14 @@ details p { margin:12px 0 0; font-size:15px; }
 .guide .side:first-child .word { padding-top:16px; }
 .guide .side audio { max-width:100%; }
 .guide ol { margin:20px 0; }
+.preview-table { width:100%; border-collapse:collapse; margin:20px 0; font-size:15px; table-layout:fixed; overflow-wrap:anywhere; }
+.preview-table th,.preview-table td { text-align:left; border-bottom:1px solid var(--line); padding:12px 10px; vertical-align:top; }
+.preview-table th { color:var(--ink); }
 .guide .download { display:inline-block; border:1px solid var(--green); padding:10px 18px; border-radius:6px; margin:14px 0; }
 </style>''')
     base = homepage
-    home_title = 'Free Italian Anki Decks · Vocabulary & Verb Flashcards'
-    home_desc = 'Download free Italian Anki decks for A1–B2 vocabulary, numbers and verb conjugation. Preview real flashcards with pictures and audio before importing.'
+    home_title = 'Free Italian Flashcards for Anki · Audio & Pictures'
+    home_desc = 'Free Italian Anki flashcards with audio and pictures. Download decks for A1–B2 vocabulary, numbers and verb conjugation, with real card previews.'
     homepage = schema(metadata(homepage, home_title, home_desc, '/'), home_title, '/', [(name, deck_path(stem)) for stem, name, _ in entries])
     homepage = homepage.replace('<h3>Verbs, one tense at a time</h3>', '<h3><a href="/italian-verb-conjugation-flashcards/">Italian verb conjugation</a></h3>')
     (site / 'index.html').write_text(homepage)
@@ -118,6 +130,7 @@ details p { margin:12px 0 0; font-size:15px; }
     head = base[:base.index('<main id="main">')]
     head = head.replace('href="#"', 'href="/"').replace('href="#cards"', 'href="/#cards"').replace('href="#decks"', 'href="/#decks"').replace('href="#about"', 'href="/#about"')
     tail = base[base.index('<footer>'):base.index('<script>', base.index('<footer>'))]
+    tail = tail.replace('Italian · A personal collection, shared freely.', 'Italian · By <a href="https://blog.cameronengineer.com/">Cameron</a>. A personal collection, shared freely.')
     def write(path, title, desc, content, image='il-caffe'):
         page = head + '<main id="main" class="guide">' + content + '</main>' + tail + '</body></html>'
         page = schema(metadata(page, title, desc, path, image), title, path)
@@ -142,6 +155,12 @@ details p { margin:12px 0 0; font-size:15px; }
         body += f'<a class="download" href="{api.DOWNLOAD_BASE}{e(info["file"])}">Download {e(name)} ({api._size(info["bytes"])})</a>'
         if sample:
             body += '<h2>A card from this deck</h2>' + api._sample_html(sample).replace('src="samples/', 'src="/samples/').replace('href="samples/', 'href="/samples/')
+        preview = info.get('preview', [])
+        if preview:
+            body += '<h2>Examples from the deck</h2><p>A short preview of the downloadable material. These are individual prompts, not a complete vocabulary list or a lesson order.</p><table class="preview-table"><thead><tr><th scope="col">Italian</th><th scope="col">English prompt or meaning</th></tr></thead><tbody>'
+            body += ''.join(f'<tr><td lang="it">{e(row["italian"])}</td><td>{e(row["english"])}</td></tr>' for row in preview)
+            body += '</tbody></table>'
+        body += '<p>For help choosing material, see <a href="/italian-anki-decks-for-beginners/">Italian Anki decks for beginners</a>. For review and import advice, see <a href="/how-to-study-italian-with-anki/">how to study Italian with Anki</a>.</p>'
         body += '<h2>How to use this deck</h2><ol><li>Install <a href="https://apps.ankiweb.net/">Anki</a> for your device.</li><li>Download the .apkg file above. Pictures and recordings are included.</li><li>Open the file with Anki, or choose File → Import on a computer. Check the import summary if you already have related decks.</li><li>Choose this deck in Anki and set a daily new-card limit that suits your study.</li></ol>'
         if stem.startswith('italian_cils_'):
             body += '<h2>Choosing a CILS level</h2><p>The A1, A2, B1 and B2 decks follow CILS vocabulary lists. Higher levels include words from lower levels, so choose one level to avoid repeats. This is an independent study resource, not an official CILS deck or a complete exam course.</p>'
@@ -156,6 +175,13 @@ details p { margin:12px 0 0; font-size:15px; }
     body += api._sample_html(sample_map['italian_verbs_learning_presente']).replace('src="samples/', 'src="/samples/').replace('href="samples/', 'href="/samples/')
     body += '<h2>Importing a tense deck</h2><p>Open any tense page above, download its .apkg file and import it into Anki. Media is included. Start with the tense you are learning and add others as your course or reading introduces them.</p><p>The cards are AI-assisted study materials and may contain errors. <a href="/#about">Sources and limitations</a>.</p>'
     write('/italian-verb-conjugation-flashcards/', 'Italian Verb Conjugation Flashcards for Anki', 'Practise Italian verb conjugation with free Anki decks for present, past, future, conditional and imperative forms. See examples and choose a tense.', body, 'vedo')
+    try:
+        from .study_guides import GUIDES
+    except ImportError:
+        from study_guides import GUIDES
+    for path, title, description, content in GUIDES:
+        body = '<p><a href="/">Italian flashcards</a> / Study guide</p><h1>' + e(title) + '</h1><p>By <a href="https://blog.cameronengineer.com/">Cameron</a>, creator of this collection.</p>' + content
+        write(path, title, description, body)
     root = Element('urlset', xmlns='http://www.sitemaps.org/schemas/sitemap/0.9')
     for path in urls:
         SubElement(SubElement(root, 'url'), 'loc').text = ORIGIN + path

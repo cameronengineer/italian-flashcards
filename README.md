@@ -1,5 +1,9 @@
 # Italian Flashcards
 
+[Download free Italian Anki flashcards](https://italianflashcards.cameronengineer.com/)
+for vocabulary, numbers and verb conjugation, with pictures, audio and real card previews.
+No setup of this repository is needed to use the downloadable decks.
+
 A personal pipeline that turns what you want to learn — CILS levels, class
 notes, frequency lists, **the subtitles of a film you're about to watch** —
 into Anki cards. It is built word-first: every Italian root word exists

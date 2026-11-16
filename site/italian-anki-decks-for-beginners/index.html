@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Italian Anki Decks for Beginners: Choosing a First Deck</title>
+<meta name="description" content="Choose a first Italian Anki deck: compare A1 vocabulary, Fluent Forever, numbers and verb practice, and understand overlap before importing.">
+<meta property="og:title" content="Italian Anki Decks for Beginners: Choosing a First Deck">
+<meta property="og:description" content="Choose a first Italian Anki deck: compare A1 vocabulary, Fluent Forever, numbers and verb practice, and understand overlap before importing.">
+<meta property="og:image" content="https://italianflashcards.cameronengineer.com/samples/il-caffe.jpg">
+<meta name="theme-color" content="#f7f4ec">
+<link rel="icon" type="image/png" href="/favicon.png">
+<style>
+:root { color-scheme: light; --bg:#f7f4ec; --paper:#fffefa; --ink:#243d32; --text:#39483f; --muted:#626c62; --line:#d9ded2; --green:#2f5948; --tint:#e9eee5; --gold:#946a2f; --serif:Georgia,'Times New Roman',serif; }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; scroll-padding-top:24px; }
+body { margin:0; color:var(--text); background:var(--bg); font:16px/1.65 system-ui,-apple-system,'Segoe UI',sans-serif; -webkit-font-smoothing:antialiased; }
+a { color:var(--green); text-underline-offset:4px; }
+a:hover { text-decoration-thickness:2px; }
+:focus-visible { outline:3px solid var(--gold); outline-offset:5px; }
+.wrap { width:min(1080px, calc(100% - 64px)); margin-inline:auto; }
+.skip { position:absolute; top:-100px; padding:10px; background:var(--paper); z-index:5; }
+.skip:focus { top:10px; }
+header { display:flex; align-items:center; justify-content:space-between; padding-block:27px; border-bottom:1px solid var(--line); gap:20px; }
+.brand { font:30px var(--serif); color:var(--ink); text-decoration:none; letter-spacing:-1px; }
+.brand span { color:var(--muted); font:12px system-ui,sans-serif; letter-spacing:.08em; margin-left:14px; text-transform:uppercase; }
+nav { display:flex; gap:26px; font-size:14px; }
+nav a { text-decoration:none; }
+nav a:hover { text-decoration:underline; }
+h1,h2,h3 { font-family:var(--serif); color:var(--ink); font-weight:400; line-height:1.15; }
+h1 { font-size:clamp(44px,6.3vw,76px); letter-spacing:-2.6px; margin:14px 0 25px; }
+h2 { font-size:clamp(32px,4vw,44px); letter-spacing:-1.2px; margin:0; }
+h3 { font-size:26px; margin:0 0 10px; }
+p { margin:0 0 14px; }
+.eyebrow { font-size:11px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--green); }
+.intro { padding:76px 0 66px; display:grid; grid-template-columns:1.7fr 1fr; gap:80px; align-items:end; }
+.intro .lead { max-width:580px; font-size:18px; line-height:1.75; }
+.intro .byline { color:var(--muted); font-size:14px; margin:24px 0 0; }
+.collection-note { border-left:1px solid var(--line); padding-left:30px; font-size:14px; }
+.collection-note dl { margin:16px 0 0; }
+.collection-note dl div { display:flex; justify-content:space-between; gap:20px; border-bottom:1px solid var(--line); padding:11px 0; }
+dt { color:var(--muted); } dd { margin:0; font-variant-numeric:tabular-nums; color:var(--ink); }
+section { padding:55px 0; border-top:1px solid var(--line); }
+.section-head { display:flex; justify-content:space-between; align-items:end; gap:35px; margin-bottom:30px; }
+.section-head p { max-width:390px; color:var(--muted); margin:0; font-size:15px; }
+.section-head .eyebrow { margin-bottom:10px; }
+.sample { display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:stretch; }
+.side { background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:22px 30px 30px; text-align:center; }
+.side > small { display:block; text-align:left; text-transform:uppercase; letter-spacing:.13em; font-size:10px; color:var(--muted); border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:25px; }
+.side:first-child { display:flex; flex-direction:column; }
+.side:first-child .word { margin-top:auto; padding-top:40px; }
+.side:first-child audio { margin:20px auto auto; }
+.word { font:40px/1.2 var(--serif); color:var(--ink); }
+.ipa { color:var(--muted); font-size:14px; margin-top:10px; }
+.side audio { width:100%; max-width:290px; min-height:54px; }
+.side img { display:block; max-width:230px; width:100%; height:auto; border-radius:8px; margin:20px auto; }
+.side p { font-size:13px; margin:10px 0 0; }
+.det { color:var(--muted); }
+.ex { font-style:italic; }
+.ex small { color:var(--muted); font-style:normal; }
+.fact { text-align:left; background:#f4eddb; padding:13px 16px; border-radius:6px; color:#66502c; }
+.sample-picker { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+.sample-picker button { font:inherit; font-size:14px; color:var(--green); background:transparent; border:1px solid #a5afa2; border-radius:6px; padding:9px 18px; cursor:pointer; }
+.sample-picker button[aria-pressed="true"] { background:var(--green); border-color:var(--green); color:white; }
+.sample-label { font:13px system-ui,sans-serif; color:var(--muted); margin:0 0 14px; }
+.sample-panel + .sample-panel { margin-top:30px; }
+.side:first-child:has(img) .word { margin-top:0; padding-top:0; }
+.caption { color:var(--muted); font-size:12px; margin-top:14px; }
+.instructions { display:grid; grid-template-columns:1fr 2fr; gap:60px; }
+ol { padding:0; margin:0; list-style:none; counter-reset:steps; display:grid; gap:18px; }
+ol li { counter-increment:steps; padding-left:40px; position:relative; font-size:15px; }
+ol li::before { content:counter(steps,decimal-leading-zero); position:absolute; left:0; top:2px; color:var(--green); font-size:12px; }
+ol strong { display:block; color:var(--ink); font-weight:600; }
+.download-note { padding:16px 20px; background:var(--tint); font-size:14px; border-radius:6px; margin-bottom:30px; }
+.filter { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:32px; }
+.filter label { font-size:13px; margin-right:12px; }
+input { border:1px solid #a5afa2; border-radius:6px; padding:11px 14px; background:var(--paper); font:inherit; font-size:14px; color:var(--ink); width:min(100%,360px); }
+#results { font-size:12px; color:var(--muted); margin-left:8px; }
+.deck-group { display:grid; grid-template-columns:230px 1fr; gap:40px; padding:32px 0; border-top:1px solid var(--line); }
+.group-intro p { font-size:13px; color:var(--muted); }
+.decks { padding:0; list-style:none; margin:0; }
+.decks li { display:flex; justify-content:space-between; align-items:center; gap:22px; padding:18px 0; border-bottom:1px solid var(--line); font-size:13px; }
+.decks li:first-child { padding-top:0; }
+.decks li:last-child { border-bottom:0; padding-bottom:0; }
+.decks b { font-size:16px; color:var(--ink); font-weight:600; }
+.decks small { color:var(--muted); font-size:12px; }
+.decks a { flex:none; font-size:13px; text-decoration:none; border:1px solid #a5afa2; border-radius:6px; padding:8px 13px; }
+.decks a:hover { background:var(--tint); border-color:var(--green); }
+[hidden] { display:none !important; }
+.notes { display:grid; grid-template-columns:1fr 2fr; gap:60px; }
+.notes p { font-size:14px; }
+footer { padding:32px 0 45px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+footer .credits { max-width:800px; margin-top:22px; }
+.footer-top { display:flex; justify-content:space-between; gap:20px; }
+@media(max-width:760px) {
+ .wrap { width:calc(100% - 36px); } header { padding-block:20px; } .brand span { display:none; } nav { gap:18px; font-size:13px; }
+ .intro { grid-template-columns:1fr; gap:32px; padding:46px 0; } .collection-note { border-left:0; padding:0; } .collection-note dl { display:flex; gap:25px; flex-wrap:wrap; } .collection-note dl div { gap:14px; }
+ h1 { letter-spacing:-1.5px; } section { padding:38px 0; } .section-head { display:block; } .section-head p { margin-top:16px; }
+ .instructions,.notes { grid-template-columns:1fr; gap:24px; } .deck-group { grid-template-columns:1fr; gap:20px; } .group-intro p { margin-bottom:0; }
+ .side { padding:18px; } .word { font-size:32px; } .sample { gap:12px; } .footer-top { flex-wrap:wrap; }
+}
+@media(max-width:480px) { header { align-items:flex-start; flex-direction:column; gap:12px; } nav { flex-wrap:wrap; gap:12px 20px; } .sample { grid-template-columns:1fr; } .side:first-child .word { padding-top:20px; } .side:first-child audio { margin-bottom:20px; } .decks li { gap:12px; } .decks a { padding:8px 10px; } }
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+.decks .deck-title { border:0; padding:0; font:inherit; text-decoration:underline; text-decoration-color:var(--line); }
+.decks .deck-title:hover { background:transparent; text-decoration-color:var(--green); }
+details { border-bottom:1px solid var(--line); padding:18px 0; max-width:800px; }
+summary { cursor:pointer; color:var(--ink); font-weight:600; }
+details p { margin:12px 0 0; font-size:15px; }
+.guide { max-width:800px; padding:42px 0; }
+.guide h1 { font-size:clamp(36px,5vw,58px); }
+.guide h2 { font-size:30px; margin:28px 0 18px; }
+.guide .sample { margin:25px 0; }
+.guide .side:first-child .word { padding-top:16px; }
+.guide .side audio { max-width:100%; }
+.guide ol { margin:20px 0; }
+.preview-table { width:100%; border-collapse:collapse; margin:20px 0; font-size:15px; table-layout:fixed; overflow-wrap:anywhere; }
+.preview-table th,.preview-table td { text-align:left; border-bottom:1px solid var(--line); padding:12px 10px; vertical-align:top; }
+.preview-table th { color:var(--ink); }
+.guide .download { display:inline-block; border:1px solid var(--green); padding:10px 18px; border-radius:6px; margin:14px 0; }
+</style>
+<link rel="canonical" href="https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:url" content="https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Italian Flashcards">
+<meta property="og:image:alt" content="An illustration from the Italian flashcard collection">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Italian Anki Decks for Beginners: Choosing a First Deck">
+<meta name="twitter:description" content="Choose a first Italian Anki deck: compare A1 vocabulary, Fluent Forever, numbers and verb practice, and understand overlap before importing.">
+<meta name="twitter:image" content="https://italianflashcards.cameronengineer.com/samples/il-caffe.jpg">
+<script>
+// Render static-site rules cannot match a hostname. Preserve the destination
+// path, query and fragment when directing the legacy hostname to our domain.
+if (location.hostname === 'italian-flashcards-lyh2.onrender.com') {
+ location.replace('https://italianflashcards.cameronengineer.com' + location.pathname + location.search + location.hash);
+}
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Person", "@id": "https://italianflashcards.cameronengineer.com/#creator", "name": "Cameron", "url": "https://blog.cameronengineer.com/"}, {"@type": "WebSite", "@id": "https://italianflashcards.cameronengineer.com/#website", "url": "https://italianflashcards.cameronengineer.com/", "name": "Italian Flashcards", "inLanguage": "en"}, {"@type": "WebPage", "@id": "https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/#page", "url": "https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/", "name": "Italian Anki Decks for Beginners: Choosing a First Deck", "inLanguage": "en", "author": {"@id": "https://italianflashcards.cameronengineer.com/#creator"}, "isPartOf": {"@id": "https://italianflashcards.cameronengineer.com/#website"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Italian Flashcards", "item": "https://italianflashcards.cameronengineer.com/"}, {"@type": "ListItem", "position": 2, "name": "Italian Anki Decks for Beginners: Choosing a First Deck", "item": "https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/"}]}]}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="wrap">
+<header>
+ <a class="brand" href="/">Italian<span>Flashcards for Anki</span></a>
+ <nav aria-label="Main navigation"><a href="https://blog.cameronengineer.com/">← Blog</a><a href="/#cards">A sample card</a><a href="/#decks">The decks</a><a href="/#about">About</a></nav>
+</header>
+<main id="main" class="guide"><p><a href="/">Italian flashcards</a> / Study guide</p><h1>Italian Anki Decks for Beginners: Choosing a First Deck</h1><p>By <a href="https://blog.cameronengineer.com/">Cameron</a>, creator of this collection.</p><p>These Italian flashcards are separate downloads, not a sequence you need to finish in order. If you are starting Italian, choose one vocabulary deck, check its sample cards and add specialised practice when you need it.</p>
+ <h2>A1 vocabulary or Fluent Forever?</h2>
+ <p>The <a href="/decks/italian-cils-a1-anki-deck/">Italian A1 Anki deck</a> follows the CILS A1 word list. It covers vocabulary for family, food, shopping and getting around. Choose it if you want vocabulary organised around a named language level.</p>
+ <p>The <a href="/decks/italian-core-fluent-forever-625-anki-deck/">Fluent Forever vocabulary deck</a> is based on Gabriel Wyner’s core word list. Its topics include home, body, food and time. Choose it if you prefer an everyday topic-based starting point. The collection’s deck name refers to the source list; the current downloadable note count is shown on its page.</p>
+ <p>Common words occur in both decks. Start with one rather than importing both and assuming every card will be new.</p>
+ <h2>Which CILS level should I download?</h2>
+ <p>The <a href="/decks/italian-cils-a2-anki-deck/">A2</a>, <a href="/decks/italian-cils-b1-anki-deck/">B1</a> and <a href="/decks/italian-cils-b2-anki-deck/">B2</a> decks include lower-level vocabulary. Choose the level you are currently studying. Importing all four can repeat words and increase your review queue without adding much new material.</p>
+ <p>A deck’s label describes its vocabulary source, not a promise that finishing the deck gives you that proficiency level. Listening, reading, grammar and conversation still matter.</p>
+ <h2>When to add numbers and verbs</h2>
+ <p>The <a href="/decks/italian-basics-numbers-anki-deck/">Italian numbers deck</a> focuses on easily confused forms, including teens and tens. Use it if recognising a number takes longer than you want.</p>
+ <p>For verbs, start with a tense you are learning in your course or reading. The <a href="/decks/italian-verbs-learning-presente-anki-deck/">presente deck</a> practises forms such as vedo, “I see”. The <a href="/italian-verb-conjugation-flashcards/">verb conjugation overview</a> lists the other tenses and imperative persons. You do not need to import all of them together.</p>
+ <h2>Check the card before importing</h2>
+ <p>Every deck page includes a real front-and-back sample, a short preview of its contents, card counts and file size. Vocabulary cards generally ask for both recognition and recall; verb and noun-phrase drills ask for the Italian. A note can produce more than one card, so note and card counts differ.</p>
+ <p>The pictures, voices and card text are AI-assisted. Listen to the sample and check whether the prompts suit you. If an entry seems wrong, consult a dictionary and edit or suspend it in Anki.</p>
+ <h2>A first study session</h2>
+ <ol><li>Download one vocabulary deck.</li><li>Open the .apkg file in Anki and check the import summary.</li><li>Choose a modest daily new-card limit, then adjust it as you see your review workload.</li><li>Try to answer before revealing the back. Listen to the recording and say the Italian aloud.</li></ol>
+ <p>For practical details, see <a href="/how-to-study-italian-with-anki/">how to study Italian with these Anki flashcards</a>.</p></main><footer>
+ <div class="footer-top"><span>Italian · By <a href="https://blog.cameronengineer.com/">Cameron</a>. A personal collection, shared freely.</span><span>Page updated November 2026 · <a href="https://github.com/cameronengineer/italian-flashcards">Source code</a></span></div>
+ <div class="credits"><p>Dictionary data: <a href="https://en.wiktionary.org">Wiktionary</a> via <a href="https://kaikki.org">kaikki.org</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. The frequency deck uses <a href="https://osf.io/zg7sc/">SUBTLEX-IT</a> (Crepaldi et al., CC BY-NC-SA). Please keep the decks non-commercial and retain the source credits.</p><p>The Fluent Forever 625 deck is based on Gabriel Wyner’s word list. Levels follow the CILS lists. Film lines are quoted from subtitles for study. This project is not affiliated with Anki, CILS, Fluent Forever or the films.</p></div>
+</footer>
+</div>
+</body></html>

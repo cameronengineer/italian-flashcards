@@ -314,6 +314,23 @@ def _stats(public: dict[str, Path]) -> dict:
     return {"words": len(words), "new_at": new_at, "fact_share": facts / total}
 
 
+def _preview(path: Path) -> list[dict]:
+    """Small, source-derived text preview for the public deck guide."""
+    import html
+
+    def plain(value):
+        return html.unescape(re.sub(r"<[^>]+>", "", value)).strip()
+
+    with zipfile.ZipFile(path) as archive, tempfile.TemporaryDirectory() as folder:
+        archive.extract("collection.anki2", folder)
+        db = sqlite3.connect(Path(folder) / "collection.anki2")
+        try:
+            rows = db.execute("SELECT flds FROM notes ORDER BY sfld LIMIT 12").fetchall()
+            return [{"italian": plain(f.split("\x1f")[0]), "english": plain(f.split("\x1f")[1])} for (f,) in rows]
+        finally:
+            db.close()
+
+
 def main() -> int:
     print("Building site/ from decks/")
     out_dir = SITE_DIR / "downloads"
@@ -327,7 +344,7 @@ def main() -> int:
         counts = _sanitise(src, dst)
         if counts["tutto_left"]:
             raise SystemExit(f"{dst.name}: Tutto bene tag left after sanitising")
-        decks[dst.stem] = {"file": dst.name, "bytes": dst.stat().st_size, "sha256": sha256_file(dst), **counts}
+        decks[dst.stem] = {"file": dst.name, "bytes": dst.stat().st_size, "sha256": sha256_file(dst), "preview": _preview(dst), **counts}
         print(f"  ok     {dst.name:58} {counts['notes']:>5} notes  {dst.stat().st_size / 1e6:5.1f} MB")
     samples = _samples({stem: out_dir / info["file"] for stem, info in decks.items()})
     data = {"decks": decks, "samples": samples}

@@ -38,7 +38,7 @@ class SiteSEOTests(unittest.TestCase):
                 "{http://www.sitemaps.org/schemas/sitemap/0.9}url/"
                 "{http://www.sitemaps.org/schemas/sitemap/0.9}loc"
             )
-            self.assertEqual(len(urls), len(data["decks"]) + 2)
+            self.assertEqual(len(urls), len(data["decks"]) + 4)
             for loc in urls:
                 self.assertTrue(loc.text.startswith("https://italianflashcards.cameronengineer.com/"))
                 relative = loc.text.removeprefix("https://italianflashcards.cameronengineer.com")
@@ -59,6 +59,13 @@ class SiteSEOTests(unittest.TestCase):
             self.assertIn("il caffè", a1)
             self.assertIn("960 study cards", a1)
             self.assertIn("Sitemap: https://italianflashcards.cameronengineer.com/sitemap.xml", (root / "robots.txt").read_text())
+            for row in data["decks"]["italian_cils_a1"]["preview"]:
+                import html
+                self.assertIn(html.escape(row["italian"]), a1)
+                self.assertIn(html.escape(row["english"]), a1)
+            guide = (root / "italian-anki-decks-for-beginners/index.html").read_text()
+            self.assertIn("A1 vocabulary or Fluent Forever?", guide)
+            self.assertIn('/how-to-study-italian-with-anki/', guide)
             before = {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()}
             build_site.render_page(data)
             self.assertEqual(before, {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()})
