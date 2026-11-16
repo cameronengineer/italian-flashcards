@@ -91,6 +91,10 @@ def build(data, api):
     """Called after the homepage is rendered; local deck archives are optional."""
     site = api.SITE_DIR
     e = html.escape
+    try:
+        from .deck_notes import notes_for
+    except ImportError:
+        from deck_notes import notes_for
     homepage = (site / 'index.html').read_text()
     entries = [(stem, name, desc.format(**{f'new_{k}': f'{v:,}' for k, v in data['stats']['new_at'].items()}))
                for _gid, _title, _blurb, rows in api.GROUPS for stem, name, desc in rows]
@@ -107,6 +111,7 @@ def build(data, api):
 details { border-bottom:1px solid var(--line); padding:18px 0; max-width:800px; }
 summary { cursor:pointer; color:var(--ink); font-weight:600; }
 details p { margin:12px 0 0; font-size:15px; }
+footer nav { flex-wrap:wrap; margin-bottom:24px; }
 .guide { max-width:800px; padding:42px 0; }
 .guide h1 { font-size:clamp(36px,5vw,58px); }
 .guide h2 { font-size:30px; margin:28px 0 18px; }
@@ -155,6 +160,14 @@ details p { margin:12px 0 0; font-size:15px; }
         body += f'<a class="download" href="{api.DOWNLOAD_BASE}{e(info["file"])}">Download {e(name)} ({api._size(info["bytes"])})</a>'
         if sample:
             body += '<h2>A card from this deck</h2>' + api._sample_html(sample).replace('src="samples/', 'src="/samples/').replace('href="samples/', 'href="/samples/')
+        study_note = notes_for(stem)
+        if study_note:
+            heading, note = study_note
+            body += f'<h2>{e(heading)}</h2><p>{e(note)}</p>'
+            if 'imperativo' in stem:
+                body += '<p>Grammar reference: <a href="https://www.treccani.it/enciclopedia/imperativo_%28Enciclopedia-dell%27Italiano%29/">Treccani on the imperativo</a> (in Italian).</p>'
+            elif 'condizionale' in stem:
+                body += '<p>Grammar reference: <a href="https://www.treccani.it/enciclopedia/condizionale_%28La-grammatica-italiana%29/">Treccani on the condizionale</a> (in Italian).</p>'
         preview = info.get('preview', [])
         if preview:
             body += '<h2>Examples from the deck</h2><p>A short preview of the downloadable material. These are individual prompts, not a complete vocabulary list or a lesson order.</p><table class="preview-table"><thead><tr><th scope="col">Italian</th><th scope="col">English prompt or meaning</th></tr></thead><tbody>'
@@ -181,7 +194,18 @@ details p { margin:12px 0 0; font-size:15px; }
         from study_guides import GUIDES
     for path, title, description, content in GUIDES:
         body = '<p><a href="/">Italian flashcards</a> / Study guide</p><h1>' + e(title) + '</h1><p>By <a href="https://blog.cameronengineer.com/">Cameron</a>, creator of this collection.</p>' + content
+        if path == '/italian-anki-decks-for-beginners/':
+            comparison = '<h2 id="compare-levels">Compare the Italian vocabulary decks</h2><p>Current package counts. Notes are vocabulary entries; some notes produce more than one study card. Level decks overlap.</p><table class="preview-table"><thead><tr><th scope="col">Deck</th><th scope="col">Notes</th><th scope="col">Cards</th><th scope="col">Download</th></tr></thead><tbody>'
+            for stem, label in [('italian_cils_a1', 'A1'), ('italian_cils_a2', 'A2'), ('italian_cils_b1', 'B1'), ('italian_cils_b2', 'B2'), ('italian_core_fluent_forever_625', 'Fluent Forever')]:
+                item = data['decks'][stem]
+                comparison += f'<tr><th scope="row"><a href="{deck_path(stem)}">{e(label)}</a></th><td>{item["notes"]:,}</td><td>{item["cards"]:,}</td><td>{api._size(item["bytes"])}</td></tr>'
+            comparison += '</tbody></table>'
+            body = body.replace('<h2>When to add numbers and verbs</h2>', comparison + '<h2>When to add numbers and verbs</h2>')
         write(path, title, description, body)
+    not_found = head + '<main id="main" class="guide"><h1>That page is not here.</h1><p>The deck or guide may have moved, or the address may be mistyped.</p><p><a href="/">Browse Italian flashcards</a> or <a href="/italian-anki-decks-for-beginners/">choose a deck for beginners</a>.</p></main>' + tail + '</body></html>'
+    not_found = re.sub(r'<title>.*?</title>', '<title>Page not found · Italian Flashcards</title>', not_found)
+    not_found = not_found.replace('</head>', '<meta name="robots" content="noindex, follow">\n</head>')
+    (site / '404.html').write_text(not_found)
     root = Element('urlset', xmlns='http://www.sitemaps.org/schemas/sitemap/0.9')
     for path in urls:
         SubElement(SubElement(root, 'url'), 'loc').text = ORIGIN + path
