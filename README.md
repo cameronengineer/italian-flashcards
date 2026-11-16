@@ -89,8 +89,28 @@ Options, all optional:
 | `--images N` / `--audio N` | new Codex images / ElevenLabs recordings this run (defaults: `[run] image_limit`, `audio_limit`; `-1` = no limit) |
 | `--batches N` | Claude batches between Anki syncs (default 20) |
 | `--once` | stop after one round |
-| `--no-ai`, `--no-sync` | skip Claude/Codex/audio, or skip Anki |
+| `--only PHASE`, `--skip PHASE` | run only, or leave out, one phase (repeatable; see below) |
+| `--no-ai`, `--no-sync` | shorthands for `--skip enrich --skip audio` and `--skip publish` |
 | `--keep-old` | keep obsolete notes instead of deleting them (studied or unstudied) |
+
+**Phases.** A run is a fixed sequence of phases (`flashcards/pipeline.py`, one
+function each). `--only` and `--skip` take these names:
+
+| Phase | Does | Segment |
+|---|---|---|
+| `resolve` | your edits, then lists → root words (only when something changed) | 1 Prepare |
+| `plan` | works out what still needs Claude / Codex and queues it | 2 Cards |
+| `build` | the notes Anki should hold | 2 Cards |
+| `publish` | syncs Anki with what is ready | 3 Anki |
+| `enrich` | Claude writes cards and Codex draws, in rounds; each round ends with `build` + `publish` | 4 Claude |
+| `audio` | new recordings, up to the limit | 5 Audio & media |
+| `compress` | small copies of new images and audio | 5 Audio & media |
+| `export` | `lexicon/*.jsonl` and one `.apkg` per deck | 6 Final sync |
+
+Settings, the dictionary check and the database backup always run first.
+`build` and `publish` run again after `enrich` and after `audio`. For example
+`./run.sh --only build --only publish` pushes what is already written, and
+`./run.sh --skip export` leaves `lexicon/` and `decks/` alone.
 
 Each run keeps its summary in `audit_reports/runs/<run-id>.json`, with batch
 timings and full failure diagnostics in `<run-id>.events.jsonl` when batches run.

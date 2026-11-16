@@ -4,6 +4,8 @@
                       Safe to run any time; it only does what's left.
                       Options: --images N  --audio N  --batches N  --once
                                --no-ai  --no-sync  --keep-old
+                               --only PHASE / --skip PHASE, where PHASE is one of
+                               resolve plan build publish enrich audio compress export
 
 Extras (./run.sh <name> …):
   movie       Coverage report + word list for a film (inputs/movies/<film>/words.csv).
@@ -17,8 +19,8 @@ Extras (./run.sh <name> …):
   recovery    Create / verify / restore a recovery bundle.
   kaikki      Re-download the Wiktionary dictionary.
 
-The single steps run.sh performs are also available (check, lexicon, jobs,
-work, notes, plan, apply, audio, retire); you shouldn't need them.
+The phases can also be run one at a time, with their own options (lexicon,
+jobs, work, notes, plan, apply, audio); you shouldn't need them.
 """
 
 from __future__ import annotations
@@ -362,8 +364,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--reason", required=True)
     sp.set_defaults(func=cmd_retire)
 
-    sp = sub.add_parser("purge-v3", help="One-off: remove the old pipeline's notes from Anki (dry run unless --apply).")
-    sp.add_argument("--apply", action="store_true", help="Delete them (the Anki collection is backed up first).")
+    sp = sub.add_parser(
+        "purge-v3", help="One-off: remove the old pipeline's notes from Anki (dry run unless --apply)."
+    )
+    sp.add_argument(
+        "--apply", action="store_true", help="Delete them (the Anki collection is backed up first)."
+    )
     sp.set_defaults(func=cmd_purge_v3)
 
     sub.add_parser("check", help="Validate lists.toml + plan.toml.").set_defaults(func=cmd_check)
@@ -434,7 +440,23 @@ def build_parser() -> argparse.ArgumentParser:
         help="New ElevenLabs audio files this run (default: [run] audio_limit; -1 = no limit).",
     )
     sp.add_argument("--no-audio", dest="audio", action="store_const", const=0, help="Same as --audio 0.")
-    sp.add_argument("--no-ai", action="store_true", help="Skip the AI / image queue this run.")
+    from .pipeline import PHASES
+
+    sp.add_argument(
+        "--only",
+        action="append",
+        choices=PHASES,
+        metavar="PHASE",
+        help=f"Run only this phase (repeatable): {', '.join(PHASES)}.",
+    )
+    sp.add_argument(
+        "--skip", action="append", choices=PHASES, metavar="PHASE", help="Switch one phase off (repeatable)."
+    )
+    sp.add_argument(
+        "--no-ai",
+        action="store_true",
+        help="Same as --skip enrich --skip audio: no Claude, Codex or ElevenLabs.",
+    )
     _image_flags(sp)
     sp.add_argument(
         "--batches",
@@ -443,7 +465,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="AI batches between Anki syncs (default: settings.toml [run] max_batches).",
     )
     sp.add_argument("--once", action="store_true", help="Stop after one round of AI batches.")
-    sp.add_argument("--no-sync", action="store_true", help="Don't touch Anki.")
+    sp.add_argument("--no-sync", action="store_true", help="Same as --skip publish: don't touch Anki.")
     sp.add_argument(
         "--keep-old",
         action="store_true",
