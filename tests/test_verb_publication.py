@@ -1,4 +1,5 @@
 import json
+from dataclasses import replace
 import tempfile
 import threading
 import unittest
@@ -132,8 +133,14 @@ class VerbPublicationTests(unittest.TestCase):
         self.complete_verb(c)
         before = [tuple(r) for r in c.execute("SELECT * FROM form_prompts ORDER BY tense,person")]
         config = lists.load_plan()
-        config["conjugation"]["learning_tenses"] = config["conjugation"]["tenses"]
-        config["conjugation"]["learning_imperative_persons"] = ["tu", "Lei", "noi", "voi"]
+        config = replace(
+            config,
+            conjugation=replace(
+                config.conjugation,
+                learning_tenses=config.conjugation.tenses,
+                learning_imperative_persons=("tu", "Lei", "noi", "voi"),
+            ),
+        )
         with patch.object(planning, "load_plan", return_value=config):
             queue.plan(c)
             notes.build(c)
@@ -147,7 +154,7 @@ class VerbPublicationTests(unittest.TestCase):
     def test_all_forms_can_be_dormant_without_stopping_generation(self):
         c = self.fixture()
         config = lists.load_plan()
-        config["conjugation"]["learning_tenses"] = []
+        config = replace(config, conjugation=replace(config.conjugation, learning_tenses=()))
         with patch.object(planning, "load_plan", return_value=config):
             self.complete_verb(c)
             notes.build(c)

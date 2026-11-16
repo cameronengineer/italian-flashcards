@@ -540,7 +540,7 @@ def _drift_guard(conn, v4_keys_in_anki: set[str]) -> str | None:
     }
     still_wanted = {r[0] for r in conn.execute("SELECT key FROM v4_notes")}
     missing = (expected & still_wanted) - v4_keys_in_anki
-    if expected and len(missing) > max(20, 0.05 * len(expected)):
+    if expected and len(missing) > max(20, settings.anki.drift_guard_ratio * len(expected)):
         return (
             f"{len(missing)} of {len(expected)} v4 notes that were in Anki are gone — is a "
             f"different Anki profile open, or were notes deleted by hand? Refusing to sync."
@@ -818,6 +818,9 @@ def _store_knowledge(conn, notes: list[AnkiNote]) -> dict:
     Unstudied cards carry no knowledge, so only cards with history are kept.
     Suspended cards are never "known".
     """
+    from .lists import load_plan
+
+    known_at = load_plan().known_interval_days
     records = []
     for n in notes:
         key = n.key
@@ -828,7 +831,7 @@ def _store_knowledge(conn, notes: list[AnkiNote]) -> dict:
             interval = c.get("interval") or 0
             state = (
                 "known"
-                if not suspended and c.get("type") == 2 and interval >= 21
+                if not suspended and c.get("type") == 2 and interval >= known_at
                 else "learning"
                 if not suspended
                 else "unknown"

@@ -138,8 +138,9 @@ def headlines(conn) -> list[str]:
     from ..planning import known_roots
 
     known = known_roots(conn)
-    per_day = load_plan().get("new_cards_per_day", 25)
-    deadlines = {p["list"]: p.get("by") for p in load_plan().get("priority", [])}
+    plan = load_plan()
+    per_day = plan.new_cards_per_day
+    deadlines = dict(plan.priority)
     costs = None  # the same for every film: worked out once, and only if a film is installed
     out = []
     for l in load():
@@ -190,7 +191,7 @@ def run(list_id: str | None = None, *, export: bool = True) -> int:
             if t.status == "resolved"
         )
         known = known_roots(conn)
-        per_day = load_plan().get("new_cards_per_day", 25)
+        per_day = load_plan().new_cards_per_day
         report = coverage(counts, known, buckets["unresolved"], per_day, workload(conn))
         stamp = conn.execute("SELECT value FROM metadata WHERE key='knowledge_synced_at'").fetchone()
         print(f"  token buckets: {dict(buckets)}; knowledge updated: {stamp[0] if stamp else 'never'}")
@@ -220,7 +221,7 @@ def run(list_id: str | None = None, *, export: bool = True) -> int:
         print(
             "  Workload includes currently planned recognition, production and drills, excluding directions already in Anki. Enrichment can expand it. Introduction days allocate the whole daily budget; they are not learning time or a comprehension forecast."
         )
-        deadline = next((p.get("by") for p in load_plan().get("priority", []) if p["list"] == l.id), None)
+        deadline = load_plan().deadline(l.id)
         if deadline:
             left = (date.fromisoformat(str(deadline)) - date.today()).days
             print(

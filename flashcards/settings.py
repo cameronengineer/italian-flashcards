@@ -24,12 +24,12 @@ class AISettings:
     #: Claude Code model alias or name ("opus", "sonnet", …).
     model: str = "opus"
     #: Claude Code effort level: low | medium | high | xhigh | max.
-    effort: str = "medium"
+    effort: str = "high"
     #: Claude's hidden reasoning. Off: ~8x fewer output tokens and much faster
     #: (fine for the cheap pass); on: better judgement for the final quality pass.
-    thinking: bool = False
+    thinking: bool = True
     #: Seconds before one AI call is abandoned.
-    timeout: int = 600
+    timeout: int = 1800
     #: Max AI calls in flight at once (each Claude Code call is a process).
     concurrency: int = 4
     #: While Claude is unavailable (usage limit, logged out, network down)
@@ -41,7 +41,14 @@ class AISettings:
     task_models: dict = field(default_factory=dict)
     #: 0 = wait for Claude/Codex to come back however long it takes.
     max_unavailable_minutes: float = 0
-    task_version: str = "6"
+    #: Bump to redo ALL AI work from scratch.
+    task_version: str = "7"
+    #: A job that keeps failing is tried this many times in all …
+    retry_attempts: int = 3
+    #: … waiting this long between tries.
+    retry_cooldown_minutes: float = 5
+    #: job kind → items per Claude call, over the defaults in ``queue.BATCH``.
+    batch_sizes: dict = field(default_factory=dict)
 
     def model_for(self, task: str) -> str:
         return self.task_models.get(task, self.model)
@@ -85,9 +92,10 @@ class RunSettings:
     audio_workers: int = 3
     compress_workers: int = 8
     #: New assets created per run: 0 = none, -1 = no limit (None after loading).
-    #: ``image_limit = 0`` never starts Codex.
-    image_limit: int | None = None
-    audio_limit: int | None = None
+    #: ``image_limit = 0`` never starts Codex. The defaults are deliberately
+    #: finite: running without settings.toml must not spend without limit.
+    image_limit: int | None = 10
+    audio_limit: int | None = 6000
     #: AI batches between Anki syncs in ``flashcards run``.
     max_batches: int = 20
 
@@ -96,6 +104,9 @@ class RunSettings:
 class AnkiSettings:
     url: str = "http://127.0.0.1:8765"
     profile: str = ""
+    #: Refuse to sync when more than this share of the notes the pipeline put in
+    #: Anki are missing (a different profile is open, or notes were deleted by hand).
+    drift_guard_ratio: float = 0.05
 
 
 @dataclass(frozen=True)
@@ -178,7 +189,16 @@ def load(path: Path = SETTINGS_PATH) -> Settings:
         data = tomllib.load(fh)
     s = _merge(Settings(), data, "")
     for section, names in (
-        (s.ai, ("timeout", "concurrency", "unavailable_retry_minutes")),
+        (
+            s.ai,
+            (
+                "timeout",
+                "concurrency",
+                "unavailable_retry_minutes",
+                "retry_attempts",
+                "retry_cooldown_minutes",
+            ),
+        ),
         (s.images, ("codex_timeout", "compressed_max_px")),
         (s.run, ("audio_workers", "compress_workers", "max_batches")),
         (s.backups, ("keep_last",)),
@@ -205,6 +225,10 @@ def load(path: Path = SETTINGS_PATH) -> Settings:
         raise ValueError("settings: invalid audio speed or AI effort")
     if any(not isinstance(k, str) or not isinstance(v, str) for k, v in s.ai.task_models.items()):
         raise ValueError("settings: task_models must map task names to model strings")
+    if any(type(v) is not int or v <= 0 for v in s.ai.batch_sizes.values()):
+        raise ValueError("settings: [ai.batch_sizes] must map job kinds to positive integers")
+    if not 0 < s.anki.drift_guard_ratio <= 1:
+        raise ValueError("settings: [anki] drift_guard_ratio must be above 0 and at most 1")
     # TOML has no null: a negative asset limit means "no limit".
     return replace(
         s,

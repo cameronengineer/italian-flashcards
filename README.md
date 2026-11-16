@@ -321,7 +321,7 @@ Targeted AnkiConnect calls — no `.apkg` imports. Anki is read once per sync.
   the other direction remains usable;
 - never touches notes outside the pipeline's decks and never deletes media;
 - puts new cards in study-plan order (only the ones that are out of place);
-- reads what you know (interval ≥ 21 days) back into `card_knowledge`, which
+- reads what you know (interval ≥ `known_interval_days` in `plan.toml`, 21 by default) back into `card_knowledge`, which
   drives study order and movie coverage.
 
 ### 5 · Audio (`commands/media.py`)

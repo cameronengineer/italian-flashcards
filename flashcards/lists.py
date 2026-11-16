@@ -11,6 +11,7 @@ import csv
 import random
 import re
 import tomllib
+from dataclasses import dataclass, field, fields
 from pathlib import Path
 
 from . import srt
@@ -78,75 +79,171 @@ def load(path: Path = LISTS_PATH) -> list[ListDef]:
     return out
 
 
-def load_plan(path: Path = PLAN_PATH) -> dict:
-    from datetime import date
+#: Tenses generated when plan.toml doesn't say, in deck order.
+DEFAULT_TENSES = (
+    "presente",
+    "passato_prossimo",
+    "imperfetto",
+    "futuro_semplice",
+    "presente_progressivo",
+    "imperativo",
+    "condizionale_presente",
+    "condizionale_passato",
+)
+DEFAULT_LEARNING_TENSES = (
+    "presente",
+    "passato_prossimo",
+    "futuro_semplice",
+    "imperativo",
+    "imperfetto",
+    "presente_progressivo",
+)
 
-    plan = tomllib.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
-    allowed = {"new_cards_per_day", "priority", "conjugation", "cards", "shuffle_window"}
-    if "horizon_days" in plan:
-        raise ValueError("plan.toml: horizon_days was removed; delete it (Anki's daily limit paces new cards)")
-    if set(plan) - allowed:
-        raise ValueError(f"plan.toml: unknown keys {sorted(set(plan) - allowed)}")
-    if "new_cards_per_day" in plan and (type(plan["new_cards_per_day"]) is not int or plan["new_cards_per_day"] <= 0):
-        raise ValueError("plan.toml: new_cards_per_day must be a positive integer")
-    if "shuffle_window" in plan and (type(plan["shuffle_window"]) is not int or plan["shuffle_window"] < 0):
-        raise ValueError("plan.toml: shuffle_window must be a nonnegative integer")
-    for table, keys in (
-        ("cards", {"noun_phrases", "cognates", "patterns"}),
-        (
+
+@dataclass(frozen=True)
+class Conjugation:
+    """plan.toml [conjugation]: which verb forms exist, and which are studied now."""
+
+    #: Generated and kept, including those not currently studied.
+    tenses: tuple = DEFAULT_TENSES
+    #: These go into Learning subdecks; the rest are Dormant (suspended).
+    learning_tenses: tuple = DEFAULT_LEARNING_TENSES
+    learning_imperative_persons: tuple = ("Lei", "tu")
+    deck: str = "Italian::Verbs"
+    #: Full form cards for irregular verbs plus the N most frequent verbs …
+    full_forms_top: int = 120
+    #: … up to this many verbs in all (verbs already in Anki always stay).
+    max_full_verbs: int = 120
+
+
+@dataclass(frozen=True)
+class CardTypes:
+    """plan.toml [cards]: the rule-built card types that are switched on."""
+
+    noun_phrases: bool = True
+    cognates: bool = True
+    patterns: bool = True
+
+
+@dataclass(frozen=True)
+class Plan:
+    """plan.toml: what to learn first, and how fast."""
+
+    new_cards_per_day: int = 25
+    #: A card moves at most about this many places within its deck (0 = strict list order).
+    shuffle_window: int = 20
+    #: A card counts as known once its Anki interval reaches this many days.
+    known_interval_days: int = 21
+    #: ((list id, "YYYY-MM-DD" or None), …) as written.
+    priority: tuple = ()
+    conjugation: Conjugation = field(default_factory=Conjugation)
+    cards: CardTypes = field(default_factory=CardTypes)
+
+    def list_order(self) -> list[str]:
+        """List ids in study order: deadlines first (earliest first), then as written."""
+        ranked = sorted(enumerate(self.priority), key=lambda ip: (ip[1][1] or "9999-12-31", ip[0]))
+        return [list_id for _i, (list_id, _by) in ranked]
+
+    def deadline(self, list_id: str) -> str | None:
+        return next((by for lid, by in self.priority if lid == list_id), None)
+
+    @classmethod
+    def from_dict(cls, plan: dict) -> "Plan":
+        """Validate a parsed plan.toml and build the plan. Unknown keys are errors."""
+        from datetime import date
+
+        from .grammar import TENSES
+
+        allowed = {
+            "new_cards_per_day",
+            "priority",
             "conjugation",
-            {
-                "tenses",
-                "learning_tenses",
-                "learning_imperative_persons",
-                "deck",
-                "full_forms_top",
-                "max_full_verbs",
-            },
-        ),
-    ):
-        if not isinstance(plan.get(table, {}), dict) or set(plan.get(table, {})) - keys:
-            raise ValueError(f"plan.toml: invalid {table} settings")
-    for key, value in plan.get("cards", {}).items():
-        if type(value) is not bool:
-            raise ValueError(f"plan.toml: cards.{key} must be boolean")
-    from .grammar import TENSES
-
-    conjugation = plan.get("conjugation", {})
-    for key, choices in (
-        ("tenses", TENSES),
-        ("learning_tenses", TENSES),
-        ("learning_imperative_persons", ("tu", "Lei", "noi", "voi")),
-    ):
-        values = conjugation.get(key, [])
-        if (
-            not isinstance(values, list)
-            or any(v not in choices for v in values)
-            or len(set(values)) != len(values)
+            "cards",
+            "shuffle_window",
+            "known_interval_days",
+        }
+        if "horizon_days" in plan:
+            raise ValueError(
+                "plan.toml: horizon_days was removed; delete it (Anki's daily limit paces new cards)"
+            )
+        if set(plan) - allowed:
+            raise ValueError(f"plan.toml: unknown keys {sorted(set(plan) - allowed)}")
+        for key in ("new_cards_per_day", "known_interval_days"):
+            if key in plan and (type(plan[key]) is not int or plan[key] <= 0):
+                raise ValueError(f"plan.toml: {key} must be a positive integer")
+        if "shuffle_window" in plan and (
+            type(plan["shuffle_window"]) is not int or plan["shuffle_window"] < 0
         ):
-            raise ValueError(f"plan.toml: conjugation.{key} must contain unique supported values")
-    if "learning_tenses" in conjugation and not set(conjugation["learning_tenses"]) <= set(
-        conjugation.get("tenses", TENSES)
-    ):
-        raise ValueError("plan.toml: learning tenses must also be generated")
-    deck = conjugation.get("deck", "Italian::Verbs")
-    if (
-        not isinstance(deck, str)
-        or not deck.startswith("Italian::")
-        or any(not part.strip() for part in deck.split("::"))
-    ):
-        raise ValueError("plan.toml: conjugation.deck must be a named deck within Italian")
-    for key in ("full_forms_top", "max_full_verbs"):
-        if key in conjugation and (type(conjugation[key]) is not int or conjugation[key] < 0):
-            raise ValueError(f"plan.toml: {key} must be a nonnegative integer")
-    seen = set()
-    for p in plan.get("priority", []):
-        if not isinstance(p, dict) or set(p) - {"list", "by"} or not p.get("list") or p["list"] in seen:
-            raise ValueError("plan.toml: invalid or repeated priority")
-        seen.add(p["list"])
-        if p.get("by"):
-            date.fromisoformat(str(p["by"]))
-    return plan
+            raise ValueError("plan.toml: shuffle_window must be a nonnegative integer")
+        for table, model in (("cards", CardTypes), ("conjugation", Conjugation)):
+            keys = {f.name for f in fields(model)}
+            if not isinstance(plan.get(table, {}), dict) or set(plan.get(table, {})) - keys:
+                raise ValueError(f"plan.toml: invalid {table} settings")
+        for key, value in plan.get("cards", {}).items():
+            if type(value) is not bool:
+                raise ValueError(f"plan.toml: cards.{key} must be boolean")
+        conjugation = plan.get("conjugation", {})
+        for key, choices in (
+            ("tenses", TENSES),
+            ("learning_tenses", TENSES),
+            ("learning_imperative_persons", ("tu", "Lei", "noi", "voi")),
+        ):
+            values = conjugation.get(key, [])
+            if (
+                not isinstance(values, list)
+                or any(v not in choices for v in values)
+                or len(set(values)) != len(values)
+            ):
+                raise ValueError(f"plan.toml: conjugation.{key} must contain unique supported values")
+        if "learning_tenses" in conjugation and not set(conjugation["learning_tenses"]) <= set(
+            conjugation.get("tenses", TENSES)
+        ):
+            raise ValueError("plan.toml: learning tenses must also be generated")
+        deck = conjugation.get("deck", "Italian::Verbs")
+        if (
+            not isinstance(deck, str)
+            or not deck.startswith("Italian::")
+            or any(not part.strip() for part in deck.split("::"))
+        ):
+            raise ValueError("plan.toml: conjugation.deck must be a named deck within Italian")
+        for key in ("full_forms_top", "max_full_verbs"):
+            if key in conjugation and (type(conjugation[key]) is not int or conjugation[key] < 0):
+                raise ValueError(f"plan.toml: {key} must be a nonnegative integer")
+        seen, priority = set(), []
+        for p in plan.get("priority", []):
+            if not isinstance(p, dict) or set(p) - {"list", "by"} or not p.get("list") or p["list"] in seen:
+                raise ValueError("plan.toml: invalid or repeated priority")
+            seen.add(p["list"])
+            if p.get("by"):
+                date.fromisoformat(str(p["by"]))
+            priority.append((p["list"], str(p["by"]) if p.get("by") else None))
+        tenses = tuple(conjugation.get("tenses", DEFAULT_TENSES))
+        return cls(
+            **{
+                k: plan[k]
+                for k in ("new_cards_per_day", "shuffle_window", "known_interval_days")
+                if k in plan
+            },
+            priority=tuple(priority),
+            conjugation=Conjugation(
+                **{
+                    **{k: v for k, v in conjugation.items() if not isinstance(v, list)},
+                    "tenses": tenses,
+                    # Learning is always a subset of what is generated.
+                    "learning_tenses": tuple(
+                        t for t in conjugation.get("learning_tenses", DEFAULT_LEARNING_TENSES) if t in tenses
+                    ),
+                    "learning_imperative_persons": tuple(
+                        conjugation.get("learning_imperative_persons", ("Lei", "tu"))
+                    ),
+                }
+            ),
+            cards=CardTypes(**plan.get("cards", {})),
+        )
+
+
+def load_plan(path: Path = PLAN_PATH) -> Plan:
+    return Plan.from_dict(tomllib.loads(path.read_text(encoding="utf-8")) if path.exists() else {})
 
 
 def validate(lists: list[ListDef]) -> list[str]:
@@ -157,11 +254,10 @@ def validate(lists: list[ListDef]) -> list[str]:
             errors.append(f"{l.id}: input file missing ({l.path})")
         if not l.deck.startswith("Italian::"):
             errors.append(f"{l.id}: deck {l.deck!r} should live under 'Italian::'")
-    plan = load_plan()
     known = {l.id for l in lists}
-    for p in plan.get("priority", []):
-        if p.get("list") not in known:
-            errors.append(f"plan.toml: priority list {p.get('list')!r} is not in lists.toml")
+    for list_id, _by in load_plan().priority:
+        if list_id not in known:
+            errors.append(f"plan.toml: priority list {list_id!r} is not in lists.toml")
     return errors
 
 
@@ -494,4 +590,4 @@ def read(l: ListDef) -> list[Item]:
     return items
 
 
-__all__ = ["ListDef", "Item", "load", "load_plan", "validate", "read", "plain"]
+__all__ = ["ListDef", "Item", "Plan", "load", "load_plan", "validate", "read", "plain"]

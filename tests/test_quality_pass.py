@@ -10,6 +10,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from flashcards import notes, overrides, queue, reconcile, semantics, srt
+from flashcards import lists
 from .support import database, desired, lexeme
 
 SIX = ["io", "tu", "lui_lei", "noi", "voi", "loro"]
@@ -373,7 +374,7 @@ class EveryListTests(unittest.TestCase):
             p.start()
             self.addCleanup(p.stop)
         plan = patch.object(
-            notes, "load_plan", return_value={"priority": [{"list": "film"}, {"list": "test"}]}
+            notes, "load_plan", return_value=lists.Plan.from_dict({"priority": [{"list": "film"}, {"list": "test"}]})
         )
         plan.start()
         self.addCleanup(plan.stop)

@@ -22,7 +22,7 @@ def report():
         "configuration_errors": validate(load()),
         "tools": {},
         "dependencies": {},
-        "daily_card_budget": config.get("new_cards_per_day", 25),
+        "daily_card_budget": config.new_cards_per_day,
         "assets_per_run": {"images": settings.run.image_limit, "audio": settings.run.audio_limit},
     }
     for name in ("claude", "codex", "ffmpeg"):

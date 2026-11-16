@@ -10,10 +10,7 @@ MODEL_VERBS = {"-are": "parlare", "-ere": "credere", "-ire": "dormire", "-ire (i
 
 def study_order(conn: sqlite3.Connection) -> dict[str, int]:
     """lexeme id → priority (lower = sooner), from plan.toml + list rank."""
-    plan = load_plan()
-    priorities = plan.get("priority", [])
-    priorities = sorted(enumerate(priorities), key=lambda ip: (str(ip[1].get("by") or "9999-12-31"), ip[0]))
-    order = [p["list"] for _i, p in priorities]
+    order = load_plan().list_order()
     pos_of = {lid: i for i, lid in enumerate(order)}
     out: dict[str, int] = {}
     for r in conn.execute("SELECT list_id, lexeme_id, rank FROM list_items"):
@@ -86,7 +83,7 @@ def full_form_verbs(conn: sqlite3.Connection) -> set[str]:
     """Verbs that get full conjugation cards: model verbs, irregular verbs,
     and the most frequent N (plan.toml [conjugation] full_forms_top)."""
     plan = load_plan()
-    top = int(plan.get("conjugation", {}).get("full_forms_top", 120))
+    top = plan.conjugation.full_forms_top
     rows = conn.execute(
         """SELECT id, lemma, irregular, freq_rank FROM lexemes
            WHERE pos = 'verb' AND forms_json IS NOT NULL AND ignored IS NULL
@@ -96,13 +93,9 @@ def full_form_verbs(conn: sqlite3.Connection) -> set[str]:
     ranked = sorted((r for r in rows if r["freq_rank"]), key=lambda r: r["freq_rank"])[:top]
     keep = {r["id"] for r in ranked}
     keep |= {r["id"] for r in rows if r["irregular"]}
-    models = (
-        {r["id"] for r in rows if r["lemma"] in MODEL_VERBS.values()}
-        if plan.get("cards", {}).get("patterns", True)
-        else set()
-    )
+    models = {r["id"] for r in rows if r["lemma"] in MODEL_VERBS.values()} if plan.cards.patterns else set()
     order = study_order(conn)
-    cap = plan.get("conjugation", {}).get("max_full_verbs", 120)
+    cap = plan.conjugation.max_full_verbs
     published = {
         key.split(":")[1] for key, _direction in published_directions(conn) if key.startswith("form:")
     }
@@ -120,48 +113,17 @@ def full_form_verbs(conn: sqlite3.Connection) -> set[str]:
 
 
 def plan_tenses() -> list[str]:
-    return list(
-        load_plan()
-        .get("conjugation", {})
-        .get(
-            "tenses",
-            [
-                "presente",
-                "passato_prossimo",
-                "imperfetto",
-                "futuro_semplice",
-                "presente_progressivo",
-                "imperativo",
-                "condizionale_presente",
-                "condizionale_passato",
-            ],
-        )
-    )
+    return list(load_plan().conjugation.tenses)
 
 
 def form_publication() -> dict:
     """Every configured tense is stored and published; only Learning is active."""
-    config = load_plan().get("conjugation", {})
-    generated = config.get("tenses", plan_tenses())
+    config = load_plan().conjugation
     return {
-        "deck": config.get("deck", "Italian::Verbs"),
-        "tenses": generated,
-        "learning_tenses": [
-            t
-            for t in config.get(
-                "learning_tenses",
-                [
-                    "presente",
-                    "passato_prossimo",
-                    "futuro_semplice",
-                    "imperativo",
-                    "imperfetto",
-                    "presente_progressivo",
-                ],
-            )
-            if t in generated
-        ],
-        "imperative_persons": config.get("learning_imperative_persons", ["Lei", "tu"]),
+        "deck": config.deck,
+        "tenses": list(config.tenses),
+        "learning_tenses": list(config.learning_tenses),
+        "imperative_persons": list(config.learning_imperative_persons),
     }
 
 

@@ -21,6 +21,14 @@ max_unavailable_minutes = 0
 # Your cards stay in Anki meanwhile and are updated in place as the new answers arrive.
 task_version = "7"       # 7: Opus quality pass (12 Oct 2026)
 
+# A job that keeps failing: how many tries in all, and the wait between them.
+retry_attempts = 3
+retry_cooldown_minutes = 5
+
+[ai.batch_sizes]
+# Items per Claude call, per job kind, e.g. lexeme_enrich = 15. The defaults are
+# in flashcards/queue.py (BATCH).
+
 [ai.task_models]
 # Per-task overrides, e.g. practice_feedback = "sonnet". Task names are in
 # flashcards/tasks.py. None for now: everything uses the model above.
@@ -63,6 +71,8 @@ compress_workers = 8
 
 [anki]
 url = "http://127.0.0.1:8765"
+# Refuse to sync when more than this share of the pipeline's notes are missing from Anki.
+drift_guard_ratio = 0.05
 
 [backups]
 keep_last = 10

@@ -3,6 +3,7 @@
 # A word in several lists has a card in each list's deck; priority only sets the order.
 
 new_cards_per_day = 25       # used for the "you'll finish by …" estimate
+known_interval_days = 21     # a card counts as known once its Anki interval reaches this
 # A little randomness in each deck's new-card order: a card moves at most about
 # this many places (so numbers don't go 1, 2, 3 …). 0 = strict list order.
 shuffle_window = 20

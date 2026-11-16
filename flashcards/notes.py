@@ -170,14 +170,8 @@ class _Builder:
         self.order = study_order(conn)
         self.lists = {r["id"]: r for r in conn.execute("SELECT * FROM lists")}
         self.list_settings = {lid: json.loads(r["settings"] or "{}") for lid, r in self.lists.items()}
-        plan = load_plan()
-        self.priority = [
-            p["list"]
-            for _i, p in sorted(
-                enumerate(plan.get("priority", [])),
-                key=lambda ip: (str(ip[1].get("by") or "9999-12-31"), ip[0]),
-            )
-        ]
+        self.plan = load_plan()
+        self.priority = self.plan.list_order()
         self.membership: dict[str, list[str]] = defaultdict(list)
         self.rank: dict[tuple[str, str], int] = {}
         for r in conn.execute("SELECT list_id, lexeme_id, rank FROM list_items"):
@@ -527,7 +521,7 @@ class _Builder:
                     )
 
     def noun_phrase_notes(self):
-        if not load_plan().get("cards", {}).get("noun_phrases", True):
+        if not self.plan.cards.noun_phrases:
             return
         for lx in self.conn.execute(
             """SELECT l.*, s.prompt FROM lexemes l JOIN senses s ON s.lexeme_id = l.id AND s.active=1 AND s.idx = (SELECT min(s2.idx) FROM senses s2 WHERE s2.lexeme_id=l.id AND s2.active=1)
@@ -611,7 +605,7 @@ class _Builder:
         rule: "nation" → la nazione, with the rule (-zione = -tion) on the back
         only, so the front doesn't give it away. Production only (you recognise
         a cognate anyway); checked against the card's own English."""
-        if not load_plan().get("cards", {}).get("cognates", True):
+        if not self.plan.cards.cognates:
             return
         words = []
         for r in self.conn.execute(
@@ -686,7 +680,7 @@ def candidates(conn):
     b.cognate_notes()
     b.mistake_notes()
     b.notes.sort(key=lambda n: (n["sort"], n["key"]))
-    b.notes = shuffle_within_decks(b.notes, load_plan().get("shuffle_window", 20))
+    b.notes = shuffle_within_decks(b.notes, b.plan.shuffle_window)
     return b
 
 

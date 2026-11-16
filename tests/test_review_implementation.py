@@ -182,7 +182,9 @@ class PlanningTests(unittest.TestCase):
             patch.object(
                 planning,
                 "load_plan",
-                return_value={"cards": {"patterns": False}, "conjugation": {"max_full_verbs": 1}},
+                return_value=lists.Plan.from_dict(
+                    {"cards": {"patterns": False}, "conjugation": {"max_full_verbs": 1}}
+                ),
             ),
             patch.object(planning, "study_order", return_value={"a": 999999, "b": 1}),
         ):

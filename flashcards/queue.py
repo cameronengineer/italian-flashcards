@@ -48,6 +48,7 @@ from .tasks import (
 )
 from .util import md5_hex, print_banner
 
+#: Items per Claude call, per job kind (settings.toml [ai.batch_sizes] overrides).
 BATCH = {
     "lexeme_enrich": 15,
     "phrase_enrich": 20,
@@ -591,7 +592,14 @@ def _apply_lexeme(conn, word, model):
     )
     conn.execute(
         "UPDATE lexemes SET english_plural=?,status=?,issues=?,ignored=?,provenance=?,updated_at=CURRENT_TIMESTAMP WHERE id=?",
-        (plural, status, json.dumps(issues), _ignored(conn, word), json.dumps(prov, sort_keys=True), lx["id"]),
+        (
+            plural,
+            status,
+            json.dumps(issues),
+            _ignored(conn, word),
+            json.dumps(prov, sort_keys=True),
+            lx["id"],
+        ),
     )
     f = word.get("fact") or {}
     if not overrides.is_human(conn, lx["id"], "fact"):
@@ -656,8 +664,10 @@ def _validate_text_result(kind, payloads, jobs, result):
         ignored = bool(item.get("ignore"))  # an ignored entry needs no card text
         if kind == "lexeme_enrich" and ignored:
             item["senses"] = [s for s in item["senses"] if s["prompt"].strip()]
-        if kind == "lexeme_enrich" and not ignored and (
-            not item["senses"] or any(not s["prompt"].strip() for s in item["senses"])
+        if (
+            kind == "lexeme_enrich"
+            and not ignored
+            and (not item["senses"] or any(not s["prompt"].strip() for s in item["senses"]))
         ):
             raise ValueError("Empty sense response")
         if kind == "lexeme_enrich":
@@ -842,7 +852,9 @@ def _run_text_batch(ai, kind, jobs, conn, lock):
                     "UPDATE lexemes SET card_number=?, card_english=? WHERE id=?",
                     (
                         item["number"],
-                        item["english"].strip() if item["number"] == "plural" and item["english"].strip() else None,
+                        item["english"].strip()
+                        if item["number"] == "plural" and item["english"].strip()
+                        else None,
                         item["id"],
                     ),
                 )
@@ -1033,6 +1045,8 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
     client = AI(conn, lock)
     owner = uuid4().hex
     workers = max(1, settings.ai.concurrency)
+    attempts_allowed = settings.ai.retry_attempts
+    cooldown = f"+{round(settings.ai.retry_cooldown_minutes * 60)} seconds"
     image_slots = max(1, settings.images.concurrency)
 
     def work(kind, jobs, number, label):
@@ -1073,10 +1087,10 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
             errors = {jid: INVALID + message for jid, message in errors.items()}
         with lock, transaction(conn):
             conn.executemany(
-                "UPDATE ai_jobs SET status=CASE WHEN attempts>=2 THEN 'failed' ELSE 'pending' END,"
-                "attempts=attempts+1,error=?,owner=NULL,next_retry_at=datetime('now','+5 minutes'),"
+                "UPDATE ai_jobs SET status=CASE WHEN attempts+1>=? THEN 'failed' ELSE 'pending' END,"
+                "attempts=attempts+1,error=?,owner=NULL,next_retry_at=datetime('now',?),"
                 "updated_at=CURRENT_TIMESTAMP WHERE id=?",
-                [(message[:2000], jid) for jid, message in errors.items()],
+                [(attempts_allowed, message[:2000], cooldown, jid) for jid, message in errors.items()],
             )
         report.event(
             "batch_failed",
@@ -1134,7 +1148,7 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
                     with transaction(conn):
                         # Isolate a previously failed text job on its next attempt;
                         # one bad member must not keep poisoning the same whole batch.
-                        size = 1 if first["attempts"] else BATCH[kind]
+                        size = 1 if first["attempts"] else settings.ai.batch_sizes.get(kind, BATCH[kind])
                         # Images made together must not share a destination file.
                         other_keys = sorted(image_keys) if kind == "image" else []
                         jobs = conn.execute(
@@ -1202,11 +1216,13 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
                                 if isinstance(exc, PartialBatchError)
                                 else {j["id"] for j in jobs}
                             )
-                            exhausted = sum(j["attempts"] >= 2 for j in jobs if j["id"] in failed_ids)
+                            exhausted = sum(
+                                j["attempts"] + 1 >= attempts_allowed for j in jobs if j["id"] in failed_ids
+                            )
                             retry_note = (
                                 f"{exhausted} exhausted; retried when the task or input changes"
                                 if exhausted == nfailed
-                                else "retry after 5m; bounded to 3 attempts"
+                                else f"retry after {settings.ai.retry_cooldown_minutes:g}m; bounded to {attempts_allowed} attempts"
                             )
                             report.line(
                                 f"{KIND_NAME[kind]:<11}✗ {nfailed:<4}{label[:34]:<34} failed: "
@@ -1281,7 +1297,9 @@ def retry_failed(
     """Put failed jobs back in the queue (and, with ``include_deferred``, end
     retry cooldowns). ``transient_only`` leaves invalid answers alone: asking
     the same question again would fail the same way."""
-    failed = "status = 'failed'" + (f" AND coalesce(error,'') NOT LIKE '{INVALID}%'" if transient_only else "")
+    failed = "status = 'failed'" + (
+        f" AND coalesce(error,'') NOT LIKE '{INVALID}%'" if transient_only else ""
+    )
     cur = conn.execute(
         "UPDATE ai_jobs SET attempts=CASE WHEN status='failed' THEN 0 ELSE attempts END, "
         f"status = 'pending', next_retry_at=NULL WHERE (({failed})"
