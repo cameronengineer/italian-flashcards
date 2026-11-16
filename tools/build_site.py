@@ -37,7 +37,7 @@ PRIVATE_DECKS = {"italian_core_tutto_bene"}
 PRIVATE_TAGS = {"list::tutto-bene"}
 
 # Real cards shown on the page: (deck file stem, Italian field).
-SAMPLES = [("italian_cils_a1", "il caffè"), ("italian_verbs_learning_presente", "vedo"), ("italian_noun_phrases", "il loro mondo")]
+SAMPLES = [('italian_cils_a1', 'il caffè'), ('italian_verbs_learning_presente', 'vedo'), ('italian_noun_phrases', 'il loro mondo'), ('italian_basics_numbers', 'undici'), ('italian_cils_a2', 'la fine'), ('italian_cils_b1', 'il passaggio'), ('italian_cils_b2', 'vestirsi'), ('italian_cognates', 'possibile'), ('italian_core_fluent_forever_625', 'il cane'), ('italian_frequency', 'la grazia'), ('italian_movies_benvenuti_al_sud', 'questo'), ('italian_movies_le_otto_montagne', 'ci'), ('italian_verbs_more_tenses_condizionale_passato', 'avremmo visto'), ('italian_verbs_more_tenses_condizionale_presente', 'vedrebbe'), ('italian_verbs_more_tenses_imperativo_con_noi', 'pensiamo'), ('italian_verbs_more_tenses_imperativo_con_voi', 'chiedete'), ('italian_verbs_learning_futuro_semplice', 'vedrai'), ('italian_verbs_learning_imperativo_con_lei', 'pensi'), ('italian_verbs_learning_imperativo_con_tu', 'chiedi'), ('italian_verbs_learning_imperfetto', 'vedevamo'), ('italian_verbs_learning_passato_prossimo', 'hanno visto'), ('italian_verbs_learning_presente_progressivo', 'stiamo vedendo')]
 _FIELDS = ["Italian", "English", "Hint", "Labels", "Details", "Forms", "IPA", "Example", "Note", "Fact",
            "FactTitle", "Image", "Audio", "Recognition", "Production"]
 
@@ -260,12 +260,19 @@ def render_page(data: dict) -> None:
         "{{VERB_FORMS}}": f"{st['verb_forms'] // 100 * 100:,}+",
         "{{DECK_COUNT}}": str(len(decks)),
         "{{TOTAL_SIZE}}": f"{sum(d['bytes'] for d in decks.values()) / 1e6:,.0f} MB",
-        "{{SAMPLE}}": "\n".join(_sample_html(sample) for sample in data["samples"]),
+        "{{SAMPLE}}": "\n".join(_sample_html(sample) for sample in data["samples"] if sample["deck"] in {"italian_cils_a1", "italian_verbs_learning_presente", "italian_noun_phrases"}),
         "{{BUILT}}": datetime.date.today().strftime("%B %Y"),
     }
     for key, value in swaps.items():
         page = page.replace(key, value)
     (SITE_DIR / "index.html").write_text(page, encoding="utf-8")
+    # Work both as a standalone script and as an imported build helper.
+    import sys
+    try:
+        from .site_pages import build
+    except ImportError:  # python3 tools/build_site.py
+        from site_pages import build
+    build(data, sys.modules[__name__])
 
 
 _WORD_DECKS = [
