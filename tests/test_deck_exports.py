@@ -124,14 +124,14 @@ class DormancyTests(unittest.TestCase):
             reconcile._sync_dormancy(c, plan, {key: 10})
             self.assertEqual(calls.count("unsuspend"), 1)
 
-    def test_new_and_adopted_dormant_notes_are_suspended(self):
+    def test_dormant_notes_are_suspended(self):
         c = database(self)
         lexeme(c, pos="verb")
         key = "form:x:condizionale_presente:io"
-        fields = desired(c, key=key)
+        desired(c, key=key)
         c.execute("UPDATE v4_notes SET card_type='form',tags='fc::dormant'")
-        states = {100: 0, 200: 2}
-        plan = reconcile.Plan(replacements={(key, "Production"): (20, fields, "Italian::Verbs::Dormant")})
+        states = {100: 0}
+        plan = reconcile.Plan()
 
         def invoke(action, **kw):
             if action == "notesInfo":
@@ -145,8 +145,8 @@ class DormancyTests(unittest.TestCase):
 
         with patch.object(reconcile, "invoke", side_effect=invoke):
             reconcile._sync_dormancy(c, plan, {key: 10})
-        self.assertEqual(states, {100: -1, 200: -1})
-        self.assertEqual(plan.suspended, 2)
+        self.assertEqual(states, {100: -1})
+        self.assertEqual(plan.suspended, 1)
 
     def test_interruption_after_suspension_can_resume_and_leech_is_not_reactivated(self):
         c = database(self)

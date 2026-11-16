@@ -15,7 +15,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from ..db import connect, managed_decks
+from ..db import connect
 from ..paths import (
     AUDIO_DIR,
     AUDIO_DIR_COMPRESSED,
@@ -39,46 +39,26 @@ from ..quality import reasons, require_current_notes
 
 
 def _audio_texts(conn, decks: list[str] | None = None) -> list[str]:
-    """Audio still worth generating: ready v4 notes, in study order. Falls
-    back to legacy cards if v4 has not been built yet."""
-    has_v4 = (
-        conn.execute("SELECT COUNT(*) FROM v4_notes").fetchone()[0]
-        if conn.execute("SELECT 1 FROM sqlite_master WHERE name = 'v4_notes'").fetchone()
-        else 0
-    )
-    if has_v4:
-        require_current_notes(conn)
-        where = "WHERE ready=1 AND audio_text IS NOT NULL AND audio_text != ''"
-        params: list = []
-        if decks:
-            where += f" AND deck IN ({','.join('?' * len(decks))})"
-            params = list(decks)
-        # Study order, with Dormant verb forms (suspended in Anki) last.
-        rows = conn.execute(
-            f"SELECT * FROM v4_notes {where} "
-            "ORDER BY instr(' ' || tags || ' ', ' fc::dormant ') > 0, sort_order",
-            params,
-        ).fetchall()
-        return list(
-            dict.fromkeys(
-                r["audio_text"]
-                for r in rows
-                if not reasons(conn, r["key"], r["lexeme_id"], json.loads(r["fields_json"]))
-            )
-        )
+    """Audio still worth generating: ready notes, in study order."""
+    require_current_notes(conn)
+    where = "WHERE ready=1 AND audio_text IS NOT NULL AND audio_text != ''"
+    params: list = []
     if decks:
-        placeholders = ",".join("?" * len(decks))
-        rows = conn.execute(
-            f"SELECT DISTINCT audio_text FROM cards"
-            f" WHERE audio_text IS NOT NULL AND audio_text != ''"
-            f" AND deck IN ({placeholders})",
-            decks,
-        ).fetchall()
-    else:
-        rows = conn.execute(
-            "SELECT DISTINCT audio_text FROM cards WHERE audio_text IS NOT NULL AND audio_text != ''"
-        ).fetchall()
-    return sorted({r["audio_text"] for r in rows})
+        where += f" AND deck IN ({','.join('?' * len(decks))})"
+        params = list(decks)
+    # Study order, with Dormant verb forms (suspended in Anki) last.
+    rows = conn.execute(
+        f"SELECT * FROM v4_notes {where} "
+        "ORDER BY instr(' ' || tags || ' ', ' fc::dormant ') > 0, sort_order",
+        params,
+    ).fetchall()
+    return list(
+        dict.fromkeys(
+            r["audio_text"]
+            for r in rows
+            if not reasons(conn, r["key"], r["lexeme_id"], json.loads(r["fields_json"]))
+        )
+    )
 
 
 # ── Audio generation ─────────────────────────────────────────────────────────
@@ -211,9 +191,7 @@ def generate_audio_per_deck(
     """Up to ``per_deck`` new audio files for every deck (study order within
     each deck) — spreads a small daily budget across all decks."""
     with closing(connect()) as conn:
-        available = [
-            r[0] for r in conn.execute("SELECT DISTINCT deck FROM v4_notes ORDER BY deck")
-        ] or managed_decks(conn)
+        available = [r[0] for r in conn.execute("SELECT DISTINCT deck FROM v4_notes ORDER BY deck")]
         decks = [d for d in available if not decks or any(d == p or d.startswith(p + "::") for p in decks)]
     totals = {"generated": 0, "failed": 0}
     for deck in decks:

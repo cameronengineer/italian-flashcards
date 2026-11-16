@@ -84,20 +84,3 @@ FACT_TITLES = {
     "culture": "Did you know?",
     "usage": "Usage",
 }
-
-
-# ── The v3 notetype (only to find and adopt studied notes made before v4) ───
-
-#: Anki may hold it under a renamed copy ("Italian Card Model+++"), so it is
-#: matched by name prefix and exact field list (``anki.pipeline_models``).
-LEGACY_MODEL_NAME = "Italian Card Model"
-LEGACY_MODEL_FIELDS = [
-    "FrontText",
-    "FrontLabels",
-    "FrontAudio",
-    "BackHighlight",
-    "BackText",
-    "Audio",
-    "Image",
-    "SortKey",
-]

@@ -56,8 +56,7 @@ def known_roots(conn):
 
 
 def published_directions(conn):
-    result = {(r["key"], r["direction"]) for r in conn.execute("SELECT key,direction FROM adoptions")}
-    result |= {(r["key"], r["direction"]) for r in conn.execute("SELECT key,direction FROM card_knowledge")}
+    result = {(r["key"], r["direction"]) for r in conn.execute("SELECT key,direction FROM card_knowledge")}
     # Old identity rows may predate card_knowledge; recover their stored directions.
     for row in conn.execute(
         "SELECT n.key,n.fields_json FROM identity i JOIN v4_notes n ON n.key=i.key WHERE i.kind='v4' AND i.note_id IS NOT NULL"

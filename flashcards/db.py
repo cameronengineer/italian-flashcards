@@ -1,30 +1,31 @@
-"""SQLite connection, schema and migrations.
+"""SQLite connection and schema.
 
-v4 (word-first) tables:
-  lexemes, senses          one record per root word; what it means on a card
-  lists, list_items        what to learn and which roots each list holds
-  ai_jobs, ai_cache        the durable AI queue; every AI answer
-  form_prompts, word_facts English prompts for verb forms; fun facts
-  mnemonics, mistakes      leech-doctor memory aids; practice mistakes
-  v4_notes                 the notes Anki should hold (rebuilt every build)
-  audits                   latest AI audit verdict per note
+``SCHEMA_SQL`` is the whole schema, as a new database gets it:
 
-Operations tables (``OPERATIONS_SQL``): overrides (human edits), identity +
-adoptions + retirements + sync_runs (what was sent to Anki), card_knowledge
-(what you know), source_observations + identity_aliases (input lineage),
-asset_manifest and metadata (checkpoints).
+  lexemes, senses            one record per root word; what it means on a card
+  lists, list_items          what to learn and which roots each list holds
+  source_observations        every input row, as read (lineage for meanings)
+  overrides                  your edits, applied over AI and dictionary data
+  ai_jobs, ai_cache          the durable AI queue; every AI answer
+  form_prompts, form_exclusions, word_facts, film_glosses, cue_fixes
+                             what Claude wrote
+  mnemonics, mistakes        leech-doctor memory aids; practice mistakes
+  v4_notes                   the notes Anki should hold (rebuilt every build)
+  identity, retirements, sync_runs, card_knowledge
+                             what was sent to Anki, and what you know
+  audits                     latest AI audit verdict per note
+  asset_manifest, metadata   media provenance; checkpoints
 
-v3 tables (entries, verb_forms, noun_phrases, cards) are kept read-only so
-studied notes from before v4 can be adopted.
-
-Schema changes go through ``MIGRATIONS`` (tracked with ``PRAGMA user_version``,
-backed up first). ``SCHEMA_SQL`` + ``_m5_integrity`` build a fresh database.
+An existing database is upgraded by ``MIGRATIONS`` (tracked with
+``PRAGMA user_version``, backed up first). The chain starts at version 13:
+that was the last version of the old layout, which still carried the tables
+of the pre-lexicon pipeline ("v3").
 """
 
 from __future__ import annotations
 
-import sqlite3
 import json
+import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -33,148 +34,11 @@ from .paths import DB_PATH
 SCHEMA_SQL = """
 PRAGMA foreign_keys = ON;
 
--- ── ENTRIES: one row per logical "thing we know about" ─────────────────
-CREATE TABLE IF NOT EXISTS entries (
-    id                   TEXT PRIMARY KEY,
-    source_path          TEXT NOT NULL,           -- relative to inputs/
-    natural_id           TEXT NOT NULL,
-    mode                 TEXT NOT NULL,           -- gloss|avere|verb|noun (subtlex stores verb/noun)
-    deck                 TEXT NOT NULL,
-    italian              TEXT NOT NULL,
-    english              TEXT NOT NULL,
-    input_english        TEXT,                    -- CSV gloss the row was built from (edit detection)
-    confidence           REAL,
-
-    -- Verb fields (only filled when mode='verb')
-    infinitive           TEXT,
-    auxiliary            TEXT,
-    past_participle      TEXT,
-    is_reflexive         INTEGER NOT NULL DEFAULT 0,
-
-    -- Noun fields (only filled when mode='noun')
-    singular             TEXT,
-    plural               TEXT,
-    gender               TEXT,
-    definite_singular    TEXT,
-    definite_plural      TEXT,
-    indefinite_singular  TEXT,
-
-    -- Optional frequency info from SUBTLEX (used for sort order)
-    frequency_rank       INTEGER,
-    zipf                 REAL,
-
-    -- 1 when the item is no longer in its source input (kept, not deleted,
-    -- so restoring the row restores the same note and review history)
-    retired              INTEGER NOT NULL DEFAULT 0,
-
-    created_at           TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_entries_source_mode_natural
-    ON entries(source_path, mode, natural_id);
-CREATE INDEX IF NOT EXISTS idx_entries_mode ON entries(mode);
-CREATE INDEX IF NOT EXISTS idx_entries_deck ON entries(deck);
-
-
--- ── VERB FORMS: per-verb 22-form conjugation table ─────────────────────
-CREATE TABLE IF NOT EXISTS verb_forms (
-    id           INTEGER PRIMARY KEY AUTOINCREMENT,
-    entry_id     TEXT NOT NULL,
-    tense        TEXT NOT NULL,            -- grammar.TENSES
-    person       TEXT NOT NULL,            -- io|tu|lui_lei|noi|voi|loro|Lei
-    polarity     TEXT NOT NULL DEFAULT 'positive',
-    italian      TEXT NOT NULL,
-    english      TEXT NOT NULL,
-    labels       TEXT,
-    card_key     TEXT NOT NULL,            -- natural_key of the cards it produces
-    FOREIGN KEY (entry_id) REFERENCES entries(id) ON DELETE CASCADE,
-    UNIQUE(entry_id, tense, person, polarity)
-);
-CREATE INDEX IF NOT EXISTS idx_verb_forms_entry ON verb_forms(entry_id);
-
-
--- ── NOUN PHRASES: per-noun definite/indefinite/etc. forms ──────────────
-CREATE TABLE IF NOT EXISTS noun_phrases (
-    id           INTEGER PRIMARY KEY AUTOINCREMENT,
-    entry_id     TEXT NOT NULL,
-    phrase_type  TEXT NOT NULL,            -- definite|indefinite|articulated_preposition|demonstrative|possessive
-    number       TEXT NOT NULL,            -- singular|plural
-    preposition  TEXT,
-    italian      TEXT NOT NULL,
-    english      TEXT NOT NULL,
-    labels       TEXT,
-    card_key     TEXT NOT NULL,            -- natural_key of the cards it produces
-    FOREIGN KEY (entry_id) REFERENCES entries(id) ON DELETE CASCADE,
-    UNIQUE(entry_id, phrase_type, number, preposition)
-);
-CREATE INDEX IF NOT EXISTS idx_noun_phrases_entry ON noun_phrases(entry_id);
-
-
--- ── CARDS: the final Anki notes (one row per direction) ─────────────────
-CREATE TABLE IF NOT EXISTS cards (
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    entry_id        TEXT NOT NULL,
-    natural_key     TEXT NOT NULL,
-    direction       TEXT NOT NULL,        -- en_to_it | it_to_en
-    deck            TEXT NOT NULL,
-    front_text      TEXT NOT NULL,
-    front_labels    TEXT,
-    back_highlight  TEXT NOT NULL,
-    back_text       TEXT,                 -- details line (dictionary form / grammar)
-    audio_text      TEXT,
-    image_text      TEXT,
-    fact            TEXT,                 -- fun fact shown on the back, if any
-    fact_kind       TEXT,
-    sort_order      INTEGER NOT NULL,
-    guid            TEXT NOT NULL UNIQUE,
-    FOREIGN KEY (entry_id) REFERENCES entries(id) ON DELETE CASCADE,
-    UNIQUE(natural_key, direction)
-);
-CREATE INDEX IF NOT EXISTS idx_cards_deck ON cards(deck);
-CREATE INDEX IF NOT EXISTS idx_cards_entry ON cards(entry_id);
-CREATE INDEX IF NOT EXISTS idx_cards_sort ON cards(deck, sort_order);
-
-
--- ── AI_CACHE: every AI answer, keyed by model + task + messages ─────────
-CREATE TABLE IF NOT EXISTS ai_cache (
-    cache_key      TEXT PRIMARY KEY,
-    response_json  TEXT NOT NULL,
-    created_at     TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-
--- ── WORD_FACTS: one fun-fact answer per distinct word ──────────────────
-CREATE TABLE IF NOT EXISTS word_facts (
-    word           TEXT PRIMARY KEY,      -- facts.normalise(word)
-    has_fact       INTEGER NOT NULL,
-    kind           TEXT,                  -- tasks.FACT_KINDS
-    fact           TEXT,
-    confidence     REAL,
-    model          TEXT,
-    created_at     TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- ── AUDITS: latest AI audit per card ─────────────────────────────────
-CREATE TABLE IF NOT EXISTS audits (
-    natural_key    TEXT NOT NULL,
-    direction      TEXT NOT NULL,
-    card_hash      TEXT NOT NULL,         -- content audited (stale if the card changed)
-    verdict        TEXT NOT NULL,         -- pass | warn | fail
-    severity       INTEGER,
-    categories     TEXT,
-    issues         TEXT,
-    suggestion     TEXT,
-    model          TEXT,
-    audited_at     TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (natural_key, direction)
-);
--- ════════════════════════ v4: word-first lexicon ════════════════════════
-
 -- ── LEXEMES: one record per root word (lemma + part of speech) ─────────
 CREATE TABLE IF NOT EXISTS lexemes (
     id               TEXT PRIMARY KEY,      -- md5("lex::" lemma "::" pos)
     lemma            TEXT NOT NULL,         -- dictionary form, standard spelling
-    pos              TEXT NOT NULL,         -- noun|verb|adj|adv|pron|conj|prep|intj|num|det|phrase
+    pos              TEXT NOT NULL,         -- noun|verb|adj|adv|pron|conj|prep|intj|num|det|phrase|…
     display          TEXT,                  -- how the card shows it ("la casa", "bello")
     gender           TEXT,
     plural           TEXT,
@@ -191,14 +55,18 @@ CREATE TABLE IF NOT EXISTS lexemes (
     cognate_rule     TEXT,
     cognate_score    REAL,
     image_key        TEXT,                  -- text whose md5 names the image file
-    status           TEXT NOT NULL DEFAULT 'new',   -- new | ready
-    issues           TEXT,                  -- verification disagreements (JSON)
+    status           TEXT NOT NULL DEFAULT 'new',   -- new | ready (card text written)
+    issues           TEXT,                  -- Claude's doubts about the dictionary data (JSON)
     provenance       TEXT,                  -- field → source (JSON)
-    updated_at       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ignored          TEXT,                  -- Claude's reason this entry should not be a card
+    key_list         TEXT,                  -- the list whose copy of the word keeps the plain note key
+    card_number      TEXT,                  -- nouns: 'singular' | 'plural' | 'both' (noun_number task)
+    card_english     TEXT                   -- English for a plural-only card
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_lexemes_lemma_pos ON lexemes(lemma, pos);
 
--- ── SENSES: what a lexeme means on a card ──────────────────────────────
+-- ── SENSES: what a lexeme means on a card (idx 0 is the main meaning) ──
 CREATE TABLE IF NOT EXISTS senses (
     lexeme_id   TEXT NOT NULL,
     idx         INTEGER NOT NULL,
@@ -208,7 +76,12 @@ CREATE TABLE IF NOT EXISTS senses (
     note        TEXT,                       -- usage note (back of card)
     also        TEXT,                       -- other accepted Italian answers
     provenance  TEXT,
-    PRIMARY KEY (lexeme_id, idx)
+    active      INTEGER NOT NULL DEFAULT 1, -- 0 = archived meaning
+    source_id   TEXT,                       -- the dictionary / list evidence this meaning cites
+    context     TEXT,
+    features    TEXT NOT NULL DEFAULT '{}', -- meaning-specific grammar (JSON)
+    PRIMARY KEY (lexeme_id, idx),
+    FOREIGN KEY (lexeme_id) REFERENCES lexemes(id) ON DELETE CASCADE
 );
 
 -- ── LISTS: what you want to learn (CILS levels, a movie, …) ─────────────
@@ -226,20 +99,31 @@ CREATE TABLE IF NOT EXISTS list_items (
     raw         TEXT,                       -- the row as written in the source
     hint        TEXT,                       -- the source's own English gloss
     context     TEXT,                       -- JSON: count, first_seen, example (movies)
-    PRIMARY KEY (list_id, lexeme_id)
+    PRIMARY KEY (list_id, lexeme_id),
+    FOREIGN KEY (list_id) REFERENCES lists(id) ON DELETE CASCADE,
+    FOREIGN KEY (lexeme_id) REFERENCES lexemes(id) ON DELETE RESTRICT
 );
 CREATE INDEX IF NOT EXISTS idx_list_items_lexeme ON list_items(lexeme_id);
+CREATE TABLE IF NOT EXISTS source_observations (
+    list_id TEXT NOT NULL REFERENCES lists(id) ON DELETE CASCADE, row_key TEXT NOT NULL,
+    lexeme_id TEXT NOT NULL REFERENCES lexemes(id), raw TEXT NOT NULL, payload TEXT NOT NULL,
+    source_hash TEXT NOT NULL, generation TEXT NOT NULL, PRIMARY KEY(list_id, row_key)
+);
+CREATE INDEX IF NOT EXISTS idx_source_observations_lexeme
+    ON source_observations(lexeme_id,list_id,row_key);
 
--- legacy v3 entry → lexeme (for adopting studied notes)
-CREATE TABLE IF NOT EXISTS entry_lexeme (
-    entry_id    TEXT PRIMARY KEY,
-    lexeme_id   TEXT NOT NULL
+-- ── OVERRIDES: your edits, always applied over generated values ────────
+CREATE TABLE IF NOT EXISTS overrides (
+    lexeme_id TEXT NOT NULL REFERENCES lexemes(id), field TEXT NOT NULL,
+    value_json TEXT NOT NULL, author TEXT NOT NULL DEFAULT 'human', reason TEXT NOT NULL DEFAULT '',
+    version INTEGER NOT NULL DEFAULT 1, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (lexeme_id, field)
 );
 
 -- ── AI_JOBS: durable queue for every AI / image task ───────────────────
 CREATE TABLE IF NOT EXISTS ai_jobs (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    kind        TEXT NOT NULL,              -- lexeme_enrich | verb_prompts | phrase_enrich | disambiguate | image
+    kind        TEXT NOT NULL,              -- see queue.ORDER
     subject     TEXT NOT NULL,              -- lexeme id / group key
     payload     TEXT,                       -- JSON input snapshot
     status      TEXT NOT NULL DEFAULT 'pending',  -- pending | running | done | failed | cancelled
@@ -249,9 +133,70 @@ CREATE TABLE IF NOT EXISTS ai_jobs (
     priority    INTEGER NOT NULL DEFAULT 1000,  -- lower runs first (study order)
     created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fingerprint TEXT,                       -- hash of the job's inputs: changed inputs reopen it
+    force_refresh INTEGER NOT NULL DEFAULT 0,
+    owner       TEXT,
+    started_at  TEXT,
+    next_retry_at TEXT,
     UNIQUE (kind, subject)
 );
 CREATE INDEX IF NOT EXISTS idx_ai_jobs_status ON ai_jobs(status, kind, priority);
+
+-- ── AI_CACHE: every AI answer, keyed by model + task + messages ─────────
+CREATE TABLE IF NOT EXISTS ai_cache (
+    cache_key      TEXT PRIMARY KEY,
+    response_json  TEXT NOT NULL,
+    created_at     TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ── What Claude wrote ──────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS form_prompts (
+    lexeme_id   TEXT NOT NULL,
+    tense       TEXT NOT NULL,
+    person      TEXT NOT NULL,
+    english     TEXT NOT NULL,
+    source_id   TEXT,
+    PRIMARY KEY (lexeme_id, tense, person),
+    FOREIGN KEY (lexeme_id) REFERENCES lexemes(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS form_exclusions (
+    lexeme_id TEXT NOT NULL REFERENCES lexemes(id), tense TEXT NOT NULL, person TEXT NOT NULL,
+    source_id TEXT, reason TEXT NOT NULL, PRIMARY KEY(lexeme_id,tense,person)
+);
+CREATE TABLE IF NOT EXISTS word_facts (
+    word           TEXT PRIMARY KEY,      -- facts.normalise(word)
+    has_fact       INTEGER NOT NULL,
+    kind           TEXT,                  -- tasks.FACT_KINDS
+    fact           TEXT,
+    confidence     REAL,
+    model          TEXT,
+    created_at     TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    checked        TEXT,                  -- fact check: keep | fix | drop
+    checked_text   TEXT
+);
+CREATE TABLE IF NOT EXISTS film_glosses (
+    key         TEXT PRIMARY KEY,           -- md5 of the line as shown (lexicon.film_line_key)
+    italian     TEXT NOT NULL,
+    words       TEXT NOT NULL,              -- JSON [{"it": …, "en": …}], in line order
+    model       TEXT,
+    created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS cue_fixes (
+    lexeme_id TEXT PRIMARY KEY, prompt TEXT NOT NULL, source_hint TEXT NOT NULL DEFAULT '',
+    english TEXT NOT NULL, hint TEXT
+);
+CREATE TABLE IF NOT EXISTS mistakes (
+    id          TEXT PRIMARY KEY,           -- md5 of the Italian chunk
+    italian     TEXT NOT NULL,
+    english     TEXT NOT NULL,
+    note        TEXT,
+    created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS mnemonics (
+    key         TEXT PRIMARY KEY,
+    mnemonic    TEXT NOT NULL,
+    created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 -- ── V4_NOTES: desired Anki notes (rebuilt every build) ─────────────────
 CREATE TABLE IF NOT EXISTS v4_notes (
@@ -268,55 +213,70 @@ CREATE TABLE IF NOT EXISTS v4_notes (
     audio_text   TEXT                       -- what the audio says (no "/a" variants)
 );
 
--- ── FORM_PROMPTS: English prompts for verb forms (verb_prompts task) ───
-CREATE TABLE IF NOT EXISTS form_prompts (
-    lexeme_id   TEXT NOT NULL,
-    tense       TEXT NOT NULL,
-    person      TEXT NOT NULL,
-    english     TEXT NOT NULL,
-    PRIMARY KEY (lexeme_id, tense, person)
-);
-
--- ── MISTAKES: practice errors turned into cards ────────────────────────
-CREATE TABLE IF NOT EXISTS mistakes (
-    id          TEXT PRIMARY KEY,           -- md5 of the Italian chunk
-    italian     TEXT NOT NULL,
-    english     TEXT NOT NULL,
-    note        TEXT,
-    created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- ── MNEMONICS: leech doctor output per note key ────────────────────────
-CREATE TABLE IF NOT EXISTS mnemonics (
-    key         TEXT PRIMARY KEY,
-    mnemonic    TEXT NOT NULL,
-    created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- ── FILM_GLOSSES: word-for-word English of the film lines on cards ──────
-CREATE TABLE IF NOT EXISTS film_glosses (
-    key         TEXT PRIMARY KEY,           -- md5 of the line as shown (lexicon.film_line_key)
-    italian     TEXT NOT NULL,
-    words       TEXT NOT NULL,              -- JSON [{"it": …, "en": …}], in line order
-    model       TEXT,
-    created_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- ── LEGACY_NOTES: weekly index of the v3 notes still in Anki ───────────
-CREATE TABLE IF NOT EXISTS legacy_notes (
-    note_id     INTEGER PRIMARY KEY,
-    sort_key    TEXT NOT NULL,
-    cards       TEXT NOT NULL               -- JSON card ids
-);
-
--- ── IDENTITY: every note key ever sent to Anki (exported to git) ───────
+-- ── What was sent to Anki, and what you know ───────────────────────────
 CREATE TABLE IF NOT EXISTS identity (
     key          TEXT PRIMARY KEY,
     guid         TEXT NOT NULL,
-    kind         TEXT NOT NULL,             -- v4 | legacy
-    first_seen   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    kind         TEXT NOT NULL,
+    first_seen   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    note_id      INTEGER,                   -- NULL once the note has left Anki
+    profile      TEXT
 );
+CREATE TABLE IF NOT EXISTS retirements (
+    key TEXT PRIMARY KEY, reason TEXT NOT NULL CHECK(length(trim(reason)) > 0),
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS sync_runs (
+    id TEXT PRIMARY KEY, profile TEXT NOT NULL, plan_json TEXT NOT NULL,
+    status TEXT NOT NULL, error TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS card_knowledge (
+    key TEXT NOT NULL, direction TEXT NOT NULL, card_id INTEGER NOT NULL,
+    state TEXT NOT NULL CHECK(state IN ('unknown','learning','known')),
+    interval INTEGER NOT NULL, lapses INTEGER NOT NULL, reviews INTEGER NOT NULL,
+    suspended INTEGER NOT NULL, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(key, direction, card_id)
+);
+
+-- ── AUDITS: latest AI audit per note ───────────────────────────────────
+CREATE TABLE IF NOT EXISTS audits (
+    natural_key    TEXT NOT NULL,         -- the note key
+    direction      TEXT NOT NULL,         -- always 'note'
+    card_hash      TEXT NOT NULL,         -- content audited (stale if the note changed)
+    verdict        TEXT NOT NULL,         -- pass | warn | fail
+    severity       INTEGER,
+    categories     TEXT,
+    issues         TEXT,
+    suggestion     TEXT,
+    model          TEXT,
+    audited_at     TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (natural_key, direction)
+);
+
+-- ── Media provenance and checkpoints ───────────────────────────────────
+CREATE TABLE IF NOT EXISTS asset_manifest (
+    filename TEXT PRIMARY KEY, subject TEXT NOT NULL, kind TEXT NOT NULL,
+    spec_hash TEXT NOT NULL, checksum TEXT NOT NULL, metadata TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 """
+
+#: status column → allowed values, enforced by triggers.
+_STATUSES = {
+    "lexemes": "'new','ready'",
+    "ai_jobs": "'pending','running','done','failed','cancelled'",
+}
+
+
+def _status_triggers(conn: sqlite3.Connection) -> None:
+    for table, values in _STATUSES.items():
+        for event in ("INSERT", "UPDATE"):
+            conn.execute(f"DROP TRIGGER IF EXISTS validate_{table}_{event}")
+            conn.execute(
+                f"CREATE TRIGGER validate_{table}_{event} BEFORE {event} ON {table} "
+                f"WHEN NEW.status NOT IN ({values}) BEGIN SELECT RAISE(ABORT, 'Invalid {table} status'); END"
+            )
 
 
 def connect(path: Path = DB_PATH) -> sqlite3.Connection:
@@ -333,114 +293,6 @@ def connect(path: Path = DB_PATH) -> sqlite3.Connection:
     return conn
 
 
-def _m1_portable_identity(conn: sqlite3.Connection) -> None:
-    """Make identity independent of the repo location and of row IDs.
-
-    * ``entries.source_path``: absolute path → path relative to ``inputs/``.
-      ``entries.id`` is left untouched, so existing card GUIDs don't change.
-    * ``entries.retired`` and ``entries.input_english`` columns.
-    * Unique key becomes ``(source_path, mode, natural_id)`` so a SUBTLEX lemma
-      can exist as both a verb and a noun (essere, potere, dovere).
-    * ``verb_forms.card_key`` / ``noun_phrases.card_key``: persisted card
-      natural keys. Existing rows get the legacy ``verb_form:<rowid>`` /
-      ``noun_phrase:<rowid>`` keys (same GUIDs); new rows get semantic keys.
-    """
-    for eid, sp in conn.execute("SELECT id, source_path FROM entries").fetchall():
-        marker = "/inputs/"
-        if marker in sp:
-            rel = sp[sp.rindex(marker) + len(marker) :]
-            conn.execute("UPDATE entries SET source_path = ? WHERE id = ?", (rel, eid))
-    cols = {r[1] for r in conn.execute("PRAGMA table_info(entries)")}
-    if "retired" not in cols:
-        conn.execute("ALTER TABLE entries ADD COLUMN retired INTEGER NOT NULL DEFAULT 0")
-    if "input_english" not in cols:
-        # NULL for legacy rows: the next ingest records the current CSV gloss
-        # as the baseline, and only later CSV edits are propagated.
-        conn.execute("ALTER TABLE entries ADD COLUMN input_english TEXT")
-    conn.execute("DROP INDEX IF EXISTS idx_entries_source_natural")
-    conn.execute(
-        "CREATE UNIQUE INDEX IF NOT EXISTS idx_entries_source_mode_natural "
-        "ON entries(source_path, mode, natural_id)"
-    )
-    for table, prefix in (("verb_forms", "verb_form"), ("noun_phrases", "noun_phrase")):
-        cols = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
-        if "card_key" not in cols:
-            # SQLite can't add a NOT NULL column without a default; the
-            # default is immediately overwritten for every existing row.
-            conn.execute(f"ALTER TABLE {table} ADD COLUMN card_key TEXT NOT NULL DEFAULT ''")
-        conn.execute(f"UPDATE {table} SET card_key = '{prefix}:' || id WHERE card_key = ''")
-
-
-def _m2_facts_and_audits(conn: sqlite3.Connection) -> None:
-    """Fun facts on cards + persisted audit verdicts.
-
-    ``cards`` gains ``fact`` / ``fact_kind``; the ``word_facts`` and
-    ``audits`` tables are created by ``SCHEMA_SQL`` (IF NOT EXISTS) right
-    after the migrations run.
-    """
-    cols = {r[1] for r in conn.execute("PRAGMA table_info(cards)")}
-    for name in ("fact", "fact_kind"):
-        if name not in cols:
-            conn.execute(f"ALTER TABLE cards ADD COLUMN {name} TEXT")
-
-
-def _m3_lexicon(conn: sqlite3.Connection) -> None:
-    """v4 word-first tables (lexemes, senses, lists, ai_jobs, v4_notes,
-    identity). They are all ``CREATE … IF NOT EXISTS`` in
-    ``SCHEMA_SQL``, which runs right after the migrations; nothing to alter."""
-
-
-def _m4_note_audio(conn: sqlite3.Connection) -> None:
-    """v4_notes.audio_text (databases that got v4_notes before it existed)."""
-    cols = {r[1] for r in conn.execute("PRAGMA table_info(v4_notes)")}
-    if cols and "audio_text" not in cols:
-        conn.execute("ALTER TABLE v4_notes ADD COLUMN audio_text TEXT")
-
-
-OPERATIONS_SQL = """
-CREATE TABLE IF NOT EXISTS metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS overrides (
-    lexeme_id TEXT NOT NULL REFERENCES lexemes(id), field TEXT NOT NULL,
-    value_json TEXT NOT NULL, author TEXT NOT NULL DEFAULT 'human', reason TEXT NOT NULL DEFAULT '',
-    version INTEGER NOT NULL DEFAULT 1, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (lexeme_id, field)
-);
-CREATE TABLE IF NOT EXISTS source_observations (
-    list_id TEXT NOT NULL REFERENCES lists(id) ON DELETE CASCADE, row_key TEXT NOT NULL,
-    lexeme_id TEXT NOT NULL REFERENCES lexemes(id), raw TEXT NOT NULL, payload TEXT NOT NULL,
-    source_hash TEXT NOT NULL, generation TEXT NOT NULL, PRIMARY KEY(list_id, row_key)
-);
-CREATE TABLE IF NOT EXISTS identity_aliases (
-    old_key TEXT PRIMARY KEY, new_key TEXT NOT NULL, reason TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS adoptions (
-    key TEXT NOT NULL, direction TEXT NOT NULL, note_id INTEGER NOT NULL,
-    profile TEXT NOT NULL, PRIMARY KEY(key, direction, profile)
-);
-CREATE TABLE IF NOT EXISTS retirements (
-    key TEXT PRIMARY KEY, reason TEXT NOT NULL CHECK(length(trim(reason)) > 0),
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS sync_runs (
-    id TEXT PRIMARY KEY, profile TEXT NOT NULL, plan_json TEXT NOT NULL,
-    status TEXT NOT NULL, error TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS asset_manifest (
-    filename TEXT PRIMARY KEY, subject TEXT NOT NULL, kind TEXT NOT NULL,
-    spec_hash TEXT NOT NULL, checksum TEXT NOT NULL, metadata TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS card_knowledge (
-    key TEXT NOT NULL, direction TEXT NOT NULL, card_id INTEGER NOT NULL,
-    state TEXT NOT NULL CHECK(state IN ('unknown','learning','known')),
-    interval INTEGER NOT NULL, lapses INTEGER NOT NULL, reviews INTEGER NOT NULL,
-    suspended INTEGER NOT NULL, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(key, direction, card_id)
-);
-"""
-
-
 def execute_statements(conn, script: str) -> None:
     """Unlike executescript, preserve the caller's transaction."""
     statement = ""
@@ -450,309 +302,111 @@ def execute_statements(conn, script: str) -> None:
             conn.execute(statement)
             statement = ""
     if statement.strip():
-        raise ValueError("Incomplete migration SQL")
+        raise ValueError("Incomplete schema SQL")
 
 
-def _m5_integrity(conn: sqlite3.Connection) -> None:
-    """Operations tables, foreign keys, queue/identity columns, status checks,
-    and human edits copied into ``overrides``."""
-    additions = {
-        "ai_jobs": {
-            "fingerprint": "TEXT",
-            "force_refresh": "INTEGER NOT NULL DEFAULT 0",
-            "owner": "TEXT",
-            "started_at": "TEXT",
-            "next_retry_at": "TEXT",
-        },
-        "identity": {"note_id": "INTEGER", "profile": "TEXT", "card_ids": "TEXT"},
-        "senses": {"active": "INTEGER NOT NULL DEFAULT 1", "source_id": "TEXT", "context": "TEXT"},
-        "lexemes": {"source_hash": "TEXT"},
-    }
-    for table, cols in additions.items():
-        have = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
-        for name, definition in cols.items():
-            if name not in have:
-                conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {definition}")
-    # Numeric v4 values were Anki note IDs, never actual GUIDs.
-    conn.execute(
-        "UPDATE identity SET note_id=CAST(guid AS INTEGER), guid='' "
-        "WHERE kind='v4' AND guid != '' AND guid NOT GLOB '*[^0-9]*' AND note_id IS NULL"
-    )
-    relationships = {
-        "senses": [("lexeme_id", "lexemes", "id", "CASCADE")],
-        "list_items": [("list_id", "lists", "id", "CASCADE"), ("lexeme_id", "lexemes", "id", "RESTRICT")],
-        "entry_lexeme": [
-            ("entry_id", "entries", "id", "CASCADE"),
-            ("lexeme_id", "lexemes", "id", "RESTRICT"),
-        ],
-        "form_prompts": [("lexeme_id", "lexemes", "id", "CASCADE")],
-    }
-    # Superseded by card_knowledge (per card and direction, read back on sync).
-    conn.execute("DROP TABLE IF EXISTS knowledge")
-    for table, refs in relationships.items():
-        if list(conn.execute(f"PRAGMA foreign_key_list({table})")):
-            continue
-        for col, parent, pk, _action in refs:
-            n = conn.execute(
-                f"SELECT count(*) FROM {table} WHERE {col} NOT IN (SELECT {pk} FROM {parent})"
-            ).fetchone()[0]
-            if n:
-                raise ValueError(
-                    f"Migration stopped: {table} contains {n} orphan {col} values; restore/repair first"
-                )
-        sql = conn.execute("SELECT sql FROM sqlite_master WHERE name=?", (table,)).fetchone()[0]
-        indexes = [
-            r[0]
-            for r in conn.execute(
-                "SELECT sql FROM sqlite_master WHERE tbl_name=? AND type='index' AND sql IS NOT NULL",
-                (table,),
-            )
-        ]
-        sql = sql.replace(f"CREATE TABLE {table}", f"CREATE TABLE {table}_new", 1)
-        end = sql.rfind(")")
-        constraints = "".join(
-            f", FOREIGN KEY ({col}) REFERENCES {parent}({pk}) ON DELETE {action}"
-            for col, parent, pk, action in refs
-        )
-        conn.execute(sql[:end] + constraints + sql[end:])
-        conn.execute(f"INSERT INTO {table}_new SELECT * FROM {table}")
-        conn.execute(f"DROP TABLE {table}")
-        conn.execute(f"ALTER TABLE {table}_new RENAME TO {table}")
-        for sql in indexes:
-            conn.execute(sql)
-    execute_statements(conn, OPERATIONS_SQL)
-    for table, column, values in (
-        ("lexemes", "status", "'new','ready','needs_review'"),
-        ("ai_jobs", "status", "'pending','running','done','failed','cancelled'"),
-    ):
-        for event in ("INSERT", "UPDATE"):
-            conn.execute(
-                f"CREATE TRIGGER IF NOT EXISTS validate_{table}_{event} BEFORE {event} ON {table} "
-                f"WHEN NEW.{column} NOT IN ({values}) BEGIN SELECT RAISE(ABORT, 'Invalid {table} status'); END"
-            )
-    # Preserve existing human edits as a separate authority from regenerated data.
-    for row in conn.execute("SELECT * FROM lexemes").fetchall():
-        for field, source in json.loads(row["provenance"] or "{}").items():
-            if source == "human" and field in row.keys():
-                conn.execute(
-                    "INSERT OR IGNORE INTO overrides(lexeme_id,field,value_json) VALUES(?,?,?)",
-                    (row["id"], field, json.dumps(row[field])),
-                )
+def _m14_remove_v3(conn: sqlite3.Connection) -> None:
+    """Drop the pre-lexicon ("v3") tables and everything that existed to adopt
+    their Anki notes.
 
+    Two things are kept from them first:
 
-def _m6_queue_recovery(conn: sqlite3.Connection) -> None:
-    """Index source evidence and retry failures caused by repaired queue bugs once.
-
-    Planning rebuilds eligible payloads and cancels obsolete jobs before dispatch.
-    Keep their error/result evidence until a successful replacement is committed.
+    * images made for v3 entries are found one last time, so each root keeps
+      pointing at its existing picture (``lexemes.image_key``);
+    * the identities and decks of the v3 notes still in Anki go to
+      ``v3_note_keys`` / metadata ``v3_decks``, which is all ``flashcards
+      purge-v3`` needs to remove those notes. It drops them when it is done.
     """
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_source_observations_lexeme "
-        "ON source_observations(lexeme_id,list_id,row_key)"
-    )
-    conn.execute(
-        "UPDATE ai_jobs SET status='pending',attempts=0,next_retry_at=NULL,owner=NULL "
-        "WHERE status='failed' AND error IN (?,?,?)",
-        (
-            "the JSON object must be str, bytes or bytearray, not NoneType",
-            "Provider must return exactly every requested verb form",
-            "Provider must return exactly the requested IDs once each",
-        ),
-    )
+    tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    if {"entries", "entry_lexeme"} <= tables:
+        from .lexicon import existing_image, image_exists
 
-
-def _m7_meaning_contracts(conn):
-    """Preserve keys/media; attach evidence and record every generated-form outcome."""
-    if "features" not in {r[1] for r in conn.execute("PRAGMA table_info(senses)")}:
-        conn.execute("ALTER TABLE senses ADD COLUMN features TEXT NOT NULL DEFAULT '{}'")
-    if "source_id" not in {r[1] for r in conn.execute("PRAGMA table_info(form_prompts)")}:
-        conn.execute("ALTER TABLE form_prompts ADD COLUMN source_id TEXT")
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS cue_overrides (key TEXT PRIMARY KEY, content_hash TEXT NOT NULL, "
-        "hint TEXT NOT NULL, alternatives TEXT NOT NULL, reason TEXT NOT NULL)"
-    )
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS form_exclusions (lexeme_id TEXT NOT NULL REFERENCES lexemes(id), "
-        "tense TEXT NOT NULL,person TEXT NOT NULL,source_id TEXT,reason TEXT NOT NULL, "
-        "PRIMARY KEY(lexeme_id,tense,person))"
-    )
-    for row in conn.execute("SELECT lexeme_id,idx,source_id,context FROM senses").fetchall():
-        refs = [
-            dict(r)
-            for r in conn.execute(
-                "SELECT list_id,row_key,source_hash FROM source_observations WHERE lexeme_id=? ORDER BY list_id,row_key",
-                (row["lexeme_id"],),
-            )
-        ]
+        texts: dict[str, list] = {}
+        for r in conn.execute(
+            "SELECT el.lexeme_id, e.italian, e.infinitive, e.singular "
+            "FROM entry_lexeme el JOIN entries e ON e.id = el.entry_id"
+        ):
+            texts.setdefault(r[0], []).extend([r[1], r[2], r[3]])
+        for r in conn.execute("SELECT id, lemma, display, image_key FROM lexemes").fetchall():
+            if r["id"] in texts and not image_exists(r["image_key"]):
+                key = existing_image(r["display"], r["lemma"], *texts[r["id"]])
+                if key:
+                    conn.execute("UPDATE lexemes SET image_key=? WHERE id=?", (key, r["id"]))
+    conn.execute("CREATE TABLE IF NOT EXISTS v3_note_keys (sort_key TEXT PRIMARY KEY)")
+    if "cards" in tables:
         conn.execute(
-            "UPDATE senses SET source_id=?,context=? WHERE lexeme_id=? AND idx=?",
-            (
-                row["source_id"] or f"legacy:{row['lexeme_id']}:{row['idx']}",
-                row["context"]
-                or json.dumps(
-                    {
-                        "status": "legacy meaning; source match not independently verified",
-                        "observations": refs,
-                    }
-                ),
-                row["lexeme_id"],
-                row["idx"],
-            ),
+            "INSERT OR IGNORE INTO v3_note_keys SELECT DISTINCT natural_key || '|' || direction FROM cards"
         )
-    conn.execute(
-        "UPDATE form_prompts SET source_id=(SELECT source_id FROM senses s "
-        "WHERE s.lexeme_id=form_prompts.lexeme_id AND active=1 ORDER BY idx LIMIT 1)"
-    )
-    # New schemas/evidence do not regenerate all finished vocabulary. Re-record
-    # fingerprints once. Only incomplete/unsafe verb responses are explicitly reopened.
-    conn.execute("UPDATE ai_jobs SET fingerprint=NULL")
-    from . import semantics
-
-    for job in conn.execute("SELECT * FROM ai_jobs WHERE kind='verb_prompts' AND status='done'").fetchall():
-        payload = json.loads(job["payload"] or "{}")
-        requested = {(t, p) for t, ps in payload.get("forms", {}).items() for p in ps}
-        prompts = {
-            (r["tense"], r["person"])
-            for r in conn.execute("SELECT * FROM form_prompts WHERE lexeme_id=?", (job["subject"],))
-        }
-        lx = conn.execute("SELECT * FROM lexemes WHERE id=?", (job["subject"],)).fetchone()
-        sense = semantics.primary(conn, job["subject"])
-        unsafe = lx and any(semantics.exclusion(lx, sense, t, p) for t, p in prompts)
-        if requested != prompts or unsafe:
-            conn.execute(
-                "UPDATE ai_jobs SET status='pending',attempts=0,next_retry_at=NULL,error='Revalidate incomplete or unsuitable verb forms' WHERE id=?",
-                (job["id"],),
-            )
-    conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
-
-
-#: Ordered schema migrations. Index ``i`` upgrades ``user_version`` i → i+1.
-def _m8_no_human_review(conn: sqlite3.Connection) -> None:
-    """Words are no longer held for human review: Claude's doubts are kept as
-    information. Held words with written content become ready; any without
-    go back to the queue."""
-    conn.execute(
-        "UPDATE lexemes SET status = CASE WHEN id IN (SELECT lexeme_id FROM senses WHERE active=1) "
-        "THEN 'ready' ELSE 'new' END WHERE status='needs_review'"
-    )
-    conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
+        decks = [r[0] for r in conn.execute("SELECT DISTINCT deck FROM cards ORDER BY deck")]
+        conn.execute("INSERT OR REPLACE INTO metadata VALUES('v3_decks',?)", (json.dumps(decks),))
+    # Children before parents: entry_lexeme, cards, verb_forms and noun_phrases reference entries.
+    for table in (
+        "entry_lexeme",
+        "cards",
+        "verb_forms",
+        "noun_phrases",
+        "entries",
+        "legacy_notes",
+        "adoptions",
+        "identity_aliases",
+    ):
+        conn.execute(f"DROP TABLE IF EXISTS {table}")
+    for table, column in (("lexemes", "source_hash"), ("identity", "card_ids")):
+        if column in {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}:
+            try:
+                conn.execute(f"ALTER TABLE {table} DROP COLUMN {column}")
+            except sqlite3.OperationalError:
+                pass  # SQLite older than 3.35: the unused column stays, harmlessly
+    conn.execute("DELETE FROM identity WHERE kind != 'v4'")
+    conn.execute("DELETE FROM retirements WHERE instr(key, '|') > 0")  # v3 note identities
+    conn.execute("DELETE FROM metadata WHERE key IN ('legacy_index','card_plan','notes_generation')")
+    _status_triggers(conn)
 
 
-def _m9_stable_main_meaning(conn: sqlite3.Connection) -> None:
-    """A word's main meaning is always sense idx 0, so its note keys stay the
-    same whichever dictionary sense an answer picks; Claude may ignore a whole
-    word (``lexemes.ignored``)."""
-    if "ignored" not in {r[1] for r in conn.execute("PRAGMA table_info(lexemes)")}:
-        conn.execute("ALTER TABLE lexemes ADD COLUMN ignored TEXT")
-    rows = conn.execute(
-        "SELECT lexeme_id, min(idx) FROM senses WHERE active=1 GROUP BY lexeme_id HAVING min(idx) > 0"
-    ).fetchall()
-    for lid, main in rows:
-        # Swap the main meaning with whatever (inactive) sense held idx 0.
-        conn.execute("UPDATE senses SET idx=-1 WHERE lexeme_id=? AND idx=0", (lid,))
-        conn.execute("UPDATE senses SET idx=0 WHERE lexeme_id=? AND idx=?", (lid, main))
-        conn.execute("UPDATE senses SET idx=? WHERE lexeme_id=? AND idx=-1", (main, lid))
-    # Unused since the manual review step was dropped (both always empty).
-    conn.execute("DROP TABLE IF EXISTS cue_overrides")
-    conn.execute("DROP TABLE IF EXISTS review_decisions")
-    conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
-
-
-def _m10_one_meaning(conn: sqlite3.Connection) -> None:
-    """Cards show one meaning per word, the main one: extra meanings are archived
-    (their notes leave Anki once the main card is there). Your own edits stay.
-    Facts get Claude's fact-check verdict (keep / fix / drop) and fixed text."""
-    have = {r[1] for r in conn.execute("PRAGMA table_info(word_facts)")}
-    for column in ("checked", "checked_text"):
-        if column not in have:
-            conn.execute(f"ALTER TABLE word_facts ADD COLUMN {column} TEXT")
-    conn.execute(
-        "UPDATE senses SET active=0 WHERE idx>0 AND active=1 AND lexeme_id NOT IN "
-        "(SELECT lexeme_id FROM overrides WHERE field='senses')"
-    )
-    conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
-
-
-def _m11_cards_in_every_list(conn: sqlite3.Connection) -> None:
-    """Every list a word is in gets its own copy of its card. ``key_list`` is the
-    list whose copy keeps the plain note key (set by the next build to the deck
-    the word is in now), so existing notes keep their history and place."""
-    if "key_list" not in {r[1] for r in conn.execute("PRAGMA table_info(lexemes)")}:
-        conn.execute("ALTER TABLE lexemes ADD COLUMN key_list TEXT")
-    conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
-
-
-def _m12_noun_number(conn: sqlite3.Connection) -> None:
-    """Which form a noun's card teaches (Claude's ``noun_number`` answer):
-    'plural' (gli occhiali), 'singular' (la gente: no plural taught) or 'both'."""
-    have = {r[1] for r in conn.execute("PRAGMA table_info(lexemes)")}
-    for column in ("card_number", "card_english"):
-        if column not in have:
-            conn.execute(f"ALTER TABLE lexemes ADD COLUMN {column} TEXT")
-    conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
-
-
-def _m13_cue_fixes(conn: sqlite3.Connection) -> None:
-    """English prompts and hints rewritten so they don't give the Italian away
-    (``cue_check``), kept for the prompt and hint they were made from."""
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS cue_fixes (lexeme_id TEXT PRIMARY KEY, prompt TEXT NOT NULL, "
-        "source_hint TEXT NOT NULL DEFAULT '', english TEXT NOT NULL, hint TEXT)"
-    )
-    conn.execute("DELETE FROM metadata WHERE key='notes_generation'")
-
-
-MIGRATIONS = [
-    _m1_portable_identity,
-    _m2_facts_and_audits,
-    _m3_lexicon,
-    _m4_note_audio,
-    _m5_integrity,
-    _m6_queue_recovery,
-    _m7_meaning_contracts,
-    _m8_no_human_review,
-    _m9_stable_main_meaning,
-    _m10_one_meaning,
-    _m11_cards_in_every_list,
-    _m12_noun_number,
-    _m13_cue_fixes,
-]
-SCHEMA_VERSION = len(MIGRATIONS)
+#: The last schema version of the old layout. Older databases are upgraded to
+#: it by the release that still had those migrations.
+BASE_VERSION = 13
+#: ``MIGRATIONS[i]`` upgrades ``user_version`` BASE_VERSION + i → BASE_VERSION + i + 1.
+MIGRATIONS = [_m14_remove_v3]
+SCHEMA_VERSION = BASE_VERSION + len(MIGRATIONS)
 
 
 def init_schema(conn: sqlite3.Connection) -> None:
     """Create a fresh schema, or migrate an existing DB to ``SCHEMA_VERSION``."""
-    exists = conn.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'entries'").fetchone()
+    exists = conn.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'lexemes'").fetchone()
     if not exists:
+        if conn.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'entries'").fetchone():
+            raise ValueError(_TOO_OLD.format(version=conn.execute("PRAGMA user_version").fetchone()[0]))
         conn.executescript(SCHEMA_SQL)
-        with transaction(conn):
-            _m5_integrity(conn)
-            _m6_queue_recovery(conn)
-            _m7_meaning_contracts(conn)
-            _m9_stable_main_meaning(conn)
-            _m10_one_meaning(conn)
-            _m11_cards_in_every_list(conn)
-            _m12_noun_number(conn)
-            _m13_cue_fixes(conn)
+        _status_triggers(conn)
         conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
         conn.commit()
         return
     version = conn.execute("PRAGMA user_version").fetchone()[0]
     if version > SCHEMA_VERSION:
         raise ValueError(f"Database schema {version} is newer than supported {SCHEMA_VERSION}")
+    if version < BASE_VERSION:
+        raise ValueError(_TOO_OLD.format(version=version))
     if version < SCHEMA_VERSION:
         from .backup import snapshot
 
         snapshot(f"before migrating to schema v{SCHEMA_VERSION}", connection=conn)
     for i in range(version, SCHEMA_VERSION):
         with transaction(conn):
-            MIGRATIONS[i](conn)
+            MIGRATIONS[i - BASE_VERSION](conn)
             conn.execute(f"PRAGMA user_version = {i + 1}")
         from . import report
 
         report.detail(f"  migrated database schema to v{i + 1}")
     conn.executescript(SCHEMA_SQL)  # IF NOT EXISTS: adds any missing indexes/tables
     conn.commit()
+
+
+_TOO_OLD = (
+    "This database is at schema v{version}; this version upgrades from v13 or later. "
+    "Check out commit 7c1157f (the last one with the older migrations), run ./run.sh "
+    "once to bring the database to v13, then return to this version."
+)
 
 
 @contextmanager
@@ -766,9 +420,3 @@ def transaction(conn: sqlite3.Connection):
         raise
     else:
         conn.commit()
-
-
-def managed_decks(conn: sqlite3.Connection) -> list[str]:
-    """Distinct deck names currently in ``cards`` — the single source of truth."""
-    rows = conn.execute("SELECT DISTINCT deck FROM cards ORDER BY deck").fetchall()
-    return [r["deck"] for r in rows]

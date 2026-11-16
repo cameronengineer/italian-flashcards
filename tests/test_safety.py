@@ -9,25 +9,11 @@ from .support import database, lexeme, desired
 
 
 class ReconcileTests(unittest.TestCase):
-    def test_blocked_note_cannot_be_adopted(self):
-        c = database(self)
-        lexeme(c)
-        f = desired(c, ready=False)
-        old = reconcile.AnkiNote(10, "gloss:e|en_to_it", {}, [], [100], {"Italian::Test"})
-        with (
-            patch.object(reconcile, "owned_notes", return_value=[]),
-            patch.object(reconcile, "owned_legacy", return_value=[old]),
-            patch.object(reconcile, "_studied", return_value={100}),
-            patch.object(reconcile, "legacy_target", return_value=(f["Key"], "Production")),
-        ):
-            plan = reconcile.build_plan(c, anki_media=set())
-        self.assertEqual(plan.adopt, [])
-
     def test_failed_add_never_deletes_predecessor(self):
         c = database(self)
         lexeme(c)
         f = desired(c)
-        old = reconcile.AnkiNote(10, "gloss:e|en_to_it", {}, [], [100], {"Italian::Test"})
+        old = reconcile.AnkiNote(10, "vocab:x:2", {}, [], [100], {"Italian::Test"})
         plan = reconcile.Plan(
             add=[
                 {
@@ -37,7 +23,7 @@ class ReconcileTests(unittest.TestCase):
                     "tags": ["fc::owned"],
                 }
             ],
-            retire_legacy=[old],
+            retire=[old],
         )
         plan.retire_dependencies[10] = (f["Key"], "Production")
         calls = []
@@ -50,7 +36,6 @@ class ReconcileTests(unittest.TestCase):
             patch.object(reconcile, "invoke", side_effect=invoke),
             patch.object(reconcile, "ensure_model", return_value="ok"),
             patch.object(reconcile, "build_plan", return_value=plan),
-            patch.object(reconcile, "pipeline_models", return_value=[]),
         ):
             reconcile.run(c, allow_retire=True)  # a rejected add is reported, not fatal
         self.assertNotIn("deleteNotes", calls)
@@ -232,10 +217,10 @@ class GenerationTests(unittest.TestCase):
 class BatchedRetirementTests(unittest.TestCase):
     def test_owned_predecessors_are_deleted_regardless_of_history_but_foreign_notes_stay(self):
         c = database(self)
-        free = reconcile.AnkiNote(10, "gloss:a|en_to_it", {}, [], [100], {"Italian::Test"})
-        studied = reconcile.AnkiNote(11, "gloss:b|en_to_it", {}, [], [110], {"Italian::Test"})
-        foreign = reconcile.AnkiNote(12, "gloss:c|en_to_it", {}, [], [120], {"Italian::Test"})
-        plan = reconcile.Plan(retire_legacy=[free, studied, foreign])
+        free = reconcile.AnkiNote(10, "vocab:a:2", {}, [], [100], {"Italian::Test"})
+        studied = reconcile.AnkiNote(11, "vocab:b:2", {}, [], [110], {"Italian::Test"})
+        foreign = reconcile.AnkiNote(12, "vocab:c:2", {}, [], [120], {"Italian::Test"})
+        plan = reconcile.Plan(retire=[free, studied, foreign])
         plan.retire_dependencies.update({10: None, 11: None, 12: None})
         calls = []
 
@@ -245,7 +230,7 @@ class BatchedRetirementTests(unittest.TestCase):
                 return "Test"
             if action == "notesInfo":
                 return [
-                    {"noteId": n.note_id, "fields": {"SortKey": {"value": n.key}}, "cards": n.cards}
+                    {"noteId": n.note_id, "fields": {"Key": {"value": n.key}}, "cards": n.cards}
                     for n in (free, studied, foreign)
                     if n.note_id in kw["notes"]
                 ]
@@ -262,18 +247,8 @@ class BatchedRetirementTests(unittest.TestCase):
             patch.object(reconcile, "ensure_model", return_value="ok"),
             patch.object(reconcile, "build_plan", return_value=plan),
             patch.object(reconcile, "owned_notes", return_value=[]),
-            patch.object(reconcile, "owned_legacy", return_value=[]),
         ):
             reconcile.run(c, allow_retire=True)
         deletes = [kw["notes"] for action, kw in calls if action == "deleteNotes"]
         self.assertEqual(deletes, [[10, 11]])
 
-    def test_studied_lookup_is_limited_to_the_given_cards(self):
-        with patch.object(
-            reconcile, "invoke", side_effect=lambda a, **kw: [] if a == "findCards" else {}
-        ) as inv:
-            reconcile._studied([1, 2, 3])
-        query = next(
-            kw["query"] for (a,), kw in ((c.args, c.kwargs) for c in inv.call_args_list) if a == "findCards"
-        )
-        self.assertEqual(query, "cid:1,2,3 -is:new")

@@ -148,7 +148,7 @@ the way to update your own collection.
 | `leech` | suspend + tag cards you keep failing; `leech --doctor` writes memory aids |
 | `audit` | Claude reviews conjugations, ambiguous cues and gender-changing plurals first; matching audits are counted separately from publishable notes |
 | `share` | `.apkg` for someone else (only lists marked `shareable`; film lines left out) |
-| `doctor` / `data-review` | health report / data-quality census (read-only) |
+| `doctor` | health report: tools, settings and a data-quality census (read-only; `--database FILE` reviews a backup) |
 | `media-inventory` | resumable checksums, image validation, references and provenance; originals and unreferenced assets are retained |
 | `recovery create PATH` | verified database, dictionary, code, runtime versions and inputs; add `--include-media` and optionally `--anki-collection PATH` |
 
@@ -170,7 +170,7 @@ Prerequisites: Python 3.11+, Node (for Codex), `ffmpeg`, Anki with AnkiConnect.
 | File | Holds |
 |---|---|
 | `lists.toml` | **What** to learn: every list (kind, input file, deck, type pill, `recognition_only`, `facts`, plus `optional`, `shareable`, `image_policy`, `max_drop_ratio`, `allow_empty`). Unknown keys are errors. |
-| `plan.toml` | **When**: list priorities (a film with a watch date first), new cards per day, optional `horizon_days`, conjugation generation and publication settings, which extra card types are on. |
+| `plan.toml` | **When**: list priorities (a film with a watch date first), new cards per day, conjugation generation and publication settings, which extra card types are on. |
 | `settings.toml` | **How**: Claude model / effort / concurrency, outage waiting, **how many new images and audio files each run creates** (`[run] image_limit`, `audio_limit`: 0 = none, -1 = no limit), whether images are required, audio voice, backups, Anki profile. Values are type-checked. |
 | `lexicon/*.jsonl` | The generated lexicon, in git — review AI output as diffs; edit a field and mark it `human` to keep your version forever (stop the run first). |
 | `decks/` | One `.apkg` per deck, rewritten by every run when that deck changes — a portable copy of your cards (for another device or person; importing it into the same Anki profile would duplicate notes). |
@@ -239,12 +239,9 @@ and batches up to eight groups together. This avoids inserting a small hint call
 between almost every word batch. Parallel dictionary reads are serialised through
 one lock; network and Claude calls remain concurrent.
 
-By default every root is worked on, in study order. Set `horizon_days` in
-`plan.toml` to prepare and publish that many days of new card directions. One
-shared plan counts recognition, production and derived drills, subtracts directions
-already published, and selects their generation dependencies. Enrichment can add
-new candidates, which are budgeted on the next pass. Existing verb families are
-maintained independently of which new words have highest priority.
+Every root is worked on, in study order; Anki's daily new-card limit paces what
+you see. Verb families already in Anki are maintained whichever new words have
+the highest priority.
 
 ### 3 · Notes (`notes.py`)
 
@@ -275,8 +272,7 @@ Imperativo con noi and Imperativo con voi. Dormant cards are suspended.
 `[conjugation].learning_tenses` and `learning_imperative_persons` select the
 Learning group; `tenses` controls generation for both groups. Moving a tense to
 Learning reuses its saved prompts and cards and lifts suspensions applied by
-this feature. Existing manual/leech suspensions stay. Dormant notes do not
-consume the optional study horizon's new-card budget. Study history does not
+this feature. Existing manual/leech suspensions stay. Study history does not
 protect obsolete or unsuitable cards from removal.
 
 Claude can mark any unsuitable form as ignored by returning an `exclusions`
@@ -288,19 +284,15 @@ whose plural or gender is ambiguous are handled the same way.
 
 ### 4 · Anki (`reconcile.py`)
 
-Targeted AnkiConnect calls — no `.apkg` imports. Anki is read once per sync;
-the ~60k notes from before v4 are indexed once a week, and each sync only
-reads the ones you've studied.
+Targeted AnkiConnect calls — no `.apkg` imports. Anki is read once per sync.
 
-- refuses before writing anything if the wrong Anki profile is open, a v4
+- refuses before writing anything if the wrong Anki profile is open, a
   note it doesn't own is found, or many notes it put in Anki have vanished;
 - adds ready notes, updates changed ones, moves them when their home deck
   changes; your own tags (and `leech`) are kept, pipeline notes carry
   `fc::owned`;
-- **adopts studied notes from before v4**: updated in place, moved to the v4
-  deck, and the matching direction of the new note switched off;
-- removes obsolete old notes once their replacement is confirmed in Anki,
-  including studied duplicates. Explicitly removed, disabled or ignored forms
+- removes obsolete notes once their replacement is confirmed in Anki,
+  including studied ones. Explicitly removed, disabled or ignored forms
   need no replacement. Every note is re-read just before deletion. `--keep-old`
   turns deletion off;
 - **study history does not protect a card from removal** or keep a disabled
@@ -361,9 +353,29 @@ time needed to learn and retain the material.
 | `form_prompts`, `word_facts`, `mnemonics`, `mistakes` | AI output |
 | `v4_notes` | desired Anki notes |
 | `card_knowledge` | what you know, per card and direction (from Anki) |
-| `identity`, `adoptions`, `legacy_notes`, `sync_runs` | notes sent to Anki, adopted old notes, the weekly index of old notes, sync history |
-| `review_decisions`, `cue_overrides`, `form_exclusions`, `asset_manifest`, `metadata` | legacy saved corrections, reasoned verb exclusions, media checksums, checkpoints |
-| `entries`, `verb_forms`, `noun_phrases`, `cards` | v3 data, kept to adopt your studied notes |
+| `identity`, `retirements`, `sync_runs` | notes sent to Anki, notes marked to leave it, sync history |
+| `form_exclusions`, `film_glosses`, `cue_fixes`, `audits` | reasoned verb exclusions, word-for-word film lines, rewritten prompts, audit verdicts |
+| `asset_manifest`, `metadata` | media checksums, checkpoints |
+
+The schema is written out once in `flashcards/db.py`.
+
+### Notes from the old pipeline (one-off)
+
+The tables of the pipeline that came before the lexicon ("v3"), and the code
+that kept its studied notes alive on the old notetype, are gone. The first run
+of this version upgrades the database (after backing it up) and keeps each
+word's existing image. Old notes still in Anki are then duplicates of current
+cards. Remove them once:
+
+```sh
+./run.sh                    # a normal run: every card now exists on the current notetype
+./run.sh purge-v3           # shows how many old notes are left, changes nothing
+./run.sh purge-v3 --apply   # backs up the Anki collection, then deletes them
+```
+
+Cards that only existed as an old studied note start again as new; no media is
+removed. A database older than schema 13 must first be run once with commit
+`7c1157f`.
 
 Every run starts with a database backup (`backups/` keeps the newest 10);
 migrations are backed up too. Before the first change to Anki, each run also

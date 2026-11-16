@@ -19,12 +19,11 @@ def references(conn):
             r'<img src="([^"]+)"|\[sound:([^\]]+)\]', row["fields_json"].replace('\\"', '"')
         ):
             refs[img or snd].add(row["key"])
-    for table, field, identity in [("lexemes", "image_key", "id"), ("cards", "image_text", "natural_key")]:
-        for row in conn.execute(f"SELECT {identity},{field} FROM {table} WHERE {field} IS NOT NULL"):
-            for suffix in (".png", ".jpg"):
-                name = md5_hex(row[1].strip()) + suffix
-                if any((d / name).is_file() for d in (paths.IMAGE_DIR, paths.IMAGE_DIR_COMPRESSED)):
-                    refs[name].add(f"{table}:{row[0]}")
+    for row in conn.execute("SELECT id,image_key FROM lexemes WHERE image_key IS NOT NULL"):
+        for suffix in (".png", ".jpg"):
+            name = md5_hex(row[1].strip()) + suffix
+            if any((d / name).is_file() for d in (paths.IMAGE_DIR, paths.IMAGE_DIR_COMPRESSED)):
+                refs[name].add(f"lexemes:{row[0]}")
     return refs
 
 

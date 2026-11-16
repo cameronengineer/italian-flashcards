@@ -9,7 +9,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from flashcards import db, notes, overrides, queue, reconcile, semantics, srt
+from flashcards import notes, overrides, queue, reconcile, semantics, srt
 from .support import database, desired, lexeme
 
 SIX = ["io", "tu", "lui_lei", "noi", "voi", "loro"]
@@ -68,22 +68,9 @@ class PersonTests(unittest.TestCase):
 
 
 class StableKeyTests(unittest.TestCase):
-    def test_migration_moves_the_main_meaning_to_idx_0(self):
-        c = database(self)
-        lexeme(c)
-        c.execute("INSERT INTO senses(lexeme_id,idx,prompt,active,source_id) VALUES('x',0,'old',0,'a')")
-        c.execute("INSERT INTO senses(lexeme_id,idx,prompt,active,source_id) VALUES('x',2,'house',1,'b')")
-        c.execute("INSERT INTO senses(lexeme_id,idx,prompt,active,source_id) VALUES('x',3,'home',1,'c')")
-        db._m9_stable_main_meaning(c)
-        rows = [tuple(r) for r in c.execute("SELECT idx,prompt,active FROM senses ORDER BY idx")]
-        self.assertEqual(rows, [(0, "house", 1), (2, "old", 0), (3, "home", 1)])
-
     def plan(self, c, v4):
         with (
             patch.object(reconcile, "owned_notes", return_value=v4),
-            patch.object(reconcile, "owned_legacy", return_value=[]),
-            patch.object(reconcile, "legacy_index", return_value={}),
-            patch.object(reconcile, "legacy_targets", return_value=lambda key: None),
         ):
             return reconcile.build_plan(c, anki_media=set())
 
@@ -97,7 +84,7 @@ class StableKeyTests(unittest.TestCase):
         current = self.note("vocab:x:0", 1, fields)
         old_vocab, old_form = self.note("vocab:x:1", 2), self.note("form:x:presente:io:sense-1", 3)
         plan = self.plan(c, [current, old_vocab, old_form])
-        self.assertEqual(plan.retire_v4, [old_vocab])  # the form's stable key isn't wanted
+        self.assertEqual(plan.retire, [old_vocab])  # the form's stable key isn't wanted
         self.assertEqual(plan.retire_dependencies[2], ("vocab:x:0", "Recognition"))
         self.assertEqual(plan.keep_unmapped, 1)
 
@@ -107,7 +94,7 @@ class StableKeyTests(unittest.TestCase):
         desired(c, ready=False)
         old = self.note("vocab:x:1", 2)
         plan = self.plan(c, [old])
-        self.assertEqual((plan.retire_v4, plan.keep_unmapped), ([], 1))
+        self.assertEqual((plan.retire, plan.keep_unmapped), ([], 1))
 
 
 class IgnoreTests(unittest.TestCase):
@@ -150,7 +137,7 @@ class IgnoreTests(unittest.TestCase):
         self.assertEqual(c.execute("SELECT count(*) FROM v4_notes").fetchone()[0], 0)
         old = reconcile.AnkiNote(1, "vocab:x:0", {}, ["fc::owned"], [10], {"Italian::Test"})
         plan = StableKeyTests.plan(self, c, [old])
-        self.assertEqual(plan.retire_v4, [old])
+        self.assertEqual(plan.retire, [old])
         self.assertIn("A chess abbreviation", plan.retirement_reasons[1])
 
     def test_an_ignored_word_may_come_back_without_card_text(self):
@@ -309,11 +296,9 @@ class CardContentTests(unittest.TestCase):
         queue._apply_lexeme(self.c, answer, "test")
         self.c.commit()
         self.assertEqual(self.c.execute("SELECT count(*) FROM senses WHERE active=1").fetchone()[0], 1)
-        # Extra meanings stored earlier are archived by the migration and never shown.
+        # A second active meaning left in the database still gets no card of its own.
         self.c.execute("INSERT INTO senses(lexeme_id,idx,prompt,active,source_id) VALUES('x',1,'penne pasta',1,'b')")
         self.assertEqual(len(self.vocab_after_build()), 1)
-        db._m10_one_meaning(self.c)
-        self.assertEqual(self.c.execute("SELECT count(*) FROM senses WHERE active=1").fetchone()[0], 1)
         fields = self.vocab_after_build()["vocab:x:0"]
         self.assertEqual(fields["English"], "pen")
 
@@ -421,7 +406,7 @@ class EveryListTests(unittest.TestCase):
         self.cards()
         copy = reconcile.AnkiNote(2, "vocab:x:0@test", {}, ["fc::owned"], [20], {"Italian::Test"})
         plan = StableKeyTests.plan(self, self.c, [copy])
-        self.assertEqual(plan.retire_v4, [copy])
+        self.assertEqual(plan.retire, [copy])
         self.assertEqual(plan.retirement_reasons[2], "No longer in list test")
 
     def test_copies_are_never_mistaken_for_older_keys(self):
@@ -570,7 +555,7 @@ class CognateTests(unittest.TestCase):
         lexeme(c)
         old = reconcile.AnkiNote(9, "cognate:" + "f" * 32, {}, ["fc::owned"], [90], {"Italian::Cognates"})
         plan = StableKeyTests.plan(self, c, [old])
-        self.assertEqual(plan.retire_v4, [old])
+        self.assertEqual(plan.retire, [old])
         self.assertEqual(plan.retirement_reasons[9], "No longer a cognate card")
 
 

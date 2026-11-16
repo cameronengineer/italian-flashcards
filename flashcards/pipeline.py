@@ -135,7 +135,6 @@ def run(args) -> int:
         state["signature"] = signature if not plan.rejected else None
         anki_totals["added"] += plan.added
         anki_totals["updated"] += len(plan.update)
-        anki_totals["refreshed"] += len(plan.adopt)
         anki_totals["replaced"] += plan.retired
         anki_totals["rejected"] += len(plan.rejected)
         anki_totals["suspended"] += plan.suspended
@@ -311,8 +310,8 @@ def run(args) -> int:
         report.section(6, SEGMENTS, "Anki · final sync")
         with closing(connect()) as conn:
             notes.build(conn)  # includes newly generated audio
-            # Reconcile against fresh bulk reads of v4/adopted notes; keep the legacy
-            # index. Local signatures cannot detect edits made in Anki during a run.
+            # Reconcile against a fresh read of Anki: local signatures cannot detect
+            # edits made in Anki during a run.
             report.line(sync(conn, final=True))
             lexicon.export_jsonl(conn)
             from .commands.share import export_decks

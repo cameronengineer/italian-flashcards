@@ -288,6 +288,12 @@ def cmd_recovery(args):
     return 0
 
 
+def cmd_purge_v3(args):
+    from . import purge_v3
+
+    return purge_v3.run(apply=args.apply)
+
+
 def cmd_retire(args):
     with closing(_conn()) as conn:
         if not args.reason.strip():
@@ -355,6 +361,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("key")
     sp.add_argument("--reason", required=True)
     sp.set_defaults(func=cmd_retire)
+
+    sp = sub.add_parser("purge-v3", help="One-off: remove the old pipeline's notes from Anki (dry run unless --apply).")
+    sp.add_argument("--apply", action="store_true", help="Delete them (the Anki collection is backed up first).")
+    sp.set_defaults(func=cmd_purge_v3)
 
     sub.add_parser("check", help="Validate lists.toml + plan.toml.").set_defaults(func=cmd_check)
 

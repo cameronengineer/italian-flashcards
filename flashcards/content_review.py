@@ -108,7 +108,7 @@ def grammar_holds(conn):
     keys = {
         r[0]
         for r in conn.execute(
-            "SELECT key FROM identity UNION SELECT key FROM adoptions UNION SELECT key FROM v4_notes"
+            "SELECT key FROM identity UNION SELECT key FROM v4_notes"
         )
     }
     # An AI decision to ignore a form is a finished outcome even if that form

@@ -16,5 +16,5 @@ def tags_for(existing, wanted):
     return sorted({t for t in existing if not managed_tag(t)} | set(wanted) | {OWNER_TAG})
 
 
-def deck_owned(deck: str, legacy=()):
-    return deck.startswith("Italian::") or deck in legacy
+def deck_owned(deck: str):
+    return deck.startswith("Italian::")

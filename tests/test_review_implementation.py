@@ -151,89 +151,6 @@ class GrammarTests(unittest.TestCase):
             self.assertIn("sono", planning.verb_forms(dual, sense)["passato_prossimo"]["io"][0])
 
 
-class RetirementTests(unittest.TestCase):
-    def test_both_adopted_directions_allow_duplicate_candidate_without_v4(self):
-        c = database(self)
-        lexeme(c)
-        fields = desired(c)
-        olds = []
-        for nid, direction, studied in [
-            (10, "it_to_en", False),
-            (20, "it_to_en", True),
-            (30, "en_to_it", True),
-        ]:
-            n = reconcile.AnkiNote(nid, f"gloss:e|{direction}", {}, [], [nid * 10], {"Italian::Test"})
-            n.cards_info = {nid * 10: {"type": 2 if studied else 0, "reps": 10 if studied else 0}}
-            olds.append(n)
-
-        def target(key):
-            return fields["Key"], "Recognition" if key.endswith("it_to_en") else "Production"
-
-        with (
-            patch.object(reconcile, "owned_notes", return_value=[]),
-            patch.object(reconcile, "owned_legacy", return_value=olds[1:]),
-            patch.object(reconcile, "legacy_index", return_value={10: (olds[0].key, [100])}),
-            patch.object(reconcile, "legacy_targets", return_value=target),
-        ):
-            plan = reconcile.build_plan(c, anki_media=set())
-        self.assertEqual(plan.add, [])
-        self.assertEqual([n.note_id for n in plan.retire_legacy], [10])
-        self.assertEqual(len(plan.replacements), 2)
-
-    def test_disappeared_adopted_replacement_prevents_deletion(self):
-        c = database(self)
-        old = reconcile.AnkiNote(10, "gloss:e|it_to_en", {}, [], [100], {"Italian::Test"})
-        dep = ("vocab:x:0", "Recognition")
-        plan = reconcile.Plan(
-            retire_legacy=[old],
-            retire_dependencies={10: dep},
-            served={dep},
-            replacements={dep: (20, {"SortKey": "gloss:b|it_to_en", "FrontText": "casa"}, "Italian::Test")},
-        )
-        with patch.object(reconcile, "invoke", return_value=[]) as invoke:
-            with self.assertRaisesRegex(RuntimeError, "read-back"):
-                reconcile._retire(c, plan, {}, {}, True)
-        self.assertFalse(any(c.args[0] == "deleteNotes" for c in invoke.call_args_list))
-
-    def test_verified_adopted_home_allows_unstudied_duplicate_cleanup(self):
-        c = database(self)
-        old = reconcile.AnkiNote(10, "gloss:e|it_to_en", {}, [], [100], {"Italian::Test"})
-        dep = ("vocab:x:0", "Recognition")
-        expected = {"SortKey": "gloss:b|it_to_en", "FrontText": "casa"}
-        plan = reconcile.Plan(
-            retire_legacy=[old],
-            retire_dependencies={10: dep},
-            replacements={dep: (20, expected, "Italian::Test")},
-        )
-        calls = []
-
-        def invoke(action, **kw):
-            calls.append(action)
-            if action == "notesInfo":
-                return [
-                    {
-                        "noteId": n,
-                        "fields": {
-                            k: {"value": v}
-                            for k, v in (expected if n == 20 else {"SortKey": old.key}).items()
-                        },
-                        "cards": [n * 10],
-                    }
-                    for n in kw["notes"]
-                ]
-            if action == "cardsInfo":
-                return [{"note": 20, "cardId": 200, "ord": 0}]
-            if action == "getDecks":
-                return {"Italian::Test": kw["cards"]}
-            if action == "getReviewsOfCards":
-                return {}
-            return []
-
-        with patch.object(reconcile, "invoke", side_effect=invoke):
-            self.assertEqual(reconcile._retire(c, plan, {}, {}, True), 1)
-        self.assertIn("deleteNotes", calls)
-
-
 class PlanningTests(unittest.TestCase):
     def test_new_directions_count_only_what_is_not_in_anki_yet(self):
         c = database(self)
@@ -257,7 +174,10 @@ class PlanningTests(unittest.TestCase):
         for lid in ("a", "b"):
             lexeme(c, lid, pos="verb", lemma=lid, forms="{}")
         c.execute("UPDATE lexemes SET irregular=1")
-        c.execute("INSERT INTO adoptions VALUES('form:a:presente:io','Production',1,'Test')")
+        c.execute(
+            "INSERT INTO card_knowledge(key,direction,card_id,state,interval,lapses,reviews,suspended) "
+            "VALUES('form:a:presente:io','Production',1,'learning',1,0,1,0)"
+        )
         with (
             patch.object(
                 planning,

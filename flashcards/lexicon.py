@@ -270,15 +270,10 @@ def sync(conn: sqlite3.Connection) -> dict:
         )
         staged.append((l, [(it, _resolve(it, l)) for it in items if it.lemma], source_hash))
     stats, repairs = {}, []
-    raw_to_lexeme = {}
     with transaction(conn):
         human = {(r[0], r[1]) for r in conn.execute("SELECT lexeme_id, field FROM overrides")}
         # Lists taken out of lists.toml (an optional list whose file is missing is not "removed").
-        old_list_paths = {
-            r["id"]: json.loads(r["settings"] or "{}").get("path")
-            for r in conn.execute("SELECT id, settings FROM lists")
-        }
-        removed = sorted(set(old_list_paths) - {l.id for l in defs})
+        removed = sorted({r[0] for r in conn.execute("SELECT id FROM lists")} - {l.id for l in defs})
         conn.execute("DELETE FROM source_observations")
         conn.execute("DELETE FROM list_items")
         conn.execute("DELETE FROM lists")
@@ -378,8 +373,6 @@ def sync(conn: sqlite3.Connection) -> dict:
                         "UPDATE list_items SET context=? WHERE list_id=? AND lexeme_id=?",
                         (json.dumps(prior_context, ensure_ascii=False), l.id, lid),
                     )
-                raw_to_lexeme[(source, item.raw.strip().lower())] = lid
-                raw_to_lexeme.setdefault((source, rec["lemma"].lower()), lid)
                 prior = old.get((l.id, item.raw), set())
                 if prior and lid not in prior:
                     for was in sorted(prior):
@@ -395,7 +388,7 @@ def sync(conn: sqlite3.Connection) -> dict:
                         )
             stats[l.id] = {"items": len(seen), "new_lexemes": n_new}
             report.detail(f"  {l.id:<18} {len(seen):>5} words (+{n_new} new)")
-        # Only unambiguous one-to-one identity changes may acquire an alias.
+        # A root whose identity changed one-to-one takes its human edits with it.
         destinations = {}
         for repair in repairs:
             destinations.setdefault(repair["old"], set()).add(repair["new"])
@@ -404,14 +397,6 @@ def sync(conn: sqlite3.Connection) -> dict:
             if len(targets) != 1 or active:
                 continue  # split identities require review; never guess scheduling transfer
             target = next(iter(targets))
-            for ct in ("vocab", "phrase"):
-                old_key = f"{ct}:{old_id}:0"
-                target_pos = conn.execute("SELECT pos FROM lexemes WHERE id=?", (target,)).fetchone()[0]
-                new_key = f"{'phrase' if target_pos == 'phrase' else 'vocab'}:{target}:0"
-                conn.execute(
-                    "INSERT OR IGNORE INTO identity_aliases VALUES(?,?,?,CURRENT_TIMESTAMP)",
-                    (old_key, new_key, "input normalization repair"),
-                )
             for o in conn.execute("SELECT * FROM overrides WHERE lexeme_id=?", (old_id,)).fetchall():
                 if not conn.execute(
                     "SELECT 1 FROM overrides WHERE lexeme_id=? AND field=?", (target, o["field"])
@@ -426,12 +411,10 @@ def sync(conn: sqlite3.Connection) -> dict:
         if removed:
             stats["_removed"] = {
                 "lists": removed,
-                "cards": _retire_removed_lists(conn, removed, old_list_paths),
+                "cards": _retire_removed_lists(conn, removed),
             }
         # Repaired targets keep their status: new roots are verified by Claude
         # like any other, and correct existing roots must not be demoted.
-        conn.execute("DELETE FROM entry_lexeme")
-        _map_legacy(conn, raw_to_lexeme, commit=False)
         overrides.apply(conn)
         conn.execute("INSERT OR REPLACE INTO metadata VALUES('source_generation',?)", (generation,))
         conn.execute("INSERT OR REPLACE INTO metadata VALUES('dictionary_version',?)", (kaikki.version(),))
@@ -487,12 +470,12 @@ def sync_if_changed(conn: sqlite3.Connection) -> dict | None:
     return stats
 
 
-def _retire_removed_lists(conn: sqlite3.Connection, removed: list[str], paths: dict) -> int:
+def _retire_removed_lists(conn: sqlite3.Connection, removed: list[str]) -> int:
     """Mark the Anki notes of removed lists for retirement; returns how many.
 
-    Covers v4 notes whose root no longer belongs to any list, and v3 notes made
-    from the removed lists' files. The Anki sync deletes obsolete notes after
-    re-checking each, including studied notes. Generated content and media stay.
+    Covers notes whose root no longer belongs to any list. The Anki sync deletes
+    obsolete notes after re-checking each, including studied notes. Generated
+    content and media stay.
     """
     reason = "list removed from lists.toml: " + ", ".join(removed)
     still = {r[0] for r in conn.execute("SELECT DISTINCT lexeme_id FROM list_items")}
@@ -501,17 +484,6 @@ def _retire_removed_lists(conn: sqlite3.Connection, removed: list[str], paths: d
         for (key,) in conn.execute("SELECT key FROM identity WHERE kind='v4'")
         if key.split(":")[0] in ("vocab", "phrase", "form", "nphrase", "cognate") and key.split(":")[1] not in still
     ]
-    files = [paths[i] for i in removed if paths.get(i)]
-    if files:
-        marks = ",".join("?" * len(files))
-        keys += [
-            r[0]
-            for r in conn.execute(
-                "SELECT c.natural_key || '|' || c.direction FROM cards c JOIN entries e ON e.id = c.entry_id "
-                f"WHERE e.source_path IN ({marks})",
-                files,
-            )
-        ]
     conn.executemany(
         "INSERT OR IGNORE INTO retirements(key, reason) VALUES(?, ?)", [(k, reason) for k in keys]
     )
@@ -521,40 +493,14 @@ def _retire_removed_lists(conn: sqlite3.Connection, removed: list[str], paths: d
     return len(keys)
 
 
-def _map_legacy(conn: sqlite3.Connection, raw_to_lexeme: dict, *, commit=True) -> None:
-    """Link v3 entries to lexemes so their studied notes can be adopted."""
-    rows = conn.execute("SELECT id, source_path, natural_id, italian FROM entries").fetchall()
-    mapped = 0
-    for r in rows:
-        lex = raw_to_lexeme.get(
-            (r["source_path"], (r["natural_id"] or "").strip().lower())
-        ) or raw_to_lexeme.get((r["source_path"], (r["italian"] or "").strip().lower()))
-        if lex:
-            conn.execute(
-                "INSERT OR REPLACE INTO entry_lexeme (entry_id, lexeme_id) VALUES (?, ?)", (r["id"], lex)
-            )
-            mapped += 1
-    if commit:
-        conn.commit()
-    report.detail(f"  linked {mapped} of {len(rows)} legacy entries to lexemes")
-
-
 def _assign_images(conn: sqlite3.Connection) -> None:
     """Reuse an existing image per root where one exists; never delete."""
-    legacy = {}
-    for r in conn.execute(
-        """
-        SELECT el.lexeme_id, e.italian, e.infinitive, e.singular
-        FROM entry_lexeme el JOIN entries e ON e.id = el.entry_id
-        """
-    ):
-        legacy.setdefault(r["lexeme_id"], []).extend([r["italian"], r["infinitive"], r["singular"]])
     have = 0
     for r in conn.execute("SELECT id, lemma, display, image_key FROM lexemes").fetchall():
         if r["image_key"] and image_exists(r["image_key"]):
             have += 1
             continue
-        key = existing_image(r["display"], r["lemma"], *legacy.get(r["id"], []))
+        key = existing_image(r["display"], r["lemma"])
         conn.execute("UPDATE lexemes SET image_key = ? WHERE id = ?", (key or r["lemma"], r["id"]))
         have += bool(key)
     conn.commit()

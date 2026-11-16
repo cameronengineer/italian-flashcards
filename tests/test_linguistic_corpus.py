@@ -68,47 +68,11 @@ class LinguisticCorpusTests(unittest.TestCase):
         self.assertNotIn("form:x:presente:io", {n["key"] for n in generated})
         with (
             patch.object(reconcile, "owned_notes", return_value=[old]),
-            patch.object(reconcile, "owned_legacy", return_value=[]),
-            patch.object(reconcile, "legacy_index", return_value={}),
         ):
             planned = reconcile.build_plan(c, anki_media=set())
         self.assertNotIn(100, planned.suspend)
-        self.assertEqual(planned.retire_v4, [old])
+        self.assertEqual(planned.retire, [old])
         self.assertIsNone(planned.retire_dependencies[10])
-
-    def test_interrupted_adoption_does_not_disable_existing_v4_direction(self):
-        c = database(self)
-        lexeme(c)
-        fields = desired(c)
-        existing = reconcile.AnkiNote(11, fields["Key"], fields, ["fc::owned"], [110], {"Italian::Test"})
-        legacy = reconcile.AnkiNote(20, "gloss:x|en_to_it", {}, [], [200], {"Italian::Test"})
-        plan = reconcile.Plan(
-            adopt=[(legacy, {**fields, "_deck": "Italian::Test", "_tags": ["fc::owned"]}, "Production")],
-            update=[(existing, {"fields": {**fields, "Production": ""}, "tags": ["fc::owned"]})],
-        )
-        calls = []
-
-        def invoke(action, **kw):
-            if action == "getActiveProfile":
-                return "Test"
-            if action == "multi":
-                for operation in kw["actions"]:
-                    if operation["action"] == "updateNoteFields":
-                        calls.append(operation["params"]["note"]["id"])
-                return [{"result": None, "error": None} for _ in kw["actions"]]
-            if action == "notesInfo":
-                return []  # read-back failure
-            return []
-
-        with (
-            patch.object(reconcile, "build_plan", return_value=plan),
-            patch.object(reconcile, "ensure_model", return_value="ok"),
-            patch.object(reconcile, "invoke", side_effect=invoke),
-        ):
-            with self.assertRaisesRegex(RuntimeError, "read-back"):
-                reconcile.run(c)
-        self.assertIn(20, calls)
-        self.assertNotIn(11, calls)
 
     def test_materialized_examples_cover_every_card_type(self):
         c = database(self)

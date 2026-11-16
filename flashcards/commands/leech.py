@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from ..anki import chunks, invoke, quote
 from ..settings import settings
-from ..reconcile import owned_notes, owned_legacy
+from ..reconcile import owned_notes
 from ..db import connect
 from contextlib import closing
 from ..util import print_banner, table
@@ -32,7 +32,7 @@ STAT_KEYS = (
 
 def _owned():
     with closing(connect()) as conn:
-        return owned_notes(conn) + owned_legacy(conn)
+        return owned_notes(conn)
 
 
 def _decks(deck: str | None, owned) -> list[str]:
@@ -171,7 +171,6 @@ def doctor(
 
     from ..ai import AI
     from ..db import connect
-    from ..reconcile import legacy_targets
     from ..tasks import LEECH_HELP
 
     print_banner("leech doctor — memory aids for cards you keep failing")
@@ -186,19 +185,12 @@ def doctor(
         return 0
     notes = invoke("notesInfo", notes=chosen)
     with closing(connect()) as conn:
-        target_of = legacy_targets(conn)
         cards = []
         for n in notes:
             f = {k: v["value"] for k, v in n.get("fields", {}).items()}
-            if "Key" in f:
-                key, it, en = f["Key"], strip(f.get("Italian")), strip(f.get("English"))
-            elif "SortKey" in f and "|" in f["SortKey"]:
-                tgt = target_of(f["SortKey"])
-                key = tgt[0] if tgt else f["SortKey"]
-                front, back = strip(f.get("FrontText")), strip(f.get("BackHighlight"))
-                it, en = (front, back) if f["SortKey"].endswith("|it_to_en") else (back, front)
-            else:
+            if "Key" not in f:
                 continue
+            key, it, en = f["Key"], strip(f.get("Italian")), strip(f.get("English"))
             if conn.execute("SELECT 1 FROM mnemonics WHERE key = ?", (key,)).fetchone():
                 continue
             cards.append({"id": key, "italian": it, "english": en, "_cards": n.get("cards", [])})

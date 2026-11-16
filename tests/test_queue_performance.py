@@ -112,37 +112,6 @@ class QueueRecoveryTests(unittest.TestCase):
                 mutable.assert_not_called()
             self.assertEqual(before, path.read_bytes())
 
-    def test_v5_migration_recovers_only_known_bugs_once(self):
-        c = database(self)
-        messages = [
-            "the JSON object must be str, bytes or bytearray, not NoneType",
-            "Provider must return exactly every requested verb form",
-            "Provider must return exactly the requested IDs once each",
-            "unrelated failure",
-        ]
-        for i, message in enumerate(messages):
-            c.execute(
-                "INSERT INTO ai_jobs(kind,subject,status,attempts,error,next_retry_at) "
-                "VALUES('verb_prompts',?,'failed',3,?,'2099-01-01')",
-                (str(i), message),
-            )
-        c.execute("PRAGMA user_version=5")
-        c.commit()
-        with patch("flashcards.backup.snapshot"):
-            db.init_schema(c)
-        self.assertEqual(
-            c.execute(
-                "SELECT count(*) FROM ai_jobs WHERE status='pending' AND attempts=0 AND next_retry_at IS NULL"
-            ).fetchone()[0],
-            3,
-        )
-        c.execute("UPDATE ai_jobs SET status='failed'")
-        c.commit()
-        db.init_schema(c)
-        self.assertEqual(c.execute("SELECT count(*) FROM ai_jobs WHERE status='pending'").fetchone()[0], 0)
-        index = list(c.execute("PRAGMA index_list(source_observations)"))
-        self.assertIn("idx_source_observations_lexeme", [r[1] for r in index])
-
     def test_plan_repairs_ready_verb_and_cancels_unready_verb(self):
         c = database(self)
         lexeme(c, lid="ready", pos="verb", lemma="andare")

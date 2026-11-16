@@ -196,7 +196,7 @@ class DataContractTests(unittest.TestCase):
 
     def test_offline_census_reports_stale_ready_flags(self):
         c = database(self)
-        lexeme(c, status="needs_review")
+        lexeme(c, status="new")
         desired(c)
         result = data_review.report(c, check_media=False)
         self.assertEqual(result["status"], "error")

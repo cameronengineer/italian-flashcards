@@ -164,14 +164,6 @@ class IntegrityTests(unittest.TestCase):
         with patch.object(quality, "settings", strict):
             self.assertIn("failed audit", quality.reasons(c, f["Key"], "x", f))
 
-    def test_old_held_words_are_released_once(self):
-        c = database(self)
-        lexeme(c, status="needs_review")
-        overrides.save_senses(c, "x", [{"prompt": "house"}], "claude:test")
-        lexeme(c, "y", status="needs_review", lemma="cane")  # no content yet
-        db._m8_no_human_review(c)
-        self.assertEqual(dict(c.execute("SELECT id, status FROM lexemes")), {"x": "ready", "y": "new"})
-
     def test_missing_image_blocks_by_default(self):
         c = database(self)
         lexeme(c)
