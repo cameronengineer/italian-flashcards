@@ -9,8 +9,10 @@ the one file that can't be regenerated. ``snapshot()`` runs before every
   migration passes its own connection so the copy sees exactly what it
   is about to change;
 * the copy is dropped if it is identical to the newest backup;
-* only the newest ``backups.keep_last`` snapshots are kept (files named
-  ``database.backup.<YYYYMMDD_HHMMSS>_<id>.sqlite``; nothing else in
+* the newest ``backups.keep_last`` snapshots are kept, plus the first one of
+  each of the last ``backups.keep_days`` days, so the state before a bad day
+  (a migration, a purge, a mistaken edit) survives a run of busy days (files
+  named ``database.backup.<YYYYMMDD_HHMMSS>_<id>.sqlite``; nothing else in
   ``backups/`` is touched);
 * if ``backups.mirror_dir`` is set, each new snapshot is also copied there
   (e.g. a synced folder outside the repo).
@@ -18,10 +20,11 @@ the one file that can't be regenerated. ``snapshot()`` runs before every
 
 from __future__ import annotations
 
+import re
 import shutil
 import sqlite3
 from contextlib import closing
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from uuid import uuid4
 
@@ -30,6 +33,29 @@ from .settings import settings
 from .util import sha256_file
 
 PATTERN = "database.backup.[0-9]*.sqlite"
+_STAMP = re.compile(r"(\d{8})_(\d{6})")
+
+
+def expired(files, keep_last: int, keep_days: int, today: date | None = None) -> list[Path]:
+    """The backups to delete: all but the newest ``keep_last`` and the first of
+    each of the last ``keep_days`` days. A file whose name carries no
+    timestamp is never deleted."""
+    stamped = []
+    for path in files:
+        match = _STAMP.search(path.name)
+        if match:
+            stamped.append((match[1] + match[2], path))
+    stamped.sort()
+    keep = {path for _stamp, path in stamped[-keep_last:]} if keep_last > 0 else set()
+    if keep_days > 0:
+        today = today or date.today()
+        first_of_day: dict[str, Path] = {}
+        for stamp, path in stamped:
+            day = stamp[:8]
+            if (today - datetime.strptime(day, "%Y%m%d").date()).days < keep_days:
+                first_of_day.setdefault(day, path)
+        keep |= set(first_of_day.values())
+    return [path for _stamp, path in stamped if path not in keep]
 
 
 def snapshot(reason: str = "", *, connection: sqlite3.Connection | None = None) -> Path | None:
@@ -63,15 +89,15 @@ def snapshot(reason: str = "", *, connection: sqlite3.Connection | None = None) 
         try:
             mirror.mkdir(parents=True, exist_ok=True)
             shutil.copy2(dest, mirror / dest.name)
-            for old in sorted(mirror.glob(PATTERN))[: -settings.backups.keep_last]:
+            for old in expired(mirror.glob(PATTERN), settings.backups.keep_last, settings.backups.keep_days):
                 old.unlink()
         except OSError as exc:
             print(f"  (mirror copy to {mirror} failed: {exc})")
 
     keep = max(1, settings.backups.keep_last)
-    for old in sorted(paths.BACKUPS_DIR.glob(PATTERN))[:-keep]:
+    for old in expired(paths.BACKUPS_DIR.glob(PATTERN), keep, settings.backups.keep_days):
         old.unlink()
-        report.detail(f"  removed old backup {old.name} (keeping last {keep})")
+        report.detail(f"  removed old backup {old.name}")
     return dest
 
 
@@ -79,7 +105,6 @@ def snapshot(reason: str = "", *, connection: sqlite3.Connection | None = None) 
 
 #: Where Anki keeps its profiles (macOS); a profile's collection lives under it.
 ANKI_DIR = Path.home() / "Library" / "Application Support" / "Anki2"
-ANKI_KEEP = 5
 
 
 def anki_snapshot(profile: str) -> Path | None:
@@ -89,7 +114,8 @@ def anki_snapshot(profile: str) -> Path | None:
     SQLite's online backup reads Anki's database consistently while Anki is
     open, without changing it. Media is not copied (it is never deleted, and
     the media folder is several GB). Restore: quit Anki and put the unzipped
-    ``collection.anki2`` back in the profile folder. Keeps the newest five.
+    ``collection.anki2`` back in the profile folder. Keeps the newest
+    ``backups.keep_anki`` and the first of each of the last ``keep_days`` days.
     """
     import zipfile
 
@@ -118,6 +144,8 @@ def anki_snapshot(profile: str) -> Path | None:
         tmp.replace(dest)
     finally:
         copy.unlink(missing_ok=True)
-    for old in sorted(folder.glob("collection.*.zip"))[:-ANKI_KEEP]:
+    for old in expired(
+        folder.glob("collection.*.zip"), settings.backups.keep_anki, settings.backups.keep_days
+    ):
         old.unlink()
     return dest

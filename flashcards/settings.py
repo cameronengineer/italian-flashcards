@@ -115,7 +115,12 @@ class AnkiSettings:
 
 @dataclass(frozen=True)
 class BackupSettings:
+    #: Database backups: the newest N …
     keep_last: int = 10
+    #: … Anki collection backups: the newest N …
+    keep_anki: int = 5
+    #: … and, for both, the first backup of each of the last N days (0 = off).
+    keep_days: int = 14
     mirror_dir: str = ""
 
 
@@ -205,7 +210,7 @@ def load(path: Path = SETTINGS_PATH) -> Settings:
         ),
         (s.images, ("codex_timeout", "compressed_max_px", "stop_after_failures")),
         (s.run, ("audio_workers", "compress_workers", "max_batches")),
-        (s.backups, ("keep_last",)),
+        (s.backups, ("keep_last", "keep_anki")),
         (s.audit, ("workers",)),
         (s.practice, ("words", "sentences")),
         (s.leech, ("threshold",)),
@@ -213,6 +218,8 @@ def load(path: Path = SETTINGS_PATH) -> Settings:
         for name in names:
             if getattr(section, name) <= 0:
                 raise ValueError(f"settings: {name} must be positive")
+    if s.backups.keep_days < 0:
+        raise ValueError("settings: [backups] keep_days must be 0 (off) or positive")
     if s.ai.max_unavailable_minutes < 0:
         raise ValueError("settings: max_unavailable_minutes must be 0 (no limit) or positive")
     for value in (

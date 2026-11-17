@@ -408,10 +408,10 @@ Cards that only existed as an old studied note start again as new; no media is
 removed. A database older than schema 13 must first be run once with commit
 `3e6520e`.
 
-Every run starts with a database backup (`backups/` keeps the newest 10);
+Every run starts with a database backup (`backups/` keeps the newest 10, plus the first of each of the last 14 days);
 migrations are backed up too. Before the first change to Anki, each run also
 backs up the whole Anki collection — every deck, note, card and review, without
-media — to `backups/anki/` (newest 5; restore by quitting Anki and putting the
+media — to `backups/anki/` (newest 5, plus the first of each of the last 14 days; restore by quitting Anki and putting the
 unzipped `collection.anki2` back in your profile folder). One run at a time (`database.sqlite.lock`).
 Media is never deleted or overwritten. Film subtitles and their word lists are
 in git (`inputs/movies/`).
