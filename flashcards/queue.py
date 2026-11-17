@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import threading
 from uuid import uuid4
 from pathlib import Path
@@ -135,7 +135,32 @@ def _enqueue(conn, kind, subject, priority, payload, *, reopen=False):
     return status == "pending" and previous["status"] != "pending"
 
 
+@dataclass
+class _Planning:
+    """What the planners share during one ``plan`` call."""
+
+    conn: sqlite3.Connection
+    order: dict  # lexeme id → study-order priority
+    generation_verbs: set  # verbs with full conjugation cards
+    selected: set  # every root that has cards
+    senses: set  # roots with a written meaning
+    dictionary: str  # dictionary version, recorded on word jobs
+    added: dict = field(default_factory=lambda: defaultdict(int))  # kind → jobs (re)opened
+    #: (kind, subject) wanted now; anything else still pending is cancelled
+    #: (e.g. a verb that left the full-forms set, an image that now exists).
+    active: set = field(default_factory=set)
+    #: Words still being (re)written: what depends on their meaning waits for it.
+    unsettled: set = field(default_factory=set)
+
+    def enqueue(self, kind, subject, priority, payload, **kw):
+        self.active.add((kind, subject))
+        return _enqueue(self.conn, kind, subject, priority, payload, **kw)
+
+
 def plan(conn):
+    """Work out what still needs Claude or Codex and record it in ``ai_jobs``,
+    in study order. Each planner below covers one kind of job; a job no
+    planner asks for any more is cancelled."""
     stored = conn.execute("SELECT value FROM metadata WHERE key='fingerprint_version'").fetchone()
     if not stored or stored[0] != FINGERPRINT_VERSION:
         # New fingerprint formula: re-record every job's fingerprint without reopening it.
@@ -143,27 +168,71 @@ def plan(conn):
         conn.execute(
             "INSERT OR REPLACE INTO metadata VALUES('fingerprint_version',?)", (FINGERPRINT_VERSION,)
         )
-    order = study_order(conn)
     generation_verbs = full_form_verbs(conn)
-    # Every root that has cards: each listed word Claude hasn't ignored, plus the
-    # verbs with full conjugation cards (the model verbs needn't be in a list).
-    selected = generation_verbs | {
+    p = _Planning(
+        conn,
+        order=study_order(conn),
+        generation_verbs=generation_verbs,
+        # Every root that has cards: each listed word Claude hasn't ignored, plus the
+        # verbs with full conjugation cards (the model verbs needn't be in a list).
+        selected=generation_verbs
+        | {
+            r[0]
+            for r in conn.execute(
+                "SELECT id FROM lexemes WHERE ignored IS NULL AND id IN (SELECT lexeme_id FROM list_items)"
+            )
+        },
+        senses={r[0] for r in conn.execute("SELECT DISTINCT lexeme_id FROM senses WHERE active=1")},
+        dictionary=kaikki.version(),
+    )
+    _plan_words_and_images(conn, p)
+    # Only now: the word planner may have reopened words.
+    p.unsettled = _unsettled(conn)
+    for planner in (
+        _plan_verb_prompts,
+        _plan_mistake_images,
+        _plan_cue_groups,
+        _plan_film_glosses,
+        _plan_fact_checks,
+        _plan_noun_numbers,
+        _plan_cue_checks,
+    ):
+        planner(conn, p)
+    for row in conn.execute("SELECT id,kind,subject FROM ai_jobs WHERE status='pending'").fetchall():
+        if (row["kind"], row["subject"]) not in p.active:
+            conn.execute(
+                "UPDATE ai_jobs SET status='cancelled',error='no longer needed' WHERE id=?", (row["id"],)
+            )
+    conn.commit()
+    return dict(p.added)
+
+
+def _unsettled(conn) -> set:
+    """Words still being (re)written: what depends on their meaning (verb prompts,
+    cue groups, fact and cue checks) waits for the new answer instead of being
+    written twice."""
+    return {
         r[0]
         for r in conn.execute(
-            "SELECT id FROM lexemes WHERE ignored IS NULL AND id IN (SELECT lexeme_id FROM list_items)"
+            "SELECT subject FROM ai_jobs WHERE kind IN ('lexeme_enrich','phrase_enrich') "
+            "AND status IN ('pending','running')"
         )
     }
-    added = defaultdict(int)
-    senses = {r[0] for r in conn.execute("SELECT DISTINCT lexeme_id FROM senses WHERE active=1")}
-    dictionary = kaikki.version()
-    # Every (kind, subject) wanted now; anything else still pending is cancelled
-    # (e.g. a verb that left the full-forms set, an image that now exists).
-    active = set()
 
-    def enqueue(kind, subject, priority, payload, **kw):
-        active.add((kind, subject))
-        return _enqueue(conn, kind, subject, priority, payload, **kw)
 
+def _plan_words_and_images(conn, p: "_Planning") -> None:
+    """Every listed word Claude should write (or re-ask), and each root's picture.
+
+    Pictures wait until a word's meaning is written; numbers and letters need no
+    text first."""
+    order, selected, senses, dictionary, added, enqueue = (
+        p.order,
+        p.selected,
+        p.senses,
+        p.dictionary,
+        p.added,
+        p.enqueue,
+    )
     for lx in conn.execute("SELECT * FROM lexemes WHERE id IN (SELECT lexeme_id FROM list_items)").fetchall():
         # An ignored word has no cards, but is asked again when the task changes
         # (a stronger model may disagree with a weaker one).
@@ -206,15 +275,17 @@ def plan(conn):
                     {"image_key": lx["image_key"], "subject": lx["id"]},
                     reopen=True,
                 )
-    # Words still being (re)written: what depends on their meaning (verb prompts,
-    # cue groups) waits for the new answer instead of being written twice.
-    unsettled = {
-        r[0]
-        for r in conn.execute(
-            "SELECT subject FROM ai_jobs WHERE kind IN ('lexeme_enrich','phrase_enrich') "
-            "AND status IN ('pending','running')"
-        )
-    }
+
+
+def _plan_verb_prompts(conn, p: "_Planning") -> None:
+    """English prompts for the forms of every verb with full conjugation cards."""
+    order, generation_verbs, added, enqueue, unsettled = (
+        p.order,
+        p.generation_verbs,
+        p.added,
+        p.enqueue,
+        p.unsettled,
+    )
     for vid in generation_verbs:
         lx = conn.execute("SELECT * FROM lexemes WHERE id=?", (vid,)).fetchone()
         if lx["status"] == "ready" and vid not in unsettled and verb_forms(lx):
@@ -224,10 +295,26 @@ def plan(conn):
                 order.get(vid, 1 << 29),
                 _verb_payload(conn, lx),
             )
+
+
+def _plan_mistake_images(conn, p: "_Planning") -> None:
+    """A picture for every practice-mistake card."""
+    added, enqueue = p.added, p.enqueue
     for m in conn.execute("SELECT id,italian FROM mistakes"):
         subject = "mistake:" + m["id"]
         if not image_exists(m["italian"]):
             added["image"] += enqueue("image", subject, 400, {"image_key": m["italian"]}, reopen=True)
+
+
+def _plan_cue_groups(conn, p: "_Planning") -> None:
+    """Hints that tell apart words sharing one English prompt."""
+    order, selected, added, enqueue, unsettled = (
+        p.order,
+        p.selected,
+        p.added,
+        p.enqueue,
+        p.unsettled,
+    )
     groups = defaultdict(list)
     for r in conn.execute(
         # Every group of words sharing a prompt, hinted or not, so a task_version
@@ -264,6 +351,11 @@ def plan(conn):
         added["disambiguate"] += enqueue(
             "disambiguate", subject, min(order.get(i, 1 << 30) for i in ids), payload, reopen=rewritten
         )
+
+
+def _plan_film_glosses(conn, p: "_Planning") -> None:
+    """Word-for-word English for the film line each card shows (one job per line)."""
+    order, selected, added, enqueue = p.order, p.selected, p.added, p.enqueue
     # Word-for-word English for the film line each card shows (one job per distinct
     # line). Every line is planned, so a task_version bump redoes the glosses too.
     glossed = {r[0] for r in conn.execute("SELECT key FROM film_glosses")}
@@ -279,6 +371,11 @@ def plan(conn):
         added["film_gloss"] += enqueue(
             "film_gloss", key, pri, {"id": key, "italian": line}, reopen=key not in glossed
         )
+
+
+def _plan_fact_checks(conn, p: "_Planning") -> None:
+    """A second look at every fun fact shown on a card (again whenever it changes)."""
+    order, selected, added, enqueue, unsettled = p.order, p.selected, p.added, p.enqueue, p.unsettled
     # Every fact shown on a card is checked once (again whenever its text changes).
     min_confidence = settings.facts.min_confidence
     checks = {}
@@ -306,6 +403,11 @@ def plan(conn):
                     "fact": f["fact"],
                 },
             )
+
+
+def _plan_noun_numbers(conn, p: "_Planning") -> None:
+    """Which form each noun's card teaches (gli occhiali, la gente, la casa / le case)."""
+    order, selected, added, enqueue, unsettled = p.order, p.selected, p.added, p.enqueue, p.unsettled
     # Which form each noun's card teaches (gli occhiali, la gente, la casa / le case).
     for lx in conn.execute(
         "SELECT * FROM lexemes WHERE pos='noun' AND status='ready' AND ignored IS NULL "
@@ -331,6 +433,17 @@ def plan(conn):
                 "note": sense["note"] or "",
             },
         )
+
+
+def _plan_cue_checks(conn, p: "_Planning") -> None:
+    """English prompts or hints that give the Italian away, rewritten."""
+    order, selected, added, enqueue, unsettled = (
+        p.order,
+        p.selected,
+        p.added,
+        p.enqueue,
+        p.unsettled,
+    )
     # English prompts or hints that give the Italian away ("priority" + hint "precedence; right
     # of way" → la precedenza). Checked once the word's cue-group hint is written.
     comparing = {
@@ -357,13 +470,6 @@ def plan(conn):
                 order.get(r["id"], 1 << 30),
                 {"id": r["id"], "italian": r["display"], "english": r["prompt"], "hint": hint},
             )
-    for row in conn.execute("SELECT id,kind,subject FROM ai_jobs WHERE status='pending'").fetchall():
-        if (row["kind"], row["subject"]) not in active:
-            conn.execute(
-                "UPDATE ai_jobs SET status='cancelled',error='no longer needed' WHERE id=?", (row["id"],)
-            )
-    conn.commit()
-    return dict(added)
 
 
 # ── Payloads ───────────────────────────────────────────────────────────────
@@ -636,8 +742,8 @@ def _check_phrase(payload, item):
 def _check_verb_prompts(payload, item):
     requested = {(t, p) for t, ps in payload["forms"].items() for p in ps}
     # Forms that weren't asked for (e.g. an invented "imperativo io") are dropped.
-    for field in ("prompts", "exclusions"):
-        item[field] = [p for p in item[field] if (p["tense"], p["person"]) in requested]
+    for part in ("prompts", "exclusions"):
+        item[part] = [p for p in item[part] if (p["tense"], p["person"]) in requested]
     accepted = [(p["tense"], p["person"]) for p in item["prompts"]]
     excluded = [(p["tense"], p["person"]) for p in item["exclusions"]]
     if set(accepted + excluded) != requested or len(accepted + excluded) != len(requested):
