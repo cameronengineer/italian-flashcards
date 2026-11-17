@@ -40,18 +40,6 @@ from . import report
 from .settings import settings
 
 SEGMENTS = 6
-#: Claude's job kinds, in the order the summary lists them.
-_TEXT_KINDS = (
-    "lexeme_enrich",
-    "phrase_enrich",
-    "verb_prompts",
-    "disambiguate",
-    "film_gloss",
-    "fact_check",
-    "noun_number",
-    "cue_check",
-)
-
 #: Why a card waits, in the words the summary uses (first match wins).
 _WAITING_FOR = (
     ("Claude", ("awaiting AI", "missing content", "awaiting verification")),
@@ -85,10 +73,10 @@ def _cards_line(conn) -> tuple[str, str]:
 
 
 def _todo(conn) -> str:
-    from .queue import count_label, pending_counts
+    from .queue import TEXT_KINDS, count_label, pending_counts
 
     counts = pending_counts(conn, include_failed=True)
-    parts = [count_label(k, counts[k]) for k in _TEXT_KINDS if counts.get(k)]
+    parts = [count_label(k, counts[k]) for k in TEXT_KINDS if counts.get(k)]
     return " · ".join(parts)
 
 
@@ -431,7 +419,9 @@ def exit_code(run: Run) -> int:
     """0 = enabled work completed, 1 = an unresolved failure, 2 = work left."""
     summary, code = run.summary, run.code
     ai = run.options.on("enrich")
-    pending = sum(summary["pending"].get(k, 0) for k in _TEXT_KINDS)
+    from .queue import TEXT_KINDS
+
+    pending = sum(summary["pending"].get(k, 0) for k in TEXT_KINDS)
     if summary["backlog"]["failed"] and ai and code == 0:
         code = 1
     if run.failed.get("image") and summary["unresolved_image_failures"] and code == 0:

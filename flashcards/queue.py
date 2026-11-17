@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from dataclasses import dataclass
 import threading
 from uuid import uuid4
 from pathlib import Path
@@ -49,49 +50,10 @@ from .tasks import (
 from .util import md5_hex, print_banner
 
 #: Items per Claude call, per job kind (settings.toml [ai.batch_sizes] overrides).
-BATCH = {
-    "lexeme_enrich": 15,
-    "phrase_enrich": 20,
-    "verb_prompts": 3,
-    "disambiguate": 8,
-    "film_gloss": 25,
-    "fact_check": 25,
-    "noun_number": 40,
-    "cue_check": 40,
-    "image": 1,
-}
-ORDER = [
-    "lexeme_enrich",
-    "phrase_enrich",
-    "verb_prompts",
-    "disambiguate",
-    "film_gloss",
-    "fact_check",
-    "noun_number",
-    "cue_check",
-    "image",
-]
+#: Filled from ``KINDS`` below.
+BATCH: dict[str, int] = {}
+#: Parts of speech whose cards need no Claude answer.
 DETERMINISTIC_POS = ("num", "letter")
-SPECS = {
-    "lexeme_enrich": LEXEME_ENRICH,
-    "phrase_enrich": PHRASE_ENRICH,
-    "verb_prompts": VERB_PROMPTS,
-    "disambiguate": DISAMBIGUATE,
-    "film_gloss": FILM_GLOSS,
-    "fact_check": FACT_CHECK,
-    "noun_number": NOUN_NUMBER,
-    "cue_check": CUE_CHECK,
-}
-TEXT_ROOTS = {
-    "lexeme_enrich": "words",
-    "phrase_enrich": "phrases",
-    "verb_prompts": "verbs",
-    "disambiguate": "groups",
-    "film_gloss": "lines",
-    "fact_check": "facts",
-    "noun_number": "nouns",
-    "cue_check": "cues",
-}
 
 
 # ── Planning ───────────────────────────────────────────────────────────────
@@ -115,7 +77,7 @@ def _fingerprint(kind: str, payload: dict) -> str:
     ``task_version`` in settings.toml.
     """
     inputs = {k: v for k, v in payload.items() if k not in _VOLATILE}
-    spec = SPECS.get(kind)
+    spec = KINDS[kind].task
     if not spec:
         return md5_hex(json.dumps(inputs, sort_keys=True))
     task = spec.task(_model_view(inputs))
@@ -644,10 +606,70 @@ def _ignored(conn, answer) -> str | None:
     return (answer.get("ignore_reason") or "").strip() or "Not a useful flashcard"
 
 
+def _check_word(payload, item):
+    if item.get("ignore"):  # an ignored entry needs no card text
+        item["senses"] = [s for s in item["senses"] if s["prompt"].strip()]
+    elif not item["senses"] or any(not s["prompt"].strip() for s in item["senses"]):
+        raise ValueError("Empty sense response")
+    allowed = {s["source_id"] for s in payload.get("meaning_evidence", {}).get("candidates", [])}
+    for sense in item["senses"]:
+        if allowed and sense["source_id"] not in allowed:
+            raise ValueError("Sense must cite supplied dictionary/source evidence")
+
+
+def _check_phrase(payload, item):
+    if not item.get("ignore") and not item["prompt"].strip():
+        raise ValueError("Empty phrase prompt")
+
+
+def _check_verb_prompts(payload, item):
+    requested = {(t, p) for t, ps in payload["forms"].items() for p in ps}
+    # Forms that weren't asked for (e.g. an invented "imperativo io") are dropped.
+    for field in ("prompts", "exclusions"):
+        item[field] = [p for p in item[field] if (p["tense"], p["person"]) in requested]
+    accepted = [(p["tense"], p["person"]) for p in item["prompts"]]
+    excluded = [(p["tense"], p["person"]) for p in item["exclusions"]]
+    if set(accepted + excluded) != requested or len(accepted + excluded) != len(requested):
+        missing = sorted(requested - set(accepted + excluded))
+        extra = sorted(set(accepted + excluded) - requested)
+        duplicates = sorted({p for p in accepted + excluded if (accepted + excluded).count(p) > 1})
+        raise ValueError(
+            "Every requested verb form needs exactly one prompt or reasoned exclusion; "
+            f"missing={missing}, extra={extra}, duplicates={duplicates}"
+        )
+    if any(not p["english"].strip() for p in item["prompts"]) or any(
+        not p["reason"].strip() for p in item["exclusions"]
+    ):
+        raise ValueError("Empty verb prompt or exclusion reason")
+
+
+def _check_film_gloss(payload, item):
+    if not item["words"] or any(not w["en"].strip() for w in item["words"]):
+        raise ValueError("Empty word-for-word gloss")
+    if _letters("".join(w["it"] for w in item["words"])) != _letters(payload["italian"]):
+        raise ValueError("Word-for-word gloss must cover every word of the line, in order")
+
+
+def _check_fact(payload, item):
+    if item["verdict"] == "fix" and not 0 < len(item["text"].strip()) <= 300:
+        raise ValueError("A fixed fact needs its corrected text (at most 300 characters)")
+
+
+def _check_noun_number(payload, item):
+    if len(item["english"]) > 80:
+        raise ValueError("Noun English prompt too long")
+
+
+def _check_cue(payload, item):
+    if not 0 < len(item["english"].strip()) <= 80:
+        raise ValueError("A card prompt must be 1–80 characters")
+
+
 def _validate_text_result(kind, payloads, jobs, result):
     """The same semantic checks apply to fresh answers and cached answers."""
-    validate(result, SPECS[kind].schema)
-    returned = result["words" if kind == "disambiguate" else TEXT_ROOTS[kind]]
+    spec = KINDS[kind]
+    validate(result, spec.task.schema)
+    returned = result[spec.answer]
     expected = (
         {i for p in payloads for i in p["ids"]} if kind == "disambiguate" else {j["subject"] for j in jobs}
     )
@@ -660,57 +682,10 @@ def _validate_text_result(kind, payloads, jobs, result):
             "Provider must return exactly the requested IDs once each; "
             f"missing={missing}, extra={extra}, duplicates={duplicates}"
         )
-    for item in returned:
-        ignored = bool(item.get("ignore"))  # an ignored entry needs no card text
-        if kind == "lexeme_enrich" and ignored:
-            item["senses"] = [s for s in item["senses"] if s["prompt"].strip()]
-        if (
-            kind == "lexeme_enrich"
-            and not ignored
-            and (not item["senses"] or any(not s["prompt"].strip() for s in item["senses"]))
-        ):
-            raise ValueError("Empty sense response")
-        if kind == "lexeme_enrich":
-            payload = next(p for p in payloads if p["id"] == item["id"])
-            evidence = payload.get("meaning_evidence", {})
-            allowed = {s["source_id"] for s in evidence.get("candidates", [])}
-            for sense in item["senses"]:
-                if allowed and sense["source_id"] not in allowed:
-                    raise ValueError("Sense must cite supplied dictionary/source evidence")
-        if kind == "film_gloss":
-            line = next(p["italian"] for p in payloads if p["id"] == item["id"])
-            if not item["words"] or any(not w["en"].strip() for w in item["words"]):
-                raise ValueError("Empty word-for-word gloss")
-            if _letters("".join(w["it"] for w in item["words"])) != _letters(line):
-                raise ValueError("Word-for-word gloss must cover every word of the line, in order")
-        if kind == "cue_check" and not 0 < len(item["english"].strip()) <= 80:
-            raise ValueError("A card prompt must be 1–80 characters")
-        if kind == "noun_number" and len(item["english"]) > 80:
-            raise ValueError("Noun English prompt too long")
-        if kind == "fact_check" and item["verdict"] == "fix" and not 0 < len(item["text"].strip()) <= 300:
-            raise ValueError("A fixed fact needs its corrected text (at most 300 characters)")
-        if kind == "phrase_enrich" and not ignored and not item["prompt"].strip():
-            raise ValueError("Empty phrase prompt")
-        if kind == "verb_prompts":
-            payload = next(p for p in payloads if p["id"] == item["id"])
-            requested = {(t, p) for t, ps in payload["forms"].items() for p in ps}
-            # Forms that weren't asked for (e.g. an invented "imperativo io") are dropped.
-            for field in ("prompts", "exclusions"):
-                item[field] = [p for p in item[field] if (p["tense"], p["person"]) in requested]
-            accepted = [(p["tense"], p["person"]) for p in item["prompts"]]
-            excluded = [(p["tense"], p["person"]) for p in item["exclusions"]]
-            if set(accepted + excluded) != requested or len(accepted + excluded) != len(requested):
-                missing = sorted(requested - set(accepted + excluded))
-                extra = sorted(set(accepted + excluded) - requested)
-                duplicates = sorted({p for p in accepted + excluded if (accepted + excluded).count(p) > 1})
-                raise ValueError(
-                    "Every requested verb form needs exactly one prompt or reasoned exclusion; "
-                    f"missing={missing}, extra={extra}, duplicates={duplicates}"
-                )
-            if any(not p["english"].strip() for p in item["prompts"]) or any(
-                not p["reason"].strip() for p in item["exclusions"]
-            ):
-                raise ValueError("Empty verb prompt or exclusion reason")
+    if spec.check:
+        by_id = {p["id"]: p for p in payloads}
+        for item in returned:
+            spec.check(by_id[item["id"]], item)
 
 
 def _letters(text: str) -> str:
@@ -728,7 +703,7 @@ class PartialBatchError(ValueError):
 
 
 def _valid_members(kind, payloads, jobs, response):
-    root = "words" if kind == "disambiguate" else TEXT_ROOTS[kind]
+    root = KINDS[kind].answer
     if not isinstance(response, dict) or not isinstance(response.get(root), list):
         return [], {}, response
     good, failures, accepted = [], {}, []
@@ -749,7 +724,94 @@ def _valid_members(kind, payloads, jobs, response):
     return good, failures, {root: accepted}
 
 
+# How each kind's answer is stored. ``payload`` is the job's own input (None for
+# cue groups, whose answer is per word, not per job).
+
+
+def _store_word(conn, payload, item, model):
+    # Claude saw short meaning IDs (m1, m2 …); store the stable ones.
+    ids = payload.get("_meaning_ids", {})
+    evidence = [
+        {**c, "source_id": ids.get(c["source_id"], c["source_id"])}
+        for c in payload.get("meaning_evidence", {}).get("candidates", [])
+    ]
+    context = json.dumps({"candidates": evidence}, ensure_ascii=False, sort_keys=True)
+    senses = [
+        {**sense, "source_id": ids.get(sense["source_id"], sense["source_id"]), "context": context}
+        for sense in item["senses"]
+    ]
+    _apply_lexeme(conn, {**item, "senses": senses}, model)
+
+
+def _store_phrase(conn, payload, item, model):
+    _apply_phrase(conn, item, model)
+
+
+def _store_verb_prompts(conn, payload, item, model):
+    source_id = payload.get("source_id")
+    pairs = [(item["id"], t, p) for t, persons in payload["forms"].items() for p in persons]
+    conn.executemany("DELETE FROM form_prompts WHERE lexeme_id=? AND tense=? AND person=?", pairs)
+    conn.executemany("DELETE FROM form_exclusions WHERE lexeme_id=? AND tense=? AND person=?", pairs)
+    conn.executemany(
+        "INSERT INTO form_exclusions(lexeme_id,tense,person,source_id,reason) VALUES(?,?,?,?,?)",
+        [(item["id"], p["tense"], p["person"], source_id, p["reason"]) for p in item["exclusions"]],
+    )
+    conn.executemany(
+        "INSERT INTO form_prompts(lexeme_id,tense,person,english,source_id) VALUES(?,?,?,?,?)",
+        [(item["id"], pr["tense"], pr["person"], pr["english"].strip(), source_id) for pr in item["prompts"]],
+    )
+
+
+def _store_cue_group(conn, payload, item, model):
+    if not overrides.is_human(conn, item["id"], "senses"):
+        conn.execute(
+            "UPDATE senses SET hint=?,also=? WHERE lexeme_id=? AND idx=0 AND active=1",
+            (item["hint"] or None, item["also"] or None, item["id"]),
+        )
+
+
+def _store_film_gloss(conn, payload, item, model):
+    conn.execute(
+        "INSERT OR REPLACE INTO film_glosses(key, italian, words, model) VALUES(?,?,?,?)",
+        (item["id"], payload["italian"], json.dumps(item["words"], ensure_ascii=False), model),
+    )
+
+
+def _store_fact_check(conn, payload, item, model):
+    conn.execute(
+        "UPDATE word_facts SET checked=?, checked_text=? WHERE word=? AND fact=?",
+        (
+            item["verdict"],
+            item["text"].strip() if item["verdict"] == "fix" else None,
+            item["id"],
+            payload["fact"],
+        ),
+    )
+
+
+def _store_noun_number(conn, payload, item, model):
+    plural_english = item["number"] == "plural" and item["english"].strip()
+    conn.execute(
+        "UPDATE lexemes SET card_number=?, card_english=? WHERE id=?",
+        (item["number"], item["english"].strip() if plural_english else None, item["id"]),
+    )
+
+
+def _store_cue_check(conn, payload, item, model):
+    conn.execute(
+        "INSERT OR REPLACE INTO cue_fixes(lexeme_id, prompt, source_hint, english, hint) VALUES(?,?,?,?,?)",
+        (
+            item["id"],
+            payload["english"],
+            payload.get("hint", ""),
+            item["english"].strip(),
+            item["hint"].strip() or None,
+        ),
+    )
+
+
 def _run_text_batch(ai, kind, jobs, conn, lock):
+    spec = KINDS[kind]
     payloads = []
     for job in jobs:
         if not job["payload"]:
@@ -761,8 +823,8 @@ def _run_text_batch(ai, kind, jobs, conn, lock):
     feedback = [
         f"{j['subject']}: {j['error'].removeprefix(INVALID)}" for j in jobs if j["attempts"] and j["error"]
     ]
-    task = SPECS[kind].task(
-        {TEXT_ROOTS[kind]: [_model_view(p) for p in payloads]},
+    task = spec.task.task(
+        {spec.root: [_model_view(p) for p in payloads]},
         rules=(
             "Answer only the CURRENT input IDs and forms. Correct these validation failures "
             "from the previous attempt (which may have requested a larger batch): " + "; ".join(feedback),
@@ -785,104 +847,12 @@ def _run_text_batch(ai, kind, jobs, conn, lock):
         payloads = [p for j, p in zip(jobs, payloads, strict=True) if j["id"] in good_ids]
         jobs = good
     check(result)
-    returned = result["words" if kind == "disambiguate" else TEXT_ROOTS[kind]]
+    returned = result[spec.answer]
     by_id = {r["id"]: r for r in returned}
+    payload_of = {p.get("id"): p for p in payloads}
     with lock, transaction(conn):
         for item in returned:
-            if kind == "lexeme_enrich":
-                payload = next(p for p in payloads if p["id"] == item["id"])
-                # Claude saw short meaning IDs (m1, m2 …); store the stable ones.
-                ids = payload.get("_meaning_ids", {})
-                evidence = [
-                    {**c, "source_id": ids.get(c["source_id"], c["source_id"])}
-                    for c in payload.get("meaning_evidence", {}).get("candidates", [])
-                ]
-                item = {
-                    **item,
-                    "senses": [
-                        {
-                            **sense,
-                            "source_id": ids.get(sense["source_id"], sense["source_id"]),
-                            "context": json.dumps(
-                                {"candidates": evidence}, ensure_ascii=False, sort_keys=True
-                            ),
-                        }
-                        for sense in item["senses"]
-                    ],
-                }
-                _apply_lexeme(conn, item, task.model)
-            elif kind == "phrase_enrich":
-                _apply_phrase(conn, item, task.model)
-            elif kind == "verb_prompts":
-                source_id = next(p.get("source_id") for p in payloads if p["id"] == item["id"])
-                requested = next(p["forms"] for p in payloads if p["id"] == item["id"])
-                pairs = [(item["id"], t, p) for t, persons in requested.items() for p in persons]
-                conn.executemany("DELETE FROM form_prompts WHERE lexeme_id=? AND tense=? AND person=?", pairs)
-                conn.executemany(
-                    "DELETE FROM form_exclusions WHERE lexeme_id=? AND tense=? AND person=?", pairs
-                )
-                conn.executemany(
-                    "INSERT INTO form_exclusions(lexeme_id,tense,person,source_id,reason) VALUES(?,?,?,?,?)",
-                    [
-                        (item["id"], p["tense"], p["person"], source_id, p["reason"])
-                        for p in item["exclusions"]
-                    ],
-                )
-                conn.executemany(
-                    "INSERT INTO form_prompts(lexeme_id,tense,person,english,source_id) VALUES(?,?,?,?,?)",
-                    [
-                        (item["id"], pr["tense"], pr["person"], pr["english"].strip(), source_id)
-                        for pr in item["prompts"]
-                    ],
-                )
-            elif kind == "cue_check":
-                conn.execute(
-                    "INSERT OR REPLACE INTO cue_fixes(lexeme_id, prompt, source_hint, english, hint) "
-                    "VALUES(?,?,?,?,?)",
-                    (
-                        item["id"],
-                        next(p["english"] for p in payloads if p["id"] == item["id"]),
-                        next(p.get("hint", "") for p in payloads if p["id"] == item["id"]),
-                        item["english"].strip(),
-                        item["hint"].strip() or None,
-                    ),
-                )
-            elif kind == "noun_number":
-                conn.execute(
-                    "UPDATE lexemes SET card_number=?, card_english=? WHERE id=?",
-                    (
-                        item["number"],
-                        item["english"].strip()
-                        if item["number"] == "plural" and item["english"].strip()
-                        else None,
-                        item["id"],
-                    ),
-                )
-            elif kind == "fact_check":
-                conn.execute(
-                    "UPDATE word_facts SET checked=?, checked_text=? WHERE word=? AND fact=?",
-                    (
-                        item["verdict"],
-                        item["text"].strip() if item["verdict"] == "fix" else None,
-                        item["id"],
-                        next(p["fact"] for p in payloads if p["id"] == item["id"]),
-                    ),
-                )
-            elif kind == "film_gloss":
-                conn.execute(
-                    "INSERT OR REPLACE INTO film_glosses(key, italian, words, model) VALUES(?,?,?,?)",
-                    (
-                        item["id"],
-                        next(p["italian"] for p in payloads if p["id"] == item["id"]),
-                        json.dumps(item["words"], ensure_ascii=False),
-                        task.model,
-                    ),
-                )
-            elif not overrides.is_human(conn, item["id"], "senses"):
-                conn.execute(
-                    "UPDATE senses SET hint=?,also=? WHERE lexeme_id=? AND idx=0 AND active=1",
-                    (item["hint"] or None, item["also"] or None, item["id"]),
-                )
+            spec.store(conn, payload_of.get(item["id"]), item, task.model)
         for job in jobs:
             response = result if kind == "disambiguate" else by_id[job["subject"]]
             conn.execute(
@@ -895,32 +865,129 @@ def _run_text_batch(ai, kind, jobs, conn, lock):
     return len(jobs)
 
 
-KIND_NAME = {
-    "lexeme_enrich": "words",
-    "phrase_enrich": "phrases",
-    "verb_prompts": "verbs",
-    "disambiguate": "cue groups",
-    "film_gloss": "film lines",
-    "fact_check": "facts",
-    "noun_number": "nouns",
-    "cue_check": "prompts",
-    "image": "images",
+# ── The job kinds ──────────────────────────────────────────────────────────
+
+
+@dataclass(frozen=True)
+class JobKind:
+    """One kind of queue job: everything the queue needs to know about it.
+
+    To add a kind: write its ``TaskSpec`` in ``tasks.py``, enqueue it in
+    ``plan``, and add one entry to ``KINDS``.
+    """
+
+    name: str
+    unit: str  # "word": how one job is counted ("3 words left")
+    label: str  # "words": the progress-line heading
+    batch: int  # jobs per provider call (settings.toml [ai.batch_sizes] overrides)
+    task: object = None  # the Claude TaskSpec; None for work that isn't a Claude call (images)
+    root: str = ""  # the key of the item list in Claude's input …
+    answer: str = ""  # … and in its answer
+    check: object = None  # (payload, item): raise ValueError for an unusable answer
+    store: object = None  # (conn, payload, item, model): write one answered item
+
+    @property
+    def text(self) -> bool:
+        return self.task is not None
+
+
+#: Every kind, in the order a run works through them.
+KINDS: dict[str, JobKind] = {
+    k.name: k
+    for k in (
+        JobKind(
+            "lexeme_enrich", "word", "words", 15, LEXEME_ENRICH, "words", "words", _check_word, _store_word
+        ),
+        JobKind(
+            "phrase_enrich",
+            "phrase",
+            "phrases",
+            20,
+            PHRASE_ENRICH,
+            "phrases",
+            "phrases",
+            _check_phrase,
+            _store_phrase,
+        ),
+        JobKind(
+            "verb_prompts",
+            "verb",
+            "verbs",
+            3,
+            VERB_PROMPTS,
+            "verbs",
+            "verbs",
+            _check_verb_prompts,
+            _store_verb_prompts,
+        ),
+        # Input is groups of words sharing a prompt; the answer is one entry per word.
+        JobKind(
+            "disambiguate",
+            "cue group",
+            "cue groups",
+            8,
+            DISAMBIGUATE,
+            "groups",
+            "words",
+            None,
+            _store_cue_group,
+        ),
+        JobKind(
+            "film_gloss",
+            "film line",
+            "film lines",
+            25,
+            FILM_GLOSS,
+            "lines",
+            "lines",
+            _check_film_gloss,
+            _store_film_gloss,
+        ),
+        JobKind(
+            "fact_check",
+            "fact check",
+            "facts",
+            25,
+            FACT_CHECK,
+            "facts",
+            "facts",
+            _check_fact,
+            _store_fact_check,
+        ),
+        JobKind(
+            "noun_number",
+            "noun",
+            "nouns",
+            40,
+            NOUN_NUMBER,
+            "nouns",
+            "nouns",
+            _check_noun_number,
+            _store_noun_number,
+        ),
+        JobKind(
+            "cue_check",
+            "prompt check",
+            "prompts",
+            40,
+            CUE_CHECK,
+            "cues",
+            "cues",
+            _check_cue,
+            _store_cue_check,
+        ),
+        JobKind("image", "image", "images", 1),
+    )
 }
+ORDER = list(KINDS)
+#: The kinds Claude writes (everything but images).
+TEXT_KINDS = tuple(k.name for k in KINDS.values() if k.text)
+BATCH.update({k.name: k.batch for k in KINDS.values()})
+KIND_NAME = {k.name: k.label for k in KINDS.values()}
 
 
 def count_label(kind, n):
-    singular = {
-        "lexeme_enrich": "word",
-        "phrase_enrich": "phrase",
-        "verb_prompts": "verb",
-        "disambiguate": "cue group",
-        "film_gloss": "film line",
-        "fact_check": "fact check",
-        "noun_number": "noun",
-        "cue_check": "prompt check",
-        "image": "image",
-    }
-    return report.plural(n, singular[kind])
+    return report.plural(n, KINDS[kind].unit)
 
 
 def _wave_text(wave) -> list[str]:

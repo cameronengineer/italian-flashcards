@@ -138,6 +138,9 @@ def cmd_work(args) -> int:
     with closing(_conn()) as conn:
         queue.plan(conn)
         kinds = args.kind or queue.ORDER
+        unknown = set(kinds) - set(queue.ORDER)
+        if unknown:
+            raise ValueError(f"unknown job kind(s) {sorted(unknown)}; choose from {', '.join(queue.ORDER)}")
         result = queue.drain(conn, kinds=kinds, max_batches=args.batches, image_limit=args.images)
         print(result)
         from . import notes, lexicon
@@ -388,21 +391,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.set_defaults(func=cmd_jobs)
 
     sp = sub.add_parser("work", help="Work through the AI / image queue.")
-    sp.add_argument(
-        "--kind",
-        action="append",
-        choices=[
-            "lexeme_enrich",
-            "phrase_enrich",
-            "verb_prompts",
-            "disambiguate",
-            "film_gloss",
-            "fact_check",
-            "noun_number",
-            "cue_check",
-            "image",
-        ],
-    )
+    sp.add_argument("--kind", action="append", metavar="KIND", help="Only this job kind (repeatable).")
     sp.add_argument(
         "--batches", type=int, default=None, help="Stop after N batches (default: until the queue is done)."
     )
