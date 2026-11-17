@@ -6,7 +6,57 @@
    "sha256": "860f68e7f35cb76026bc38997c0a4277a21bffc4105bb3d82d254056eb1f46d7",
    "notes": 54,
    "cards": 108,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "cento",
+     "english": "100"
+    },
+    {
+     "italian": "centodieci",
+     "english": "110"
+    },
+    {
+     "italian": "centodue",
+     "english": "102"
+    },
+    {
+     "italian": "centomila",
+     "english": "100,000"
+    },
+    {
+     "italian": "centoundici",
+     "english": "111"
+    },
+    {
+     "italian": "centouno",
+     "english": "101"
+    },
+    {
+     "italian": "cinquanta",
+     "english": "50"
+    },
+    {
+     "italian": "cinquantadue",
+     "english": "52"
+    },
+    {
+     "italian": "cinquantuno",
+     "english": "51"
+    },
+    {
+     "italian": "cinque",
+     "english": "5"
+    },
+    {
+     "italian": "diciannove",
+     "english": "19"
+    },
+    {
+     "italian": "diciassette",
+     "english": "17"
+    }
+   ]
   },
   "italian_cils_a1": {
    "file": "italian_cils_a1.apkg",
@@ -14,7 +64,57 @@
    "sha256": "6eacdc02740810821abd974bb0140b5c69f794227d882e6d5e390d4bb96983be",
    "notes": 482,
    "cards": 960,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "a",
+     "english": "to, at"
+    },
+    {
+     "italian": "abitare",
+     "english": "to live"
+    },
+    {
+     "italian": "adesso",
+     "english": "now"
+    },
+    {
+     "italian": "aiuto",
+     "english": "Help! (cry for help)"
+    },
+    {
+     "italian": "alto",
+     "english": "tall, high"
+    },
+    {
+     "italian": "amare",
+     "english": "to love"
+    },
+    {
+     "italian": "anche",
+     "english": "also, too"
+    },
+    {
+     "italian": "andare",
+     "english": "to go"
+    },
+    {
+     "italian": "aprire",
+     "english": "to open"
+    },
+    {
+     "italian": "arrivare",
+     "english": "to arrive"
+    },
+    {
+     "italian": "arrivederci",
+     "english": "goodbye"
+    },
+    {
+     "italian": "ascoltare",
+     "english": "to listen (to)"
+    }
+   ]
   },
   "italian_cils_a2": {
    "file": "italian_cils_a2.apkg",
@@ -22,7 +122,57 @@
    "sha256": "bb72f33e46d1e98bc847026215610e3d32fa9766b2132f15058d932a23d9b5b8",
    "notes": 1033,
    "cards": 2062,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "OK",
+     "english": "OK, okay"
+    },
+    {
+     "italian": "a",
+     "english": "to, at"
+    },
+    {
+     "italian": "abbastanza",
+     "english": "enough"
+    },
+    {
+     "italian": "abbracciare",
+     "english": "to hug, to embrace"
+    },
+    {
+     "italian": "abitare",
+     "english": "to live"
+    },
+    {
+     "italian": "accendere",
+     "english": "to turn on"
+    },
+    {
+     "italian": "accompagnare",
+     "english": "to take (someone)"
+    },
+    {
+     "italian": "acquistare",
+     "english": "to purchase"
+    },
+    {
+     "italian": "addio",
+     "english": "farewell"
+    },
+    {
+     "italian": "addormentarsi",
+     "english": "to fall asleep"
+    },
+    {
+     "italian": "adesso",
+     "english": "now"
+    },
+    {
+     "italian": "adulto",
+     "english": "grown-up"
+    }
+   ]
   },
   "italian_cils_b1": {
    "file": "italian_cils_b1.apkg",
@@ -30,7 +180,57 @@
    "sha256": "f3cea4114d3207cb8ebd9e5e9c7a504607141e3004273fee809158710a3dc572",
    "notes": 1530,
    "cards": 3056,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "OK",
+     "english": "OK, okay"
+    },
+    {
+     "italian": "a",
+     "english": "to, at"
+    },
+    {
+     "italian": "abbastanza",
+     "english": "enough"
+    },
+    {
+     "italian": "abbracciare",
+     "english": "to hug, to embrace"
+    },
+    {
+     "italian": "abitante",
+     "english": "inhabitant"
+    },
+    {
+     "italian": "abitare",
+     "english": "to live"
+    },
+    {
+     "italian": "accanto",
+     "english": "next to, nearby"
+    },
+    {
+     "italian": "accendere",
+     "english": "to turn on"
+    },
+    {
+     "italian": "accomodarsi",
+     "english": "to make oneself comfortable"
+    },
+    {
+     "italian": "accompagnare",
+     "english": "to take (someone)"
+    },
+    {
+     "italian": "acido",
+     "english": "acidic"
+    },
+    {
+     "italian": "acquistare",
+     "english": "to purchase"
+    }
+   ]
   },
   "italian_cils_b2": {
    "file": "italian_cils_b2.apkg",
@@ -38,7 +238,57 @@
    "sha256": "5e33f5c9e6052673f067cc282ae7ebf2cda4d773999ebe606cd765660f8c3187",
    "notes": 2068,
    "cards": 4131,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "OK",
+     "english": "OK, okay"
+    },
+    {
+     "italian": "a",
+     "english": "to, at"
+    },
+    {
+     "italian": "abbandonare",
+     "english": "to abandon"
+    },
+    {
+     "italian": "abbassare",
+     "english": "to lower"
+    },
+    {
+     "italian": "abbastanza",
+     "english": "enough"
+    },
+    {
+     "italian": "abbondante",
+     "english": "plentiful"
+    },
+    {
+     "italian": "abbracciare",
+     "english": "to hug, to embrace"
+    },
+    {
+     "italian": "abile",
+     "english": "skilled, skillful"
+    },
+    {
+     "italian": "abitante",
+     "english": "inhabitant"
+    },
+    {
+     "italian": "abitare",
+     "english": "to live"
+    },
+    {
+     "italian": "abituarsi",
+     "english": "to get used to"
+    },
+    {
+     "italian": "accadere",
+     "english": "to happen"
+    }
+   ]
   },
   "italian_cognates": {
    "file": "italian_cognates.apkg",
@@ -46,7 +296,57 @@
    "sha256": "f7398b14ea1a3e4d7a12b30b718896399154c3fdaaee9cda367f87b8c6fb352d",
    "notes": 255,
    "cards": 255,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "abbondante",
+     "english": "abundant, plentiful"
+    },
+    {
+     "italian": "accelerare",
+     "english": "to accelerate"
+    },
+    {
+     "italian": "allergico",
+     "english": "allergic"
+    },
+    {
+     "italian": "ansioso",
+     "english": "anxious"
+    },
+    {
+     "italian": "artificiale",
+     "english": "artificial"
+    },
+    {
+     "italian": "artista",
+     "english": "artist"
+    },
+    {
+     "italian": "assente",
+     "english": "absent"
+    },
+    {
+     "italian": "autentico",
+     "english": "authentic, genuine"
+    },
+    {
+     "italian": "calcolare",
+     "english": "to calculate"
+    },
+    {
+     "italian": "celebrare",
+     "english": "to celebrate"
+    },
+    {
+     "italian": "certamente",
+     "english": "certainly"
+    },
+    {
+     "italian": "classico",
+     "english": "classic, classical"
+    }
+   ]
   },
   "italian_core_fluent_forever_625": {
    "file": "italian_core_fluent_forever_625.apkg",
@@ -54,7 +354,57 @@
    "sha256": "68314c7e92e9ed36f99aa90c313fbc50f54ef6b8f2354c340118abf4d87cdc33",
    "notes": 597,
    "cards": 1194,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "alto",
+     "english": "tall, high"
+    },
+    {
+     "italian": "amare",
+     "english": "to love"
+    },
+    {
+     "italian": "andare",
+     "english": "to go"
+    },
+    {
+     "italian": "anziano",
+     "english": "elderly"
+    },
+    {
+     "italian": "appendere",
+     "english": "to hang (up)"
+    },
+    {
+     "italian": "aprire",
+     "english": "to open"
+    },
+    {
+     "italian": "arancione",
+     "english": "orange"
+    },
+    {
+     "italian": "artista",
+     "english": "artist"
+    },
+    {
+     "italian": "asciutto",
+     "english": "dry"
+    },
+    {
+     "italian": "ascoltare",
+     "english": "to listen (to)"
+    },
+    {
+     "italian": "assaggiare",
+     "english": "to taste, to try (food)"
+    },
+    {
+     "italian": "baciare",
+     "english": "to kiss"
+    }
+   ]
   },
   "italian_frequency": {
    "file": "italian_frequency.apkg",
@@ -62,7 +412,57 @@
    "sha256": "0af8eb7cad7c597c4971b6a34881cec00abce96c66a75f4da701fd6af137c662",
    "notes": 1377,
    "cards": 2749,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "abbandonare",
+     "english": "to abandon"
+    },
+    {
+     "italian": "abbassare",
+     "english": "to lower"
+    },
+    {
+     "italian": "abitare",
+     "english": "to live"
+    },
+    {
+     "italian": "abituare",
+     "english": "to accustom"
+    },
+    {
+     "italian": "accadere",
+     "english": "to happen"
+    },
+    {
+     "italian": "accendere",
+     "english": "to turn on"
+    },
+    {
+     "italian": "accettare",
+     "english": "to accept"
+    },
+    {
+     "italian": "accomodare",
+     "english": "to fix, to repair"
+    },
+    {
+     "italian": "accompagnare",
+     "english": "to take (someone)"
+    },
+    {
+     "italian": "accorgersi",
+     "english": "to notice"
+    },
+    {
+     "italian": "accusare",
+     "english": "to accuse"
+    },
+    {
+     "italian": "adorare",
+     "english": "to adore"
+    }
+   ]
   },
   "italian_movies_benvenuti_al_sud": {
    "file": "italian_movies_benvenuti_al_sud.apkg",
@@ -70,7 +470,57 @@
    "sha256": "376b616ca3cf1aacfdbf25a93f7d3b141426a8ca33c04f4a32490d773f1fa741",
    "notes": 895,
    "cards": 895,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "OK",
+     "english": "OK, okay"
+    },
+    {
+     "italian": "a",
+     "english": "to, at"
+    },
+    {
+     "italian": "abbassare",
+     "english": "to lower"
+    },
+    {
+     "italian": "abituare",
+     "english": "to accustom"
+    },
+    {
+     "italian": "accanto",
+     "english": "next to, nearby"
+    },
+    {
+     "italian": "accedere",
+     "english": "to access, to get into"
+    },
+    {
+     "italian": "accettare",
+     "english": "to accept"
+    },
+    {
+     "italian": "accogliere",
+     "english": "to welcome"
+    },
+    {
+     "italian": "accompagnare",
+     "english": "to take (someone)"
+    },
+    {
+     "italian": "ad",
+     "english": "to, at"
+    },
+    {
+     "italian": "adesso",
+     "english": "now"
+    },
+    {
+     "italian": "adulto",
+     "english": "grown-up"
+    }
+   ]
   },
   "italian_movies_le_otto_montagne": {
    "file": "italian_movies_le_otto_montagne.apkg",
@@ -78,7 +528,57 @@
    "sha256": "e7d39e79076597f3d4a256881a2c6c249f5f20e03b634b29fb93fb52bcd4724d",
    "notes": 841,
    "cards": 1546,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "OK",
+     "english": "OK, okay"
+    },
+    {
+     "italian": "a",
+     "english": "to, at"
+    },
+    {
+     "italian": "abbandonare",
+     "english": "to abandon"
+    },
+    {
+     "italian": "abbassare",
+     "english": "to lower"
+    },
+    {
+     "italian": "abbastanza",
+     "english": "enough"
+    },
+    {
+     "italian": "abituare",
+     "english": "to accustom"
+    },
+    {
+     "italian": "accadere",
+     "english": "to happen"
+    },
+    {
+     "italian": "accettare",
+     "english": "to accept"
+    },
+    {
+     "italian": "accidenti",
+     "english": "damn!"
+    },
+    {
+     "italian": "acquistare",
+     "english": "to purchase"
+    },
+    {
+     "italian": "ad",
+     "english": "to, at"
+    },
+    {
+     "italian": "adesso",
+     "english": "now"
+    }
+   ]
   },
   "italian_noun_phrases": {
    "file": "italian_noun_phrases.apkg",
@@ -86,7 +586,57 @@
    "sha256": "77b77e86531dcb90a3f4201e7b2fee0e6cf727028ee47c0e68ac35f7ad6dbb7e",
    "notes": 3163,
    "cards": 3163,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "agli addetti",
+     "english": "to the employees"
+    },
+    {
+     "italian": "agli amministratori",
+     "english": "to the administrators"
+    },
+    {
+     "italian": "agli animali",
+     "english": "to the animals"
+    },
+    {
+     "italian": "agli anni",
+     "english": "to the years"
+    },
+    {
+     "italian": "agli edifici",
+     "english": "to the buildings"
+    },
+    {
+     "italian": "agli occhi",
+     "english": "to the eyes"
+    },
+    {
+     "italian": "agli oggetti",
+     "english": "to the objects"
+    },
+    {
+     "italian": "agli stomaci",
+     "english": "to the stomachs"
+    },
+    {
+     "italian": "agli uffici postali",
+     "english": "to the post offices"
+    },
+    {
+     "italian": "ai bassi",
+     "english": "to the bass guitars"
+    },
+    {
+     "italian": "ai bastardi",
+     "english": "to the bastards"
+    },
+    {
+     "italian": "ai boschi",
+     "english": "to the woods"
+    }
+   ]
   },
   "italian_verbs_more_tenses_condizionale_passato": {
    "file": "italian_verbs_more_tenses_condizionale_passato.apkg",
@@ -94,7 +644,57 @@
    "sha256": "c4655117221a632c3b6dce3805d7edf53ae0bb84d377c5f7598788f99e42de9b",
    "notes": 688,
    "cards": 688,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "avrebbe acceso",
+     "english": "he/she would have turned on"
+    },
+    {
+     "italian": "avrebbe aggiunto",
+     "english": "he/she would have added"
+    },
+    {
+     "italian": "avrebbe aiutato",
+     "english": "he/she would have helped"
+    },
+    {
+     "italian": "avrebbe amato",
+     "english": "he/she would have loved"
+    },
+    {
+     "italian": "avrebbe appeso",
+     "english": "he/she would have hung (up)"
+    },
+    {
+     "italian": "avrebbe ascoltato",
+     "english": "he/she would have listened"
+    },
+    {
+     "italian": "avrebbe atteso",
+     "english": "he/she would have waited for"
+    },
+    {
+     "italian": "avrebbe chiesto",
+     "english": "he/she would have asked"
+    },
+    {
+     "italian": "avrebbe colpito",
+     "english": "he/she would have hit"
+    },
+    {
+     "italian": "avrebbe condotto",
+     "english": "he/she would have led"
+    },
+    {
+     "italian": "avrebbe continuato",
+     "english": "he/she would have continued"
+    },
+    {
+     "italian": "avrebbe corretto",
+     "english": "he/she would have corrected"
+    }
+   ]
   },
   "italian_verbs_more_tenses_condizionale_presente": {
    "file": "italian_verbs_more_tenses_condizionale_presente.apkg",
@@ -102,7 +702,57 @@
    "sha256": "5b456ae2376711f0c3713313c5fb77afcc78235cd4265269cb1513e23bb11d95",
    "notes": 700,
    "cards": 700,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "accadrebbe",
+     "english": "it would happen"
+    },
+    {
+     "italian": "accadrebbero",
+     "english": "they would happen"
+    },
+    {
+     "italian": "accenderebbe",
+     "english": "he/she would turn on"
+    },
+    {
+     "italian": "accenderebbero",
+     "english": "they would turn on"
+    },
+    {
+     "italian": "accenderei",
+     "english": "I would turn on"
+    },
+    {
+     "italian": "accenderemmo",
+     "english": "we would turn on"
+    },
+    {
+     "italian": "accendereste",
+     "english": "you all would turn on"
+    },
+    {
+     "italian": "accenderesti",
+     "english": "you would turn on"
+    },
+    {
+     "italian": "aggiungerebbe",
+     "english": "he/she would add"
+    },
+    {
+     "italian": "aggiungerebbero",
+     "english": "they would add"
+    },
+    {
+     "italian": "aggiungerei",
+     "english": "I would add"
+    },
+    {
+     "italian": "aggiungeremmo",
+     "english": "we would add"
+    }
+   ]
   },
   "italian_verbs_more_tenses_imperativo_con_noi": {
    "file": "italian_verbs_more_tenses_imperativo_con_noi.apkg",
@@ -110,7 +760,57 @@
    "sha256": "1c906532147125143ad765eef9c72db89cf310423778857440b8b9e1ffcfdfb4",
    "notes": 98,
    "cards": 98,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "accendiamo",
+     "english": "Let's turn on!"
+    },
+    {
+     "italian": "aggiungiamo",
+     "english": "Let's add!"
+    },
+    {
+     "italian": "aiutiamo",
+     "english": "Let's help!"
+    },
+    {
+     "italian": "amiamo",
+     "english": "Let's love!"
+    },
+    {
+     "italian": "andiamocene",
+     "english": "Let's leave!"
+    },
+    {
+     "italian": "appendiamo",
+     "english": "Let's hang (it) up!"
+    },
+    {
+     "italian": "ascoltiamo",
+     "english": "Let's listen!"
+    },
+    {
+     "italian": "attendiamo",
+     "english": "Let's wait!"
+    },
+    {
+     "italian": "chiediamo",
+     "english": "Let's ask!"
+    },
+    {
+     "italian": "colpiamo",
+     "english": "Let's hit!"
+    },
+    {
+     "italian": "conduciamo",
+     "english": "Let's lead the way!"
+    },
+    {
+     "italian": "connettiamoci",
+     "english": "Let's connect!"
+    }
+   ]
   },
   "italian_verbs_more_tenses_imperativo_con_voi": {
    "file": "italian_verbs_more_tenses_imperativo_con_voi.apkg",
@@ -118,7 +818,57 @@
    "sha256": "f37bfc0b00f2367c9d684a1c09eee98c49edb5f4afacd87ffd0a30848388c423",
    "notes": 100,
    "cards": 100,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "accendete",
+     "english": "Turn on! (you all)"
+    },
+    {
+     "italian": "aggiungete",
+     "english": "Add! (you all)"
+    },
+    {
+     "italian": "aiutate",
+     "english": "Help! (you all)"
+    },
+    {
+     "italian": "amate",
+     "english": "Love! (you all)"
+    },
+    {
+     "italian": "andatevene",
+     "english": "Go away, you all!"
+    },
+    {
+     "italian": "appendete",
+     "english": "Hang (it) up! (you all)"
+    },
+    {
+     "italian": "ascoltate",
+     "english": "Listen! (you all)"
+    },
+    {
+     "italian": "attendete",
+     "english": "Wait! (you all)"
+    },
+    {
+     "italian": "chiedete",
+     "english": "Ask! (you all)"
+    },
+    {
+     "italian": "colpite",
+     "english": "Hit! (you all)"
+    },
+    {
+     "italian": "conducete",
+     "english": "Lead the way, you all!"
+    },
+    {
+     "italian": "connettetevi",
+     "english": "Connect! (you all)"
+    }
+   ]
   },
   "italian_verbs_learning_futuro_semplice": {
    "file": "italian_verbs_learning_futuro_semplice.apkg",
@@ -126,7 +876,57 @@
    "sha256": "115a1a95291179e5a04ff7e31a78353bc7ec3e905d4bbf980c857c708f50739b",
    "notes": 700,
    "cards": 700,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "accadranno",
+     "english": "they will happen"
+    },
+    {
+     "italian": "accadrà",
+     "english": "it will happen"
+    },
+    {
+     "italian": "accenderai",
+     "english": "you will turn on"
+    },
+    {
+     "italian": "accenderanno",
+     "english": "they will turn on"
+    },
+    {
+     "italian": "accenderemo",
+     "english": "we will turn on"
+    },
+    {
+     "italian": "accenderete",
+     "english": "you all will turn on"
+    },
+    {
+     "italian": "accenderà",
+     "english": "he/she will turn on"
+    },
+    {
+     "italian": "accenderò",
+     "english": "I will turn on"
+    },
+    {
+     "italian": "aggiungerai",
+     "english": "you will add"
+    },
+    {
+     "italian": "aggiungeranno",
+     "english": "they will add"
+    },
+    {
+     "italian": "aggiungeremo",
+     "english": "we will add"
+    },
+    {
+     "italian": "aggiungerete",
+     "english": "you all will add"
+    }
+   ]
   },
   "italian_verbs_learning_imperativo_con_lei": {
    "file": "italian_verbs_learning_imperativo_con_lei.apkg",
@@ -134,7 +934,57 @@
    "sha256": "324f3e80fd9cc374dc8a0d01ecf96ca47701bf6717a88178938e8b5ace181696",
    "notes": 98,
    "cards": 98,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "accenda",
+     "english": "Turn on!"
+    },
+    {
+     "italian": "aggiunga",
+     "english": "Add!"
+    },
+    {
+     "italian": "aiuti",
+     "english": "Help!"
+    },
+    {
+     "italian": "ami",
+     "english": "Love!"
+    },
+    {
+     "italian": "appenda",
+     "english": "Hang (it) up!"
+    },
+    {
+     "italian": "ascolti",
+     "english": "Listen!"
+    },
+    {
+     "italian": "attenda",
+     "english": "Wait!"
+    },
+    {
+     "italian": "chieda",
+     "english": "Ask!"
+    },
+    {
+     "italian": "colpisca",
+     "english": "Hit!"
+    },
+    {
+     "italian": "conduca",
+     "english": "Lead the way!"
+    },
+    {
+     "italian": "continui",
+     "english": "Continue!"
+    },
+    {
+     "italian": "corra",
+     "english": "Run!"
+    }
+   ]
   },
   "italian_verbs_learning_imperativo_con_tu": {
    "file": "italian_verbs_learning_imperativo_con_tu.apkg",
@@ -142,7 +992,57 @@
    "sha256": "9fe526205a124323518ddf7ba5f6aa4faa533af07c8acba8586220630971d899",
    "notes": 100,
    "cards": 100,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "accendi",
+     "english": "Turn on!"
+    },
+    {
+     "italian": "aggiungi",
+     "english": "Add!"
+    },
+    {
+     "italian": "aiuta",
+     "english": "Help!"
+    },
+    {
+     "italian": "ama",
+     "english": "Love! (you)"
+    },
+    {
+     "italian": "appendi",
+     "english": "Hang (it) up!"
+    },
+    {
+     "italian": "ascolta",
+     "english": "Listen!"
+    },
+    {
+     "italian": "attendi",
+     "english": "Wait!"
+    },
+    {
+     "italian": "chiedi",
+     "english": "Ask!"
+    },
+    {
+     "italian": "colpisci",
+     "english": "Hit!"
+    },
+    {
+     "italian": "conduci",
+     "english": "Lead the way!"
+    },
+    {
+     "italian": "connettiti",
+     "english": "Connect!"
+    },
+    {
+     "italian": "continua",
+     "english": "Continue!"
+    }
+   ]
   },
   "italian_verbs_learning_imperfetto": {
    "file": "italian_verbs_learning_imperfetto.apkg",
@@ -150,7 +1050,57 @@
    "sha256": "81387806433c7721a9d7b6e46da38891ea11d4df2614c71b4e1577a9a8f5fa6b",
    "notes": 700,
    "cards": 700,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "accadeva",
+     "english": "it used to happen / it was happening"
+    },
+    {
+     "italian": "accadevano",
+     "english": "they used to happen / they were happening"
+    },
+    {
+     "italian": "accendeva",
+     "english": "he/she used to turn on / he/she was turning on"
+    },
+    {
+     "italian": "accendevamo",
+     "english": "we used to turn on / we were turning on"
+    },
+    {
+     "italian": "accendevano",
+     "english": "they used to turn on / they were turning on"
+    },
+    {
+     "italian": "accendevate",
+     "english": "you all used to turn on / you all were turning on"
+    },
+    {
+     "italian": "accendevi",
+     "english": "you used to turn on / you were turning on"
+    },
+    {
+     "italian": "accendevo",
+     "english": "I used to turn on / I was turning on"
+    },
+    {
+     "italian": "aggiungeva",
+     "english": "he/she used to add / he/she was adding"
+    },
+    {
+     "italian": "aggiungevamo",
+     "english": "we used to add / we were adding"
+    },
+    {
+     "italian": "aggiungevano",
+     "english": "they used to add / they were adding"
+    },
+    {
+     "italian": "aggiungevate",
+     "english": "you all used to add / you all were adding"
+    }
+   ]
   },
   "italian_verbs_learning_passato_prossimo": {
    "file": "italian_verbs_learning_passato_prossimo.apkg",
@@ -158,7 +1108,57 @@
    "sha256": "cf3bedb3aeb57679fae0be252220c3ed5fe1fb6d0c17bfea21c34621cf0fd33d",
    "notes": 688,
    "cards": 688,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "abbiamo acceso",
+     "english": "we turned on / we have turned on"
+    },
+    {
+     "italian": "abbiamo aggiunto",
+     "english": "we added / we have added"
+    },
+    {
+     "italian": "abbiamo aiutato",
+     "english": "we helped / we have helped"
+    },
+    {
+     "italian": "abbiamo amato",
+     "english": "we loved / we have loved"
+    },
+    {
+     "italian": "abbiamo appeso",
+     "english": "we hung (up) / we have hung (up)"
+    },
+    {
+     "italian": "abbiamo ascoltato",
+     "english": "we listened / we have listened"
+    },
+    {
+     "italian": "abbiamo atteso",
+     "english": "we waited for / we have waited for"
+    },
+    {
+     "italian": "abbiamo chiesto",
+     "english": "we asked / we have asked"
+    },
+    {
+     "italian": "abbiamo colpito",
+     "english": "we hit / we have hit"
+    },
+    {
+     "italian": "abbiamo condotto",
+     "english": "we led / we have led"
+    },
+    {
+     "italian": "abbiamo continuato",
+     "english": "we continued / we have continued"
+    },
+    {
+     "italian": "abbiamo corretto",
+     "english": "we corrected / we have corrected"
+    }
+   ]
   },
   "italian_verbs_learning_presente": {
    "file": "italian_verbs_learning_presente.apkg",
@@ -166,7 +1166,57 @@
    "sha256": "3ac8be7f6a0cc15353c36224d030d1c304be689fe99c4fc5966329bd6aaae398",
    "notes": 700,
    "cards": 700,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "accade",
+     "english": "it happens / it is happening"
+    },
+    {
+     "italian": "accadono",
+     "english": "they happen / they are happening"
+    },
+    {
+     "italian": "accende",
+     "english": "he/she turns on / he/she is turning on"
+    },
+    {
+     "italian": "accendete",
+     "english": "you all turn on / you all are turning on"
+    },
+    {
+     "italian": "accendi",
+     "english": "you turn on / you are turning on"
+    },
+    {
+     "italian": "accendiamo",
+     "english": "we turn on / we are turning on"
+    },
+    {
+     "italian": "accendo",
+     "english": "I turn on / I am turning on"
+    },
+    {
+     "italian": "accendono",
+     "english": "they turn on / they are turning on"
+    },
+    {
+     "italian": "aggiunge",
+     "english": "he/she adds / he/she is adding"
+    },
+    {
+     "italian": "aggiungete",
+     "english": "you all add / you all are adding"
+    },
+    {
+     "italian": "aggiungi",
+     "english": "you add / you are adding"
+    },
+    {
+     "italian": "aggiungiamo",
+     "english": "we add / we are adding"
+    }
+   ]
   },
   "italian_verbs_learning_presente_progressivo": {
    "file": "italian_verbs_learning_presente_progressivo.apkg",
@@ -174,7 +1224,57 @@
    "sha256": "9c3b88b6708854b4e17e6f88ea99cf411b70a83ab9e1e08a70bc2c04d2aba568",
    "notes": 634,
    "cards": 634,
-   "tutto_left": 0
+   "tutto_left": 0,
+   "preview": [
+    {
+     "italian": "ci stiamo connettendo",
+     "english": "we are connecting"
+    },
+    {
+     "italian": "ci stiamo evolvendo",
+     "english": "we are evolving"
+    },
+    {
+     "italian": "ci stiamo fermando",
+     "english": "we are stopping"
+    },
+    {
+     "italian": "ci stiamo prendendo",
+     "english": "we are taking for ourselves"
+    },
+    {
+     "italian": "ci stiamo preoccupando",
+     "english": "we are worrying"
+    },
+    {
+     "italian": "ci stiamo sedendo",
+     "english": "we are sitting down"
+    },
+    {
+     "italian": "mi sto connettendo",
+     "english": "I am connecting"
+    },
+    {
+     "italian": "mi sto evolvendo",
+     "english": "I am evolving"
+    },
+    {
+     "italian": "mi sto fermando",
+     "english": "I am stopping"
+    },
+    {
+     "italian": "mi sto prendendo",
+     "english": "I am taking for myself"
+    },
+    {
+     "italian": "mi sto preoccupando",
+     "english": "I am worrying"
+    },
+    {
+     "italian": "mi sto sedendo",
+     "english": "I am sitting down"
+    }
+   ]
   }
  },
  "samples": [
@@ -237,6 +1337,411 @@
    "english": "their world",
    "hint": "",
    "details": "il mondo · masculine",
+   "forms": "",
+   "ipa": "",
+   "note": "",
+   "fact": "",
+   "facttitle": ""
+  },
+  {
+   "slug": "undici",
+   "deck": "italian_basics_numbers",
+   "recognition": true,
+   "production": true,
+   "pills": [
+    "number"
+   ],
+   "example": [],
+   "italian": "undici",
+   "english": "11",
+   "hint": "",
+   "details": "",
+   "forms": "",
+   "ipa": "/ˈun.di.t͡ʃi/",
+   "note": "",
+   "fact": "",
+   "facttitle": ""
+  },
+  {
+   "slug": "la-fine",
+   "deck": "italian_cils_a2",
+   "recognition": true,
+   "production": true,
+   "pills": [
+    "noun"
+   ],
+   "example": [
+    "“Passa un buon fine settimana.”",
+    "word for word: Spend a good end week.",
+    "— Benvenuti al Sud (2010), 0:51:35"
+   ],
+   "italian": "la fine",
+   "english": "end",
+   "hint": "conclusion",
+   "details": "feminine",
+   "forms": "",
+   "ipa": "/ˈfi.ne/",
+   "note": "Alla fine = in the end. Il fine settimana = weekend. Il fine (masculine) = aim, purpose.",
+   "fact": "The gender changes the meaning: la fine is the end or conclusion, il fine is the aim or purpose. 'Il fine giustifica i mezzi' means 'the end justifies the means'.",
+   "facttitle": "Usage"
+  },
+  {
+   "slug": "il-passaggio",
+   "deck": "italian_cils_b1",
+   "recognition": true,
+   "production": true,
+   "pills": [
+    "noun"
+   ],
+   "example": [],
+   "italian": "il passaggio",
+   "english": "passage",
+   "hint": "",
+   "details": "masculine · plural: i passaggi",
+   "forms": "",
+   "ipa": "/pasˈsad.d͡ʒo/",
+   "note": "Passaggio pedonale = pedestrian crossing.",
+   "fact": "In everyday Italian, 'Mi dai un passaggio?' means 'Can you give me a lift?', so a passaggio is also a ride in someone's car.",
+   "facttitle": "Usage"
+  },
+  {
+   "slug": "vestirsi",
+   "deck": "italian_cils_b2",
+   "recognition": true,
+   "production": true,
+   "pills": [
+    "verb"
+   ],
+   "example": [
+    "“Durante l'orario d'ufficio vestiamoci in modo appropriato.”",
+    "word for word: during the-hours of-office let's-dress-ourselves in manner appropriate.",
+    "— Benvenuti al Sud (2010), 0:34:19"
+   ],
+   "italian": "vestirsi",
+   "english": "to get dressed",
+   "hint": "",
+   "details": "auxiliary: essere · past participle: vestito · reflexive",
+   "forms": "",
+   "ipa": "/vesˈtir.si/",
+   "note": "Reflexive: mi vesto, ti vesti… Past: mi sono vestito/a.",
+   "fact": "Comes from Latin vestis 'clothing', the same root as English 'vest', 'vestment' and 'invest' (originally 'to clothe' someone in office).",
+   "facttitle": "English link"
+  },
+  {
+   "slug": "possibile",
+   "deck": "italian_cognates",
+   "recognition": false,
+   "production": true,
+   "pills": [
+    "cognate"
+   ],
+   "example": [],
+   "italian": "possibile",
+   "english": "possible",
+   "hint": "",
+   "details": "-bile = -ble · like stabile, orribile, incredibile",
+   "forms": "",
+   "ipa": "",
+   "note": "",
+   "fact": "",
+   "facttitle": ""
+  },
+  {
+   "slug": "il-cane",
+   "deck": "italian_core_fluent_forever_625",
+   "recognition": true,
+   "production": true,
+   "pills": [
+    "core word"
+   ],
+   "example": [
+    "“anche gli animali: gatti, cani,”",
+    "word for word: also the animals: cats, dogs,",
+    "— Benvenuti al Sud (2010), 0:14:34"
+   ],
+   "italian": "il cane",
+   "english": "dog",
+   "hint": "",
+   "details": "masculine · plural: i cani",
+   "forms": "",
+   "ipa": "/ˈka.ne/",
+   "note": "Cagna = female dog. Attenti al cane = beware of the dog.",
+   "fact": "It can also mean 'awful' after a noun: fa un freddo cane means it's bitterly cold. A bad actor or singer can also be called un cane.",
+   "facttitle": "Usage"
+  },
+  {
+   "slug": "la-grazia",
+   "deck": "italian_frequency",
+   "recognition": true,
+   "production": true,
+   "pills": [
+    "noun"
+   ],
+   "example": [
+    "“Venendo? - No, grazie, non ho fame.”",
+    "word for word: Coming? - No, thanks, not I-have hunger.",
+    "— Benvenuti al Sud (2010), 0:37:15"
+   ],
+   "italian": "la grazia",
+   "english": "grace",
+   "hint": "",
+   "details": "feminine",
+   "forms": "",
+   "ipa": "/ˈɡrat.sja/",
+   "note": "The plural grazie also means 'thank you'.",
+   "fact": "Grazie (thank you) is just the plural of this word: literally 'graces, favours', from Latin gratias agere (to give thanks). English grace and gratitude share the root.",
+   "facttitle": "Did you know?"
+  },
+  {
+   "slug": "questo",
+   "deck": "italian_movies_benvenuti_al_sud",
+   "recognition": true,
+   "production": false,
+   "pills": [
+    "pronoun"
+   ],
+   "example": [
+    "“Ma se questo compromette il mio trasferimento ...”",
+    "word for word: But if this compromises the my transfer ...",
+    "— Benvenuti al Sud (2010), 0:09:55"
+   ],
+   "italian": "questo",
+   "english": "this (one)",
+   "hint": "",
+   "details": "",
+   "forms": "",
+   "ipa": "/ˈkwes.to/",
+   "note": "Agrees with its noun: questo, questa, questi, queste.",
+   "fact": "It comes from Vulgar Latin *eccum iste, roughly 'look, that one'. The first part, eccum, also gave Italian 'ecco' ('here it is!'), so questo and ecco are related.",
+   "facttitle": "Origin"
+  },
+  {
+   "slug": "ci",
+   "deck": "italian_movies_le_otto_montagne",
+   "recognition": true,
+   "production": true,
+   "pills": [
+    "pronoun"
+   ],
+   "example": [
+    "“C'è un'altra apertura a Milano.”",
+    "word for word: There-is an-other opening in Milano.",
+    "— Benvenuti al Sud (2010), 0:05:29"
+   ],
+   "italian": "ci",
+   "english": "us",
+   "hint": "unstressed pronoun",
+   "details": "",
+   "forms": "",
+   "ipa": "/t͡ʃi/",
+   "note": "Unstressed form of noi; also 'to us' and 'ourselves'. Goes before the verb: Ci vede = He sees us.",
+   "fact": "The same little word also means 'there', which is why 'there is' is c'è (ci + è) and 'there are' is ci sono.",
+   "facttitle": "Usage"
+  },
+  {
+   "slug": "avremmo-visto",
+   "deck": "italian_verbs_more_tenses_condizionale_passato",
+   "recognition": false,
+   "production": true,
+   "pills": [
+    "verb",
+    "Condizionale Passato",
+    "noi"
+   ],
+   "example": [],
+   "italian": "avremmo visto",
+   "english": "we would have seen",
+   "hint": "",
+   "details": "vedere — to see",
+   "forms": "",
+   "ipa": "",
+   "note": "",
+   "fact": "",
+   "facttitle": ""
+  },
+  {
+   "slug": "vedrebbe",
+   "deck": "italian_verbs_more_tenses_condizionale_presente",
+   "recognition": false,
+   "production": true,
+   "pills": [
+    "verb",
+    "Condizionale Presente",
+    "lui / lei"
+   ],
+   "example": [],
+   "italian": "vedrebbe",
+   "english": "he/she would see",
+   "hint": "",
+   "details": "vedere — to see",
+   "forms": "",
+   "ipa": "",
+   "note": "",
+   "fact": "",
+   "facttitle": ""
+  },
+  {
+   "slug": "pensiamo",
+   "deck": "italian_verbs_more_tenses_imperativo_con_noi",
+   "recognition": false,
+   "production": true,
+   "pills": [
+    "verb",
+    "Imperativo",
+    "noi"
+   ],
+   "example": [],
+   "italian": "pensiamo",
+   "english": "Let's think!",
+   "hint": "",
+   "details": "pensare — to think",
+   "forms": "",
+   "ipa": "",
+   "note": "",
+   "fact": "",
+   "facttitle": ""
+  },
+  {
+   "slug": "chiedete",
+   "deck": "italian_verbs_more_tenses_imperativo_con_voi",
+   "recognition": false,
+   "production": true,
+   "pills": [
+    "verb",
+    "Imperativo",
+    "voi"
+   ],
+   "example": [],
+   "italian": "chiedete",
+   "english": "Ask! (you all)",
+   "hint": "",
+   "details": "chiedere — to ask",
+   "forms": "",
+   "ipa": "",
+   "note": "",
+   "fact": "",
+   "facttitle": ""
+  },
+  {
+   "slug": "vedrai",
+   "deck": "italian_verbs_learning_futuro_semplice",
+   "recognition": false,
+   "production": true,
+   "pills": [
+    "verb",
+    "Futuro Semplice",
+    "tu"
+   ],
+   "example": [],
+   "italian": "vedrai",
+   "english": "you will see",
+   "hint": "",
+   "details": "vedere — to see",
+   "forms": "",
+   "ipa": "",
+   "note": "",
+   "fact": "",
+   "facttitle": ""
+  },
+  {
+   "slug": "pensi",
+   "deck": "italian_verbs_learning_imperativo_con_lei",
+   "recognition": false,
+   "production": true,
+   "pills": [
+    "verb",
+    "Imperativo",
+    "Lei"
+   ],
+   "example": [],
+   "italian": "pensi",
+   "english": "Think!",
+   "hint": "formal",
+   "details": "pensare — to think",
+   "forms": "",
+   "ipa": "",
+   "note": "",
+   "fact": "",
+   "facttitle": ""
+  },
+  {
+   "slug": "chiedi",
+   "deck": "italian_verbs_learning_imperativo_con_tu",
+   "recognition": false,
+   "production": true,
+   "pills": [
+    "verb",
+    "Imperativo",
+    "tu"
+   ],
+   "example": [],
+   "italian": "chiedi",
+   "english": "Ask!",
+   "hint": "",
+   "details": "chiedere — to ask",
+   "forms": "",
+   "ipa": "",
+   "note": "",
+   "fact": "",
+   "facttitle": ""
+  },
+  {
+   "slug": "vedevamo",
+   "deck": "italian_verbs_learning_imperfetto",
+   "recognition": false,
+   "production": true,
+   "pills": [
+    "verb",
+    "Imperfetto",
+    "noi"
+   ],
+   "example": [],
+   "italian": "vedevamo",
+   "english": "we used to see / we were seeing",
+   "hint": "",
+   "details": "vedere — to see",
+   "forms": "",
+   "ipa": "",
+   "note": "",
+   "fact": "",
+   "facttitle": ""
+  },
+  {
+   "slug": "hanno-visto",
+   "deck": "italian_verbs_learning_passato_prossimo",
+   "recognition": false,
+   "production": true,
+   "pills": [
+    "verb",
+    "Passato Prossimo",
+    "loro"
+   ],
+   "example": [],
+   "italian": "hanno visto",
+   "english": "they saw / they have seen",
+   "hint": "",
+   "details": "vedere — to see",
+   "forms": "",
+   "ipa": "",
+   "note": "",
+   "fact": "",
+   "facttitle": ""
+  },
+  {
+   "slug": "stiamo-vedendo",
+   "deck": "italian_verbs_learning_presente_progressivo",
+   "recognition": false,
+   "production": true,
+   "pills": [
+    "verb",
+    "Presente Progressivo",
+    "noi"
+   ],
+   "example": [],
+   "italian": "stiamo vedendo",
+   "english": "we are seeing",
+   "hint": "",
+   "details": "vedere — to see",
    "forms": "",
    "ipa": "",
    "note": "",

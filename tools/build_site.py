@@ -37,7 +37,7 @@ PRIVATE_DECKS = {"italian_core_tutto_bene"}
 PRIVATE_TAGS = {"list::tutto-bene"}
 
 # Real cards shown on the page: (deck file stem, Italian field).
-SAMPLES = [("italian_cils_a1", "il caffè"), ("italian_verbs_learning_presente", "vedo"), ("italian_noun_phrases", "il loro mondo")]
+SAMPLES = [('italian_cils_a1', 'il caffè'), ('italian_verbs_learning_presente', 'vedo'), ('italian_noun_phrases', 'il loro mondo'), ('italian_basics_numbers', 'undici'), ('italian_cils_a2', 'la fine'), ('italian_cils_b1', 'il passaggio'), ('italian_cils_b2', 'vestirsi'), ('italian_cognates', 'possibile'), ('italian_core_fluent_forever_625', 'il cane'), ('italian_frequency', 'la grazia'), ('italian_movies_benvenuti_al_sud', 'questo'), ('italian_movies_le_otto_montagne', 'ci'), ('italian_verbs_more_tenses_condizionale_passato', 'avremmo visto'), ('italian_verbs_more_tenses_condizionale_presente', 'vedrebbe'), ('italian_verbs_more_tenses_imperativo_con_noi', 'pensiamo'), ('italian_verbs_more_tenses_imperativo_con_voi', 'chiedete'), ('italian_verbs_learning_futuro_semplice', 'vedrai'), ('italian_verbs_learning_imperativo_con_lei', 'pensi'), ('italian_verbs_learning_imperativo_con_tu', 'chiedi'), ('italian_verbs_learning_imperfetto', 'vedevamo'), ('italian_verbs_learning_passato_prossimo', 'hanno visto'), ('italian_verbs_learning_presente_progressivo', 'stiamo vedendo')]
 _FIELDS = ["Italian", "English", "Hint", "Labels", "Details", "Forms", "IPA", "Example", "Note", "Fact",
            "FactTitle", "Image", "Audio", "Recognition", "Production"]
 
@@ -260,12 +260,19 @@ def render_page(data: dict) -> None:
         "{{VERB_FORMS}}": f"{st['verb_forms'] // 100 * 100:,}+",
         "{{DECK_COUNT}}": str(len(decks)),
         "{{TOTAL_SIZE}}": f"{sum(d['bytes'] for d in decks.values()) / 1e6:,.0f} MB",
-        "{{SAMPLE}}": "\n".join(_sample_html(sample) for sample in data["samples"]),
+        "{{SAMPLE}}": "\n".join(_sample_html(sample) for sample in data["samples"] if sample["deck"] in {"italian_cils_a1", "italian_verbs_learning_presente", "italian_noun_phrases"}),
         "{{BUILT}}": datetime.date.today().strftime("%B %Y"),
     }
     for key, value in swaps.items():
         page = page.replace(key, value)
     (SITE_DIR / "index.html").write_text(page, encoding="utf-8")
+    # Work both as a standalone script and as an imported build helper.
+    import sys
+    try:
+        from .site_pages import build
+    except ImportError:  # python3 tools/build_site.py
+        from site_pages import build
+    build(data, sys.modules[__name__])
 
 
 _WORD_DECKS = [
@@ -307,6 +314,23 @@ def _stats(public: dict[str, Path]) -> dict:
     return {"words": len(words), "new_at": new_at, "fact_share": facts / total}
 
 
+def _preview(path: Path) -> list[dict]:
+    """Small, source-derived text preview for the public deck guide."""
+    import html
+
+    def plain(value):
+        return html.unescape(re.sub(r"<[^>]+>", "", value)).strip()
+
+    with zipfile.ZipFile(path) as archive, tempfile.TemporaryDirectory() as folder:
+        archive.extract("collection.anki2", folder)
+        db = sqlite3.connect(Path(folder) / "collection.anki2")
+        try:
+            rows = db.execute("SELECT flds FROM notes ORDER BY sfld LIMIT 12").fetchall()
+            return [{"italian": plain(f.split("\x1f")[0]), "english": plain(f.split("\x1f")[1])} for (f,) in rows]
+        finally:
+            db.close()
+
+
 def main() -> int:
     print("Building site/ from decks/")
     out_dir = SITE_DIR / "downloads"
@@ -320,7 +344,7 @@ def main() -> int:
         counts = _sanitise(src, dst)
         if counts["tutto_left"]:
             raise SystemExit(f"{dst.name}: Tutto bene tag left after sanitising")
-        decks[dst.stem] = {"file": dst.name, "bytes": dst.stat().st_size, "sha256": sha256_file(dst), **counts}
+        decks[dst.stem] = {"file": dst.name, "bytes": dst.stat().st_size, "sha256": sha256_file(dst), "preview": _preview(dst), **counts}
         print(f"  ok     {dst.name:58} {counts['notes']:>5} notes  {dst.stat().st_size / 1e6:5.1f} MB")
     samples = _samples({stem: out_dir / info["file"] for stem, info in decks.items()})
     data = {"decks": decks, "samples": samples}
