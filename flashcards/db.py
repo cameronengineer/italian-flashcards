@@ -404,7 +404,7 @@ def init_schema(conn: sqlite3.Connection) -> None:
 
 _TOO_OLD = (
     "This database is at schema v{version}; this version upgrades from v13 or later. "
-    "Check out commit 7c1157f (the last one with the older migrations), run ./run.sh "
+    "Check out commit 3e6520e (the last one with the older migrations), run ./run.sh "
     "once to bring the database to v13, then return to this version."
 )
 

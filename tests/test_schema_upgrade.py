@@ -125,7 +125,7 @@ class UpgradeTests(unittest.TestCase):
         conn = old_database()
         self.addCleanup(conn.close)
         conn.execute("PRAGMA user_version = 9")
-        with self.assertRaisesRegex(ValueError, "7c1157f"):
+        with self.assertRaisesRegex(ValueError, "3e6520e"):
             db.init_schema(conn)
 
     def test_old_status_value_is_no_longer_accepted(self):

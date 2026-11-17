@@ -399,7 +399,7 @@ cards. Remove them once:
 
 Cards that only existed as an old studied note start again as new; no media is
 removed. A database older than schema 13 must first be run once with commit
-`7c1157f`.
+`3e6520e`.
 
 Every run starts with a database backup (`backups/` keeps the newest 10);
 migrations are backed up too. Before the first change to Anki, each run also

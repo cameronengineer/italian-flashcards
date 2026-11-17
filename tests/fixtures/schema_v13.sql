@@ -1,5 +1,5 @@
 -- The database layout at schema version 13 (the last one with the v3 tables),
--- as the code at commit 7c1157f created it. Used to test the upgrade.
+-- as the code at commit 3e6520e created it. Used to test the upgrade.
 CREATE TABLE adoptions (
     key TEXT NOT NULL, direction TEXT NOT NULL, note_id INTEGER NOT NULL,
     profile TEXT NOT NULL, PRIMARY KEY(key, direction, profile)
