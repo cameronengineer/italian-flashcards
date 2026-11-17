@@ -1214,27 +1214,188 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
 
     Plan between waves so newly ready dependencies can run in study order.
     ``max_batches`` counts calls, not waves. Images keep their per-run cap.
+    Returns kind → {"done", "failed"}.
     """
     if report.VERBOSE:
         print_banner("work — AI queue")
-    kinds = kinds or ORDER
     if max_batches is not None and max_batches < 0:
         raise ValueError("batches must be nonnegative")
-    database = Path(
-        conn.execute("PRAGMA database_list").fetchone()[2]
-        or Path(tempfile.gettempdir()) / "flashcards-memory"
-    )
-    summary = {}
-    batch_no = 0
-    lock = threading.Lock()
-    client = AI(conn, lock)
-    owner = uuid4().hex
-    workers = max(1, settings.ai.concurrency)
-    attempts_allowed = settings.ai.retry_attempts
-    cooldown = f"+{round(settings.ai.retry_cooldown_minutes * 60)} seconds"
-    image_slots = max(1, settings.images.concurrency)
+    return _Drain(conn, list(kinds or ORDER), max_batches, image_limit).run()
 
-    def work(kind, jobs, number, label):
+
+class _Drain:
+    """One ``drain``: claim a wave of jobs in study order, run it on worker
+    threads, record each outcome, plan again, repeat. Workers share one SQLite
+    connection; every database write holds ``lock``."""
+
+    def __init__(self, conn, kinds, max_batches, image_limit):
+        self.conn = conn
+        self.kinds = kinds
+        self.max_batches = max_batches
+        self.image_limit = image_limit  # None = no limit
+        self.summary: dict[str, dict[str, int]] = {}
+        self.available: list[str] = []  # kinds still worth claiming in this drain
+        self.batch_no = 0
+        self.images_started = 0
+        self.images_failed_in_a_row = 0
+        self.lock = threading.Lock()
+        self.client = AI(conn, self.lock)
+        self.owner = uuid4().hex
+        self.workers = max(1, settings.ai.concurrency)
+        self.image_slots = max(1, settings.images.concurrency)
+        self.attempts_allowed = settings.ai.retry_attempts
+        self.cooldown = f"+{round(settings.ai.retry_cooldown_minutes * 60)} seconds"
+
+    # ── the loop ──────────────────────────────────────────────────────────
+
+    def run(self) -> dict:
+        conn = self.conn
+        database = Path(
+            conn.execute("PRAGMA database_list").fetchone()[2]
+            or Path(tempfile.gettempdir()) / "flashcards-memory"
+        )
+        with writer_lock(database):
+            # No previous worker can publish after this lock is acquired.
+            conn.execute("UPDATE ai_jobs SET status='pending',owner=NULL WHERE status='running'")
+            conn.commit()
+            self.plan("Planning", f" · up to {self.workers} concurrent batches")
+            self.available = self.startable_kinds()
+            try:
+                while self.available and self.room():
+                    wave = self.claim_wave()
+                    if not wave:
+                        break
+                    self.run_wave(wave)
+                    self.plan("Queue checkpoint · planning")
+            finally:
+                # Preserve completed transactions; only unfinished claims are released.
+                conn.rollback()
+                with transaction(conn):
+                    conn.execute(
+                        "UPDATE ai_jobs SET status='pending',owner=NULL WHERE status='running' AND owner=?",
+                        (self.owner,),
+                    )
+            pending = conn.execute("SELECT count(*) FROM ai_jobs WHERE status='pending'").fetchone()[0]
+            failed = conn.execute("SELECT count(*) FROM ai_jobs WHERE status='failed'").fetchone()[0]
+            report.detail(
+                f"  Queue remaining: {pending} pending (includes skipped images/deferred retries), {failed} failed"
+            )
+        return self.summary
+
+    def plan(self, label: str, note: str = "") -> None:
+        """Repair inputs and cancel premature/obsolete jobs before claiming."""
+        started = time.monotonic()
+        plan(self.conn)
+        report.detail(f"  {label}: {time.monotonic() - started:.1f}s{note}")
+
+    def room(self) -> bool:
+        return self.max_batches is None or self.batch_no < self.max_batches
+
+    def startable_kinds(self) -> list[str]:
+        kinds = list(self.kinds)
+        if "image" in kinds and self.image_limit == 0:
+            kinds.remove("image")
+            report.detail("  Images skipped ([run] image_limit = 0; pass --images N to make some).")
+        elif "image" in kinds and codex.stopped():
+            kinds.remove("image")  # already said when it happened
+        elif "image" in kinds and not codex.logged_in():
+            kinds.remove("image")
+            report.line("images skipped: Codex is not logged in (run `codex login` once)")
+        return kinds
+
+    def stop_images(self) -> None:
+        self.available = [k for k in self.available if k != "image"]
+
+    # ── claiming ──────────────────────────────────────────────────────────
+
+    def claim_wave(self) -> list[tuple]:
+        """Up to ``workers`` Claude batches and ``image_slots`` images, in study
+        order, marked as running by this drain: [(kind, jobs, number, label)]."""
+        conn = self.conn
+        wave = []
+        wave_kinds = list(self.available)
+        texts, image_keys = 0, set()  # Claude slots used; images in this wave
+        while wave_kinds and self.room():
+            if texts >= self.workers:
+                wave_kinds = [k for k in wave_kinds if k == "image"]
+            if "image" in wave_kinds and len(image_keys) >= self.image_slots:
+                wave_kinds.remove("image")
+            if not wave_kinds:
+                break
+            marks = ",".join("?" for _ in wave_kinds)
+            first = conn.execute(
+                f"SELECT * FROM ai_jobs WHERE status='pending' AND kind IN ({marks}) "
+                "AND (next_retry_at IS NULL OR next_retry_at<=datetime('now')) "
+                "ORDER BY CASE kind WHEN 'disambiguate' THEN 1 ELSE 0 END, priority, CASE kind WHEN 'lexeme_enrich' THEN 0 "
+                "WHEN 'phrase_enrich' THEN 0 WHEN 'image' THEN 2 ELSE 1 END,id LIMIT 1",
+                wave_kinds,
+            ).fetchone()
+            if not first:
+                break
+            kind = first["kind"]
+            band_end = (first["priority"] // 100_000 + 1) * 100_000
+            if kind == "disambiguate":
+                band_end = 1 << 60  # compare ready words together after enrichment
+            with transaction(conn):
+                # Isolate a previously failed text job on its next attempt;
+                # one bad member must not keep poisoning the same whole batch.
+                size = 1 if first["attempts"] else settings.ai.batch_sizes.get(kind, BATCH[kind])
+                # Images made together must not share a destination file.
+                other_keys = sorted(image_keys) if kind == "image" else []
+                jobs = conn.execute(
+                    "SELECT * FROM ai_jobs WHERE status='pending' AND kind=? AND priority<? "
+                    "AND (attempts>0)=? "
+                    "AND (next_retry_at IS NULL OR next_retry_at<=datetime('now')) "
+                    + (
+                        "AND coalesce(json_extract(payload,'$.image_key'),'') NOT IN "
+                        f"({','.join('?' for _ in other_keys)}) "
+                        if other_keys
+                        else ""
+                    )
+                    + "ORDER BY priority,id LIMIT ?",
+                    (kind, band_end, bool(first["attempts"]), *other_keys, size),
+                ).fetchall()
+                conn.executemany(
+                    "UPDATE ai_jobs SET status='running',owner=?,started_at=CURRENT_TIMESTAMP WHERE id=?",
+                    [(self.owner, j["id"]) for j in jobs],
+                )
+            if not jobs:
+                wave_kinds.remove(kind)
+                continue
+            self.batch_no += 1
+            wave.append((kind, jobs, self.batch_no, _label(conn, kind, jobs)))
+            if kind == "image":
+                self.images_started += 1
+                image_keys.add(json.loads(jobs[0]["payload"] or "{}").get("image_key") or "")
+                if self.image_limit is not None and self.images_started >= self.image_limit:
+                    self.available.remove("image")
+                    wave_kinds.remove("image")
+            else:
+                texts += 1
+        return wave
+
+    # ── running ───────────────────────────────────────────────────────────
+
+    def run_wave(self, wave) -> None:
+        report.line("asking " + " · ".join(_wave_text(wave)) + " …")
+        # Planning is finished before threads start. Input updates, cache
+        # writes, result transactions and failure accounting share one lock.
+        pool = ThreadPoolExecutor(max_workers=self.workers + self.image_slots)
+        try:
+            futures = {pool.submit(self.work, *item): item for item in wave}
+            for future in as_completed(futures):
+                self.record(future, *futures[future])
+        except BaseException:
+            STOP.set()
+            raise
+        finally:
+            # Join before releasing ownership; interrupted subprocesses use
+            # STOP to terminate their process groups. No late DB publisher.
+            pool.shutdown(wait=True, cancel_futures=True)
+
+    def work(self, kind, jobs, number, label):
+        """One batch, on a worker thread: (items done, seconds, seconds waiting for the provider)."""
+        conn, lock = self.conn, self.lock
         started = time.monotonic()
         waited = gate.waited_seconds()
         if STOP.is_set():
@@ -1253,29 +1414,82 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
                 )
             done = 1
         else:
-            done = _run_text_batch(client, kind, jobs, conn, lock)
+            done = _run_text_batch(self.client, kind, jobs, conn, lock)
         return done, time.monotonic() - started, gate.waited_seconds() - waited
 
-    def release(jobs):
-        with lock, transaction(conn):
-            conn.executemany(
+    # ── outcomes ──────────────────────────────────────────────────────────
+
+    def record(self, future, kind, jobs, number, label) -> None:
+        counts = self.summary.setdefault(kind, {"done": 0, "failed": 0})
+        try:
+            done, seconds, waited = future.result()
+        except codex.ImagesStopped as exc:
+            # Not the job's fault: it goes back to the queue untouched.
+            self.release(jobs)
+            if "image" in self.available:
+                self.stop_images()
+                report.line(f"images     ■ stopped: {exc} — the rest are made by a later run")
+                report.event("images_stopped", reason=str(exc))
+        except AIUnavailable as exc:
+            self.release(jobs)
+            report.line(f"{KIND_NAME[kind]:<8}… put back for later — {exc}")
+            if kind == "image":
+                self.stop_images()
+            else:
+                self.available = [k for k in self.available if k == "image"]
+        except Exception as exc:
+            self.failed(kind, jobs, label, exc, counts)
+        else:
+            self.succeeded(kind, jobs, label, done, seconds, waited, counts)
+
+    def release(self, jobs) -> None:
+        with self.lock, transaction(self.conn):
+            self.conn.executemany(
                 "UPDATE ai_jobs SET status='pending',owner=NULL WHERE id=? AND owner=?",
-                [(j["id"], owner) for j in jobs],
+                [(j["id"], self.owner) for j in jobs],
             )
 
-    def failure(jobs, exc):
+    def succeeded(self, kind, jobs, label, done, seconds, waited, counts) -> None:
+        counts["done"] += done
+        if kind == "image":
+            self.images_failed_in_a_row = 0
+        with self.lock:  # workers share this connection
+            left = self.conn.execute(
+                "SELECT count(*) FROM ai_jobs WHERE kind=? AND status IN ('pending','running')",
+                (kind,),
+            ).fetchone()[0]
+        report.line(
+            f"{KIND_NAME[kind]:<11}✓ {done:<4}{label[:34]:<34} "
+            f"{report.duration(max(0, seconds - waited)):>6}"
+            + (f" + {report.duration(waited)} provider wait" if waited >= 1 else "")
+            + f" · {count_label(kind, left)} left"
+        )
+        report.event(
+            "batch_done",
+            kind=kind,
+            jobs=[j["id"] for j in jobs],
+            done=done,
+            seconds=round(seconds, 3),
+            provider_wait_seconds=round(waited, 3),
+        )
+
+    def failed(self, kind, jobs, label, exc, counts) -> None:
+        """Count the attempt against each failed job (called while handling ``exc``)."""
         errors = exc.failures if isinstance(exc, PartialBatchError) else {j["id"]: str(exc) for j in jobs}
         if isinstance(exc, (ValueError, AIResponseError)):
             # Claude answered, but not validly: a fresh run won't change that by itself
             # (``retry_failed(transient_only=True)`` skips these); a new prompt, input or
             # task_version reopens the job automatically.
             errors = {jid: INVALID + message for jid, message in errors.items()}
-        with lock, transaction(conn):
-            conn.executemany(
+        with self.lock, transaction(self.conn):
+            self.conn.executemany(
                 "UPDATE ai_jobs SET status=CASE WHEN attempts+1>=? THEN 'failed' ELSE 'pending' END,"
                 "attempts=attempts+1,error=?,owner=NULL,next_retry_at=datetime('now',?),"
                 "updated_at=CURRENT_TIMESTAMP WHERE id=?",
-                [(attempts_allowed, message[:2000], cooldown, jid) for jid, message in errors.items()],
+                [
+                    (self.attempts_allowed, message[:2000], self.cooldown, jid)
+                    for jid, message in errors.items()
+                ],
             )
         report.event(
             "batch_failed",
@@ -1285,202 +1499,30 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
             traceback=traceback.format_exc(),
             saved=getattr(exc, "done", 0),
         )
-        return len(errors)
-
-    with writer_lock(database):
-        # No previous worker can publish after this lock is acquired.
-        conn.execute("UPDATE ai_jobs SET status='pending',owner=NULL WHERE status='running'")
-        conn.commit()
-        planning_started = time.monotonic()
-        plan(conn)  # repair legacy inputs and cancel premature/obsolete jobs before claiming
-        report.detail(
-            f"  Planning: {time.monotonic() - planning_started:.1f}s · up to {workers} concurrent batches"
+        nfailed = len(errors)
+        counts["failed"] += nfailed
+        counts["done"] += getattr(exc, "done", 0)
+        saved = f" · {exc.done} valid items saved" if isinstance(exc, PartialBatchError) else ""
+        exhausted = sum(j["attempts"] + 1 >= self.attempts_allowed for j in jobs if j["id"] in errors)
+        retry_note = (
+            f"{exhausted} exhausted; retried when the task or input changes"
+            if exhausted == nfailed
+            else f"retry after {settings.ai.retry_cooldown_minutes:g}m; bounded to {self.attempts_allowed} attempts"
         )
-        available_kinds = list(kinds)
-        images_started = 0
-        if "image" in available_kinds and image_limit == 0:
-            available_kinds.remove("image")
-            report.detail("  Images skipped ([run] image_limit = 0; pass --images N to make some).")
-        elif "image" in available_kinds and codex.stopped():
-            available_kinds.remove("image")  # already said when it happened
-        elif "image" in available_kinds and not codex.logged_in():
-            available_kinds.remove("image")
-            report.line("images skipped: Codex is not logged in (run `codex login` once)")
-        images_failed_in_a_row = 0
-        try:
-            while available_kinds and (max_batches is None or batch_no < max_batches):
-                wave = []
-                wave_kinds = list(available_kinds)
-                texts, image_keys = 0, set()  # Claude slots used; images in this wave
-                while wave_kinds and (max_batches is None or batch_no < max_batches):
-                    if texts >= workers:
-                        wave_kinds = [k for k in wave_kinds if k == "image"]
-                    if "image" in wave_kinds and len(image_keys) >= image_slots:
-                        wave_kinds.remove("image")
-                    if not wave_kinds:
-                        break
-                    marks = ",".join("?" for _ in wave_kinds)
-                    first = conn.execute(
-                        f"SELECT * FROM ai_jobs WHERE status='pending' AND kind IN ({marks}) "
-                        "AND (next_retry_at IS NULL OR next_retry_at<=datetime('now')) "
-                        "ORDER BY CASE kind WHEN 'disambiguate' THEN 1 ELSE 0 END, priority, CASE kind WHEN 'lexeme_enrich' THEN 0 "
-                        "WHEN 'phrase_enrich' THEN 0 WHEN 'image' THEN 2 ELSE 1 END,id LIMIT 1",
-                        wave_kinds,
-                    ).fetchone()
-                    if not first:
-                        break
-                    kind = first["kind"]
-                    band_end = (first["priority"] // 100_000 + 1) * 100_000
-                    if kind == "disambiguate":
-                        band_end = 1 << 60  # compare ready words together after enrichment
-                    with transaction(conn):
-                        # Isolate a previously failed text job on its next attempt;
-                        # one bad member must not keep poisoning the same whole batch.
-                        size = 1 if first["attempts"] else settings.ai.batch_sizes.get(kind, BATCH[kind])
-                        # Images made together must not share a destination file.
-                        other_keys = sorted(image_keys) if kind == "image" else []
-                        jobs = conn.execute(
-                            "SELECT * FROM ai_jobs WHERE status='pending' AND kind=? AND priority<? "
-                            "AND (attempts>0)=? "
-                            "AND (next_retry_at IS NULL OR next_retry_at<=datetime('now')) "
-                            + (
-                                "AND coalesce(json_extract(payload,'$.image_key'),'') NOT IN "
-                                f"({','.join('?' for _ in other_keys)}) "
-                                if other_keys
-                                else ""
-                            )
-                            + "ORDER BY priority,id LIMIT ?",
-                            (kind, band_end, bool(first["attempts"]), *other_keys, size),
-                        ).fetchall()
-                        conn.executemany(
-                            "UPDATE ai_jobs SET status='running',owner=?,started_at=CURRENT_TIMESTAMP WHERE id=?",
-                            [(owner, j["id"]) for j in jobs],
-                        )
-                    if not jobs:
-                        wave_kinds.remove(kind)
-                        continue
-                    batch_no += 1
-                    label = _label(conn, kind, jobs)
-                    wave.append((kind, jobs, batch_no, label))
-                    if kind == "image":
-                        images_started += 1
-                        image_keys.add(json.loads(jobs[0]["payload"] or "{}").get("image_key") or "")
-                        if image_limit is not None and images_started >= image_limit:
-                            available_kinds.remove("image")
-                            wave_kinds.remove("image")
-                    else:
-                        texts += 1
-                if not wave:
-                    break
-                report.line("asking " + " · ".join(_wave_text(wave)) + " …")
-                # Planning is finished before threads start. Input updates, cache
-                # writes, result transactions and failure accounting share one lock.
-                pool = ThreadPoolExecutor(max_workers=workers + image_slots)
-                try:
-                    futures = {pool.submit(work, *item): item for item in wave}
-                    for future in as_completed(futures):
-                        kind, jobs, number, label = futures[future]
-                        counts = summary.setdefault(kind, {"done": 0, "failed": 0})
-                        try:
-                            done, seconds, waited = future.result()
-                        except codex.ImagesStopped as exc:
-                            # Not the job's fault: it goes back to the queue untouched.
-                            release(jobs)
-                            if "image" in available_kinds:
-                                available_kinds = [k for k in available_kinds if k != "image"]
-                                report.line(f"images     ■ stopped: {exc} — the rest are made by a later run")
-                                report.event("images_stopped", reason=str(exc))
-                        except AIUnavailable as exc:
-                            release(jobs)
-                            report.line(f"{KIND_NAME[kind]:<8}… put back for later — {exc}")
-                            if kind == "image":
-                                available_kinds = [k for k in available_kinds if k != "image"]
-                            else:
-                                available_kinds = [k for k in available_kinds if k == "image"]
-                        except Exception as exc:
-                            nfailed = failure(jobs, exc)
-                            counts["failed"] += nfailed
-                            counts["done"] += getattr(exc, "done", 0)
-                            saved = (
-                                f" · {exc.done} valid items saved"
-                                if isinstance(exc, PartialBatchError)
-                                else ""
-                            )
-                            failed_ids = (
-                                exc.failures
-                                if isinstance(exc, PartialBatchError)
-                                else {j["id"] for j in jobs}
-                            )
-                            exhausted = sum(
-                                j["attempts"] + 1 >= attempts_allowed for j in jobs if j["id"] in failed_ids
-                            )
-                            retry_note = (
-                                f"{exhausted} exhausted; retried when the task or input changes"
-                                if exhausted == nfailed
-                                else f"retry after {settings.ai.retry_cooldown_minutes:g}m; bounded to {attempts_allowed} attempts"
-                            )
-                            report.line(
-                                f"{KIND_NAME[kind]:<11}✗ {nfailed:<4}{label[:34]:<34} failed: "
-                                f"{str(exc)[:100]}{saved} ({retry_note})"
-                            )
-                            if kind == "image":
-                                images_failed_in_a_row += 1
-                                limit = settings.images.stop_after_failures
-                                if images_failed_in_a_row >= limit and "image" in available_kinds:
-                                    # Codex said something we don't recognise, the same way,
-                                    # several times: most likely it can't make images now.
-                                    reason = f"{limit} images failed in a row (last: {str(exc)[:120]})"
-                                    codex.stop(reason)
-                                    available_kinds = [k for k in available_kinds if k != "image"]
-                                    report.line(f"images     ■ stopped: {reason}")
-                                    report.event("images_stopped", reason=reason)
-                        else:
-                            counts["done"] += done
-                            if kind == "image":
-                                images_failed_in_a_row = 0
-                            with lock:  # workers share this connection
-                                left = conn.execute(
-                                    "SELECT count(*) FROM ai_jobs WHERE kind=? AND status IN ('pending','running')",
-                                    (kind,),
-                                ).fetchone()[0]
-                            report.line(
-                                f"{KIND_NAME[kind]:<11}✓ {done:<4}{label[:34]:<34} "
-                                f"{report.duration(max(0, seconds - waited)):>6}"
-                                + (f" + {report.duration(waited)} provider wait" if waited >= 1 else "")
-                                + f" · {count_label(kind, left)} left"
-                            )
-                            report.event(
-                                "batch_done",
-                                kind=kind,
-                                jobs=[j["id"] for j in jobs],
-                                done=done,
-                                seconds=round(seconds, 3),
-                                provider_wait_seconds=round(waited, 3),
-                            )
-                except BaseException:
-                    STOP.set()
-                    raise
-                finally:
-                    # Join before releasing ownership; interrupted subprocesses use
-                    # STOP to terminate their process groups. No late DB publisher.
-                    pool.shutdown(wait=True, cancel_futures=True)
-                planning_started = time.monotonic()
-                plan(conn)
-                report.detail(f"  Queue checkpoint · planning {time.monotonic() - planning_started:.1f}s")
-        finally:
-            # Preserve completed transactions; only unfinished claims are released.
-            conn.rollback()
-            with transaction(conn):
-                conn.execute(
-                    "UPDATE ai_jobs SET status='pending',owner=NULL WHERE status='running' AND owner=?",
-                    (owner,),
-                )
-        pending = conn.execute("SELECT count(*) FROM ai_jobs WHERE status='pending'").fetchone()[0]
-        failed = conn.execute("SELECT count(*) FROM ai_jobs WHERE status='failed'").fetchone()[0]
-        report.detail(
-            f"  Queue remaining: {pending} pending (includes skipped images/deferred retries), {failed} failed"
+        report.line(
+            f"{KIND_NAME[kind]:<11}✗ {nfailed:<4}{label[:34]:<34} failed: {str(exc)[:100]}{saved} ({retry_note})"
         )
-    return summary
+        if kind == "image":
+            self.images_failed_in_a_row += 1
+            limit = settings.images.stop_after_failures
+            if self.images_failed_in_a_row >= limit and "image" in self.available:
+                # Codex said something we don't recognise, the same way,
+                # several times: most likely it can't make images now.
+                reason = f"{limit} images failed in a row (last: {str(exc)[:120]})"
+                codex.stop(reason)
+                self.stop_images()
+                report.line(f"images     ■ stopped: {reason}")
+                report.event("images_stopped", reason=reason)
 
 
 def status(conn: sqlite3.Connection) -> list[tuple]:
