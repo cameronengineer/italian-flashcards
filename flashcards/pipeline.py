@@ -469,14 +469,14 @@ def conclude(run: Run, conn) -> dict:
 
 
 def print_summary(run: Run, facts: dict) -> None:
-    from .ai import _gate
+    from .ai import gate
     from .paths import PROJECT_ROOT
     from .queue import count_label
 
     print(flush=True)
     report.rule()
     print(f"  Finished in {report.duration(time.monotonic() - run.started)}", flush=True)
-    provider_wait = _gate.waited_seconds() - run.waited_before
+    provider_wait = gate.waited_seconds() - run.waited_before
     if provider_wait >= 1:
         report.item(
             "Time",
@@ -555,7 +555,7 @@ def print_summary(run: Run, facts: dict) -> None:
 def run(options) -> int:
     """Run the pipeline. ``options`` is a :class:`RunOptions` (or the ``run``
     subcommand's parsed arguments)."""
-    from .ai import _gate
+    from .ai import gate
     from .db import connect
     from .paths import DB_PATH, PROJECT_ROOT
     from .runtime import atomic_json
@@ -568,7 +568,7 @@ def run(options) -> int:
         run_id=run_id,
         run_file=PROJECT_ROOT / "audit_reports" / "runs" / f"{run_id}.json",
         started=time.monotonic(),
-        waited_before=_gate.waited_seconds(),
+        waited_before=gate.waited_seconds(),
     )
     this.summary = {
         "run_id": run_id,
@@ -644,7 +644,7 @@ def run(options) -> int:
         summary["anki"] = dict(this.anki)
         summary["finished_at"] = datetime.now(timezone.utc).isoformat()
         summary["seconds"] = round(time.monotonic() - this.started, 3)
-        summary["provider_wait_seconds"] = round(_gate.waited_seconds() - this.waited_before, 3)
+        summary["provider_wait_seconds"] = round(gate.waited_seconds() - this.waited_before, 3)
         try:
             atomic_json(this.run_file, summary)
             atomic_json(PROJECT_ROOT / "audit_reports" / "run_latest.json", summary)

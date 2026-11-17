@@ -30,7 +30,7 @@ from .db import transaction
 from .runtime import writer_lock
 from .validation import validate
 from .assets import record
-from .ai import AI, AIUnavailable, AIResponseError, _gate
+from .ai import AI, AIUnavailable, AIResponseError, gate
 from .pool import STOP
 from .settings import settings
 from .facts import normalise as fact_key
@@ -409,9 +409,9 @@ def _context_lines(conn, lexeme_id: str) -> list[str]:
 def _kaikki_entry(lx: sqlite3.Row) -> dict | None:
     if not lx["in_kaikki"]:
         return None
-    from .lexicon import _KAIKKI_FOR
+    from .lexicon import KAIKKI_POS
 
-    want = _KAIKKI_FOR.get(lx["pos"])
+    want = KAIKKI_POS.get(lx["pos"])
     found = (kaikki.entries(lx["lemma"], want) if want else []) or (
         kaikki.entries(lx["lemma"], "det") if want == "article" else []
     )
@@ -1130,7 +1130,7 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
 
     def work(kind, jobs, number, label):
         started = time.monotonic()
-        waited = _gate.waited_seconds()
+        waited = gate.waited_seconds()
         if STOP.is_set():
             raise KeyboardInterrupt
         if kind == "lexeme_enrich":
@@ -1148,7 +1148,7 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
             done = 1
         else:
             done = _run_text_batch(client, kind, jobs, conn, lock)
-        return done, time.monotonic() - started, _gate.waited_seconds() - waited
+        return done, time.monotonic() - started, gate.waited_seconds() - waited
 
     def release(jobs):
         with lock, transaction(conn):

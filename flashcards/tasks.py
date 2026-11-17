@@ -154,7 +154,7 @@ _IGNORE_RULE = (
     "Fill in every other field either way."
 )
 
-_FEATURES = _obj(
+SENSE_FEATURES = _obj(
     {
         "persons": {
             "type": "array",
@@ -213,7 +213,7 @@ LEXEME_ENRICH = TaskSpec(
                                     "register": _STR,
                                     "note": _STR,
                                     "source_id": _STR,
-                                    "features": _FEATURES,
+                                    "features": SENSE_FEATURES,
                                 }
                             ),
                         },
@@ -448,9 +448,7 @@ CUE_CHECK = TaskSpec(
         "english: the prompt to show; hint: the hint to show (at most 4 words, or empty). Never "
         "include Italian.",
     ),
-    schema=_obj(
-        {"cues": {"type": "array", "items": _obj({"id": _STR, "english": _STR, "hint": _STR})}}
-    ),
+    schema=_obj({"cues": {"type": "array", "items": _obj({"id": _STR, "english": _STR, "hint": _STR})}}),
 )
 
 

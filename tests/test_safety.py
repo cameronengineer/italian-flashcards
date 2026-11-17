@@ -91,7 +91,7 @@ class GenerationTests(unittest.TestCase):
         )
 
     def test_reset_error_releases_gate(self):
-        gate = ai._Gate()
+        gate = ai.Gate()
         gate.open.clear()
         with (
             patch.object(ai, "seconds_until_reset", return_value=1),
@@ -107,7 +107,7 @@ class GenerationTests(unittest.TestCase):
         # Asked for explicitly: limits, credits and logins pause and retry rather than fail jobs.
         for message in ("not logged in", "Credit balance is too low", "5-hour limit reached"):
             self.assertIsInstance(
-                ai._classify(message, 401 if "logged" in message else None), ai.AIUnavailable
+                ai.classify(message, 401 if "logged" in message else None), ai.AIUnavailable
             )
 
     def test_bounded_wait_gives_up_and_releases_gate(self):
@@ -116,7 +116,7 @@ class GenerationTests(unittest.TestCase):
         bounded = replace(
             ai.settings, ai=replace(ai.settings.ai, max_unavailable_minutes=1, unavailable_retry_minutes=5)
         )
-        gate = ai._Gate()
+        gate = ai.Gate()
         gate.open.clear()
         with patch.object(ai, "settings", bounded), patch.object(ai.STOP, "wait", return_value=False) as wait:
             with self.assertRaises(ai.AIUnavailable):
@@ -251,4 +251,3 @@ class BatchedRetirementTests(unittest.TestCase):
             reconcile.run(c, allow_retire=True)
         deletes = [kw["notes"] for action, kw in calls if action == "deleteNotes"]
         self.assertEqual(deletes, [[10, 11]])
-

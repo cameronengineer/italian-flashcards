@@ -447,7 +447,7 @@ def subtlex_rows(path: Path) -> list[dict]:
         return list(csv.DictReader(fh, delimiter=";"))
 
 
-def _zipf(v: str | None) -> float | None:
+def parse_zipf(v: str | None) -> float | None:
     try:
         return float((v or "").replace(",", "."))
     except ValueError:
@@ -477,7 +477,7 @@ def _read_subtlex(l: ListDef) -> list[Item]:
                 raw=lemma,
                 lemma=lemma.lower(),
                 pos="verb" if pos == "VER" else "noun",
-                context={"freq_rank": file_rank, "zipf": _zipf(r.get("zipf"))},
+                context={"freq_rank": file_rank, "zipf": parse_zipf(r.get("zipf"))},
             )
         )
     return out

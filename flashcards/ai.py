@@ -147,7 +147,7 @@ _AUTH_HINTS = (
 )
 
 
-def _classify(message: str, status: int | None = None) -> AIError:
+def classify(message: str, status: int | None = None) -> AIError:
     """Limits, credits, logins and outages are all "unavailable": the queue
     waits for them to clear (as asked) instead of failing jobs."""
     low = message.lower()
@@ -210,10 +210,10 @@ def _claude_code(task: Task) -> Any:
         data = json.loads(proc.stdout)
     except json.JSONDecodeError:
         detail = (proc.stderr or proc.stdout or f"exit code {proc.returncode}").strip()
-        raise _classify(f"claude -p failed: {detail[-400:]}") from None
+        raise classify(f"claude -p failed: {detail[-400:]}") from None
     if data.get("is_error") or data.get("subtype") != "success":
         detail = str(data.get("result") or data.get("subtype") or "unknown error")
-        raise _classify(f"claude -p: {detail[:400]}", data.get("api_error_status"))
+        raise classify(f"claude -p: {detail[:400]}", data.get("api_error_status"))
     if task.schema is None:
         return (data.get("result") or "").strip()
     out = data.get("structured_output")
@@ -228,7 +228,7 @@ def _claude_code(task: Task) -> Any:
 # ── Availability gate + concurrency ───────────────────────────────────────
 
 
-class _Gate:
+class Gate:
     """Pauses every caller while Claude is unavailable.
 
     The first caller to see an outage becomes the prober: it retries its own
@@ -369,7 +369,7 @@ def seconds_until_reset(message: str) -> float | None:
     return (target - now).total_seconds() + 120
 
 
-_gate = _Gate("Claude")
+gate = Gate("Claude")
 _slots = threading.BoundedSemaphore(max(1, settings.ai.concurrency))
 
 
@@ -378,7 +378,7 @@ def _call(task: Task) -> Any:
         with _slots:
             return _claude_code(task)
 
-    return _gate.call(once)
+    return gate.call(once)
 
 
 # ── Client ────────────────────────────────────────────────────────────────

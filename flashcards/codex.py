@@ -24,7 +24,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from .ai import AIError, AIUnavailable, _Gate, _classify
+from .ai import AIError, AIUnavailable, Gate, classify
 from .paths import IMAGE_DIR
 from .settings import settings
 from .util import md5_hex
@@ -33,7 +33,7 @@ from .runtime import run_process
 from .pool import STOP
 
 CODEX = "codex"
-_gate = _Gate("Codex")
+gate = Gate("Codex")
 
 
 class ImagesStopped(AIError):
@@ -164,7 +164,7 @@ def _run(prompt: str, dest: Path, timeout: int) -> bool:
             if reason:  # with or without an exit code: Codex sometimes just says it
                 raise ImagesStopped(reason)
             if proc.returncode != 0 or "error" in said.lower():
-                raise _classify(f"codex exec: {said.strip()[-400:]}")
+                raise classify(f"codex exec: {said.strip()[-400:]}")
             raise AIError(f"codex exec produced no image: {said.strip()[-200:]}")
         dest.parent.mkdir(parents=True, exist_ok=True)
         tmp_dest = dest.with_suffix(".tmp.png")
@@ -190,7 +190,7 @@ def generate(
         raise ImagesStopped(stopped())
     prompt = image_prompt(italian, meaning, pos)
     try:
-        _gate.call(lambda: _run(prompt, dest, timeout or settings.images.codex_timeout))
+        gate.call(lambda: _run(prompt, dest, timeout or settings.images.codex_timeout))
     except ImagesStopped as exc:
         stop(str(exc))
         raise

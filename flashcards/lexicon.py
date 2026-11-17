@@ -56,7 +56,7 @@ _POS_FROM_KAIKKI = {
 }
 #: Our POS → the Kaikki POS to look up (explicit: inverting the map above
 #: would silently pick e.g. "contraction" for "prep").
-_KAIKKI_FOR = {
+KAIKKI_POS = {
     "noun": "noun",
     "verb": "verb",
     "adj": "adj",
@@ -91,7 +91,7 @@ def frequency() -> dict[str, tuple[int, float | None]]:
     for rank, r in enumerate(lists_mod.subtlex_rows(path), start=1):
         lemma = normalise_spelling((r.get("dom_lemma") or "").strip().lower())
         if lemma and lemma != "<unknown>" and lemma not in out:
-            out[lemma] = (rank, lists_mod._zipf(r.get("zipf")))
+            out[lemma] = (rank, lists_mod.parse_zipf(r.get("zipf")))
     return out
 
 
@@ -117,7 +117,7 @@ def image_exists(key: str | None) -> bool:
 def _pick_entry(item: lists_mod.Item) -> dict | None:
     if not kaikki.available() or not item.lemma:
         return None
-    want = _KAIKKI_FOR.get(item.pos or "")
+    want = KAIKKI_POS.get(item.pos or "")
     if item.pos == "phrase":
         found = kaikki.entries(item.lemma.strip("!?.… "))
         return found[0] if found else None
@@ -482,7 +482,8 @@ def _retire_removed_lists(conn: sqlite3.Connection, removed: list[str]) -> int:
     keys = [
         key
         for (key,) in conn.execute("SELECT key FROM identity WHERE kind='v4'")
-        if key.split(":")[0] in ("vocab", "phrase", "form", "nphrase", "cognate") and key.split(":")[1] not in still
+        if key.split(":")[0] in ("vocab", "phrase", "form", "nphrase", "cognate")
+        and key.split(":")[1] not in still
     ]
     conn.executemany(
         "INSERT OR IGNORE INTO retirements(key, reason) VALUES(?, ?)", [(k, reason) for k in keys]

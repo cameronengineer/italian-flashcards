@@ -24,7 +24,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from . import kaikki
-from .italian import _TOKEN, normalise_spelling, plain, tokens
+from .italian import TOKEN, normalise_spelling, plain, tokens
 from .paths import INPUTS_DIR
 
 _TIME = re.compile(r"(\d+):(\d+):(\d+)[,.](\d+)\s*-->")
@@ -307,9 +307,9 @@ def _line_tokens(line: str):
     any token after . ! ? … or an opening quote/dash."""
     line = line.replace("’", "'")
     previous = 0
-    for i, m in enumerate(_TOKEN.finditer(line)):
+    for i, m in enumerate(TOKEN.finditer(line)):
         gap = line[previous : m.start()]
-        yield m.group(), i == 0 or any(ch in gap for ch in ".!?…«\"“-–—")
+        yield m.group(), i == 0 or any(ch in gap for ch in '.!?…«"“-–—')
         previous = m.end()
 
 

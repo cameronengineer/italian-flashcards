@@ -105,10 +105,10 @@ def save_senses(conn, lexeme_id, values, provenance):
         if isinstance(context, (dict, list)):
             context = json.dumps(context, ensure_ascii=False, sort_keys=True)
         feats = s.get("features", json.loads(match["features"] or "{}") if match else {})
-        from .tasks import _FEATURES
+        from .tasks import SENSE_FEATURES
         from .validation import validate
 
-        validate(feats, {**_FEATURES, "required": []}, "sense.features")
+        validate(feats, {**SENSE_FEATURES, "required": []}, "sense.features")
         wanted.append(
             [idx, prompt, s, source, context, json.dumps(feats, ensure_ascii=False, sort_keys=True)]
         )

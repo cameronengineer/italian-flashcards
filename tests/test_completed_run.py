@@ -259,7 +259,7 @@ class SuspensionAndTimingTests(unittest.TestCase):
         self.assertEqual(plan.result(), "up to date")
 
     def test_wait_time_is_counted_once_and_gate_reopens(self):
-        gate = ai._Gate()
+        gate = ai.Gate()
         gate.open.clear()
         with (
             patch.object(ai.time, "monotonic", side_effect=[10, 10, 310]),

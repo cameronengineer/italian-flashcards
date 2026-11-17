@@ -16,9 +16,9 @@ def normal(value):
 
 def candidate_entries(lemma, pos):
     from . import kaikki
-    from .lexicon import _KAIKKI_FOR
+    from .lexicon import KAIKKI_POS
 
-    want = _KAIKKI_FOR.get(pos)
+    want = KAIKKI_POS.get(pos)
     return (kaikki.entries(lemma, want) if want else []) or (
         kaikki.entries(lemma, "det") if want == "article" else []
     )

@@ -293,18 +293,6 @@ def connect(path: Path = DB_PATH) -> sqlite3.Connection:
     return conn
 
 
-def execute_statements(conn, script: str) -> None:
-    """Unlike executescript, preserve the caller's transaction."""
-    statement = ""
-    for line in script.splitlines(True):
-        statement += line
-        if sqlite3.complete_statement(statement):
-            conn.execute(statement)
-            statement = ""
-    if statement.strip():
-        raise ValueError("Incomplete schema SQL")
-
-
 def _m14_remove_v3(conn: sqlite3.Connection) -> None:
     """Drop the pre-lexicon ("v3") tables and everything that existed to adopt
     their Anki notes.

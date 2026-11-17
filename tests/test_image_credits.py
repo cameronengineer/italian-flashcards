@@ -76,7 +76,7 @@ class RunStateTests(unittest.TestCase):
                 codex.generate("cane", "il cane", "dog", "noun")
         self.assertEqual(run.call_count, 1)
         self.assertEqual(codex.stopped(), "You've hit your usage limit")
-        self.assertTrue(codex._gate.open.is_set())  # no outage wait was started
+        self.assertTrue(codex.gate.open.is_set())  # no outage wait was started
 
 
 class DrainTests(unittest.TestCase):

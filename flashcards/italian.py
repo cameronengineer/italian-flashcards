@@ -402,7 +402,12 @@ def gives_away(english: str, italian: str, hint: str = "") -> bool:
             main = re.sub(r"\(.*?\)", "", top).strip()
             if main:
                 out.append(main)
-            out += [p.strip() for inner in re.findall(r"\((.*?)\)", top) for p in re.split(r"[,;/]", inner) if p.strip()]
+            out += [
+                p.strip()
+                for inner in re.findall(r"\((.*?)\)", top)
+                for p in re.split(r"[,;/]", inner)
+                if p.strip()
+            ]
         return out
 
     it = plain(italian.lower())
@@ -423,9 +428,9 @@ def gives_away(english: str, italian: str, hint: str = "") -> bool:
 
 # ── Tokenising subtitle text ───────────────────────────────────────────────
 
-_TOKEN = re.compile(r"[a-zA-ZàèéìíòóùúÀÈÉÌÒÙ]+'?|[0-9]+", re.U)
+TOKEN = re.compile(r"[a-zA-ZàèéìíòóùúÀÈÉÌÒÙ]+'?|[0-9]+", re.U)
 
 
 def tokens(text: str) -> list[str]:
     """Words with elided prefixes split off: "c'è" → ["c'", "è"]."""
-    return _TOKEN.findall(text.replace("’", "'"))
+    return TOKEN.findall(text.replace("’", "'"))
