@@ -283,57 +283,60 @@ def owned_notes(conn, *, conflicts=None):
 
 
 def build_plan(conn: sqlite3.Connection, *, anki_media: set[str]) -> Plan:
+    """What one sync changes in Anki: notes to add, update and move, cards to
+    suspend, and notes to retire (each with its reason)."""
     from .quality import reasons, require_current_notes
-    from .planning import form_publication, form_output_reason
 
     require_current_notes(conn)
     plan = Plan()
-    publication = form_publication()
-    holds = {}
-
-    def hold(key):
-        if key not in holds:
-            holds[key] = semantics.note_hold(conn, key)
-        return holds[key]
-
-    def removed_form(key):
-        # Grammar holds are decided automatically (no human review): the drill is removed.
-        return form_output_reason(key, publication) or (
-            hold(key) if key.startswith(("form:", "nphrase:")) else None
-        )
-
+    drills = _Drills(conn)
     desired = {r["key"]: dict(r) for r in conn.execute("SELECT * FROM v4_notes")}
     for row in desired.values():
         if row["ready"] and reasons(conn, row["key"], row["lexeme_id"], json.loads(row["fields_json"])):
             row["ready"] = False
     plan.waiting = sum(not r["ready"] for r in desired.values())
-    v4 = {n.key: n for n in owned_notes(conn, conflicts=plan.conflicts)}
-    plan.v4 = v4
-    for key, note in v4.items():
-        if hold(key) and not removed_form(key):
-            plan.suspend.extend(c for c in note.cards if note.cards_info.get(c, {}).get("queue") != -1)
+    plan.v4 = v4 = {n.key: n for n in owned_notes(conn, conflicts=plan.conflicts)}
     plan.present = set(v4)
+    for key, note in v4.items():
+        if drills.held(key) and not drills.removed(key):
+            plan.suspend.extend(c for c in note.cards if note.cards_info.get(c, {}).get("queue") != -1)
     for key, row in desired.items():
-        if not row["ready"] or removed_form(key):
-            continue
-        fields = json.loads(row["fields_json"])
-        tags = row["tags"].split() + [OWNER_TAG]
-        plan.media |= _media_names(fields) - anki_media
-        existing = v4.get(key)
-        if existing:
-            # AnkiConnect cannot delete one template's card without deleting
-            # its whole note. Disable/suspend that direction, regardless of history.
-            for cid, template in existing.templates.items():
-                if not fields[template] and existing.cards_info.get(cid, {}).get("queue") != -1:
-                    plan.suspend.append(cid)
-            wanted_tags = tags_for(existing.tags, tags)
-            if any(existing.fields.get(f, "") != fields.get(f, "") for f in FIELDS) or set(
-                existing.tags
-            ) != set(wanted_tags):
-                plan.update.append((existing, {"fields": fields, "tags": wanted_tags}))
-            if existing.decks != {row["deck"]}:
-                plan.move.append((existing.cards, row["deck"]))
-        elif fields["Recognition"] or fields["Production"]:
+        if row["ready"] and not drills.removed(key):
+            _plan_note(plan, row, v4.get(key), anki_media)
+    _plan_retirements(conn, plan, desired, drills)
+    return plan
+
+
+class _Drills:
+    """Drills the meaning rules leave out (no human review: they are removed)."""
+
+    def __init__(self, conn):
+        from .planning import form_publication
+
+        self.conn = conn
+        self.publication = form_publication()
+        self.holds: dict[str, str | None] = {}
+
+    def held(self, key) -> str | None:
+        if key not in self.holds:
+            self.holds[key] = semantics.note_hold(self.conn, key)
+        return self.holds[key]
+
+    def removed(self, key) -> str | None:
+        from .planning import form_output_reason
+
+        return form_output_reason(key, self.publication) or (
+            self.held(key) if key.startswith(("form:", "nphrase:")) else None
+        )
+
+
+def _plan_note(plan: Plan, row: dict, existing: AnkiNote | None, anki_media: set[str]) -> None:
+    """What one ready note needs in Anki: added, or updated, moved and suspended."""
+    fields = json.loads(row["fields_json"])
+    tags = row["tags"].split() + [OWNER_TAG]
+    plan.media |= _media_names(fields) - anki_media
+    if existing is None:
+        if fields["Recognition"] or fields["Production"]:
             plan.add.append(
                 {
                     "deckName": row["deck"],
@@ -344,66 +347,26 @@ def build_plan(conn: sqlite3.Connection, *, anki_media: set[str]) -> Plan:
                     "_sort": row["sort_order"],
                 }
             )
-    reasons = {r[0]: r[1] for r in conn.execute("SELECT key,reason FROM retirements")}
-    ignored = {r[0]: r[1] for r in conn.execute("SELECT id, ignored FROM lexemes WHERE ignored IS NOT NULL")}
+        return
+    # AnkiConnect cannot delete one template's card without deleting
+    # its whole note. Disable/suspend that direction, regardless of history.
+    for cid, template in existing.templates.items():
+        if not fields[template] and existing.cards_info.get(cid, {}).get("queue") != -1:
+            plan.suspend.append(cid)
+    wanted_tags = tags_for(existing.tags, tags)
+    if any(existing.fields.get(f, "") != fields.get(f, "") for f in FIELDS) or set(existing.tags) != set(
+        wanted_tags
+    ):
+        plan.update.append((existing, {"fields": fields, "tags": wanted_tags}))
+    if existing.decks != {row["deck"]}:
+        plan.move.append((existing.cards, row["deck"]))
 
-    def ignored_reason(key):
-        parts = key.split(":")
-        if (
-            parts[0] in ("vocab", "phrase", "form", "nphrase", "cognate")
-            and len(parts) > 1
-            and parts[1] in ignored
-        ):
-            return f"Claude: not a useful card — {ignored[parts[1]]}"
-        return None
 
-    # A word has a copy of its card in every list it is in; a copy whose list the
-    # word has left goes (the plain key belongs to ``lexemes.key_list``).
-    memberships = defaultdict(set)
-    for r in conn.execute("SELECT lexeme_id, list_id FROM list_items"):
-        memberships[r[0]].add(r[1])
-    key_lists = dict(conn.execute("SELECT id, key_list FROM lexemes WHERE key_list IS NOT NULL").fetchall())
-
-    numbers = dict(
-        conn.execute("SELECT id, card_number FROM lexemes WHERE card_number IN ('singular','plural')")
-    )
-
-    def number_reason(key):
-        # A noun-phrase drill in a number the word isn't used in (un occhiale, i latti).
-        parts = key.split(":")
-        if (
-            parts[0] == "nphrase"
-            and len(parts) >= 4
-            and parts[1] in numbers
-            and parts[3] != numbers[parts[1]]
-        ):
-            return f"{parts[3].capitalize()} not used for this noun"
-        return None
-
-    def cognate_reason(key):
-        # One card per word now (the old per-rule cards, or a word whose English
-        # no longer follows its rule).
-        return "No longer a cognate card" if key.startswith("cognate:") else None
-
-    def list_reason(key):
-        parts = key.split(":")
-        if parts[0] not in ("vocab", "phrase") or len(parts) != 3 or parts[1] not in memberships:
-            return None
-        listed = parts[2].partition("@")[2] or key_lists.get(parts[1])
-        return f"No longer in list {listed}" if listed and listed not in memberships[parts[1]] else None
-
-    for key, n in v4.items():
-        reason = removed_form(key) or (
-            (
-                reasons.get(key)
-                or ignored_reason(key)
-                or list_reason(key)
-                or cognate_reason(key)
-                or number_reason(key)
-            )
-            if key not in desired
-            else None
-        )
+def _plan_retirements(conn, plan: Plan, desired: dict, drills: _Drills) -> None:
+    """Notes in Anki that should leave it, and why; the rest stay."""
+    stale = _StaleReasons(conn)
+    for key, n in plan.v4.items():
+        reason = drills.removed(key) or (stale.reason(key) if key not in desired else None)
         dependency = None
         if not reason and key not in desired:
             # An older key for a card that now has its stable key (the main
@@ -421,7 +384,63 @@ def build_plan(conn: sqlite3.Connection, *, anki_media: set[str]) -> Plan:
             plan.retirement_reasons[n.note_id] = reason
         elif key not in desired:
             plan.keep_unmapped += 1
-    return plan
+
+
+class _StaleReasons:
+    """Why a note the pipeline no longer wants should leave Anki, if it should."""
+
+    def __init__(self, conn):
+        self.retirements = dict(conn.execute("SELECT key,reason FROM retirements").fetchall())
+        self.ignored = dict(
+            conn.execute("SELECT id, ignored FROM lexemes WHERE ignored IS NOT NULL").fetchall()
+        )
+        # A word has a copy of its card in every list it is in; a copy whose list the
+        # word has left goes (the plain key belongs to ``lexemes.key_list``).
+        self.memberships = defaultdict(set)
+        for r in conn.execute("SELECT lexeme_id, list_id FROM list_items"):
+            self.memberships[r[0]].add(r[1])
+        self.key_lists = dict(
+            conn.execute("SELECT id, key_list FROM lexemes WHERE key_list IS NOT NULL").fetchall()
+        )
+        self.numbers = dict(
+            conn.execute("SELECT id, card_number FROM lexemes WHERE card_number IN ('singular','plural')")
+        )
+
+    def reason(self, key) -> str | None:
+        parts = key.split(":")
+        return (
+            self.retirements.get(key)
+            or self._ignored(parts)
+            or self._left_list(parts)
+            or ("No longer a cognate card" if parts[0] == "cognate" else None)  # one card per word now
+            or self._unused_number(parts)
+        )
+
+    def _ignored(self, parts):
+        if (
+            parts[0] in ("vocab", "phrase", "form", "nphrase", "cognate")
+            and len(parts) > 1
+            and parts[1] in self.ignored
+        ):
+            return f"Claude: not a useful card — {self.ignored[parts[1]]}"
+        return None
+
+    def _left_list(self, parts):
+        if parts[0] not in ("vocab", "phrase") or len(parts) != 3 or parts[1] not in self.memberships:
+            return None
+        listed = parts[2].partition("@")[2] or self.key_lists.get(parts[1])
+        return f"No longer in list {listed}" if listed and listed not in self.memberships[parts[1]] else None
+
+    def _unused_number(self, parts):
+        # A noun-phrase drill in a number the word isn't used in (un occhiale, i latti).
+        if (
+            parts[0] == "nphrase"
+            and len(parts) >= 4
+            and parts[1] in self.numbers
+            and parts[3] != self.numbers[parts[1]]
+        ):
+            return f"{parts[3].capitalize()} not used for this noun"
+        return None
 
 
 def _current_key(key: str) -> str | None:
