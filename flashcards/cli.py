@@ -267,7 +267,7 @@ def cmd_share(args) -> int:
 def cmd_doctor(args):
     from .commands import doctor
 
-    return doctor.run(args.out, database=args.database, check_media=not args.skip_media)
+    return doctor.run(args.out, database=args.database, check_media=not args.skip_media, anki=args.anki)
 
 
 def cmd_media_inventory(args):
@@ -329,12 +329,17 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="cmd", required=True, metavar="command")
 
     sp = sub.add_parser(
-        "doctor", help="Read-only health report: tools, settings and a data census. No AI, no Anki."
+        "doctor", help="Read-only health report: tools, settings and a data census (--anki: AnkiConnect too)."
     )
     sp.add_argument("--database", type=Path, help="Review a SQLite snapshot instead of the live database.")
     sp.add_argument("--out", type=Path)
     sp.add_argument(
         "--skip-media", action="store_true", help="Skip read-only checks of referenced local media."
+    )
+    sp.add_argument(
+        "--anki",
+        action="store_true",
+        help="Also check that AnkiConnect is reachable and offers every action used (read-only).",
     )
     sp.set_defaults(func=cmd_doctor)
     sp = sub.add_parser("media-inventory", help="Resumable checksum inventory; never changes media.")

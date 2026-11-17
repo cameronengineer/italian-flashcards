@@ -84,7 +84,7 @@ keep_days = 14           # … and for both, the first backup of each of the las
 mirror_dir = ""
 
 [audit]
-workers = 500
+workers = 4              # Claude calls at once for `./run.sh audit` (at most [ai] concurrency)
 
 [practice]
 words = 50

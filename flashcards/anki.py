@@ -13,6 +13,18 @@ from .settings import settings
 
 ANKI_CONNECT_VERSION = 6
 
+#: Every AnkiConnect action this program calls (a test checks the code against it).
+ACTIONS = frozenset(
+    {
+        "addNotes", "addTags", "cardReviews", "cardsInfo", "changeDeck", "cloneDeckConfigId",
+        "createDeck", "createModel", "deckNames", "deleteNotes", "findCards", "findNotes",
+        "getActiveProfile", "getDeckConfig", "getDecks", "getMediaFilesNames", "modelFieldAdd",
+        "modelFieldNames", "modelNames", "modelStyling", "modelTemplates", "multi", "notesInfo",
+        "removeTags", "saveDeckConfig", "setDeckConfigId", "storeMediaFile", "suspend", "unsuspend",
+        "updateModelStyling", "updateModelTemplates", "updateNoteFields", "version",
+    }
+)  # fmt: skip
+
 
 def invoke(action: str, *, timeout: int = 60, **params: Any) -> Any:
     payload = json.dumps({"action": action, "version": ANKI_CONNECT_VERSION, "params": params}).encode(
@@ -31,6 +43,25 @@ def invoke(action: str, *, timeout: int = 60, **params: Any) -> Any:
     if result["error"] is not None:
         raise RuntimeError(f"AnkiConnect error: {result['error']}")
     return result["result"]
+
+
+def capabilities() -> dict:
+    """Is AnkiConnect reachable, and does it still offer every action used here?
+
+    Read-only (``apiReflect``). AnkiConnect has dropped behaviour before (October
+    2026: moving cards), so this is worth checking after updating it.
+    """
+    try:
+        version = invoke("version", timeout=5)
+    except RuntimeError as exc:
+        return {"reachable": False, "error": str(exc)}
+    offered = invoke("apiReflect", scopes=["actions"], actions=sorted(ACTIONS)).get("actions", [])
+    return {
+        "reachable": True,
+        "version": version,
+        "profile": invoke("getActiveProfile"),
+        "unsupported_actions": sorted(ACTIONS - set(offered)),
+    }
 
 
 def chunks(items: list, size: int = 500):

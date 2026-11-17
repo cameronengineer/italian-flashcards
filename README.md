@@ -179,7 +179,7 @@ the way to update your own collection.
 | `leech` | suspend + tag cards you keep failing; `leech --doctor` writes memory aids |
 | `audit` | Claude reviews conjugations, ambiguous cues and gender-changing plurals first; matching audits are counted separately from publishable notes |
 | `share` | `.apkg` for someone else (only lists marked `shareable`; film lines left out) |
-| `doctor` | health report: tools, settings and a data-quality census (read-only; `--database FILE` reviews a backup) |
+| `doctor` | health report: tools, settings and a data-quality census (read-only; `--database FILE` reviews a backup; `--anki` checks AnkiConnect still offers every action used — worth running after updating it) |
 | `media-inventory` | resumable checksums, image validation, references and provenance; originals and unreferenced assets are retained |
 | `recovery create PATH` | verified database, dictionary, code, runtime versions and inputs; add `--include-media` and optionally `--anki-collection PATH` |
 

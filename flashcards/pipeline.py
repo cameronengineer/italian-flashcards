@@ -209,6 +209,10 @@ def preflight(run: Run) -> bool:
         return False
     run.lists = defs
     report.item("settings", f"lists.toml + plan.toml OK ({report.plural(len(defs), 'list')})")
+    for list_id, by in lists.load_plan().passed_deadlines():
+        report.item(
+            "plan", f"{list_id}: its date ({by}) has passed, so it keeps its written place in plan.toml"
+        )
     if not kaikki.available():
         report.item("dictionary", "downloading Wiktionary (first run only, ~10 minutes) …")
         kaikki.import_stream()
@@ -504,10 +508,12 @@ def print_summary(run: Run, facts: dict) -> None:
     )
     report.item("Cards", facts["cards"])
     audited = facts["audited"]
-    report.item(
-        "Audits",
-        f"{audited['audited']:,}/{audited['publishable']:,} publishable notes have a matching audit; {audited['unaudited']:,} unaudited",
-    )
+    if audited["audited"] or settings.audit.block_failures:  # only once `./run.sh audit` is in use
+        report.item(
+            "Audits",
+            f"{audited['audited']:,}/{audited['publishable']:,} publishable notes have a matching audit; "
+            f"{audited['unaudited']:,} unaudited",
+        )
     for line in facts["films"]:
         report.item("Movie", line)
     if facts["left"]:

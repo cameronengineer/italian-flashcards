@@ -139,10 +139,24 @@ class Plan:
     conjugation: Conjugation = field(default_factory=Conjugation)
     cards: CardTypes = field(default_factory=CardTypes)
 
-    def list_order(self) -> list[str]:
-        """List ids in study order: deadlines first (earliest first), then as written."""
-        ranked = sorted(enumerate(self.priority), key=lambda ip: (ip[1][1] or "9999-12-31", ip[0]))
+    def list_order(self, today=None) -> list[str]:
+        """List ids in study order: upcoming deadlines first (earliest first), then
+        as written. A deadline that has passed no longer jumps the queue."""
+        upcoming = {list_id: by for list_id, by in self.priority if by and not self._passed(by, today)}
+        ranked = sorted(
+            enumerate(self.priority), key=lambda ip: (upcoming.get(ip[1][0], "9999-12-31"), ip[0])
+        )
         return [list_id for _i, (list_id, _by) in ranked]
+
+    def passed_deadlines(self, today=None) -> list[tuple[str, str]]:
+        """(list id, date) for every ``by`` date that has passed."""
+        return [(list_id, by) for list_id, by in self.priority if by and self._passed(by, today)]
+
+    @staticmethod
+    def _passed(by: str, today=None) -> bool:
+        from datetime import date
+
+        return date.fromisoformat(by) < (today or date.today())
 
     def deadline(self, list_id: str) -> str | None:
         return next((by for lid, by in self.priority if lid == list_id), None)

@@ -18,6 +18,7 @@ from pathlib import Path
 from .. import paths, quality, content_review
 from ..assets import locate
 from ..db import SCHEMA_VERSION
+from ..settings import settings
 
 
 def report(conn, *, check_media=True):
@@ -111,9 +112,10 @@ def report(conn, *, check_media=True):
     }
     finding(
         "unverified_meaning_sources",
-        "warning",
+        "info",
         unverified,
-        "Stable IDs preserve history but still need a verified dictionary/source match",
+        "Meanings written before they cited dictionary evidence; kept as they are "
+        "(bump the lexeme_enrich kind's version to have them written again)",
     )
     swapped = []
     for row in conn.execute("SELECT list_id,row_key,payload FROM source_observations"):
@@ -131,9 +133,9 @@ def report(conn, *, check_media=True):
     result["grammar_holds"] = content_review.grammar_holds(conn)
     finding(
         "grammar_holds",
-        "warning",
+        "info",
         len(result["grammar_holds"]),
-        "Meaning-specific constraints hold these published/planned drills; study history is preserved",
+        "Drills left out because they don't fit the word's meaning (decided automatically)",
         [r["key"] for r in result["grammar_holds"]],
     )
     finding(
@@ -199,7 +201,8 @@ def report(conn, *, check_media=True):
     )
     finding(
         "unaudited_ready_notes",
-        "warning",
+        # Audits only hold cards back when [audit] block_failures is on.
+        "warning" if settings.audit.block_failures else "info",
         len(unaudited),
         "Ready means publishable; these notes have no matching independent note audit",
         unaudited,
@@ -234,9 +237,8 @@ def report(conn, *, check_media=True):
             "SELECT direction,state,count(*) AS count FROM card_knowledge GROUP BY direction,state"
         )
     ]
-    result["status"] = (
-        "error" if any(f["severity"] == "error" for f in findings) else "review" if findings else "ok"
-    )
+    severities = {f["severity"] for f in findings}
+    result["status"] = "error" if "error" in severities else "review" if "warning" in severities else "ok"
     return result
 
 

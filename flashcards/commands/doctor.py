@@ -81,12 +81,17 @@ def report():
     return result
 
 
-def run(out=None, *, database=None, check_media=True):
+def run(out=None, *, database=None, check_media=True, anki=False):
     """Workspace health plus the data census. ``database`` reviews a snapshot
-    instead of the live database (and must exist)."""
+    instead of the live database (and must exist); ``anki`` also asks AnkiConnect
+    which of the actions used here it supports."""
     from . import data_review
 
     result = report()
+    if anki:
+        from ..anki import capabilities
+
+        result["anki"] = capabilities()
     if database is not None or paths.DB_PATH.exists():
         result["data"] = data_review.collect(database, check_media=check_media)
     print(json.dumps(result, ensure_ascii=False, indent=2))
@@ -99,5 +104,7 @@ def run(out=None, *, database=None, check_media=True):
             or result.get("schema", 0) > SCHEMA_VERSION
             or result.get("database_status", "ok") not in ("ok", "missing; initialize with lexicon")
             or result.get("data", {}).get("status") == "error"
+            or result.get("anki", {}).get("unsupported_actions")
+            or result.get("anki", {}).get("reachable") is False
         )
     )
