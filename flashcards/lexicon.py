@@ -546,6 +546,16 @@ def export_jsonl(conn: sqlite3.Connection) -> Path:
     lists. Film lines aren't repeated here.
     """
     LEXICON_DIR.mkdir(exist_ok=True)
+    out = LEXICON_DIR / "lexemes.jsonl"
+    # Edited since it was last written (say while a long run was going)? Take the
+    # edits in first rather than writing over them.
+    written = conn.execute("SELECT value FROM metadata WHERE key='lexicon_export_sha'").fetchone()
+    if out.exists() and written and hashlib.sha256(out.read_bytes()).hexdigest() != written[0]:
+        changed = import_human_edits(conn)
+        if changed:
+            report.line(
+                f"your edits: {report.plural(changed, 'field')} marked human in lexicon/lexemes.jsonl, taken in"
+            )
     configured = sorted(l.id for l in lists_mod.load())
     marks = ",".join("?" for _ in configured)
     senses: dict[str, list] = {}
@@ -562,7 +572,6 @@ def export_jsonl(conn: sqlite3.Connection) -> Path:
             }
         )
     facts = {r["word"]: r for r in conn.execute("SELECT * FROM word_facts WHERE has_fact = 1")}
-    out = LEXICON_DIR / "lexemes.jsonl"
     with io.StringIO() as fh:
         for r in conn.execute(
             f"SELECT * FROM lexemes WHERE id IN (SELECT lexeme_id FROM list_items WHERE list_id IN ({marks})) "
@@ -608,7 +617,13 @@ def export_jsonl(conn: sqlite3.Connection) -> Path:
                 )
                 + "\n"
             )
-        atomic_text(out, fh.getvalue())
+        text = fh.getvalue()
+        atomic_text(out, text)
+        conn.execute(
+            "INSERT OR REPLACE INTO metadata VALUES('lexicon_export_sha',?)",
+            (hashlib.sha256(text.encode("utf-8")).hexdigest(),),
+        )
+        conn.commit()
     with io.StringIO() as fh:
         for r in conn.execute(
             f"""SELECT li.list_id, li.rank, li.raw, li.hint, l.lemma, l.pos, li.context
@@ -639,6 +654,8 @@ def export_jsonl(conn: sqlite3.Connection) -> Path:
 
 
 def import_human_edits(conn: sqlite3.Connection) -> int:
+    """Take in every field marked ``human`` in lexicon/lexemes.jsonl; returns how
+    many are new or changed (the notes are rebuilt only then)."""
     path = LEXICON_DIR / "lexemes.jsonl"
     if not path.exists():
         return 0
@@ -652,8 +669,7 @@ def import_human_edits(conn: sqlite3.Connection) -> int:
                     raise ValueError(
                         f"Human override references missing lexeme {rec['id']}; restore the authoritative database first"
                     )
-                overrides.set_override(conn, rec["id"], field, rec.get(field))
-                n += 1
+                n += overrides.set_override(conn, rec["id"], field, rec.get(field))
         overrides.apply(conn)
         if n:
             conn.execute("DELETE FROM metadata WHERE key='notes_generation'")

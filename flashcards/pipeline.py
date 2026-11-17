@@ -327,9 +327,9 @@ def enrich(run: Run, conn) -> None:
                 run.failed[kind] += counts["failed"]
             if images_left is not None:
                 images_left = max(0, images_left - sum(result.get("image", {}).values()))
-            build(run, conn)
             if options.on("export"):
-                lexicon.export_jsonl(conn)
+                lexicon.export_jsonl(conn)  # first: it may take in edits made during the run
+            build(run, conn)
             if done_now:
                 report.line(
                     f"── round {round_no}: {report.plural(done_now, 'item')} written · Anki: {publish(run, conn)}"
@@ -405,6 +405,10 @@ def export(run: Run, conn) -> None:
         report.item("decks", run.skipped("export"))
         return
     lexicon.export_jsonl(conn)
+    from . import notes, quality
+
+    if not quality.notes_current(conn):  # edits came in with the export: Anki gets them next run
+        notes.build(conn)
     t = time.monotonic()
     exported = export_decks(conn)
     text = (

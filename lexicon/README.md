@@ -12,10 +12,10 @@ database on every run:
 `"human"` (e.g. `"provenance": {"senses": "human"}`); the next run applies it
 and AI refreshes never overwrite it.
 
-Stop `./run.sh` before editing this generated file: a running run exports it
-again and can overwrite edits that have not yet been imported. The next
-`./run.sh` imports your edits first thing.
-The SQLite database is authoritative for overrides, queue state, adoptions,
+You can edit it while `./run.sh` is going: before the run writes the file
+again (after each round), it notices your changes and takes in the fields you
+marked `human` first. They reach Anki at the next sync, or the next run.
+The SQLite database is authoritative for overrides, queue state,
 audit decisions and Anki identity. These JSONL files alone are not a recovery
 bundle; use `./run.sh recovery create PATH --include-media` for a verified copy
 of the database, inputs, configuration, exports and media. Keep that bundle

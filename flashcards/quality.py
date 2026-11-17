@@ -52,6 +52,13 @@ def reasons(conn, key, lexeme_id, fields):
     return result
 
 
+def notes_current(conn) -> bool:
+    """False when something the notes are built from changed since the last build."""
+    checkpoints = dict(conn.execute("SELECT key,value FROM metadata"))
+    source = checkpoints.get("source_generation")
+    return not source or checkpoints.get("notes_generation") == source
+
+
 def require_current_notes(conn):
     """Refuse to publish a materialized view invalidated by upstream writes."""
     checkpoints = dict(conn.execute("SELECT key,value FROM metadata"))

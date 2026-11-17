@@ -16,7 +16,8 @@ def is_human(conn, lexeme_id: str, field: str) -> bool:
     return bool(row and json.loads(row[0] or "{}").get(field) == "human")
 
 
-def set_override(conn, lexeme_id, field, value, *, reason="JSONL edit", author="human"):
+def set_override(conn, lexeme_id, field, value, *, reason="JSONL edit", author="human") -> bool:
+    """Record a human value for a field; True if it is new or different."""
     if field not in SUPPORTED:
         raise ValueError(f"Unsupported human field {field!r}; supported: {sorted(SUPPORTED)}")
     if field in SIMPLE and value is not None and not isinstance(value, str):
@@ -30,13 +31,14 @@ def set_override(conn, lexeme_id, field, value, *, reason="JSONL edit", author="
             or any(not isinstance(s, dict) or not (s.get("prompt") or "").strip() for s in value)
         ):
             raise ValueError("Human senses require nonempty prompts")
-    conn.execute(
+    cursor = conn.execute(
         """INSERT INTO overrides(lexeme_id,field,value_json,author,reason) VALUES(?,?,?,?,?)
         ON CONFLICT(lexeme_id,field) DO UPDATE SET value_json=excluded.value_json,
         author=excluded.author,reason=excluded.reason,version=overrides.version+1,updated_at=CURRENT_TIMESTAMP
         WHERE overrides.value_json != excluded.value_json""",
         (lexeme_id, field, json.dumps(value, ensure_ascii=False), author, reason),
     )
+    return cursor.rowcount > 0
 
 
 def _normal(text):
