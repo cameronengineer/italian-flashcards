@@ -115,6 +115,13 @@ def _enqueue(conn, kind, subject, priority, payload, *, reopen=False):
     # revives a failed job (that would retry it forever) — `retry` does that.
     revive = previous["status"] == "cancelled" or (reopen and previous["status"] == "done")
     status = "pending" if changed or revive else previous["status"]
+    if (
+        status == previous["status"]
+        and priority == previous["priority"]
+        and encoded == previous["payload"]
+        and fingerprint == previous["fingerprint"]
+    ):
+        return False  # nothing to record: planning runs often, and most jobs don't change
     conn.execute(
         "UPDATE ai_jobs SET priority=?,payload=?,fingerprint=?,status=?,"
         "attempts=CASE WHEN ? THEN 0 ELSE attempts END,"
@@ -1339,9 +1346,6 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
                     "UPDATE ai_jobs SET status='pending',owner=NULL WHERE status='running' AND owner=?",
                     (owner,),
                 )
-            from .lexicon import export_jsonl
-
-            export_jsonl(conn)
         pending = conn.execute("SELECT count(*) FROM ai_jobs WHERE status='pending'").fetchone()[0]
         failed = conn.execute("SELECT count(*) FROM ai_jobs WHERE status='failed'").fetchone()[0]
         report.detail(
