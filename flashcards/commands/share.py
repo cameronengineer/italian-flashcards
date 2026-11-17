@@ -48,7 +48,7 @@ def run(*, decks: list[str] | None = None, out: Path | None = None, include_priv
             sql += " AND (" + " OR ".join("deck = ? OR deck LIKE ?" for _ in decks) + ")"
             for d in decks:
                 params += [d, d + "::%"]
-        rows = conn.execute(sql + " ORDER BY sort_order", params).fetchall()
+        rows = conn.execute(sql + " ORDER BY deck, deck_order", params).fetchall()
         allowed = []
         for row in rows:
             if reasons(conn, row["key"], row["lexeme_id"], json.loads(row["fields_json"])):
@@ -154,7 +154,7 @@ def export_decks(conn) -> dict:
         sort_field_index=0,
     )
     by_deck: dict[str, list] = {}
-    for row in conn.execute("SELECT * FROM v4_notes WHERE ready = 1 ORDER BY sort_order"):
+    for row in conn.execute("SELECT * FROM v4_notes WHERE ready = 1 ORDER BY deck, deck_order"):
         if not reasons(conn, row["key"], row["lexeme_id"], json.loads(row["fields_json"])):
             by_deck.setdefault(row["deck"], []).append(row)
     DECKS_DIR.mkdir(exist_ok=True)
@@ -188,9 +188,9 @@ def export_decks(conn) -> dict:
         signature = md5_hex(
             json.dumps(
                 {
-                    "format": 2,
+                    "format": 3,
                     "model": [MODEL_NAME, SHARE_MODEL_ID, FIELDS, TEMPLATES, CSS],
-                    "notes": [(r["key"], r["fields_json"], r["tags"], r["sort_order"]) for r in rows],
+                    "notes": [(r["key"], r["fields_json"], r["tags"], r["deck_order"]) for r in rows],
                     "media": {m: [p.stat().st_size, p.stat().st_mtime_ns] for m, p in found.items()},
                 },
                 sort_keys=True,
@@ -219,7 +219,7 @@ def export_decks(conn) -> dict:
                 fields=[fields.get(f, "") for f in FIELDS],
                 guid=genanki.guid_for(r["key"]),
                 tags=r["tags"].split(),
-                due=r["sort_order"],
+                due=r["deck_order"],
             )
             if "fc::dormant" in note.tags:
                 for card in note.cards:

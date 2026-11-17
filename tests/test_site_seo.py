@@ -1,4 +1,5 @@
 """Public guides retain canonical URLs, crawlable links and reproducible output."""
+
 import json
 import tempfile
 import unittest
@@ -58,22 +59,30 @@ class SiteSEOTests(unittest.TestCase):
             self.assertIn("Italian A1 Anki Deck", a1)
             self.assertIn("il caffè", a1)
             self.assertIn("960 study cards", a1)
-            self.assertIn("Sitemap: https://italianflashcards.cameronengineer.com/sitemap.xml", (root / "robots.txt").read_text())
+            self.assertIn(
+                "Sitemap: https://italianflashcards.cameronengineer.com/sitemap.xml",
+                (root / "robots.txt").read_text(),
+            )
             for row in data["decks"]["italian_cils_a1"]["preview"]:
                 import html
+
                 self.assertIn(html.escape(row["italian"]), a1)
                 self.assertIn(html.escape(row["english"]), a1)
             guide = (root / "italian-anki-decks-for-beginners/index.html").read_text()
             self.assertIn("A1 vocabulary or Fluent Forever?", guide)
-            self.assertIn('/how-to-study-italian-with-anki/', guide)
+            self.assertIn("/how-to-study-italian-with-anki/", guide)
             self.assertIn('id="compare-levels"', guide)
             error_page = (root / "404.html").read_text()
             self.assertIn('content="noindex, follow"', error_page)
             self.assertNotIn('rel="canonical"', error_page)
             self.assertNotIn("404.html", (root / "sitemap.xml").read_text())
-            conditional = (root / "decks/italian-verbs-more-tenses-condizionale-passato-anki-deck/index.html").read_text()
+            conditional = (
+                root / "decks/italian-verbs-more-tenses-condizionale-passato-anki-deck/index.html"
+            ).read_text()
             self.assertIn("Practising the condizionale passato", conditional)
             self.assertIn("treccani.it", conditional)
             before = {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()}
             build_site.render_page(data)
-            self.assertEqual(before, {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()})
+            self.assertEqual(
+                before, {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+            )

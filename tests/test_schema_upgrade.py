@@ -96,20 +96,10 @@ class UpgradeTests(unittest.TestCase):
         self.addCleanup(fresh.close)
         db.init_schema(fresh)
         upgraded = layout(conn)
-        upgraded.pop("v3_note_keys")  # kept only until `purge-v3` has run
         self.assertEqual(upgraded, layout(fresh))
         triggers = "SELECT name, sql FROM sqlite_master WHERE type='trigger' ORDER BY name"
         self.assertEqual(
             [tuple(r) for r in conn.execute(triggers)], [tuple(r) for r in fresh.execute(triggers)]
-        )
-
-    def test_what_purge_needs_is_kept(self):
-        conn = self.upgraded()
-        self.assertEqual(
-            [r[0] for r in conn.execute("SELECT sort_key FROM v3_note_keys")], ["gloss:e|it_to_en"]
-        )
-        self.assertEqual(
-            conn.execute("SELECT value FROM metadata WHERE key='v3_decks'").fetchone()[0], '["Italian - Old"]'
         )
 
     def test_image_made_for_a_v3_entry_is_found_one_last_time(self):

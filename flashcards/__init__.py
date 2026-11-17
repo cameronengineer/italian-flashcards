@@ -11,7 +11,7 @@ in ``settings.toml``. ``flashcards run`` (or ``./run.sh``):
                 ▼
     notes (vocab, phrases, verb forms, noun phrases, cognates, mistakes)
                 ▼
-    Anki ◀── reconcile: add · update · retire · reorder
+    Anki ◀── reconcile: add · update · retire
                 │
                 └─▶ card_knowledge (what you know) ─▶ study order, movie coverage
 

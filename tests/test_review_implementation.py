@@ -190,12 +190,14 @@ class PlanningTests(unittest.TestCase):
         ):
             self.assertEqual(planning.full_form_verbs(c), {"a"})
 
-    def test_order_changes_signature_and_movie_forecast_counts_directions(self):
+    def test_signature_follows_content_not_order_and_movie_forecast_counts_directions(self):
         c = database(self)
         lexeme(c)
         desired(c)
         before = notes.signature(c)
-        c.execute("UPDATE v4_notes SET sort_order=2")
+        c.execute("UPDATE v4_notes SET sort_order=2")  # Anki can't move cards: nothing to sync
+        self.assertEqual(before, notes.signature(c))
+        c.execute("UPDATE v4_notes SET fields_hash='changed'")
         self.assertNotEqual(before, notes.signature(c))
         target = movie.coverage({"x": 9, "y": 1}, set(), 0, 2, {"x": 5, "y": 2})["targets"][0]
         self.assertEqual((target["roots"], target["new_cards"], target["days"]), (1, 5, 3))
@@ -334,4 +336,3 @@ class PipelineTests(unittest.TestCase):
     def test_unresolved_image_failure_still_sets_failure_exit(self):
         self.assertEqual(self.run_fixture(retry_fixture=True, image_failure=True)[0], 1)
         self.assertEqual(self.last_summary["unresolved_image_failures"], 1)
-

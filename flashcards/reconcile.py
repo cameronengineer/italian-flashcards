@@ -86,7 +86,6 @@ class Plan:
     # results of apply
     added: int = 0
     retired: int = 0
-    reordered: int = 0
     uploaded: int = 0
     suspended: int = 0
     resumed: int = 0
@@ -589,7 +588,7 @@ def _verify_notes(expected: dict) -> dict[int, dict[int, int]]:
 
 
 def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool = True) -> Plan:
-    """Plan, then (unless ``dry_run``) apply: add, update, retire, reorder, read knowledge."""
+    """Plan, then (unless ``dry_run``) apply: add, update, retire, read knowledge."""
     if report.VERBOSE:
         print_banner("anki — plan" if dry_run else "anki — apply")
     profile = invoke("getActiveProfile")
@@ -635,10 +634,9 @@ def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool =
             report.line("Anki: a word's two directions are now never shown on the same day")
         final = {key: n.fields for key, n in plan.v4.items()}  # each v4 note's fields after this sync
         note_of = {key: n.note_id for key, n in plan.v4.items()}
-        added_ids = []
         verify = {}
-        # In study-plan order: Anki numbers new cards in the order they are added,
-        # which is the only ordering left if AnkiConnect refuses to reposition them.
+        # In study-plan order: Anki numbers new cards in the order they are added.
+        # AnkiConnect (since October 2026) can't move a card afterwards.
         for chunk in chunks(sorted(plan.add, key=lambda a: a.get("_sort", 0)), 100):
             ids = invoke(
                 "addNotes",
@@ -656,7 +654,6 @@ def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool =
                     )
                     verify[nid] = a["fields"]
                     final[key], note_of[key] = a["fields"], nid
-                    added_ids.append(nid)
                     plan.added += 1
                 else:
                     plan.rejected.append(key)
@@ -692,11 +689,10 @@ def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool =
         _multi(
             [{"action": "changeDeck", "params": {"cards": cards, "deck": deck}} for cards, deck in plan.move]
         )
-        written = _verify_notes(verify)
+        _verify_notes(verify)
         _suspend_active(plan)
         plan.retired = _retire(conn, plan, final, note_of, allow_retire)
         _sync_dormancy(conn, plan, note_of)
-        plan.reordered = _reorder(conn, plan, {nid: written.get(nid, {}) for nid in added_ids}, note_of)
         _store_knowledge(
             conn,
             [n for n in plan.v4.values() if n.note_id not in plan.removed_ids],
@@ -714,9 +710,7 @@ def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool =
             "DELETE FROM sync_runs WHERE id NOT IN (SELECT id FROM sync_runs ORDER BY created_at DESC LIMIT 20)"
         )
         conn.commit()
-        report.detail(
-            f"  done: added {plan.added}, retired {plan.retired}, reordered {plan.reordered}, uploaded {plan.uploaded}"
-        )
+        report.detail(f"  done: added {plan.added}, retired {plan.retired}, uploaded {plan.uploaded}")
         if plan.rejected:
             print(
                 f"  Anki rejected {len(plan.rejected)} new note(s) (their predecessors stay): "
@@ -791,54 +785,6 @@ def _retire(conn, plan: Plan, final: dict, note_of: dict, allow: bool) -> int:
         conn.executemany("DELETE FROM card_knowledge WHERE card_id=?", [(i,) for i in removed_cards])
         conn.commit()
     return retired
-
-
-def _reorder(conn, plan: Plan, added: dict[int, dict[int, int]], note_of: dict) -> int:
-    """Put new v4 cards in study-plan order; only cards whose position differs are moved."""
-    pos = {r["key"]: r["sort_order"] for r in conn.execute("SELECT key, sort_order FROM v4_notes")}
-    key_of = {nid: key for key, nid in note_of.items()}
-    want: dict[int, int] = {}
-    current: dict[int, int | None] = {}
-    for key, n in plan.v4.items():
-        if key in pos and n.note_id not in plan.removed_ids:
-            for cid, info in n.cards_info.items():
-                if info.get("type") == 0:
-                    want[cid] = pos[key] * 2 + (info.get("ord") or 0)
-                    current[cid] = info.get("due")
-    for nid, cards in added.items():
-        key = key_of.get(nid)
-        if key in pos:
-            for ord_, cid in cards.items():
-                want[cid] = pos[key] * 2 + (ord_ or 0)
-                current[cid] = None
-    actions = [
-        {"action": "setSpecificValueOfCard", "params": {"card": cid, "keys": ["due"], "newValues": [due]}}
-        for cid, due in want.items()
-        if current.get(cid) != due
-    ]
-    if not actions or _reorder_refused:
-        return 0
-    try:
-        _multi(actions[:1])  # one card first: a refusal is the same for all of them
-    except RuntimeError as exc:
-        if "native scheduling" not in str(exc) and "protected state" not in str(exc):
-            raise
-        # AnkiConnect releases since October 2026 no longer let an add-on client
-        # set a new card's position, and offer nothing in its place. Everything
-        # else in the sync is unaffected, so carry on without reordering.
-        _reorder_refused.append(str(exc))
-        report.line(
-            f"new cards keep the order Anki gave them ({len(actions):,} are out of study-plan order): "
-            "this AnkiConnect version no longer allows setting a new card's position"
-        )
-        return 0
-    _multi(actions[1:])
-    return len(actions)
-
-
-#: Set once AnkiConnect has refused to position a new card (see ``_reorder``):
-#: it is not asked again in this process.
-_reorder_refused: list[str] = []
 
 
 def _store_knowledge(conn, notes: list[AnkiNote]) -> dict:

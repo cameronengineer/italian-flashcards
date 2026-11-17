@@ -331,7 +331,8 @@ Targeted AnkiConnect calls — no `.apkg` imports. Anki is read once per sync.
   direction of a two-direction note is disabled, that card is suspended while
   the other direction remains usable;
 - never touches notes outside the pipeline's decks and never deletes media;
-- puts new cards in study-plan order (only the ones that are out of place);
+- adds new notes in study-plan order. AnkiConnect (since October 2026) can't
+  move a card once it is in Anki, so cards already there keep their place;
 - reads what you know (interval ≥ `known_interval_days` in `plan.toml`, 21 by default) back into `card_knowledge`, which
   drives study order and movie coverage.
 
@@ -390,23 +391,8 @@ time needed to learn and retain the material.
 
 The schema is written out once in `flashcards/db.py`.
 
-### Notes from the old pipeline (one-off)
-
-The tables of the pipeline that came before the lexicon ("v3"), and the code
-that kept its studied notes alive on the old notetype, are gone. The first run
-of this version upgrades the database (after backing it up) and keeps each
-word's existing image. Old notes still in Anki are then duplicates of current
-cards. Remove them once:
-
-```sh
-./run.sh                    # a normal run: every card now exists on the current notetype
-./run.sh purge-v3           # shows how many old notes are left, changes nothing
-./run.sh purge-v3 --apply   # backs up the Anki collection, then deletes them
-```
-
-Cards that only existed as an old studied note start again as new; no media is
-removed. A database older than schema 13 must first be run once with commit
-`3e6520e`.
+A database older than schema 13 (from before the lexicon replaced the old
+pipeline) must first be run once with commit `3e6520e`.
 
 Every run starts with a database backup (`backups/` keeps the newest 10, plus the first of each of the last 14 days);
 migrations are backed up too. Before the first change to Anki, each run also

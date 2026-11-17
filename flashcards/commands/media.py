@@ -48,8 +48,7 @@ def _audio_texts(conn, decks: list[str] | None = None) -> list[str]:
         params = list(decks)
     # Study order, with Dormant verb forms (suspended in Anki) last.
     rows = conn.execute(
-        f"SELECT * FROM v4_notes {where} "
-        "ORDER BY instr(' ' || tags || ' ', ' fc::dormant ') > 0, sort_order",
+        f"SELECT * FROM v4_notes {where} ORDER BY instr(' ' || tags || ' ', ' fc::dormant ') > 0, sort_order",
         params,
     ).fetchall()
     return list(

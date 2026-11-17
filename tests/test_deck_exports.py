@@ -186,3 +186,45 @@ class DormancyTests(unittest.TestCase):
             state["leech"] = False
             reconcile._sync_dormancy(c, reconcile.Plan(profile="Test"), {key: 10})
             self.assertEqual(state["queue"], 2)
+
+
+class DeckOrderTests(unittest.TestCase):
+    """Exported decks are ordered by the study plan alone, numbered per deck."""
+
+    def build(self, c):
+        from flashcards import lists, notes
+
+        with (
+            patch.object(notes, "image_exists", return_value=True),
+            patch.object(notes, "_img", return_value=""),
+            patch.object(notes, "load_plan", return_value=lists.Plan(shuffle_window=0)),
+        ):
+            notes.build(c)
+        return {
+            r["key"]: (r["sort_order"], r["deck_order"])
+            for r in c.execute("SELECT key, sort_order, deck_order FROM v4_notes WHERE card_type='vocab'")
+        }
+
+    def test_knowing_a_word_moves_it_last_for_you_but_not_in_the_exported_deck(self):
+        from flashcards import overrides
+
+        c = database(self)
+        lexeme(c, "a", lemma="casa")
+        lexeme(c, "b", lemma="cane")
+        c.execute("UPDATE list_items SET rank=CASE lexeme_id WHEN 'a' THEN 1 ELSE 2 END")
+        for lid, english in (("a", "house"), ("b", "dog")):
+            overrides.save_senses(c, lid, [{"prompt": english}], "human")
+        c.commit()
+        before = self.build(c)
+        self.assertLess(before["vocab:a:0"], before["vocab:b:0"])
+        self.assertEqual(sorted(v[1] for v in before.values()), [1, 2])  # numbered within the deck
+        c.execute(
+            "INSERT INTO card_knowledge(key,direction,card_id,state,interval,lapses,reviews,suspended) "
+            "VALUES('vocab:a:0','Recognition',1,'known',30,0,9,0)"
+        )
+        c.commit()
+        after = self.build(c)
+        self.assertGreater(after["vocab:a:0"][0], after["vocab:b:0"][0])  # your order: known last
+        self.assertEqual(
+            {k: v[1] for k, v in after.items()}, {k: v[1] for k, v in before.items()}
+        )  # the deck's order is unchanged

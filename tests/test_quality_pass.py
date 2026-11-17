@@ -38,17 +38,20 @@ class PersonTests(unittest.TestCase):
         c = database(self)
         verb(c, SIX)
         lx = c.execute("SELECT * FROM lexemes").fetchone()
-        with patch.object(queue, "verb_forms", side_effect=lambda lx, sense: {
-            t: {p: (f, f) for p, f in ps.items()} for t, ps in json.loads(lx["forms_json"])["forms"].items()
-        }):
+        with patch.object(
+            queue,
+            "verb_forms",
+            side_effect=lambda lx, sense: {
+                t: {p: (f, f) for p, f in ps.items()}
+                for t, ps in json.loads(lx["forms_json"])["forms"].items()
+            },
+        ):
             payload = queue._verb_payload(c, lx)
         self.assertEqual(set(payload["forms"]["imperativo"]), {"tu", "Lei", "noi", "voi"})
         item = {
             "id": "x",
             "prompts": [
-                {"tense": t, "person": p, "english": "x"}
-                for t, ps in payload["forms"].items()
-                for p in ps
+                {"tense": t, "person": p, "english": "x"} for t, ps in payload["forms"].items() for p in ps
             ]
             + [{"tense": "imperativo", "person": "io", "english": "invented"}],
             "exclusions": [],
@@ -61,9 +64,9 @@ class PersonTests(unittest.TestCase):
         c = database(self)
         verb(c, ["lui_lei", "loro"])
         lx = c.execute("SELECT * FROM lexemes").fetchone()
-        with patch.object(queue, "verb_forms", side_effect=lambda lx, sense: {
-            "presente": {p: ("f", "f") for p in SIX}
-        }):
+        with patch.object(
+            queue, "verb_forms", side_effect=lambda lx, sense: {"presente": {p: ("f", "f") for p in SIX}}
+        ):
             payload = queue._verb_payload(c, lx)
         self.assertEqual(set(payload["forms"]["presente"]), {"lui_lei", "loro"})
 
@@ -208,9 +211,7 @@ class RegenerationTests(unittest.TestCase):
         self.assertEqual(self.pending("lexeme_enrich"), 1)
         self.assertEqual(self.c.execute("SELECT status FROM lexemes").fetchone()[0], "ready")
         notes.build(self.c)
-        self.assertEqual(
-            self.c.execute("SELECT ready FROM v4_notes WHERE key='vocab:x:0'").fetchone()[0], 1
-        )
+        self.assertEqual(self.c.execute("SELECT ready FROM v4_notes WHERE key='vocab:x:0'").fetchone()[0], 1)
 
 
 class PayloadTests(unittest.TestCase):
@@ -245,7 +246,11 @@ class PayloadTests(unittest.TestCase):
         answer = IgnoreTests.answer(self)
         answer["senses"][0].update(prompt="home", source_id="m2")
         queue._run_text_batch(
-            SimpleNamespace(run=lambda *a, **kw: {"words": [answer]}), "lexeme_enrich", [job], c, threading.Lock()
+            SimpleNamespace(run=lambda *a, **kw: {"words": [answer]}),
+            "lexeme_enrich",
+            [job],
+            c,
+            threading.Lock(),
         )
         self.assertEqual(c.execute("SELECT source_id FROM senses").fetchone()[0], "source:" + "b" * 32)
 
@@ -277,9 +282,7 @@ class FilmNameTests(unittest.TestCase):
         status = {t.text: t.status for t in tokens}
         self.assertEqual(status["Aspetta"], "resolved")
         self.assertEqual(status["Ecco"], "resolved")
-        self.assertEqual(
-            [t.status for t in tokens if t.text == "Bruno"], ["excluded_name", "excluded_name"]
-        )
+        self.assertEqual([t.status for t in tokens if t.text == "Bruno"], ["excluded_name", "excluded_name"])
 
 
 if __name__ == "__main__":
@@ -311,7 +314,9 @@ class CardContentTests(unittest.TestCase):
         self.c.commit()
         self.assertEqual(self.c.execute("SELECT count(*) FROM senses WHERE active=1").fetchone()[0], 1)
         # A second active meaning left in the database still gets no card of its own.
-        self.c.execute("INSERT INTO senses(lexeme_id,idx,prompt,active,source_id) VALUES('x',1,'penne pasta',1,'b')")
+        self.c.execute(
+            "INSERT INTO senses(lexeme_id,idx,prompt,active,source_id) VALUES('x',1,'penne pasta',1,'b')"
+        )
         self.assertEqual(len(self.vocab_after_build()), 1)
         fields = self.vocab_after_build()["vocab:x:0"]
         self.assertEqual(fields["English"], "pen")
@@ -387,7 +392,9 @@ class EveryListTests(unittest.TestCase):
             p.start()
             self.addCleanup(p.stop)
         plan = patch.object(
-            notes, "load_plan", return_value=lists.Plan.from_dict({"priority": [{"list": "film"}, {"list": "test"}]})
+            notes,
+            "load_plan",
+            return_value=lists.Plan.from_dict({"priority": [{"list": "film"}, {"list": "test"}]}),
         )
         plan.start()
         self.addCleanup(plan.stop)
@@ -445,7 +452,9 @@ class AudioLimitTests(unittest.TestCase):
 
         busy = ApiError(status_code=429, body={"detail": {"status": "too_many_concurrent_requests"}})
         # Sent as 429, it still must not be waited for.
-        broke = ApiError(status_code=429, body={"detail": {"status": "quota_exceeded", "message": "No credits"}})
+        broke = ApiError(
+            status_code=429, body={"detail": {"status": "quota_exceeded", "message": "No credits"}}
+        )
         out = threading.Event()
         with tempfile.TemporaryDirectory() as tmp, patch.object(media.STOP, "wait", return_value=False):
             dest = Path(tmp) / "a.mp3"
@@ -506,8 +515,13 @@ class ParallelImageTests(unittest.TestCase):
 class SiblingTests(unittest.TestCase):
     def test_italian_decks_get_their_own_preset_with_siblings_buried(self):
         def config(cid, name):
-            return {"id": cid, "name": name, "new": {"bury": False, "perDay": 10}, "rev": {"bury": False},
-                    "buryInterdayLearning": False}
+            return {
+                "id": cid,
+                "name": name,
+                "new": {"bury": False, "perDay": 10},
+                "rev": {"bury": False},
+                "buryInterdayLearning": False,
+            }
 
         default = config(1, "Default")
         saved, decks = {}, {"Default": 1, "ZCam's Decks - Old": 1, "Italian": 1, "Italian::CILS::A1": 1}
@@ -519,7 +533,11 @@ class SiblingTests(unittest.TestCase):
             if action == "getDeckConfig":
                 return json.loads(json.dumps(presets[decks[kw["deck"]]]))
             if action == "cloneDeckConfigId":
-                presets[2] = {**json.loads(json.dumps(presets[int(kw["cloneFrom"])])), "id": 2, "name": kw["name"]}
+                presets[2] = {
+                    **json.loads(json.dumps(presets[int(kw["cloneFrom"])])),
+                    "id": 2,
+                    "name": kw["name"],
+                }
                 return 2
             if action == "setDeckConfigId":
                 decks.update(dict.fromkeys(kw["decks"], kw["configId"]))
@@ -534,7 +552,9 @@ class SiblingTests(unittest.TestCase):
             self.assertEqual(reconcile.space_siblings("User 1"), 3)  # 2 decks moved + 1 preset saved
             reconcile._spaced.clear()
             self.assertEqual(reconcile.space_siblings("User 1"), 0)  # nothing left to change
-        self.assertEqual((decks["Italian"], decks["Italian::CILS::A1"], decks["ZCam's Decks - Old"]), (2, 2, 1))
+        self.assertEqual(
+            (decks["Italian"], decks["Italian::CILS::A1"], decks["ZCam's Decks - Old"]), (2, 2, 1)
+        )
         self.assertEqual(list(saved), [2])  # Default (shared with ZCam's Decks - Old) is never saved
         ours = presets[2]
         self.assertTrue(ours["new"]["bury"] and ours["rev"]["bury"] and ours["buryInterdayLearning"])
@@ -597,7 +617,9 @@ class NounNumberTests(unittest.TestCase):
         self.c.execute(
             "INSERT OR IGNORE INTO lists(id,kind,title,deck,settings) VALUES('test','csv','Test','Italian::Test','{}')"
         )
-        self.c.execute("INSERT INTO list_items(list_id,lexeme_id,rank,raw) VALUES('test','o',1,'gli occhiali')")
+        self.c.execute(
+            "INSERT INTO list_items(list_id,lexeme_id,rank,raw) VALUES('test','o',1,'gli occhiali')"
+        )
         overrides.save_senses(self.c, "o", [{"prompt": "glasses"}], "claude:test")
         self.c.commit()
         for target in (notes, queue):
@@ -624,11 +646,16 @@ class NounNumberTests(unittest.TestCase):
     def test_a_noun_used_in_the_plural_is_taught_in_the_plural(self):
         cards = self.answer("plural", "glasses")
         card = cards["vocab:o:0"]
-        self.assertEqual((card["Italian"], card["English"], card["Details"]), ("gli occhiali", "glasses", "masculine plural"))
+        self.assertEqual(
+            (card["Italian"], card["English"], card["Details"]),
+            ("gli occhiali", "glasses", "masculine plural"),
+        )
         drills = [k for k in cards if k.startswith("nphrase:")]
         self.assertTrue(drills and all(k.endswith(":plural") for k in drills))
         # An older singular drill (un occhiale) leaves Anki.
-        old = reconcile.AnkiNote(5, "nphrase:o:indefinite-None:singular", {}, ["fc::owned"], [50], {"Italian::Noun Phrases"})
+        old = reconcile.AnkiNote(
+            5, "nphrase:o:indefinite-None:singular", {}, ["fc::owned"], [50], {"Italian::Noun Phrases"}
+        )
         plan = StableKeyTests.plan(self, self.c, [old])
         self.assertEqual(plan.retirement_reasons[5], "Singular not used for this noun")
 
@@ -646,7 +673,9 @@ class CueCheckTests(unittest.TestCase):
         c = database(self)
         lexeme(c, lemma="precedenza")
         # The give-away is in the cue-group hint, as on the real card.
-        overrides.save_senses(c, "x", [{"prompt": "priority", "hint": "precedence; right of way"}], "claude:test")
+        overrides.save_senses(
+            c, "x", [{"prompt": "priority", "hint": "precedence; right of way"}], "claude:test"
+        )
         c.commit()
         for target in (notes, queue):
             p = patch.object(target, "image_exists", return_value=True)
@@ -659,7 +688,9 @@ class CueCheckTests(unittest.TestCase):
             queue.plan(c)
         job = c.execute("SELECT * FROM ai_jobs WHERE kind='cue_check'").fetchone()
         answer = {"cues": [{"id": "x", "english": "priority", "hint": "right of way"}]}
-        queue._run_text_batch(SimpleNamespace(run=lambda *a, **kw: answer), "cue_check", [job], c, threading.Lock())
+        queue._run_text_batch(
+            SimpleNamespace(run=lambda *a, **kw: answer), "cue_check", [job], c, threading.Lock()
+        )
         c.commit()
         notes.build(c)
         card = json.loads(c.execute("SELECT fields_json FROM v4_notes WHERE key='vocab:x:0'").fetchone()[0])

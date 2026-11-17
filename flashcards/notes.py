@@ -50,6 +50,7 @@ from .lists import load_plan
 from .planning import (
     MODEL_VERBS,
     full_form_verbs,
+    known_roots,
     study_order,
     verb_forms,
     form_publication,
@@ -167,7 +168,10 @@ class _Builder:
     def __init__(self, conn: sqlite3.Connection):
         self.conn = conn
         self.notes: list[dict] = []
-        self.order = study_order(conn)
+        # Study order without your progress; roots you already know are moved last
+        # only in your own order (``known``), never in the exported decks.
+        self.order = study_order(conn, with_knowledge=False)
+        self.known = known_roots(conn)
         self.lists = {r["id"]: r for r in conn.execute("SELECT * FROM lists")}
         self.list_settings = {lid: json.loads(r["settings"] or "{}") for lid, r in self.lists.items()}
         self.plan = load_plan()
@@ -241,10 +245,9 @@ class _Builder:
 
     def list_sort(self, lexeme_id: str, list_id: str) -> int:
         """New-card order of a word's copy in one list: that list's priority, then
-        its rank in the list; roots you already know go last (as ``study_order``)."""
+        its rank in the list."""
         position = self.priority.index(list_id) if list_id in self.priority else len(self.priority)
-        known = 100_000_000 if self.order.get(lexeme_id, 0) >= 100_000_000 else 0
-        return position * 100_000 + self.rank.get((lexeme_id, list_id), 0) + known
+        return position * 100_000 + self.rank.get((lexeme_id, list_id), 0)
 
     def add(
         self,
@@ -299,6 +302,7 @@ class _Builder:
                 "fields": fields,
                 "tags": sorted(set(tags) | {OWNER_TAG}),
                 "sort": sort,
+                "known": lexeme_id in self.known,
                 "ready": not reasons,
                 "blocked_by": ",".join(reasons) or None,
                 "audio_text": audio_text,
@@ -373,7 +377,9 @@ class _Builder:
             details, forms = self._details(lx)
             note = " · ".join(x for x in (s["note"], f"also: {s['also']}" if s["also"] else None) if x)
             prompt, hint = (
-                self.cue(lx["id"], s["prompt"], s["hint"]) if lx["pos"] != "phrase" else (s["prompt"], s["hint"])
+                self.cue(lx["id"], s["prompt"], s["hint"])
+                if lx["pos"] != "phrase"
+                else (s["prompt"], s["hint"])
             )
             italian, english = self.shown(lx, prompt)
             translated = english.strip().lower() != italian.strip().lower()
@@ -679,7 +685,16 @@ def candidates(conn):
     b.noun_phrase_notes()
     b.cognate_notes()
     b.mistake_notes()
-    b.notes.sort(key=lambda n: (n["sort"], n["key"]))
+    # Exported decks: study order alone, numbered within each deck, so neither
+    # your progress nor another deck's changes reorder (and rewrite) a deck.
+    position: dict[str, int] = defaultdict(int)
+    for n in shuffle_within_decks(
+        sorted(b.notes, key=lambda n: (n["sort"], n["key"])), b.plan.shuffle_window
+    ):
+        position[n["deck"]] += 1
+        n["deck_order"] = position[n["deck"]]
+    # Your own order: the same, with roots you already know last.
+    b.notes.sort(key=lambda n: (n["known"], n["sort"], n["key"]))
     b.notes = shuffle_within_decks(b.notes, b.plan.shuffle_window)
     return b
 
@@ -715,12 +730,10 @@ def build(conn: sqlite3.Connection) -> dict:
         print_banner("notes — desired Anki state")
     b = candidates(conn)
     with transaction(conn):
-        conn.executemany(
-            "UPDATE lexemes SET key_list=? WHERE id=?", [(v, k) for k, v in b.key_lists.items()]
-        )
+        conn.executemany("UPDATE lexemes SET key_list=? WHERE id=?", [(v, k) for k, v in b.key_lists.items()])
         conn.execute("DELETE FROM v4_notes")
         conn.executemany(
-            "INSERT OR REPLACE INTO v4_notes (key, lexeme_id, card_type, deck, fields_json, fields_hash, tags, sort_order, ready, blocked_by, audio_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT OR REPLACE INTO v4_notes (key, lexeme_id, card_type, deck, fields_json, fields_hash, tags, sort_order, ready, blocked_by, audio_text, deck_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 (
                     n["key"],
@@ -736,6 +749,7 @@ def build(conn: sqlite3.Connection) -> dict:
                     1 if n["ready"] else 0,
                     n["blocked_by"],
                     n["audio_text"],
+                    n["deck_order"],
                 )
                 for i, n in enumerate(b.notes)
             ],
@@ -765,8 +779,12 @@ BLOCKED: dict[str, int] = {}
 
 
 def signature(conn: sqlite3.Connection) -> str:
-    """Changes whenever the notes Anki should hold change (content, deck, tags, readiness)."""
-    rows = conn.execute("SELECT key, fields_hash, ready, sort_order FROM v4_notes ORDER BY key").fetchall()
+    """Changes whenever the notes Anki should hold change (content, deck, tags, readiness).
+
+    Order is left out: AnkiConnect can't move cards already in Anki, so a new
+    order alone gives a sync nothing to do.
+    """
+    rows = conn.execute("SELECT key, fields_hash, ready FROM v4_notes ORDER BY key").fetchall()
     return md5_hex(json.dumps([tuple(r) for r in rows]))
 
 

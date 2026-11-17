@@ -51,7 +51,10 @@ class NumberSourceTests(unittest.TestCase):
                         lists.read(source)
 
     def test_configured_missing_file_is_not_silently_generated(self):
-        with tempfile.TemporaryDirectory() as folder, patch.object(lists, "load_plan", return_value=lists.Plan()):
+        with (
+            tempfile.TemporaryDirectory() as folder,
+            patch.object(lists, "load_plan", return_value=lists.Plan()),
+        ):
             source = ListDef(
                 "numbers", "numbers", "Numbers", "Italian::Numbers", Path(folder) / "missing.csv"
             )

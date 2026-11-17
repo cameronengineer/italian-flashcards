@@ -8,8 +8,9 @@ from .italian import compound, progressive, strip_clitic
 MODEL_VERBS = {"-are": "parlare", "-ere": "credere", "-ire": "dormire", "-ire (isc)": "finire"}
 
 
-def study_order(conn: sqlite3.Connection) -> dict[str, int]:
-    """lexeme id → priority (lower = sooner), from plan.toml + list rank."""
+def study_order(conn: sqlite3.Connection, *, with_knowledge: bool = True) -> dict[str, int]:
+    """lexeme id → priority (lower = sooner), from plan.toml + list rank; roots
+    you already know go last unless ``with_knowledge`` is False."""
     order = load_plan().list_order()
     pos_of = {lid: i for i, lid in enumerate(order)}
     out: dict[str, int] = {}
@@ -17,6 +18,8 @@ def study_order(conn: sqlite3.Connection) -> dict[str, int]:
         p = pos_of.get(r["list_id"], len(order)) * 100_000 + r["rank"]
         if p < out.get(r["lexeme_id"], 1 << 60):
             out[r["lexeme_id"]] = p
+    if not with_knowledge:
+        return out
     known = known_roots(conn)
     return {lid: value + (100_000_000 if lid in known else 0) for lid, value in out.items()}
 

@@ -79,9 +79,7 @@ def audit_priority(conn, rows):
 
     def rank(row):
         high_risk = (
-            row["key"] in ambiguous
-            or row.get("card_type") == "form"
-            or row.get("lexeme_id") in unusual
+            row["key"] in ambiguous or row.get("card_type") == "form" or row.get("lexeme_id") in unusual
         )
         return (not high_risk, row.get("sort_order", 0), row["key"])
 
@@ -105,12 +103,7 @@ def audit_coverage(conn):
 def grammar_holds(conn):
     from .semantics import note_hold, form_suffix
 
-    keys = {
-        r[0]
-        for r in conn.execute(
-            "SELECT key FROM identity UNION SELECT key FROM v4_notes"
-        )
-    }
+    keys = {r[0] for r in conn.execute("SELECT key FROM identity UNION SELECT key FROM v4_notes")}
     # An AI decision to ignore a form is a finished outcome even if that form
     # was never published. Make its reason inspectable alongside curated holds.
     for row in conn.execute(

@@ -24,7 +24,6 @@ of the pre-lexicon pipeline ("v3").
 
 from __future__ import annotations
 
-import json
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
@@ -210,7 +209,9 @@ CREATE TABLE IF NOT EXISTS v4_notes (
     sort_order   INTEGER NOT NULL,
     ready        INTEGER NOT NULL,          -- content + image present
     blocked_by   TEXT,                      -- why not ready
-    audio_text   TEXT                       -- what the audio says (no "/a" variants)
+    audio_text   TEXT,                      -- what the audio says (no "/a" variants)
+    deck_order   INTEGER NOT NULL DEFAULT 0 -- position in its deck for exported .apkg files
+                                            -- (study order without your own progress)
 );
 
 -- ── What was sent to Anki, and what you know ───────────────────────────
@@ -297,13 +298,8 @@ def _m14_remove_v3(conn: sqlite3.Connection) -> None:
     """Drop the pre-lexicon ("v3") tables and everything that existed to adopt
     their Anki notes.
 
-    Two things are kept from them first:
-
-    * images made for v3 entries are found one last time, so each root keeps
-      pointing at its existing picture (``lexemes.image_key``);
-    * the identities and decks of the v3 notes still in Anki go to
-      ``v3_note_keys`` / metadata ``v3_decks``, which is all ``flashcards
-      purge-v3`` needs to remove those notes. It drops them when it is done.
+    Images made for v3 entries are found one last time first, so each root
+    keeps pointing at its existing picture (``lexemes.image_key``).
     """
     tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     if {"entries", "entry_lexeme"} <= tables:
@@ -320,13 +316,6 @@ def _m14_remove_v3(conn: sqlite3.Connection) -> None:
                 key = existing_image(r["display"], r["lemma"], *texts[r["id"]])
                 if key:
                     conn.execute("UPDATE lexemes SET image_key=? WHERE id=?", (key, r["id"]))
-    conn.execute("CREATE TABLE IF NOT EXISTS v3_note_keys (sort_key TEXT PRIMARY KEY)")
-    if "cards" in tables:
-        conn.execute(
-            "INSERT OR IGNORE INTO v3_note_keys SELECT DISTINCT natural_key || '|' || direction FROM cards"
-        )
-        decks = [r[0] for r in conn.execute("SELECT DISTINCT deck FROM cards ORDER BY deck")]
-        conn.execute("INSERT OR REPLACE INTO metadata VALUES('v3_decks',?)", (json.dumps(decks),))
     # Children before parents: entry_lexeme, cards, verb_forms and noun_phrases reference entries.
     for table in (
         "entry_lexeme",
@@ -354,8 +343,19 @@ def _m14_remove_v3(conn: sqlite3.Connection) -> None:
 #: The last schema version of the old layout. Older databases are upgraded to
 #: it by the release that still had those migrations.
 BASE_VERSION = 13
+
+
+def _m15_deck_order(conn: sqlite3.Connection) -> None:
+    """Exported decks get an order of their own (``v4_notes.deck_order``), and
+    what ``purge-v3`` needed goes now that the old notes have left Anki."""
+    if "deck_order" not in {r[1] for r in conn.execute("PRAGMA table_info(v4_notes)")}:
+        conn.execute("ALTER TABLE v4_notes ADD COLUMN deck_order INTEGER NOT NULL DEFAULT 0")
+    conn.execute("DROP TABLE IF EXISTS v3_note_keys")
+    conn.execute("DELETE FROM metadata WHERE key IN ('v3_decks','notes_generation')")
+
+
 #: ``MIGRATIONS[i]`` upgrades ``user_version`` BASE_VERSION + i → BASE_VERSION + i + 1.
-MIGRATIONS = [_m14_remove_v3]
+MIGRATIONS = [_m14_remove_v3, _m15_deck_order]
 SCHEMA_VERSION = BASE_VERSION + len(MIGRATIONS)
 
 

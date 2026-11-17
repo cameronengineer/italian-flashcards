@@ -59,7 +59,9 @@ class MediaContract(unittest.TestCase):
             self.assertEqual(util.image_filename("la casa", "png"), "25f2381de6275a463d18baa7dd8766a2.png")
             self.assertEqual(util.image_filename("la casa", "jpg"), "25f2381de6275a463d18baa7dd8766a2.jpg")
             self.assertEqual(util.image_filename(" la casa ", "png"), util.image_filename("la casa", "png"))
-        other = replace(settings, images=replace(ImageSettings(), compressed_max_px=256, compressed_quality=60))
+        other = replace(
+            settings, images=replace(ImageSettings(), compressed_max_px=256, compressed_quality=60)
+        )
         with patch.object(util_settings(), "settings", other):
             self.assertEqual(util.image_filename("la casa", "png"), "25f2381de6275a463d18baa7dd8766a2.png")
             self.assertEqual(
