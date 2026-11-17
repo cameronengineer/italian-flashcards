@@ -86,3 +86,11 @@ class SiteSEOTests(unittest.TestCase):
             self.assertEqual(
                 before, {p.relative_to(root): p.read_bytes() for p in root.rglob("*") if p.is_file()}
             )
+
+
+class DeckCoverageTests(unittest.TestCase):
+    def test_missing_and_unlisted_decks_are_named(self):
+        listed = [stem for _g, _t, _b, items in build_site.GROUPS for stem, _n, _d in items]
+        missing, unlisted = build_site.coverage(listed[1:] + ["italian_new_list"])
+        self.assertEqual(missing, [listed[0]])
+        self.assertEqual(unlisted, ["italian_new_list"])

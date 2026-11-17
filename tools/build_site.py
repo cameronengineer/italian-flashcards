@@ -331,6 +331,12 @@ def _preview(path: Path) -> list[dict]:
             db.close()
 
 
+def coverage(stems) -> tuple[list[str], list[str]]:
+    """(decks the page lists but decks/ doesn't have, decks built but not on the page)."""
+    listed = {stem for _gid, _title, _blurb, items in GROUPS for stem, _name, _desc in items}
+    return sorted(listed - set(stems)), sorted(set(stems) - listed)
+
+
 def main() -> int:
     print("Building site/ from decks/")
     out_dir = SITE_DIR / "downloads"
@@ -346,6 +352,13 @@ def main() -> int:
             raise SystemExit(f"{dst.name}: Tutto bene tag left after sanitising")
         decks[dst.stem] = {"file": dst.name, "bytes": dst.stat().st_size, "sha256": sha256_file(dst), "preview": _preview(dst), **counts}
         print(f"  ok     {dst.name:58} {counts['notes']:>5} notes  {dst.stat().st_size / 1e6:5.1f} MB")
+    missing, unlisted = coverage(decks)
+    if missing:
+        raise SystemExit(
+            f"decks/ has no package for {', '.join(missing)}: run ./run.sh first, or take them out of GROUPS"
+        )
+    for stem in unlisted:
+        print(f"  note   {stem} is built but not on the site (add it to GROUPS in tools/build_site.py)")
     samples = _samples({stem: out_dir / info["file"] for stem, info in decks.items()})
     data = {"decks": decks, "samples": samples}
     data["stats"] = _stats({stem: out_dir / info["file"] for stem, info in decks.items()})
