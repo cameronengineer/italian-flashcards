@@ -160,8 +160,10 @@ and bump `task_version`, then keep running `./run.sh`.
   it carries on where it stopped.
 
 Every completed run writes one `.apkg` per ready deck into `decks/`, including
-its images, audio and film examples. Unchanged packages are reused. Changed
-media, templates, ordering or content rebuild the affected package. Packages
+its images, audio and film examples. A deck's new-card order is the study plan
+alone (list priority and rank), numbered within the deck, so your own progress
+and other decks never reorder it. Unchanged packages are reused; changed
+media, templates, order or content rebuild that package only. Packages
 for obsolete decks move to `decks/archive/`; media is never deleted. These
 personal exports are Git-ignored and contain private film examples; use the
 `share` extra for exports with the sharing filters. Direct Anki sync remains
@@ -201,7 +203,7 @@ Prerequisites: Python 3.11+, Node (for Codex), `ffmpeg`, Anki with AnkiConnect.
 | File | Holds |
 |---|---|
 | `lists.toml` | **What** to learn: every list (kind, input file, deck, type pill, `recognition_only`, `facts`, plus `optional`, `shareable`, `image_policy`, `max_drop_ratio`, `allow_empty`). Unknown keys are errors. |
-| `plan.toml` | **When**: list priorities (a film with a watch date first), new cards per day, conjugation generation and publication settings, which extra card types are on. |
+| `plan.toml` | **When**: list priorities (a film with an upcoming watch date first), new cards per day, conjugation generation and publication settings, which extra card types are on. |
 | `settings.toml` | **How**: Claude model / effort / concurrency, outage waiting, **how many new images and audio files each run creates** (`[run] image_limit`, `audio_limit`: 0 = none, -1 = no limit), whether images are required, audio voice, backups, Anki profile. Values are type-checked. |
 | `lexicon/*.jsonl` | The generated lexicon, in git — review AI output as diffs; edit a field and mark it `human` to keep your version forever (stop the run first). |
 | `decks/` | One `.apkg` per deck, rewritten by every run when that deck changes — a portable copy of your cards (for another device or person; importing it into the same Anki profile would duplicate notes). |
@@ -348,7 +350,8 @@ new files per run. The spoken text drops display variants
 
 1. Put Italian subtitles in `inputs/movies/<slug>/subs.it.srt` and add a
    `kind = "movie"` list (see the *Le otto montagne* entry).
-2. Give it a watch date in `plan.toml`; its words come first.
+2. Give it a watch date in `plan.toml`; its words come first until that date
+   has passed, after which the list keeps its written place.
 3. Every run's summary estimates vocabulary coverage; `./run.sh movie`
    gives the full coverage table. Each run (when the lists change) writes the
    film's word list to `inputs/movies/<slug>/words.csv` — lemma, part of

@@ -12,7 +12,7 @@ shuffle_window = 20
 
 [[priority]]
 list = "eight-mountains"
-by = "2026-10-31"            # watch date — its unknown words come first
+by = "2026-10-31"            # watch date — its unknown words come first until then
 
 [[priority]]
 list = "benvenuti-al-sud"    # add  by = "YYYY-MM-DD"  once you know when you'll watch it
