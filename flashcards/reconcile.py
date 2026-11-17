@@ -350,7 +350,11 @@ def build_plan(conn: sqlite3.Connection, *, anki_media: set[str]) -> Plan:
 
     def ignored_reason(key):
         parts = key.split(":")
-        if parts[0] in ("vocab", "phrase", "form", "nphrase", "cognate") and len(parts) > 1 and parts[1] in ignored:
+        if (
+            parts[0] in ("vocab", "phrase", "form", "nphrase", "cognate")
+            and len(parts) > 1
+            and parts[1] in ignored
+        ):
             return f"Claude: not a useful card — {ignored[parts[1]]}"
         return None
 
@@ -361,12 +365,19 @@ def build_plan(conn: sqlite3.Connection, *, anki_media: set[str]) -> Plan:
         memberships[r[0]].add(r[1])
     key_lists = dict(conn.execute("SELECT id, key_list FROM lexemes WHERE key_list IS NOT NULL").fetchall())
 
-    numbers = dict(conn.execute("SELECT id, card_number FROM lexemes WHERE card_number IN ('singular','plural')"))
+    numbers = dict(
+        conn.execute("SELECT id, card_number FROM lexemes WHERE card_number IN ('singular','plural')")
+    )
 
     def number_reason(key):
         # A noun-phrase drill in a number the word isn't used in (un occhiale, i latti).
         parts = key.split(":")
-        if parts[0] == "nphrase" and len(parts) >= 4 and parts[1] in numbers and parts[3] != numbers[parts[1]]:
+        if (
+            parts[0] == "nphrase"
+            and len(parts) >= 4
+            and parts[1] in numbers
+            and parts[3] != numbers[parts[1]]
+        ):
             return f"{parts[3].capitalize()} not used for this noun"
         return None
 
@@ -604,9 +615,7 @@ def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool =
     payload = {
         "add": [a["fields"]["Key"] for a in plan.add],
         "update": [n.key for n, _u in plan.update],
-        "retire": [
-            (n.note_id, plan.retire_dependencies[n.note_id]) for n in plan.retire
-        ],
+        "retire": [(n.note_id, plan.retire_dependencies[n.note_id]) for n in plan.retire],
         "retirement_reasons": plan.retirement_reasons,
     }
     conn.execute(
@@ -620,10 +629,7 @@ def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool =
         if plan.add or plan.media:
             report.detail(f"  … uploading {len(plan.media)} media files, adding {len(plan.add)} notes")
         plan.uploaded = _upload_media(plan.media)
-        for deck in (
-            {a["deckName"] for a in plan.add}
-            | {d for _c, d in plan.move}
-        ):
+        for deck in {a["deckName"] for a in plan.add} | {d for _c, d in plan.move}:
             invoke("createDeck", deck=deck)
         if space_siblings(profile):
             report.line("Anki: a word's two directions are now never shown on the same day")
@@ -631,7 +637,9 @@ def run(conn: sqlite3.Connection, *, dry_run: bool = False, allow_retire: bool =
         note_of = {key: n.note_id for key, n in plan.v4.items()}
         added_ids = []
         verify = {}
-        for chunk in chunks(plan.add, 100):
+        # In study-plan order: Anki numbers new cards in the order they are added,
+        # which is the only ordering left if AnkiConnect refuses to reposition them.
+        for chunk in chunks(sorted(plan.add, key=lambda a: a.get("_sort", 0)), 100):
             ids = invoke(
                 "addNotes",
                 notes=[{k: v for k, v in a.items() if not k.startswith("_")} for a in chunk],
@@ -808,8 +816,29 @@ def _reorder(conn, plan: Plan, added: dict[int, dict[int, int]], note_of: dict) 
         for cid, due in want.items()
         if current.get(cid) != due
     ]
-    _multi(actions)
+    if not actions or _reorder_refused:
+        return 0
+    try:
+        _multi(actions[:1])  # one card first: a refusal is the same for all of them
+    except RuntimeError as exc:
+        if "native scheduling" not in str(exc) and "protected state" not in str(exc):
+            raise
+        # AnkiConnect releases since October 2026 no longer let an add-on client
+        # set a new card's position, and offer nothing in its place. Everything
+        # else in the sync is unaffected, so carry on without reordering.
+        _reorder_refused.append(str(exc))
+        report.line(
+            f"new cards keep the order Anki gave them ({len(actions):,} are out of study-plan order): "
+            "this AnkiConnect version no longer allows setting a new card's position"
+        )
+        return 0
+    _multi(actions[1:])
     return len(actions)
+
+
+#: Set once AnkiConnect has refused to position a new card (see ``_reorder``):
+#: it is not asked again in this process.
+_reorder_refused: list[str] = []
 
 
 def _store_knowledge(conn, notes: list[AnkiNote]) -> dict:
