@@ -79,5 +79,53 @@ class ExitCodeTests(unittest.TestCase):
         self.assertEqual(pipeline.exit_code(state), 0)
 
 
+class FingerprintTests(unittest.TestCase):
+    """What reopens a finished job, and what must not."""
+
+    def fingerprint(self):
+        from flashcards import queue
+
+        return queue._fingerprint(
+            "phrase_enrich", {"id": "x", "italian": "come stai?", "dictionary_version": "d1"}
+        )
+
+    def test_rewording_the_prompt_or_schema_does_not_reopen_jobs(self):
+        from dataclasses import replace
+        from unittest.mock import patch
+
+        from flashcards import queue
+
+        before = self.fingerprint()
+        kind = queue.KINDS["phrase_enrich"]
+        reworded = replace(kind.task, instruction="Something else entirely.", rules=("new rule",), schema={})
+        with patch.dict(queue.KINDS, {"phrase_enrich": replace(kind, task=reworded)}):
+            self.assertEqual(self.fingerprint(), before)
+
+    def test_kind_version_task_version_and_inputs_do(self):
+        from dataclasses import replace
+        from unittest.mock import patch
+
+        from flashcards import queue
+
+        before = self.fingerprint()
+        kind = queue.KINDS["phrase_enrich"]
+        with patch.dict(queue.KINDS, {"phrase_enrich": replace(kind, version=2)}):
+            self.assertNotEqual(self.fingerprint(), before)
+        bumped = replace(queue.settings, ai=replace(queue.settings.ai, task_version="next"))
+        with patch.object(queue, "settings", bumped):
+            self.assertNotEqual(self.fingerprint(), before)
+        self.assertNotEqual(queue._fingerprint("phrase_enrich", {"id": "x", "italian": "come va?"}), before)
+
+    def test_dictionary_rebuild_alone_does_not(self):
+        from flashcards import queue
+
+        self.assertEqual(
+            queue._fingerprint(
+                "phrase_enrich", {"id": "x", "italian": "come stai?", "dictionary_version": "d2"}
+            ),
+            self.fingerprint(),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

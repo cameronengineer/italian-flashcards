@@ -185,6 +185,19 @@ class RegenerationTests(unittest.TestCase):
             "SELECT count(*) FROM ai_jobs WHERE kind=? AND status='pending'", (kind,)
         ).fetchone()[0]
 
+    def test_new_fingerprint_formula_reopens_nothing(self):
+        # A database written by the previous version: finished jobs carry
+        # fingerprints made with the old formula.
+        queue.plan(self.c)
+        self.c.execute("UPDATE ai_jobs SET status='done', fingerprint='made-by-the-old-formula'")
+        self.c.execute("INSERT OR REPLACE INTO metadata VALUES('fingerprint_version','2')")
+        self.c.commit()
+        self.assertEqual(sum(queue.plan(self.c).values()), 0)
+        self.assertEqual(self.pending("lexeme_enrich"), 0)
+        recorded = self.c.execute("SELECT fingerprint FROM ai_jobs WHERE kind='lexeme_enrich'").fetchone()[0]
+        self.assertNotEqual(recorded, "made-by-the-old-formula")
+        self.assertEqual(sum(queue.plan(self.c).values()), 0)  # and it stays quiet afterwards
+
     def test_bump_regenerates_everything_while_current_cards_stay_published(self):
         queue.plan(self.c)
         self.c.execute("UPDATE ai_jobs SET status='done'")

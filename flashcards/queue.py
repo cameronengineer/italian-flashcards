@@ -66,29 +66,33 @@ _VOLATILE = ("dictionary_version",)
 
 
 #: 2: the model is no longer part of a job's identity.
-FINGERPRINT_VERSION = "2"
+#: 3: nor is the wording of the prompt or the answer schema (see ``_fingerprint``).
+FINGERPRINT_VERSION = "3"
 
 
 def _fingerprint(kind: str, payload: dict) -> str:
-    """Hash of a job's inputs, prompt, schema and ``[ai] task_version`` (see ``_VOLATILE``).
+    """Hash of what a job is asked about: its inputs, its kind's ``version`` and
+    ``[ai] task_version`` (see ``_VOLATILE``).
 
-    The model is deliberately left out: switching models only affects work
-    still to do. To redo everything (say with a stronger model), bump
-    ``task_version`` in settings.toml.
+    Deliberately left out:
+
+    * the model — switching models only affects work still to do;
+    * the prompt wording and the answer schema — fixing a typo in a rule must
+      not reopen thousands of finished jobs. To redo one kind after a change
+      that matters, bump its ``JobKind.version``; to redo everything (say with
+      a stronger model), bump ``task_version`` in settings.toml.
     """
     inputs = {k: v for k, v in payload.items() if k not in _VOLATILE}
-    spec = KINDS[kind].task
-    if not spec:
+    spec = KINDS[kind]
+    if not spec.text:
         return md5_hex(json.dumps(inputs, sort_keys=True))
-    task = spec.task(_model_view(inputs))
     return md5_hex(
         json.dumps(
             {
-                "task": task.name,
-                "messages": task.messages(),
-                "schema": task.schema,
+                "kind": kind,
+                "kind_version": spec.version,
                 "version": settings.ai.task_version,
-                "local": {k: v for k, v in inputs.items() if k.startswith("_")},
+                "input": inputs,
             },
             ensure_ascii=False,
             sort_keys=True,
@@ -885,6 +889,7 @@ class JobKind:
     answer: str = ""  # … and in its answer
     check: object = None  # (payload, item): raise ValueError for an unusable answer
     store: object = None  # (conn, payload, item, model): write one answered item
+    version: int = 1  # bump to have every job of this kind asked again
 
     @property
     def text(self) -> bool:
