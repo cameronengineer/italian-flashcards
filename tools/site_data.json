@@ -2,11 +2,8 @@
  "decks": {
   "italian_basics_numbers": {
    "file": "italian_basics_numbers.apkg",
-   "bytes": 967080,
-   "sha256": "860f68e7f35cb76026bc38997c0a4277a21bffc4105bb3d82d254056eb1f46d7",
-   "notes": 54,
-   "cards": 108,
-   "tutto_left": 0,
+   "bytes": 966973,
+   "sha256": "04a50ae89371c1b69efccfc00efed456f25d1fad00900c3b6f7674f1779eea83",
    "preview": [
     {
      "italian": "cento",
@@ -56,15 +53,15 @@
      "italian": "diciassette",
      "english": "17"
     }
-   ]
+   ],
+   "notes": 54,
+   "cards": 108,
+   "tutto_left": 0
   },
   "italian_cils_a1": {
    "file": "italian_cils_a1.apkg",
-   "bytes": 7685053,
-   "sha256": "6eacdc02740810821abd974bb0140b5c69f794227d882e6d5e390d4bb96983be",
-   "notes": 482,
-   "cards": 960,
-   "tutto_left": 0,
+   "bytes": 7682945,
+   "sha256": "2260decab20a8910e33c30e4a4137897f3db028facd0857aeb254b67339cbcd5",
    "preview": [
     {
      "italian": "a",
@@ -114,15 +111,15 @@
      "italian": "ascoltare",
      "english": "to listen (to)"
     }
-   ]
+   ],
+   "notes": 482,
+   "cards": 960,
+   "tutto_left": 0
   },
   "italian_cils_a2": {
    "file": "italian_cils_a2.apkg",
-   "bytes": 16715660,
-   "sha256": "bb72f33e46d1e98bc847026215610e3d32fa9766b2132f15058d932a23d9b5b8",
-   "notes": 1033,
-   "cards": 2062,
-   "tutto_left": 0,
+   "bytes": 16712951,
+   "sha256": "2a1882664b93a4a1a90bd3f962b7a6ebb4552d2710f62e876c4ba5ba68e69ba2",
    "preview": [
     {
      "italian": "OK",
@@ -172,15 +169,15 @@
      "italian": "adulto",
      "english": "grown-up"
     }
-   ]
+   ],
+   "notes": 1033,
+   "cards": 2062,
+   "tutto_left": 0
   },
   "italian_cils_b1": {
    "file": "italian_cils_b1.apkg",
-   "bytes": 25202108,
-   "sha256": "f3cea4114d3207cb8ebd9e5e9c7a504607141e3004273fee809158710a3dc572",
-   "notes": 1530,
-   "cards": 3056,
-   "tutto_left": 0,
+   "bytes": 25199184,
+   "sha256": "ba32b4409404ac9a8f4bbe55a72273efbcc8ff23568be4b3e9f385d1b0818dd7",
    "preview": [
     {
      "italian": "OK",
@@ -230,15 +227,15 @@
      "italian": "acquistare",
      "english": "to purchase"
     }
-   ]
+   ],
+   "notes": 1530,
+   "cards": 3056,
+   "tutto_left": 0
   },
   "italian_cils_b2": {
    "file": "italian_cils_b2.apkg",
-   "bytes": 34580360,
-   "sha256": "5e33f5c9e6052673f067cc282ae7ebf2cda4d773999ebe606cd765660f8c3187",
-   "notes": 2068,
-   "cards": 4131,
-   "tutto_left": 0,
+   "bytes": 34577478,
+   "sha256": "cd3b984551fc269096bd75e5620cec1d50bd5d38ff8ee7a28adf98340d98284d",
    "preview": [
     {
      "italian": "OK",
@@ -288,15 +285,15 @@
      "italian": "accadere",
      "english": "to happen"
     }
-   ]
+   ],
+   "notes": 2068,
+   "cards": 4131,
+   "tutto_left": 0
   },
   "italian_cognates": {
    "file": "italian_cognates.apkg",
-   "bytes": 4696239,
-   "sha256": "f7398b14ea1a3e4d7a12b30b718896399154c3fdaaee9cda367f87b8c6fb352d",
-   "notes": 255,
-   "cards": 255,
-   "tutto_left": 0,
+   "bytes": 4517882,
+   "sha256": "9d24317b4fda9d7a4ea9d8d9dc9bb55f48f0b8812ba6d3b67bab0582c65f3789",
    "preview": [
     {
      "italian": "abbondante",
@@ -331,12 +328,12 @@
      "english": "authentic, genuine"
     },
     {
-     "italian": "calcolare",
-     "english": "to calculate"
+     "italian": "brillante",
+     "english": "brilliant"
     },
     {
-     "italian": "celebrare",
-     "english": "to celebrate"
+     "italian": "calcolare",
+     "english": "to calculate"
     },
     {
      "italian": "certamente",
@@ -346,15 +343,15 @@
      "italian": "classico",
      "english": "classic, classical"
     }
-   ]
+   ],
+   "notes": 244,
+   "cards": 244,
+   "tutto_left": 0
   },
   "italian_core_fluent_forever_625": {
    "file": "italian_core_fluent_forever_625.apkg",
-   "bytes": 9714119,
-   "sha256": "68314c7e92e9ed36f99aa90c313fbc50f54ef6b8f2354c340118abf4d87cdc33",
-   "notes": 597,
-   "cards": 1194,
-   "tutto_left": 0,
+   "bytes": 9712331,
+   "sha256": "184c0f935ca6bfeae6da427165323241313a44cb374409721dff68af4c5bd153",
    "preview": [
     {
      "italian": "alto",
@@ -404,15 +401,15 @@
      "italian": "baciare",
      "english": "to kiss"
     }
-   ]
+   ],
+   "notes": 597,
+   "cards": 1194,
+   "tutto_left": 0
   },
   "italian_frequency": {
    "file": "italian_frequency.apkg",
-   "bytes": 24100368,
-   "sha256": "0af8eb7cad7c597c4971b6a34881cec00abce96c66a75f4da701fd6af137c662",
-   "notes": 1377,
-   "cards": 2749,
-   "tutto_left": 0,
+   "bytes": 24098378,
+   "sha256": "5ab398cad9ef593ea881ba2a1d04bef42eb0c43c51d93a56c15cc11ccd802769",
    "preview": [
     {
      "italian": "abbandonare",
@@ -462,15 +459,15 @@
      "italian": "adorare",
      "english": "to adore"
     }
-   ]
+   ],
+   "notes": 1377,
+   "cards": 2749,
+   "tutto_left": 0
   },
   "italian_movies_benvenuti_al_sud": {
    "file": "italian_movies_benvenuti_al_sud.apkg",
-   "bytes": 14617678,
-   "sha256": "376b616ca3cf1aacfdbf25a93f7d3b141426a8ca33c04f4a32490d773f1fa741",
-   "notes": 895,
-   "cards": 895,
-   "tutto_left": 0,
+   "bytes": 14634512,
+   "sha256": "67eeb3e94f645176830cf062172054939530436d556b0cccbaa028e78953afb6",
    "preview": [
     {
      "italian": "OK",
@@ -520,15 +517,15 @@
      "italian": "adulto",
      "english": "grown-up"
     }
-   ]
+   ],
+   "notes": 896,
+   "cards": 896,
+   "tutto_left": 0
   },
   "italian_movies_le_otto_montagne": {
    "file": "italian_movies_le_otto_montagne.apkg",
-   "bytes": 13980388,
-   "sha256": "e7d39e79076597f3d4a256881a2c6c249f5f20e03b634b29fb93fb52bcd4724d",
-   "notes": 841,
-   "cards": 1546,
-   "tutto_left": 0,
+   "bytes": 14463852,
+   "sha256": "e8385945534e293200bab0ce1df9dc32ff3569dbe605350f47ba544ddf23ee7e",
    "preview": [
     {
      "italian": "OK",
@@ -578,15 +575,15 @@
      "italian": "adesso",
      "english": "now"
     }
-   ]
+   ],
+   "notes": 861,
+   "cards": 1545,
+   "tutto_left": 0
   },
   "italian_noun_phrases": {
    "file": "italian_noun_phrases.apkg",
-   "bytes": 48401765,
-   "sha256": "77b77e86531dcb90a3f4201e7b2fee0e6cf727028ee47c0e68ac35f7ad6dbb7e",
-   "notes": 3163,
-   "cards": 3163,
-   "tutto_left": 0,
+   "bytes": 44425272,
+   "sha256": "16467393a172b529b82edbd4d551f0f78dff30a217edba9c8597c34efc2aac83",
    "preview": [
     {
      "italian": "agli addetti",
@@ -621,30 +618,30 @@
      "english": "to the stomachs"
     },
     {
-     "italian": "agli uffici postali",
-     "english": "to the post offices"
-    },
-    {
-     "italian": "ai bassi",
-     "english": "to the bass guitars"
-    },
-    {
      "italian": "ai bastardi",
      "english": "to the bastards"
     },
     {
      "italian": "ai boschi",
      "english": "to the woods"
+    },
+    {
+     "italian": "ai castelli",
+     "english": "to the castles"
+    },
+    {
+     "italian": "ai climi",
+     "english": "to the climates"
     }
-   ]
+   ],
+   "notes": 2902,
+   "cards": 2902,
+   "tutto_left": 0
   },
   "italian_verbs_more_tenses_condizionale_passato": {
    "file": "italian_verbs_more_tenses_condizionale_passato.apkg",
-   "bytes": 8934273,
-   "sha256": "c4655117221a632c3b6dce3805d7edf53ae0bb84d377c5f7598788f99e42de9b",
-   "notes": 688,
-   "cards": 688,
-   "tutto_left": 0,
+   "bytes": 8934252,
+   "sha256": "fb9d2e347a408e1152d7c483a3fcc459c392fb506c4d90cffc7423e22c3b5dc9",
    "preview": [
     {
      "italian": "avrebbe acceso",
@@ -694,15 +691,15 @@
      "italian": "avrebbe corretto",
      "english": "he/she would have corrected"
     }
-   ]
+   ],
+   "notes": 688,
+   "cards": 688,
+   "tutto_left": 0
   },
   "italian_verbs_more_tenses_condizionale_presente": {
    "file": "italian_verbs_more_tenses_condizionale_presente.apkg",
-   "bytes": 7800959,
-   "sha256": "5b456ae2376711f0c3713313c5fb77afcc78235cd4265269cb1513e23bb11d95",
-   "notes": 700,
-   "cards": 700,
-   "tutto_left": 0,
+   "bytes": 7800874,
+   "sha256": "c16c9a21e803b2a75574761d45465a0d5b842105710bd8e99ff8119950db1ad7",
    "preview": [
     {
      "italian": "accadrebbe",
@@ -752,15 +749,15 @@
      "italian": "aggiungeremmo",
      "english": "we would add"
     }
-   ]
+   ],
+   "notes": 700,
+   "cards": 700,
+   "tutto_left": 0
   },
   "italian_verbs_more_tenses_imperativo_con_noi": {
    "file": "italian_verbs_more_tenses_imperativo_con_noi.apkg",
-   "bytes": 1612213,
-   "sha256": "1c906532147125143ad765eef9c72db89cf310423778857440b8b9e1ffcfdfb4",
-   "notes": 98,
-   "cards": 98,
-   "tutto_left": 0,
+   "bytes": 1612167,
+   "sha256": "0cec1137830205675d14dc2c0a869bb120ee060e6ce7f61b833662f5078f3d01",
    "preview": [
     {
      "italian": "accendiamo",
@@ -810,15 +807,15 @@
      "italian": "connettiamoci",
      "english": "Let's connect!"
     }
-   ]
+   ],
+   "notes": 98,
+   "cards": 98,
+   "tutto_left": 0
   },
   "italian_verbs_more_tenses_imperativo_con_voi": {
    "file": "italian_verbs_more_tenses_imperativo_con_voi.apkg",
-   "bytes": 1634033,
-   "sha256": "f37bfc0b00f2367c9d684a1c09eee98c49edb5f4afacd87ffd0a30848388c423",
-   "notes": 100,
-   "cards": 100,
-   "tutto_left": 0,
+   "bytes": 1633940,
+   "sha256": "65ff436380a38c4c141db00c13d2295ffa82a67a530ee325b1fcbd8a0aa7c521",
    "preview": [
     {
      "italian": "accendete",
@@ -868,15 +865,15 @@
      "italian": "connettetevi",
      "english": "Connect! (you all)"
     }
-   ]
+   ],
+   "notes": 100,
+   "cards": 100,
+   "tutto_left": 0
   },
   "italian_verbs_learning_futuro_semplice": {
    "file": "italian_verbs_learning_futuro_semplice.apkg",
-   "bytes": 7432643,
-   "sha256": "115a1a95291179e5a04ff7e31a78353bc7ec3e905d4bbf980c857c708f50739b",
-   "notes": 700,
-   "cards": 700,
-   "tutto_left": 0,
+   "bytes": 7432644,
+   "sha256": "01f001c2ba7b80199a926ef8d05d9244479fa3eb287e77d2a4d6f1ebdf24654b",
    "preview": [
     {
      "italian": "accadranno",
@@ -926,15 +923,15 @@
      "italian": "aggiungerete",
      "english": "you all will add"
     }
-   ]
+   ],
+   "notes": 700,
+   "cards": 700,
+   "tutto_left": 0
   },
   "italian_verbs_learning_imperativo_con_lei": {
    "file": "italian_verbs_learning_imperativo_con_lei.apkg",
-   "bytes": 1527471,
-   "sha256": "324f3e80fd9cc374dc8a0d01ecf96ca47701bf6717a88178938e8b5ace181696",
-   "notes": 98,
-   "cards": 98,
-   "tutto_left": 0,
+   "bytes": 1527425,
+   "sha256": "d0d0602b236c7a0a9a4a0e84cae70ae47fe9a76a7ddad5d400e2eedeba8f96d0",
    "preview": [
     {
      "italian": "accenda",
@@ -984,15 +981,15 @@
      "italian": "corra",
      "english": "Run!"
     }
-   ]
+   ],
+   "notes": 98,
+   "cards": 98,
+   "tutto_left": 0
   },
   "italian_verbs_learning_imperativo_con_tu": {
    "file": "italian_verbs_learning_imperativo_con_tu.apkg",
-   "bytes": 1535738,
-   "sha256": "9fe526205a124323518ddf7ba5f6aa4faa533af07c8acba8586220630971d899",
-   "notes": 100,
-   "cards": 100,
-   "tutto_left": 0,
+   "bytes": 1535634,
+   "sha256": "df96049b35ccddb51634d515ff945a11c5bc14359fe15778ff9756f8f5c2ae45",
    "preview": [
     {
      "italian": "accendi",
@@ -1042,15 +1039,15 @@
      "italian": "continua",
      "english": "Continue!"
     }
-   ]
+   ],
+   "notes": 100,
+   "cards": 100,
+   "tutto_left": 0
   },
   "italian_verbs_learning_imperfetto": {
    "file": "italian_verbs_learning_imperfetto.apkg",
-   "bytes": 7346869,
-   "sha256": "81387806433c7721a9d7b6e46da38891ea11d4df2614c71b4e1577a9a8f5fa6b",
-   "notes": 700,
-   "cards": 700,
-   "tutto_left": 0,
+   "bytes": 7346660,
+   "sha256": "ada78560d5d2b277f01deb116b791e68a0eb83472b6375fc971aea2ff66ab054",
    "preview": [
     {
      "italian": "accadeva",
@@ -1100,15 +1097,15 @@
      "italian": "aggiungevate",
      "english": "you all used to add / you all were adding"
     }
-   ]
+   ],
+   "notes": 700,
+   "cards": 700,
+   "tutto_left": 0
   },
   "italian_verbs_learning_passato_prossimo": {
    "file": "italian_verbs_learning_passato_prossimo.apkg",
-   "bytes": 7911073,
-   "sha256": "cf3bedb3aeb57679fae0be252220c3ed5fe1fb6d0c17bfea21c34621cf0fd33d",
-   "notes": 688,
-   "cards": 688,
-   "tutto_left": 0,
+   "bytes": 7911046,
+   "sha256": "864d89cbd898162d3e39942bf5cab1d1923cf92181aadf9aa62a98babd6df1b6",
    "preview": [
     {
      "italian": "abbiamo acceso",
@@ -1158,15 +1155,15 @@
      "italian": "abbiamo corretto",
      "english": "we corrected / we have corrected"
     }
-   ]
+   ],
+   "notes": 688,
+   "cards": 688,
+   "tutto_left": 0
   },
   "italian_verbs_learning_presente": {
    "file": "italian_verbs_learning_presente.apkg",
-   "bytes": 6847691,
-   "sha256": "3ac8be7f6a0cc15353c36224d030d1c304be689fe99c4fc5966329bd6aaae398",
-   "notes": 700,
-   "cards": 700,
-   "tutto_left": 0,
+   "bytes": 6847649,
+   "sha256": "5015453e4863389953ee920412fbfba92743157f8567544141a948cbf23db759",
    "preview": [
     {
      "italian": "accade",
@@ -1216,15 +1213,15 @@
      "italian": "aggiungiamo",
      "english": "we add / we are adding"
     }
-   ]
+   ],
+   "notes": 700,
+   "cards": 700,
+   "tutto_left": 0
   },
   "italian_verbs_learning_presente_progressivo": {
    "file": "italian_verbs_learning_presente_progressivo.apkg",
-   "bytes": 8246173,
-   "sha256": "9c3b88b6708854b4e17e6f88ea99cf411b70a83ab9e1e08a70bc2c04d2aba568",
-   "notes": 634,
-   "cards": 634,
-   "tutto_left": 0,
+   "bytes": 8245415,
+   "sha256": "8d630e92a550ebbdf2352f9cb220d3272662ae3ed853cc6a406cbf12f7662fbc",
    "preview": [
     {
      "italian": "ci stiamo connettendo",
@@ -1274,7 +1271,10 @@
      "italian": "mi sto sedendo",
      "english": "I am sitting down"
     }
-   ]
+   ],
+   "notes": 634,
+   "cards": 634,
+   "tutto_left": 0
   }
  },
  "samples": [
@@ -1498,20 +1498,20 @@
    "recognition": true,
    "production": false,
    "pills": [
-    "pronoun"
+    "det"
    ],
    "example": [
-    "“Ma se questo compromette il mio trasferimento ...”",
-    "word for word: But if this compromises the my transfer ...",
-    "— Benvenuti al Sud (2010), 0:09:55"
+    "“Questa strada ti irrita, è sempre pieno zeppo.”",
+    "word for word: This road you irritates, it-is always full crammed.",
+    "— Benvenuti al Sud (2010), 0:20:14"
    ],
    "italian": "questo",
-   "english": "this (one)",
+   "english": "this",
    "hint": "",
    "details": "",
    "forms": "",
    "ipa": "/ˈkwes.to/",
-   "note": "Agrees with its noun: questo, questa, questi, queste.",
+   "note": "Agrees with its noun: questo, questa, questi, queste; often quest' before a vowel.",
    "fact": "It comes from Vulgar Latin *eccum iste, roughly 'look, that one'. The first part, eccum, also gave Italian 'ecco' ('here it is!'), so questo and ecco are related.",
    "facttitle": "Origin"
   },
@@ -1750,14 +1750,14 @@
   }
  ],
  "stats": {
-  "words": 2932,
+  "words": 2952,
   "new_at": {
    "a1": 482,
    "a2": 563,
    "b1": 502,
    "b2": 541
   },
-  "fact_share": 0.6744395629153993,
+  "fact_share": 0.6743088334457181,
   "verb_forms": 5206
  }
 }
