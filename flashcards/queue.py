@@ -1195,9 +1195,12 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
         if "image" in available_kinds and image_limit == 0:
             available_kinds.remove("image")
             report.detail("  Images skipped ([run] image_limit = 0; pass --images N to make some).")
+        elif "image" in available_kinds and codex.stopped():
+            available_kinds.remove("image")  # already said when it happened
         elif "image" in available_kinds and not codex.logged_in():
             available_kinds.remove("image")
             report.line("images skipped: Codex is not logged in (run `codex login` once)")
+        images_failed_in_a_row = 0
         try:
             while available_kinds and (max_batches is None or batch_no < max_batches):
                 wave = []
@@ -1274,6 +1277,13 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
                         counts = summary.setdefault(kind, {"done": 0, "failed": 0})
                         try:
                             done, seconds, waited = future.result()
+                        except codex.ImagesStopped as exc:
+                            # Not the job's fault: it goes back to the queue untouched.
+                            release(jobs)
+                            if "image" in available_kinds:
+                                available_kinds = [k for k in available_kinds if k != "image"]
+                                report.line(f"images     ■ stopped: {exc} — the rest are made by a later run")
+                                report.event("images_stopped", reason=str(exc))
                         except AIUnavailable as exc:
                             release(jobs)
                             report.line(f"{KIND_NAME[kind]:<8}… put back for later — {exc}")
@@ -1307,8 +1317,21 @@ def drain(conn, *, kinds=None, max_batches=None, image_limit=None):
                                 f"{KIND_NAME[kind]:<11}✗ {nfailed:<4}{label[:34]:<34} failed: "
                                 f"{str(exc)[:100]}{saved} ({retry_note})"
                             )
+                            if kind == "image":
+                                images_failed_in_a_row += 1
+                                limit = settings.images.stop_after_failures
+                                if images_failed_in_a_row >= limit and "image" in available_kinds:
+                                    # Codex said something we don't recognise, the same way,
+                                    # several times: most likely it can't make images now.
+                                    reason = f"{limit} images failed in a row (last: {str(exc)[:120]})"
+                                    codex.stop(reason)
+                                    available_kinds = [k for k in available_kinds if k != "image"]
+                                    report.line(f"images     ■ stopped: {reason}")
+                                    report.event("images_stopped", reason=reason)
                         else:
                             counts["done"] += done
+                            if kind == "image":
+                                images_failed_in_a_row = 0
                             with lock:  # workers share this connection
                                 left = conn.execute(
                                     "SELECT count(*) FROM ai_jobs WHERE kind=? AND status IN ('pending','running')",

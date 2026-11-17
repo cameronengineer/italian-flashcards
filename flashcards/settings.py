@@ -85,6 +85,9 @@ class ImageSettings:
     compressed_quality: int = 75
     #: Every card needs an image: notes wait for theirs before going to Anki.
     required: bool = True
+    #: Stop asking Codex for images in a run after this many fail in a row
+    #: (beyond the usage-limit messages it is known to give).
+    stop_after_failures: int = 3
 
 
 @dataclass(frozen=True)
@@ -92,9 +95,10 @@ class RunSettings:
     audio_workers: int = 3
     compress_workers: int = 8
     #: New assets created per run: 0 = none, -1 = no limit (None after loading).
-    #: ``image_limit = 0`` never starts Codex. The defaults are deliberately
-    #: finite: running without settings.toml must not spend without limit.
-    image_limit: int | None = 10
+    #: ``image_limit = 0`` never starts Codex. Images have no per-image cost (ChatGPT
+    #: plan), so by default a run makes as many as the plan allows and then stops.
+    #: Audio is paid per character, so its default stays finite.
+    image_limit: int | None = None
     audio_limit: int | None = 6000
     #: AI batches between Anki syncs in ``flashcards run``.
     max_batches: int = 20
@@ -199,7 +203,7 @@ def load(path: Path = SETTINGS_PATH) -> Settings:
                 "retry_cooldown_minutes",
             ),
         ),
-        (s.images, ("codex_timeout", "compressed_max_px")),
+        (s.images, ("codex_timeout", "compressed_max_px", "stop_after_failures")),
         (s.run, ("audio_workers", "compress_workers", "max_batches")),
         (s.backups, ("keep_last",)),
         (s.audit, ("workers",)),

@@ -53,7 +53,7 @@ A run has six segments, each with one line per thing it does:
 
 [4/6] Claude · writing cards
       to write     1,720 words · 249 phrases · 31 verbs · 3 cue groups
-      images       off ([run] image_limit = 0)
+      images       as many as Codex allows (stops when its usage limit is reached)
       09:12  asking Claude: 3× words (45), 1× verbs (3) …
       09:13  words   ✓ 15  questo, quello, molto +12            52s · 1,705 left
       09:14  ⏸  Claude usage limit reached (resets 3pm) — waiting, next try 09:19.
@@ -73,7 +73,7 @@ A run has six segments, each with one line per thing it does:
       Claude       1,649 words · 187 phrases · 91 verbs written
       Movie        Le otto montagne (2022): you know 65% of its words · 185 more → 90%
       Flagged      Claude doubted the dictionary data for 327 words (published anyway)
-      Images       off ([run] image_limit = 0) · 401 cards wait for one
+      Images       214 made this run · stopped: You've hit your usage limit … · 187 notes wait for one
 ════════════════════════════════════════════════════════════════
 ```
 
@@ -91,11 +91,18 @@ Options, all optional:
 | | |
 |---|---|
 | `--images N` / `--audio N` | new Codex images / ElevenLabs recordings this run (defaults: `[run] image_limit`, `audio_limit`; `-1` = no limit) |
-| `--batches N` | Claude batches between Anki syncs (default 20) |
+| `--batches N` | Claude and Codex batches between Anki syncs (default 20) |
 | `--once` | stop after one round |
 | `--only PHASE`, `--skip PHASE` | run only, or leave out, one phase (repeatable; see below) |
 | `--no-ai`, `--no-sync` | shorthands for `--skip enrich --skip audio` and `--skip publish` |
 | `--keep-old` | keep obsolete notes instead of deleting them (studied or unstudied) |
+
+**Images.** Codex draws on your ChatGPT plan, so by default (`[run] image_limit =
+-1`) a run makes as many images as the plan allows. When Codex says it can't
+make more (usage limit, credits used up, logged out) the run stops asking for
+the rest of that run and carries on with everything else; the remaining images
+are made by a later run. It also stops after `[images] stop_after_failures`
+images fail in a row. Network outages are still waited out.
 
 **Phases.** A run is a fixed sequence of phases (`flashcards/pipeline.py`, one
 function each). `--only` and `--skip` take these names:

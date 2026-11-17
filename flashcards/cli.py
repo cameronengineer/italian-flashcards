@@ -322,7 +322,7 @@ def _image_flags(sp) -> None:
         type=_count,
         default=settings.run.image_limit,
         metavar="N",
-        help="New Codex images (default: [run] image_limit; 0 = skip Codex, -1 = no limit).",
+        help="New Codex images (default: [run] image_limit; 0 = skip Codex, -1 = as many as the plan allows).",
     )
     sp.add_argument("--no-images", dest="images", action="store_const", const=0, help="Same as --images 0.")
 

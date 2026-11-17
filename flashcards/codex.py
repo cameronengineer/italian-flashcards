@@ -5,6 +5,11 @@ built-in image generation; we ask it to save one PNG there, then copy it
 into ``media/images/<md5(image_key)>.png``. Plan limits and outages pause
 image work (the same wait-and-retry gate as Claude); text AI is unaffected.
 Existing images are never overwritten or deleted.
+
+A run makes as many images as the plan allows. When Codex says it can't make
+more (usage limit, credits used up, logged out), image work stops for the rest
+of the run (:func:`stopped`) instead of waiting; the remaining images are made
+by a later run. Network and server errors are still waited out.
 """
 
 from __future__ import annotations
@@ -29,6 +34,42 @@ from .pool import STOP
 
 CODEX = "codex"
 _gate = _Gate("Codex")
+
+
+class ImagesStopped(AIError):
+    """Codex can't make more images in this run (usage limit, credits, login)."""
+
+
+#: Codex's ways of saying "no more now". Matched against its output with the
+#: prompt removed, so a word's own meaning ("credit", "limit") can't trigger it.
+_STOP = re.compile(
+    r"usage[ _-]?limit|limit (?:reached|exceeded)|hit (?:your|the) [\w ]{0,30}limit|rate[ _-]?limit"
+    r"|too many requests|quota|out of credits|insufficient credits|credits? (?:exhausted|used up|depleted)"
+    r"|purchase (?:more )?credits|not logged in|logged out|log in again|please log ?in|unauthori[sz]ed",
+    re.IGNORECASE,
+)
+
+#: Why images stopped in this run, once they have (a process is one run).
+_stopped: list[str] = []
+
+
+def stopped() -> str | None:
+    """Why Codex won't be asked for more images in this run, or None."""
+    return _stopped[0] if _stopped else None
+
+
+def stop(reason: str) -> None:
+    if not _stopped:
+        _stopped.append(reason)
+
+
+def _stop_reason(text: str) -> str | None:
+    """The line of Codex's output that says it can't make more images, or None."""
+    for line in reversed(text.splitlines()):
+        if _STOP.search(line):
+            return " ".join(line.split())[:200]
+    return None
+
 
 STYLE = (
     "Flat design, minimalist, icon-like illustration with soft colours on a plain light "
@@ -113,13 +154,18 @@ def _run(prompt: str, dest: Path, timeout: int) -> bool:
         except subprocess.TimeoutExpired as exc:
             raise AIError(f"codex exec: no image within {exc.timeout}s") from exc
         out = (proc.stdout or "") + (proc.stderr or "")
+        # Codex echoes the prompt: the word and its meaning must not read as an error.
+        said = out.replace(prompt, "")
         img = Path(tmp) / "card.png"
         if proc.returncode == 0 and not valid_image(img):
             img = _reported_image(out, started) or img
         if proc.returncode != 0 or not valid_image(img):
-            if proc.returncode != 0 or "error" in out.lower():
-                raise _classify(f"codex exec: {out.strip()[-400:]}")
-            raise AIError(f"codex exec produced no image: {out.strip()[-200:]}")
+            reason = _stop_reason(said)
+            if reason:  # with or without an exit code: Codex sometimes just says it
+                raise ImagesStopped(reason)
+            if proc.returncode != 0 or "error" in said.lower():
+                raise _classify(f"codex exec: {said.strip()[-400:]}")
+            raise AIError(f"codex exec produced no image: {said.strip()[-200:]}")
         dest.parent.mkdir(parents=True, exist_ok=True)
         tmp_dest = dest.with_suffix(".tmp.png")
         with Image.open(img) as im:
@@ -140,10 +186,15 @@ def generate(
         if not valid_image(dest):
             raise AIError(f"Existing image is invalid; preserved for recovery: {dest}")
         return dest
+    if stopped():
+        raise ImagesStopped(stopped())
     prompt = image_prompt(italian, meaning, pos)
-
-    _gate.call(lambda: _run(prompt, dest, timeout or settings.images.codex_timeout))
+    try:
+        _gate.call(lambda: _run(prompt, dest, timeout or settings.images.codex_timeout))
+    except ImagesStopped as exc:
+        stop(str(exc))
+        raise
     return dest
 
 
-__all__ = ["generate", "logged_in", "image_prompt", "AIUnavailable"]
+__all__ = ["generate", "logged_in", "image_prompt", "stopped", "stop", "ImagesStopped", "AIUnavailable"]

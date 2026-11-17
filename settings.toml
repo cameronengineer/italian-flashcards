@@ -58,11 +58,13 @@ codex_timeout = 900      # seconds per image
 concurrency = 3          # images made at the same time (your ChatGPT plan's limits still apply)
 compressed_max_px = 512
 compressed_quality = 75
+stop_after_failures = 3  # also stop images after this many fail in a row
 
 [run]
 # Defaults for `flashcards run` / ./run.sh (CLI flags override).
 # New assets created per run: 0 = none, -1 = no limit.
-image_limit = 10         # Codex images per run (0 = Codex never runs)
+image_limit = -1         # Codex images per run: -1 = as many as the plan allows (the run stops
+                         # asking when Codex says its usage limit is reached), 0 = none
 audio_limit = 6000       # ElevenLabs audio files per run: the whole backlog (~6,000 files,
                          # ~75,000 characters of credit); a cap in case audio settings change
 max_batches = 20         # Claude batches between Anki syncs

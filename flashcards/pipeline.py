@@ -301,6 +301,8 @@ def enrich(run: Run, conn) -> None:
         report.item("cue groups", "compare words sharing an English prompt; batched after word writing")
     if options.images == 0:
         report.item("images", "off ([run] image_limit = 0)")
+    elif options.images is None:
+        report.item("images", "as many as Codex allows (stops when its usage limit is reached)")
     elif options.images:
         report.item("images", f"up to {options.images} this run (Codex)")
     images_left = options.images  # per run, across rounds; None = no limit
@@ -438,7 +440,10 @@ def conclude(run: Run, conn) -> dict:
 
     listed = "AND id IN (SELECT lexeme_id FROM list_items)"
     first, _second = _cards_line(conn)
+    from . import codex
+
     run.summary["audits"] = audited = content_review.audit_coverage(conn)
+    run.summary["images_stopped"] = codex.stopped()
     run.summary["pending"] = queue.pending_counts(conn)
     run.summary["backlog"] = queue.backlog(conn)
     run.summary["unresolved_image_failures"] = conn.execute(
@@ -459,6 +464,7 @@ def conclude(run: Run, conn) -> dict:
         "left": _todo(conn),
         "films": movie.headlines(conn),
         "images_pending": queue.pending_counts(conn).get("image", 0),
+        "images_stopped": run.summary["images_stopped"],
     }
 
 
@@ -525,9 +531,18 @@ def print_summary(run: Run, facts: dict) -> None:
             "(not Italian, a name, a duplicate …; `./run.sh review` lists them)",
         )
     waiting = facts["waiting"]
-    if facts["images_pending"] or waiting.get("an image"):
-        reason = "off ([run] image_limit = 0)" if run.options.images == 0 else "pending"
-        report.item("Images", f"{reason} · {waiting.get('an image', 0):,} notes wait for one")
+    made = run.written.get("image", 0)
+    if facts["images_pending"] or waiting.get("an image") or made:
+        if run.options.images == 0:
+            state = "off ([run] image_limit = 0)"
+        elif facts["images_stopped"]:
+            state = f"stopped: {facts['images_stopped']}"
+        else:
+            state = "pending" if facts["images_pending"] else "all made"
+        report.item(
+            "Images",
+            f"{made:,} made this run · {state} · {waiting.get('an image', 0):,} notes wait for one",
+        )
     if run.options.skip:
         report.item("Switched off", ", ".join(p for p in PHASES if p in run.options.skip))
     report.rule()
