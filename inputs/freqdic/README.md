@@ -6,7 +6,8 @@ handful of bad translations in the original distribution.
 
 The file is consumed by the `subtlex` list in `lists.toml`. The pipeline
 walks the rows in `id` order, takes the top `verb_limit` lemmas tagged
-`dom_pos=VER` and the top `noun_limit` lemmas tagged `dom_pos=NOM`, and
+`dom_pos=VER`, `noun_limit` tagged `NOM`, `adjective_limit` tagged `ADJ` and
+`adverb_limit` tagged `ADV`, and
 resolves them into the shared lexicon. Its wordform and dominant-lemma columns
 also supply the subtitle lemmatizer. Those dominant labels are corpus-wide
 guesses; they do not establish a token's meaning in an individual film line.

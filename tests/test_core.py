@@ -30,6 +30,27 @@ class InputTests(unittest.TestCase):
                 [(r.lemma, r.pos) for r in rows], [("i lunga", "letter"), ("vu", "letter"), ("ics", "letter")]
             )
 
+    def test_frequency_list_takes_each_part_of_speech_up_to_its_limit(self):
+        header = "wordform;freq_count;zipf;cd_count;dom_pos;dom_lemma;dom_lemma_freq;id\n"
+        rows = [
+            ("casa", "NOM"), ("andare", "VER"), ("bello", "ADJ"), ("molto", "ADV"), ("case", "NOM"),
+            ("cane", "NOM"), ("grande", "ADJ"), ("bene", "ADV"), ("Roma", "NPR"), ("fare", "VER"),
+        ]  # fmt: skip
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "freq.csv"
+            body = "".join(
+                f"{w};1;5,0;1;{pos};{'casa' if w == 'case' else w};1;{i}\n" for i, (w, pos) in enumerate(rows)
+            )
+            p.write_text(header + body, encoding="utf-8")
+            limits = {"verb_limit": 1, "noun_limit": 5, "adjective_limit": 2, "adverb_limit": 1}
+            items = lists.read(ListDef("frequency", "subtlex", "F", "Italian::F", p, extras=limits))
+        self.assertEqual(
+            [(i.lemma, i.pos) for i in items],
+            [("casa", "noun"), ("andare", "verb"), ("bello", "adj"), ("molto", "adv"), ("cane", "noun"),
+             ("grande", "adj")],
+        )  # fmt: skip
+        self.assertEqual(lists.SUBTLEX_POS["ADJ"][1], 0)  # off unless lists.toml asks for them
+
     def test_bad_csv_rejected(self):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "bad.csv"

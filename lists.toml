@@ -85,5 +85,9 @@ kind = "subtlex"
 title = "Most frequent words"
 path = "freqdic/subtlex-it.cleaned.csv"
 deck = "Italian::Frequency"
-verb_limit = 400
-noun_limit = 1000
+# The N most frequent of each (the file has ~960 verbs, ~4,000 nouns, ~1,090
+# adjectives, ~280 adverbs). Raising one adds cards; lowering one retires them.
+verb_limit = 1000            # all of them (the last are ~3 per million words)
+noun_limit = 2000            # down to ~7 per million words ("sms", "asino" at 2,500)
+adjective_limit = 800        # down to ~3.5 per million words ("imprevedibile")
+adverb_limit = 200           # down to "gravemente"

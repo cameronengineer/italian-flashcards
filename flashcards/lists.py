@@ -23,6 +23,13 @@ LISTS_PATH = PROJECT_ROOT / "lists.toml"
 PLAN_PATH = PROJECT_ROOT / "plan.toml"
 
 KINDS = {"csv", "cils", "verbs", "avere", "subtlex", "numbers", "movie"}
+#: SUBTLEX-IT part-of-speech tag → (lists.toml key, default limit, lexicon pos).
+SUBTLEX_POS = {
+    "VER": ("verb_limit", 400, "verb"),
+    "NOM": ("noun_limit", 1000, "noun"),
+    "ADJ": ("adjective_limit", 0, "adj"),
+    "ADV": ("adverb_limit", 0, "adv"),
+}
 _ARTICLE = re.compile(r"^(?:(un'|l')(?=\w)|(gli|uno|una|il|lo|la|le|un|i)\s+(?=\w))", re.I)
 
 
@@ -35,8 +42,7 @@ def load(path: Path = LISTS_PATH) -> list[ListDef]:
     known = {"id", "kind", "title", "deck", "path", "type", "pos", "facts", "recognition_only", "disabled"}
     for d in data.get("list", []):
         extra_keys = {
-            "verb_limit",
-            "noun_limit",
+            *(key for key, _default, _pos in SUBTLEX_POS.values()),
             "optional",
             "allow_empty",
             "shareable",
@@ -45,6 +51,9 @@ def load(path: Path = LISTS_PATH) -> list[ListDef]:
         }
         if set(d) - known - extra_keys:
             raise ValueError(f"lists.toml: unknown keys {sorted(set(d) - known - extra_keys)}")
+        for key, _default, _pos in SUBTLEX_POS.values():
+            if key in d and (type(d[key]) is not int or d[key] < 0):
+                raise ValueError(f"lists.toml: {key} must be a nonnegative integer")
         for key in ("facts", "recognition_only", "disabled", "optional", "allow_empty", "shareable"):
             if key in d and type(d[key]) is not bool:
                 raise ValueError(f"lists.toml: {key} must be boolean")
@@ -470,8 +479,8 @@ def parse_zipf(v: str | None) -> float | None:
 
 def _read_subtlex(l: ListDef) -> list[Item]:
     rows = subtlex_rows(l.path)
-    limits = {"VER": int(l.extras.get("verb_limit", 400)), "NOM": int(l.extras.get("noun_limit", 1000))}
-    taken = {"VER": 0, "NOM": 0}
+    limits = {tag: int(l.extras.get(key, default)) for tag, (key, default, _pos) in SUBTLEX_POS.items()}
+    taken = dict.fromkeys(limits, 0)
     seen: set[tuple[str, str]] = set()
     out = []
     for file_rank, r in enumerate(rows, start=1):
@@ -490,7 +499,7 @@ def _read_subtlex(l: ListDef) -> list[Item]:
             Item(
                 raw=lemma,
                 lemma=lemma.lower(),
-                pos="verb" if pos == "VER" else "noun",
+                pos=SUBTLEX_POS[pos][2],
                 context={"freq_rank": file_rank, "zipf": parse_zipf(r.get("zipf"))},
             )
         )

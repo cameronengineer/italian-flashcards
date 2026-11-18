@@ -231,7 +231,7 @@ run, including studied cards and their review history. Generated data and media 
 | `cils` | CILS lists — uses the lemma (`italian_original`) and part of speech (`function`) columns |
 | `verbs` | CSV of infinitives |
 | `avere` | avere-expressions |
-| `subtlex` | top-N verbs / nouns from SUBTLEX-IT |
+| `subtlex` | the most frequent verbs / nouns / adjectives / adverbs from SUBTLEX-IT (`verb_limit`, `noun_limit`, `adjective_limit`, `adverb_limit`) |
 | `numbers` | ordered `english,italian` CSV in `inputs/italian_numbers.csv`: difficult teens and contrasts first; [study order and spelling notes](inputs/italian_numbers.README.md) |
 | `movie` | Italian subtitles: `inputs/movies/<slug>/subs.it.srt`; every run writes `words.csv` next to it |
 

@@ -46,9 +46,13 @@ learning_tenses = [
   "imperfetto", "presente_progressivo",
 ]
 learning_imperative_persons = ["Lei", "tu"]
-# Full form cards for irregular verbs plus the N most frequent verbs; every
-# other (regular) verb is covered by pattern cards + its infinitive card.
-full_forms_top = 120
+# Full form cards (every person of every tense above) for irregular verbs plus
+# the N most frequent verbs; every other (regular) verb is covered by pattern
+# cards + its infinitive card. About 45 form cards per verb.
+full_forms_top = 200
+# At most this many verbs get full form cards in all, irregular ones included,
+# picked in study order (verbs already in Anki always stay).
+max_full_verbs = 250
 
 [cards]
 # A note's production card (English → Italian) can be switched off per list
