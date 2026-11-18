@@ -178,7 +178,7 @@ the way to update your own collection.
 | `movie` | coverage table for a film (its word list is kept in `inputs/movies/<film>/words.csv`) |
 | `practice` | translation practice from words you've learnt; your mistakes become cards |
 | `learnt` | export every word you've graduated |
-| `leech` | suspend + tag cards you keep failing; `leech --doctor` writes memory aids |
+| `leech` | suspend + tag cards you keep failing; `leech --doctor` writes memory aids; `leech --release` unsuspends and untags them all (they count again only if they fail again) |
 | `audit` | Claude reviews conjugations, ambiguous cues and gender-changing plurals first; matching audits are counted separately from publishable notes |
 | `share` | `.apkg` for someone else (only lists marked `shareable`; film lines left out) |
 | `doctor` | health report: tools, settings and a data-quality census (read-only; `--database FILE` reviews a backup; `--anki` checks AnkiConnect still offers every action used — worth running after updating it) |

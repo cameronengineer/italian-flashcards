@@ -11,7 +11,8 @@ Extras (./run.sh <name> …):
   movie       Coverage report + word list for a film (inputs/movies/<film>/words.csv).
   practice    Translation practice from words you've learnt; mistakes become cards.
   learnt      Export every word you've graduated.
-  leech       Suspend + tag cards you keep failing (--doctor: memory aids).
+  leech       Suspend + tag cards you keep failing (--doctor: memory aids;
+              --release: unsuspend and untag them all).
   audit       Have Claude double-check finished cards.
   review      What Claude flagged (information only; nothing is held back).
   share       Export cards as an .apkg for someone else.
@@ -233,6 +234,8 @@ def cmd_learnt(args) -> int:
 def cmd_leech(args) -> int:
     from .commands import leech
 
+    if args.release:
+        return leech.release(deck=args.deck, dry_run=args.dry_run)
     if args.doctor:
         return leech.doctor(unsuspend=args.unsuspend, deck=args.deck, dry_run=args.dry_run)
     return leech.run(
@@ -484,6 +487,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--dry-run", action="store_true")
     sp.add_argument("--doctor", action="store_true")
     sp.add_argument("--unsuspend", action="store_true", help="With --doctor: unsuspend helped cards.")
+    sp.add_argument(
+        "--release",
+        action="store_true",
+        help="Unsuspend every leech and remove the leech tag; only new failures make one again.",
+    )
     sp.set_defaults(func=cmd_leech)
 
     sp = sub.add_parser("audit", help="AI review of notes.")
