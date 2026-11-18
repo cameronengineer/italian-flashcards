@@ -138,6 +138,9 @@ class DoctorBeforeUpgradeTests(unittest.TestCase):
         path = Path(tmp.name) / "database.sqlite"
         conn = old_database()
         conn.execute(f"PRAGMA user_version = {version}")
+        dormant = json.dumps({str(1791513236000 + i): 1791513236000 + i for i in range(300)})
+        conn.execute("INSERT INTO metadata VALUES('dormant_suspensions:User 1',?)", (dormant,))
+        conn.commit()
         with closing(sqlite3.connect(path)) as target:
             conn.backup(target)
         conn.close()
@@ -159,6 +162,7 @@ class DoctorBeforeUpgradeTests(unittest.TestCase):
         self.assertEqual(result["data"]["status"], "upgrade due")
         self.assertIn("./run.sh", result["data"]["detail"])
         self.assertEqual(path.read_bytes(), before)
+        self.assertEqual(result["checkpoints"]["dormant_suspensions:User 1"], "300 entries")
 
     def test_newer_or_too_old_schema_fails(self):
         for version in (db.SCHEMA_VERSION + 1, 9):

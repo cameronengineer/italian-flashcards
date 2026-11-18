@@ -21,6 +21,24 @@ from ..db import BASE_VERSION, SCHEMA_VERSION
 from ..settings import settings
 
 
+def readable_checkpoints(checkpoints, *, skip=()):
+    """Checkpoints for a report: long JSON values (such as the map of cards
+    suspended as dormant) are counted, not listed."""
+    shown = {}
+    for key, value in checkpoints.items():
+        if key in skip:
+            continue
+        if value and len(value) > 200:
+            try:
+                parsed = json.loads(value)
+            except ValueError:
+                parsed = None
+            if isinstance(parsed, (dict, list)):
+                value = f"{len(parsed)} entries"
+        shown[key] = value
+    return shown
+
+
 def report(conn, *, check_media=True):
     """Analyze one fixed connection; callers supply a snapshot/read transaction."""
     result = {"format": 1, "captured_at": datetime.now(timezone.utc).isoformat(), "findings": []}
@@ -53,7 +71,7 @@ def report(conn, *, check_media=True):
     ]
     result["table_counts"] = {t: conn.execute(f'SELECT count(*) FROM "{t}"').fetchone()[0] for t in tables}
     checkpoints = dict(conn.execute("SELECT key,value FROM metadata"))
-    result["checkpoints"] = {k: v for k, v in checkpoints.items() if k != "anki_profile"}
+    result["checkpoints"] = readable_checkpoints(checkpoints, skip=("anki_profile",))
     stale = bool(
         checkpoints.get("source_generation")
         and checkpoints.get("source_generation") != checkpoints.get("notes_generation")
