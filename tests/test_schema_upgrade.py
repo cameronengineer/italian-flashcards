@@ -1,11 +1,16 @@
 """Upgrading the old database layout (schema v13, with the v3 tables)."""
 
+import io
+import json
 import sqlite3
+import tempfile
 import unittest
+from contextlib import closing, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
-from flashcards import db, lexicon
+from flashcards import db, lexicon, paths
+from flashcards.commands import doctor
 
 OLD_SCHEMA = (Path(__file__).parent / "fixtures" / "schema_v13.sql").read_text(encoding="utf-8")
 
@@ -122,6 +127,44 @@ class UpgradeTests(unittest.TestCase):
         conn = self.upgraded()
         with self.assertRaises(sqlite3.IntegrityError):
             conn.execute("UPDATE lexemes SET status='needs_review'")
+
+
+class DoctorBeforeUpgradeTests(unittest.TestCase):
+    """``doctor`` straight after ``git pull``, before ``./run.sh`` has upgraded."""
+
+    def saved(self, version):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        path = Path(tmp.name) / "database.sqlite"
+        conn = old_database()
+        conn.execute(f"PRAGMA user_version = {version}")
+        with closing(sqlite3.connect(path)) as target:
+            conn.backup(target)
+        conn.close()
+        return path
+
+    def doctor(self, path):
+        with (
+            patch.object(paths, "DB_PATH", path),
+            redirect_stdout(io.StringIO()) as out,
+        ):
+            code = doctor.run(check_media=False)
+        return code, json.loads(out.getvalue())
+
+    def test_older_schema_is_reported_as_due_and_left_alone(self):
+        path = self.saved(13)
+        before = path.read_bytes()
+        code, result = self.doctor(path)
+        self.assertEqual(code, 0)
+        self.assertEqual(result["data"]["status"], "upgrade due")
+        self.assertIn("./run.sh", result["data"]["detail"])
+        self.assertEqual(path.read_bytes(), before)
+
+    def test_newer_or_too_old_schema_fails(self):
+        for version in (db.SCHEMA_VERSION + 1, 9):
+            code, result = self.doctor(self.saved(version))
+            self.assertEqual(code, 1, version)
+            self.assertEqual(result["data"]["status"], "error", version)
 
 
 if __name__ == "__main__":

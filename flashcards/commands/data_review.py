@@ -17,7 +17,7 @@ from pathlib import Path
 
 from .. import paths, quality, content_review
 from ..assets import locate
-from ..db import SCHEMA_VERSION
+from ..db import BASE_VERSION, SCHEMA_VERSION
 from ..settings import settings
 
 
@@ -243,8 +243,31 @@ def report(conn, *, check_media=True):
 
 
 def collect(database: Path | None = None, *, check_media=True):
+    """Census of ``database`` (default: the live one). A database on another
+    schema gets a one-line status instead: the census never migrates, and the
+    first ``./run.sh`` after an update upgrades an older one."""
     database = (database or paths.DB_PATH).resolve()
     with closing(sqlite3.connect(database.as_uri() + "?mode=ro", uri=True)) as source:
+        schema = source.execute("PRAGMA user_version").fetchone()[0]
+        if schema < BASE_VERSION:
+            return {
+                "status": "error",
+                "schema": schema,
+                "detail": f"Schema {schema} predates the lexicon: run ./run.sh once at commit 3e6520e first.",
+            }
+        if schema < SCHEMA_VERSION:
+            return {
+                "status": "upgrade due",
+                "schema": schema,
+                "detail": f"Schema {schema} → {SCHEMA_VERSION}: the next ./run.sh upgrades it "
+                "(backed up first); run doctor again afterwards for the data census.",
+            }
+        if schema > SCHEMA_VERSION:
+            return {
+                "status": "error",
+                "schema": schema,
+                "detail": f"Schema {schema} is newer than this code ({SCHEMA_VERSION}): git pull.",
+            }
         with closing(sqlite3.connect(":memory:")) as snapshot:
             source.backup(snapshot)
             snapshot.row_factory = sqlite3.Row
