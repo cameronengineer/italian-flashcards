@@ -30,7 +30,7 @@ from .db import transaction
 from .runtime import writer_lock
 from .validation import validate
 from .assets import record
-from .ai import AI, AIUnavailable, AIResponseError, gate
+from .ai import AI, AIUnavailable, AIResponseError, LimitReached, gate, limit_reached
 from .pool import STOP
 from .settings import settings
 from .facts import normalise as fact_key
@@ -1293,6 +1293,8 @@ class _Drain:
 
     def startable_kinds(self) -> list[str]:
         kinds = list(self.kinds)
+        if limit_reached():
+            kinds = [k for k in kinds if k == "image"]  # already said when it happened
         if "image" in kinds and self.image_limit == 0:
             kinds.remove("image")
             report.detail("  Images skipped ([run] image_limit = 0; pass --images N to make some).")
@@ -1430,6 +1432,12 @@ class _Drain:
                 self.stop_images()
                 report.line(f"images     ■ stopped: {exc} — the rest are made by a later run")
                 report.event("images_stopped", reason=str(exc))
+        except LimitReached as exc:
+            self.release(jobs)  # not the jobs' fault: back to the queue untouched
+            if any(k != "image" for k in self.available):
+                self.available = [k for k in self.available if k == "image"]
+                report.line(f"claude     ■ stopped: {exc} — the rest is written by a later run")
+                report.event("claude_stopped", reason=str(exc))
         except AIUnavailable as exc:
             self.release(jobs)
             report.line(f"{KIND_NAME[kind]:<8}… put back for later — {exc}")

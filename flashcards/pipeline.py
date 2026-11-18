@@ -13,7 +13,7 @@ A run is a fixed sequence of phases. Each is one function below, takes the
     publish    sync Anki with what is ready                      3 Anki
     enrich     Claude writes cards, Codex draws, in rounds;      4 Claude
                every round ends with build + publish
-    audio      new recordings (capped per run)                   5 Audio & media
+    audio      new recordings (until ElevenLabs credits run out) 5 Audio & media
     compress   small copies of new images and audio              5 Audio & media
     export     lexicon/*.jsonl and one .apkg per deck            6 Anki · final sync
 
@@ -295,8 +295,9 @@ def build(run: Run, conn) -> None:
 
 def enrich(run: Run, conn) -> None:
     """Claude writes the remaining cards and Codex draws, in rounds. Each round
-    ends with build + publish; usage limits and retry cooldowns are waited out."""
-    from . import lexicon, queue
+    ends with build + publish. Each provider stops at its usage limit
+    (``[ai] on_limit``); retry cooldowns are waited out while Claude can still work."""
+    from . import ai, lexicon, queue
 
     options = run.options
     todo = _todo(conn)
@@ -309,6 +310,8 @@ def enrich(run: Run, conn) -> None:
         report.item("images", "as many as Codex allows (stops when its usage limit is reached)")
     elif options.images:
         report.item("images", f"up to {options.images} this run (Codex)")
+    if todo and settings.ai.on_limit == "stop":
+        report.item("claude", "writes until its usage limit is reached, then stops")
     images_left = options.images  # per run, across rounds; None = no limit
     if not options.on("enrich"):
         report.item("", run.skipped("enrich"))
@@ -337,6 +340,8 @@ def enrich(run: Run, conn) -> None:
             if options.once:
                 break
             if not done_now:
+                if ai.limit_reached():
+                    break  # cooling-down jobs need Claude too: nothing to wait for
                 remaining = queue.backlog(conn)
                 delay = remaining["retry_in_seconds"]
                 if delay is not None:
@@ -349,7 +354,14 @@ def enrich(run: Run, conn) -> None:
                     continue
                 break
         left = _todo(conn)
-        report.line(f"stopping: {left} still to write (run again to carry on)" if left else "all written")
+        stopped = ai.limit_reached()
+        report.line(
+            f"stopping: Claude {stopped} · {left} still to write (the next run carries on)"
+            if left and stopped
+            else f"stopping: {left} still to write (run again to carry on)"
+            if left
+            else "all written"
+        )
     run.summary["stages"]["work"] = {"written": dict(run.written), "failed_attempts": dict(run.failed)}
 
 
@@ -367,10 +379,12 @@ def audio(run: Run) -> None:
             if made["failed"]:
                 text += f" · {made['failed']} failed"
                 run.code = 1
-            if made.get("out_of_credit"):
-                text += " · stopped: ElevenLabs credits used up (the rest is made next run)"
+            if made.get("stopped"):
+                text += f" · stopped: {made['stopped']} (the rest is made next run)"
             if made.get("pending"):
-                text += f" · {made['pending']:,} cards still without audio ([run] audio_limit = {limit})"
+                text += f" · {made['pending']:,} cards still without audio" + (
+                    f" ([run] audio_limit = {limit})" if limit is not None and not made.get("stopped") else ""
+                )
         except (FileNotFoundError, ValueError) as exc:  # no / empty .elevenlabs key
             made, text, run.code = {"skipped": str(exc)}, f"skipped: {exc}", 1
         run.summary["stages"]["audio"] = made
@@ -452,6 +466,9 @@ def conclude(run: Run, conn) -> dict:
 
     run.summary["audits"] = audited = content_review.audit_coverage(conn)
     run.summary["images_stopped"] = codex.stopped()
+    from . import ai
+
+    run.summary["claude_stopped"] = ai.limit_reached()
     run.summary["pending"] = queue.pending_counts(conn)
     run.summary["backlog"] = queue.backlog(conn)
     run.summary["unresolved_image_failures"] = conn.execute(
@@ -508,6 +525,7 @@ def print_summary(run: Run, facts: dict) -> None:
     report.item(
         "Claude",
         (claude + " written" if claude else "nothing written")
+        + (f" · stopped: {run.summary['claude_stopped']}" if run.summary.get("claude_stopped") else "")
         + (f" · {bad} failed item attempts (includes recovered retries)" if bad else ""),
     )
     report.item("Cards", facts["cards"])

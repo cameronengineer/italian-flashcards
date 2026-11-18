@@ -10,9 +10,13 @@ on **Claude via ``claude -p``** (your Claude subscription):
   plain text otherwise.
 * **One cache**: ``ai_cache``, keyed by model + task + messages. Cached
   results are free on re-runs; ``refresh=True`` forces a new answer.
-* **Waits instead of failing** when Claude is unavailable (usage limit
-  reached, logged out, network down): all AI work pauses, one call retries
-  every ``[ai] unavailable_retry_minutes``, and everything resumes when it
+* **Stops at the usage limit** (``[ai] on_limit = "stop"``, the default):
+  once Claude says its usage limit is reached, no more Claude calls are made
+  this run (:class:`LimitReached`); unfinished work waits for the next run.
+  With ``on_limit = "wait"`` the limit is waited out like an outage.
+* **Waits instead of failing** when Claude is unavailable (logged out,
+  network down, overloaded): all AI work pauses, one call retries every
+  ``[ai] unavailable_retry_minutes``, and everything resumes when it
   succeeds. Errors specific to one request (invalid output, a timeout) fail
   just that item.
 * **Bounded concurrency** (``[ai] concurrency``) however many pipeline
@@ -51,6 +55,11 @@ class AIError(RuntimeError):
 
 class AIUnavailable(AIError):
     """Claude can't serve anything right now (usage limit, auth, network)."""
+
+
+class LimitReached(AIError):
+    """Claude's usage limit is reached and ``[ai] on_limit = "stop"``: no more
+    Claude calls this run. Not :class:`AIUnavailable`, so the gate never waits it out."""
 
 
 class AIResponseError(AIError):
@@ -320,7 +329,14 @@ def _short_reason(message: str) -> str:
     """'usage limit reached (resets 3pm)' rather than the raw provider text."""
     low = message.lower()
     reset = _RESET.search(message)
-    when = f" (resets {reset.group(0).split(' ', 1)[-1].strip()})" if reset else ""
+    epoch = re.search(r"limit reached\|(\d{10})\b", message)
+    when = (
+        f" (resets {reset.group(0).split(' ', 1)[-1].strip()})"
+        if reset
+        else f" (resets {datetime.fromtimestamp(int(epoch[1])):%a %H:%M})"
+        if epoch
+        else ""
+    )
     if any(h in low for h in ("limit", "quota", "credit", "billing", "too many requests")):
         return "usage limit reached" + when
     if any(h in low for h in ("network", "connection", "enotfound", "etimedout", "fetch failed")):
@@ -372,11 +388,40 @@ def seconds_until_reset(message: str) -> float | None:
 gate = Gate("Claude")
 _slots = threading.BoundedSemaphore(max(1, settings.ai.concurrency))
 
+#: Claude's own usage-limit wording (5-hour, weekly, extra usage, API credit), not
+#: per-minute rate limits ("rate limit", "too many requests"), which pass in minutes.
+_USAGE_LIMIT = re.compile(
+    r"usage limit|limit reached|(?:hit|reached) your (?:\w+ )?limit|out of (?:extra )?usage"
+    r"|credit balance|insufficient credit|quota|billing",
+    re.I,
+)
+_limit: list[str] = []  # why Claude stopped in this run, once it has
+_limit_lock = threading.Lock()
+
+
+def limit_reached() -> str | None:
+    """Why Claude was stopped in this run (``on_limit = "stop"``), or None."""
+    return _limit[0] if _limit else None
+
+
+def _stop_at_limit(exc: AIUnavailable) -> None:
+    if settings.ai.on_limit == "stop" and _USAGE_LIMIT.search(str(exc)):
+        with _limit_lock:
+            if not _limit:
+                _limit.append(_short_reason(str(exc)))
+        raise LimitReached(_limit[0]) from None
+
 
 def _call(task: Task) -> Any:
     def once() -> Any:
+        if _limit:
+            raise LimitReached(_limit[0])
         with _slots:
-            return _claude_code(task)
+            try:
+                return _claude_code(task)
+            except AIUnavailable as exc:
+                _stop_at_limit(exc)
+                raise
 
     return gate.call(once)
 

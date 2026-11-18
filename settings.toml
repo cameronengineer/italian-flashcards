@@ -12,8 +12,12 @@ effort = "high"          # low | medium | high | xhigh | max
 thinking = true          # Claude's hidden reasoning: better judgement, ~8x more output tokens
 timeout = 1800           # seconds per call (Opus thinking through a batch of 15 words takes a while)
 concurrency = 4          # calls in flight at once
-# Usage limit hit / logged out / out of credits / offline: pause all AI work
-# and retry every N minutes until it works again.
+# Claude's usage limit (5-hour / weekly): "stop" = stop asking Claude for the rest
+# of the run (audio, images and export carry on; the next run picks up the rest);
+# "wait" = pause until the limit resets, then carry on.
+on_limit = "stop"
+# Logged out / offline / overloaded (and the usage limit with on_limit = "wait"):
+# pause all AI work and retry every N minutes until it works again.
 unavailable_retry_minutes = 5
 # Give up after this many minutes of waiting (0 = wait as long as it takes).
 max_unavailable_minutes = 0
@@ -65,8 +69,9 @@ stop_after_failures = 3  # also stop images after this many fail in a row
 # New assets created per run: 0 = none, -1 = no limit.
 image_limit = -1         # Codex images per run: -1 = as many as the plan allows (the run stops
                          # asking when Codex says its usage limit is reached), 0 = none
-audio_limit = 6000       # ElevenLabs audio files per run: the whole backlog (~6,000 files,
-                         # ~75,000 characters of credit); a cap in case audio settings change
+audio_limit = -1         # ElevenLabs audio files per run: -1 = until ElevenLabs says the
+                         # month's credits are used up (changing [audio] re-records everything)
+audio_stop_after_failures = 5  # stop audio for the run after this many failures in a row
 max_batches = 20         # Claude batches between Anki syncs
 audio_workers = 3        # ElevenLabs' concurrent-request limit (3 on your plan)
 compress_workers = 8

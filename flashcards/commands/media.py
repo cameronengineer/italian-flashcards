@@ -90,17 +90,35 @@ def _gen_audio(client, text: str, dest: Path) -> None:
 
 
 class OutOfCredit(RuntimeError):
-    """ElevenLabs has no credit left this period: the rest waits for the next run."""
+    """ElevenLabs can't make more this run (credits used up, key or plan
+    refused, repeated failures): the rest waits for the next run."""
 
 
-def _speak(client, text: str, dest: Path, out_of_credit: threading.Event) -> None:
+class _Stop:
+    """Shared by the audio workers: set once, with the first reason."""
+
+    def __init__(self):
+        self.event = threading.Event()
+        self.reason = ""
+
+    def __call__(self, reason: str) -> None:
+        if not self.event.is_set():
+            self.reason = reason
+            self.event.set()
+
+    def is_set(self) -> bool:
+        return self.event.is_set()
+
+
+def _speak(client, text: str, dest: Path, stop: _Stop) -> None:
     """One recording. Busy (too many at once / rate limit) or a server hiccup:
-    wait and retry. Out of credit: stop asking for the rest of this run."""
+    wait and retry. Out of credit, or the key or plan refused (401/402/403,
+    which every later request would get too): stop asking for the rest of this run."""
     from elevenlabs.core.api_error import ApiError
 
     for attempt in range(8):
-        if out_of_credit.is_set():
-            raise OutOfCredit("skipped: ElevenLabs credits used up")
+        if stop.is_set():
+            raise OutOfCredit(f"skipped: {stop.reason}")
         try:
             return _gen_audio(client, text, dest)
         except ApiError as exc:
@@ -110,8 +128,11 @@ def _speak(client, text: str, dest: Path, out_of_credit: threading.Event) -> Non
             message = str(detail.get("message") or exc.body)[:160]
             # Out of credit: never wait, whatever the status code.
             if "quota" in status or "credit" in message.lower():
-                out_of_credit.set()
+                stop("ElevenLabs credits used up")
                 raise OutOfCredit(f"ElevenLabs credits used up: {message}") from None
+            if exc.status_code in (401, 402, 403):
+                stop(f"ElevenLabs refused the request ({exc.status_code} {status}: {message})")
+                raise OutOfCredit(stop.reason) from None
             if exc.status_code == 429 or (exc.status_code or 0) >= 500:
                 if STOP.wait(min(30, 2**attempt)):
                     raise KeyboardInterrupt from None
@@ -150,13 +171,13 @@ def generate_audio(workers: int = 10, limit: int | None = None, decks: list[str]
 
     client = ElevenLabs(api_key=api_key)
 
-    out_of_credit = threading.Event()
+    stop = _Stop()
 
     def work(text: str) -> str:
-        _speak(client, text, AUDIO_DIR / audio_filename(text), out_of_credit)
+        _speak(client, text, AUDIO_DIR / audio_filename(text), stop)
         return audio_filename(text)
 
-    generated = failed = 0
+    generated = failed = in_a_row = 0
     progress = report.Progress("audio", len(pending))
     for text, res in run_pool(
         pending,
@@ -170,7 +191,12 @@ def generate_audio(workers: int = 10, limit: int | None = None, decks: list[str]
         progress.tick(not isinstance(res, Exception))
         if isinstance(res, Exception):
             failed += 1
+            in_a_row += 1
+            if in_a_row >= settings.run.audio_stop_after_failures:
+                stop(f"{in_a_row} recordings failed in a row (last: {str(res)[:120]})")
+                break
         else:
+            in_a_row = 0
             generated += 1
             with closing(connect()) as conn:
                 record(conn, AUDIO_DIR / res, subject=text, kind="audio", spec=asdict(settings.audio))
@@ -180,7 +206,8 @@ def generate_audio(workers: int = 10, limit: int | None = None, decks: list[str]
         "generated": generated,
         "failed": failed,
         "pending": len(pending_all) - generated,
-        "out_of_credit": out_of_credit.is_set(),
+        "out_of_credit": stop.reason == "ElevenLabs credits used up",
+        "stopped": stop.reason or None,
     }
 
 

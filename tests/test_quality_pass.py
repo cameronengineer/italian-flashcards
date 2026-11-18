@@ -455,7 +455,7 @@ class AudioLimitTests(unittest.TestCase):
         broke = ApiError(
             status_code=429, body={"detail": {"status": "quota_exceeded", "message": "No credits"}}
         )
-        out = threading.Event()
+        out = media._Stop()
         with tempfile.TemporaryDirectory() as tmp, patch.object(media.STOP, "wait", return_value=False):
             dest = Path(tmp) / "a.mp3"
             media._speak(self.client(busy, busy, b"mp3"), "ciao", dest, out)

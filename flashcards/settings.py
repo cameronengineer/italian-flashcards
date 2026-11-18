@@ -32,8 +32,11 @@ class AISettings:
     timeout: int = 1800
     #: Max AI calls in flight at once (each Claude Code call is a process).
     concurrency: int = 4
-    #: While Claude is unavailable (usage limit, logged out, network down)
-    #: all AI work pauses and retries this often.
+    #: Claude's usage limit: "stop" = no more Claude this run (the rest of the
+    #: run carries on; the next run continues the work); "wait" = pause until it resets.
+    on_limit: str = "stop"
+    #: While Claude is unavailable (logged out, network down; usage limit with
+    #: ``on_limit = "wait"``) all AI work pauses and retries this often.
     unavailable_retry_minutes: float = 5
     #: Claude Code executable.
     claude_cli: str = "claude"
@@ -97,9 +100,11 @@ class RunSettings:
     #: New assets created per run: 0 = none, -1 = no limit (None after loading).
     #: ``image_limit = 0`` never starts Codex. Images have no per-image cost (ChatGPT
     #: plan), so by default a run makes as many as the plan allows and then stops.
-    #: Audio is paid per character, so its default stays finite.
+    #: Audio likewise runs until ElevenLabs says the month's credits are used up.
     image_limit: int | None = None
-    audio_limit: int | None = 6000
+    audio_limit: int | None = None
+    #: Audio stops for the run after this many failed recordings in a row.
+    audio_stop_after_failures: int = 5
     #: AI batches between Anki syncs in ``flashcards run``.
     max_batches: int = 20
 
@@ -209,7 +214,7 @@ def load(path: Path = SETTINGS_PATH) -> Settings:
             ),
         ),
         (s.images, ("codex_timeout", "compressed_max_px", "stop_after_failures")),
-        (s.run, ("audio_workers", "compress_workers", "max_batches")),
+        (s.run, ("audio_workers", "compress_workers", "max_batches", "audio_stop_after_failures")),
         (s.backups, ("keep_last", "keep_anki")),
         (s.audit, ("workers",)),
         (s.practice, ("words", "sentences")),
@@ -220,6 +225,8 @@ def load(path: Path = SETTINGS_PATH) -> Settings:
                 raise ValueError(f"settings: {name} must be positive")
     if s.backups.keep_days < 0:
         raise ValueError("settings: [backups] keep_days must be 0 (off) or positive")
+    if s.ai.on_limit not in {"stop", "wait"}:
+        raise ValueError('settings: [ai] on_limit must be "stop" or "wait"')
     if s.ai.max_unavailable_minutes < 0:
         raise ValueError("settings: max_unavailable_minutes must be 0 (no limit) or positive")
     for value in (

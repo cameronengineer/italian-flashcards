@@ -12,8 +12,9 @@ Claude (which also checks the dictionary data), an image from Codex, and
 lands in Anki in the order your study plan says you need it.
 
 Everything runs on subscriptions — Claude (`claude -p`) and ChatGPT/Codex
-(`codex exec`) — with no pay-as-you-go APIs. When a usage limit is hit the
-run waits and carries on by itself.
+(`codex exec`) — plus ElevenLabs credits for audio, with no pay-as-you-go APIs.
+A run uses each one until its limit is reached, then stops asking it; the next
+run carries on where it left off.
 
 ---
 
@@ -54,14 +55,15 @@ A run has six segments, each with one line per thing it does:
 [4/6] Claude · writing cards
       to write     1,720 words · 249 phrases · 31 verbs · 3 cue groups
       images       as many as Codex allows (stops when its usage limit is reached)
+      claude       writes until its usage limit is reached, then stops
       09:12  asking Claude: 3× words (45), 1× verbs (3) …
       09:13  words   ✓ 15  questo, quello, molto +12            52s · 1,705 left
-      09:14  ⏸  Claude usage limit reached (resets 3pm) — waiting, next try 09:19.
       ...
-      10:02  ── round 1: 300 items written · Anki: +240 new · 2 updated  (9s)
+      10:02  claude     ■ stopped: usage limit reached (resets 3pm) — the rest is written by a later run
+      10:02  ── round 4: 300 items written · Anki: +240 new · 2 updated  (9s)
 
 [5/6] Audio & media
-      audio        1 new recording · 208 cards still without audio
+      audio        1,204 new recordings · stopped: ElevenLabs credits used up (the rest is made next run)
       compress     nothing new
 
 [6/6] Anki · final sync
@@ -70,7 +72,7 @@ A run has six segments, each with one line per thing it does:
 ════════════════════════════════════════════════════════════════
   Finished in 4h 28m
       Anki         +880 new cards · 31 updated · 1,020 old cards replaced
-      Claude       1,649 words · 187 phrases · 91 verbs written
+      Claude       1,649 words · 187 phrases · 91 verbs written · stopped: usage limit reached (resets 3pm)
       Movie        Le otto montagne (2022): you know 65% of its words · 185 more → 90%
       Flagged      Claude doubted the dictionary data for 327 words (published anyway)
       Images       214 made this run · stopped: You've hit your usage limit … · 187 notes wait for one
@@ -103,6 +105,15 @@ make more (usage limit, credits used up, logged out) the run stops asking for
 the rest of that run and carries on with everything else; the remaining images
 are made by a later run. It also stops after `[images] stop_after_failures`
 images fail in a row. Network outages are still waited out.
+
+**Claude and audio** work the same way. Claude writes until it says its usage
+limit is reached (5-hour or weekly), then the run stops asking it and carries on
+with images, audio and export; unwritten cards wait for the next run
+(`[ai] on_limit = "wait"` instead pauses until the limit resets). Audio
+(`[run] audio_limit = -1`) records until ElevenLabs says the month's credits are
+used up, the key or plan is refused, or `[run] audio_stop_after_failures`
+recordings fail in a row. Changing the `[audio]` voice settings re-records
+everything, so with no limit that spends the month's credits.
 
 **Phases.** A run is a fixed sequence of phases (`flashcards/pipeline.py`, one
 function each). `--only` and `--skip` take these names:
@@ -253,10 +264,10 @@ Durable jobs in study order (the film's words first):
 | cue groups (`disambiguate`) | Compare words sharing an English prompt, adding distinguishing hints. Alternatives are accepted only if correct for the specific hint. One group is a comparison of several words, not another word or another card. |
 | images | Codex draws one flat, text-free illustration per root; every card of that root uses it. Existing images are reused, never deleted. |
 
-Up to `[ai] concurrency` (4) Claude batches run at once. Usage limits,
-used-up credits, a logged-out CLI or an outage pause all AI work: the run
-retries every 5 minutes (or sleeps until the reset time it's told), says so
-once and then periodically while waiting, and carries on by itself. Answers are
+Up to `[ai] concurrency` (4) Claude batches run at once. Claude's usage limit
+stops Claude for the rest of the run (see above). A logged-out CLI or an outage
+pauses all AI work: the run retries every 5 minutes, says so once and then
+periodically while waiting, and carries on by itself. Answers are
 schema- and ID-checked before they're applied. Valid independent members of a
 partly invalid response are saved; only invalid or missing members retry, with
 the previous validation error included as feedback. Database writes remain
@@ -340,8 +351,8 @@ Targeted AnkiConnect calls — no `.apkg` imports. Anki is read once per sync.
 
 ### 5 · Audio (`commands/media.py`)
 
-ElevenLabs audio for ready notes, in study order, up to `[run] audio_limit`
-new files per run. The spoken text drops display variants
+ElevenLabs audio for ready notes, in study order, until the month's credits
+run out (or up to `[run] audio_limit` new files per run, if set). The spoken text drops display variants
 (*sono andato/a* → "sono andato").
 
 ---
