@@ -9,7 +9,7 @@
 <meta property="og:description" content="Choose a first Italian Anki deck: compare A1 vocabulary, Fluent Forever, numbers and verb practice, and understand overlap before importing.">
 <meta property="og:image" content="https://italianflashcards.cameronengineer.com/samples/il-caffe.jpg">
 <meta name="theme-color" content="#f7f4ec">
-<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="icon" href="/favicon.ico" sizes="32x32 48x48 96x96">
 <style>
 :root { color-scheme: light; --bg:#f7f4ec; --paper:#fffefa; --ink:#243d32; --text:#39483f; --muted:#626c62; --line:#d9ded2; --green:#2f5948; --tint:#e9eee5; --gold:#946a2f; --serif:Georgia,'Times New Roman',serif; }
 * { box-sizing:border-box; }
@@ -110,13 +110,19 @@ footer nav { flex-wrap:wrap; margin-bottom:24px; }
 .guide { max-width:800px; padding:42px 0; }
 .guide h1 { font-size:clamp(36px,5vw,58px); }
 .guide h2 { font-size:30px; margin:28px 0 18px; }
+.guide > h3 { font-size:22px; margin:22px 0 10px; }
 .guide .sample { margin:25px 0; }
 .guide .side:first-child .word { padding-top:16px; }
 .guide .side audio { max-width:100%; }
 .guide ol { margin:20px 0; }
+.crumbs { font-size:14px; color:var(--muted); }
 .preview-table { width:100%; border-collapse:collapse; margin:20px 0; font-size:15px; table-layout:fixed; overflow-wrap:anywhere; }
 .preview-table th,.preview-table td { text-align:left; border-bottom:1px solid var(--line); padding:12px 10px; vertical-align:top; }
 .preview-table th { color:var(--ink); }
+.preview-table caption { text-align:left; font:20px var(--serif); color:var(--ink); padding:6px 0; }
+.word-list { columns:3 180px; column-gap:28px; padding:0; margin:18px 0; list-style:none; font-size:15px; }
+.word-list li { break-inside:avoid; padding:3px 0; }
+.word-list small { color:var(--muted); font-size:13px; }
 .guide .download { display:inline-block; border:1px solid var(--green); padding:10px 18px; border-radius:6px; margin:14px 0; }
 </style>
 <link rel="canonical" href="https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/">
@@ -124,11 +130,15 @@ footer nav { flex-wrap:wrap; margin-bottom:24px; }
 <meta property="og:url" content="https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Italian Flashcards">
+<meta property="og:locale" content="en_GB">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="384">
 <meta property="og:image:alt" content="An illustration from the Italian flashcard collection">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Italian Anki Decks for Beginners: Choosing a First Deck">
 <meta name="twitter:description" content="Choose a first Italian Anki deck: compare A1 vocabulary, Fluent Forever, numbers and verb practice, and understand overlap before importing.">
 <meta name="twitter:image" content="https://italianflashcards.cameronengineer.com/samples/il-caffe.jpg">
+<meta name="twitter:image:alt" content="An illustration from the Italian flashcard collection">
 <script>
 // Render static-site rules cannot match a hostname. Preserve the destination
 // path, query and fragment when directing the legacy hostname to our domain.
@@ -136,7 +146,7 @@ if (location.hostname === 'italian-flashcards-lyh2.onrender.com') {
  location.replace('https://italianflashcards.cameronengineer.com' + location.pathname + location.search + location.hash);
 }
 </script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Person", "@id": "https://italianflashcards.cameronengineer.com/#creator", "name": "Cameron", "url": "https://blog.cameronengineer.com/"}, {"@type": "WebSite", "@id": "https://italianflashcards.cameronengineer.com/#website", "url": "https://italianflashcards.cameronengineer.com/", "name": "Italian Flashcards", "inLanguage": "en"}, {"@type": "WebPage", "@id": "https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/#page", "url": "https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/", "name": "Italian Anki Decks for Beginners: Choosing a First Deck", "inLanguage": "en", "author": {"@id": "https://italianflashcards.cameronengineer.com/#creator"}, "isPartOf": {"@id": "https://italianflashcards.cameronengineer.com/#website"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Italian Flashcards", "item": "https://italianflashcards.cameronengineer.com/"}, {"@type": "ListItem", "position": 2, "name": "Italian Anki Decks for Beginners: Choosing a First Deck", "item": "https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/"}]}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Person", "@id": "https://italianflashcards.cameronengineer.com/#creator", "name": "Cameron", "url": "https://blog.cameronengineer.com/", "sameAs": ["https://github.com/cameronengineer"]}, {"@type": "WebSite", "@id": "https://italianflashcards.cameronengineer.com/#website", "url": "https://italianflashcards.cameronengineer.com/", "name": "Italian Flashcards", "inLanguage": "en", "publisher": {"@id": "https://italianflashcards.cameronengineer.com/#creator"}}, {"@type": "WebPage", "@id": "https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/#page", "url": "https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/", "name": "Italian Anki Decks for Beginners: Choosing a First Deck", "inLanguage": "en", "author": {"@id": "https://italianflashcards.cameronengineer.com/#creator"}, "isPartOf": {"@id": "https://italianflashcards.cameronengineer.com/#website"}, "description": "Choose a first Italian Anki deck: compare A1 vocabulary, Fluent Forever, numbers and verb practice, and understand overlap before importing.", "breadcrumb": {"@id": "https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/#breadcrumb"}}, {"@type": "BreadcrumbList", "@id": "https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/#breadcrumb", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Italian Flashcards", "item": "https://italianflashcards.cameronengineer.com/"}, {"@type": "ListItem", "position": 2, "name": "Italian Anki Decks for Beginners: Choosing a First Deck", "item": "https://italianflashcards.cameronengineer.com/italian-anki-decks-for-beginners/"}]}]}</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -145,13 +155,13 @@ if (location.hostname === 'italian-flashcards-lyh2.onrender.com') {
  <a class="brand" href="/">Italian<span>Flashcards for Anki</span></a>
  <nav aria-label="Main navigation"><a href="https://blog.cameronengineer.com/">← Blog</a><a href="/#cards">A sample card</a><a href="/#decks">The decks</a><a href="/#about">About</a></nav>
 </header>
-<main id="main" class="guide"><p><a href="/">Italian flashcards</a> / Study guide</p><h1>Italian Anki Decks for Beginners: Choosing a First Deck</h1><p>By <a href="https://blog.cameronengineer.com/">Cameron</a>, creator of this collection.</p><p>These Italian flashcards are separate downloads, not a sequence you need to finish in order. If you are starting Italian, choose one vocabulary deck, check its sample cards and add specialised practice when you need it.</p>
+<main id="main" class="guide"><p class="crumbs"><a href="/">Italian flashcards</a> / Study guide</p><h1>Italian Anki Decks for Beginners: Choosing a First Deck</h1><p>By <a href="https://blog.cameronengineer.com/">Cameron</a>, creator of this collection.</p><p>These Italian flashcards are separate downloads, not a sequence you need to finish in order. If you are starting Italian, choose one vocabulary deck, check its sample cards and add specialised practice when you need it.</p>
  <h2>A1 vocabulary or Fluent Forever?</h2>
  <p>The <a href="/decks/italian-cils-a1-anki-deck/">Italian A1 Anki deck</a> follows the CILS A1 word list. It covers vocabulary for family, food, shopping and getting around. Choose it if you want vocabulary organised around a named language level.</p>
  <p>The <a href="/decks/italian-core-fluent-forever-625-anki-deck/">Fluent Forever vocabulary deck</a> is based on Gabriel Wyner’s core word list. Its topics include home, body, food and time. Choose it if you prefer an everyday topic-based starting point. The collection’s deck name refers to the source list; the current downloadable note count is shown on its page.</p>
  <p>Common words occur in both decks. Start with one rather than importing both and assuming every card will be new.</p>
  <h2>Which CILS level should I download?</h2>
- <p>The <a href="/decks/italian-cils-a2-anki-deck/">A2</a>, <a href="/decks/italian-cils-b1-anki-deck/">B1</a> and <a href="/decks/italian-cils-b2-anki-deck/">B2</a> decks include lower-level vocabulary. Choose the level you are currently studying. Importing all four can repeat words and increase your review queue without adding much new material.</p>
+ <p>The <a href="/decks/italian-cils-a2-anki-deck/">A2</a>, <a href="/decks/italian-cils-b1-anki-deck/">B1</a> and <a href="/decks/italian-cils-b2-anki-deck/">B2</a> decks include lower-level vocabulary. Choose the level you are currently studying. Importing all four can repeat words and increase your review queue without adding much new material. The <a href="/italian-cils-anki-decks/">CILS levels page</a> compares them side by side.</p>
  <p>A deck’s label describes its vocabulary source, not a promise that finishing the deck gives you that proficiency level. Listening, reading, grammar and conversation still matter.</p>
  <h2 id="compare-levels">Compare the Italian vocabulary decks</h2><p>Current package counts. Notes are vocabulary entries; some notes produce more than one study card. Level decks overlap.</p><table class="preview-table"><thead><tr><th scope="col">Deck</th><th scope="col">Notes</th><th scope="col">Cards</th><th scope="col">Download</th></tr></thead><tbody><tr><th scope="row"><a href="/decks/italian-cils-a1-anki-deck/">A1</a></th><td>482</td><td>960</td><td>7.7 MB</td></tr><tr><th scope="row"><a href="/decks/italian-cils-a2-anki-deck/">A2</a></th><td>1,033</td><td>2,062</td><td>16.7 MB</td></tr><tr><th scope="row"><a href="/decks/italian-cils-b1-anki-deck/">B1</a></th><td>1,530</td><td>3,056</td><td>25.2 MB</td></tr><tr><th scope="row"><a href="/decks/italian-cils-b2-anki-deck/">B2</a></th><td>2,068</td><td>4,131</td><td>34.6 MB</td></tr><tr><th scope="row"><a href="/decks/italian-core-fluent-forever-625-anki-deck/">Fluent Forever</a></th><td>597</td><td>1,194</td><td>9.7 MB</td></tr></tbody></table><h2>When to add numbers and verbs</h2>
  <p>The <a href="/decks/italian-basics-numbers-anki-deck/">Italian numbers deck</a> focuses on easily confused forms, including teens and tens. Use it if recognising a number takes longer than you want.</p>
@@ -162,7 +172,7 @@ if (location.hostname === 'italian-flashcards-lyh2.onrender.com') {
  <h2>A first study session</h2>
  <ol><li>Download one vocabulary deck.</li><li>Open the .apkg file in Anki and check the import summary.</li><li>Choose a modest daily new-card limit, then adjust it as you see your review workload.</li><li>Try to answer before revealing the back. Listen to the recording and say the Italian aloud.</li></ol>
  <p>For practical details, see <a href="/how-to-study-italian-with-anki/">how to study Italian with these Anki flashcards</a>.</p></main><footer>
- <nav aria-label="Footer navigation"><a href="/">All decks</a><a href="/italian-anki-decks-for-beginners/">Choosing a deck</a><a href="/how-to-study-italian-with-anki/">Study guide</a></nav>
+ <nav aria-label="Footer navigation"><a href="/">All decks</a><a href="/italian-cils-anki-decks/">CILS levels</a><a href="/italian-verb-conjugation-flashcards/">Verb conjugation</a><a href="/italian-anki-decks-for-beginners/">Choosing a deck</a><a href="/how-to-study-italian-with-anki/">Study guide</a></nav>
  <div class="footer-top"><span>Italian · By <a href="https://blog.cameronengineer.com/">Cameron</a>. A personal collection, shared freely.</span><span>Page updated November 2026 · <a href="https://github.com/cameronengineer/italian-flashcards">Source code</a></span></div>
  <div class="credits"><p>Dictionary data: <a href="https://en.wiktionary.org">Wiktionary</a> via <a href="https://kaikki.org">kaikki.org</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. The frequency deck uses <a href="https://osf.io/zg7sc/">SUBTLEX-IT</a> (Crepaldi et al., CC BY-NC-SA). Please keep the decks non-commercial and retain the source credits.</p><p>The Fluent Forever 625 deck is based on Gabriel Wyner’s word list. Levels follow the CILS lists. Film lines are quoted from subtitles for study. This project is not affiliated with Anki, CILS, Fluent Forever or the films.</p></div>
 </footer>

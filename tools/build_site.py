@@ -220,12 +220,15 @@ def _deck_groups(decks: dict, new_at: dict) -> str:
     return "\n".join(out)
 
 
-def _sample_html(s: dict) -> str:
+def _sample_html(s: dict, lazy: bool = False) -> str:
     e = _html.escape
     production = not s["recognition"]
     label = "Verb form" if s["deck"].startswith("italian_verbs_") else "Noun phrase" if s["deck"] == "italian_noun_phrases" else "Vocabulary"
     slug = e(s["slug"])
-    picture = f'<img src="samples/{slug}.jpg" alt="Illustration for {e(s["english"])}" width="512" height="384">'
+    loading = ' loading="lazy"' if lazy else ""
+    # The alt text is the English only: on an English → Italian card the picture is the prompt.
+    picture = (f'<img src="samples/{slug}.jpg" alt="Illustration for {e(s["english"])}"'
+               f' width="512" height="384" decoding="async"{loading}>')
     audio = f'<audio controls preload="none" aria-label="Pronunciation of {e(s["italian"])}" src="samples/{slug}.mp3">Your browser does not support audio. <a href="samples/{slug}.mp3">Download the recording</a>.</audio>'
     italian = f'<div class="word" lang="it">{e(s["italian"])}</div><div class="ipa">{e(s["ipa"])}</div>'
     english = f'<div class="word">{e(s["english"])}</div>'
@@ -260,7 +263,10 @@ def render_page(data: dict) -> None:
         "{{VERB_FORMS}}": f"{st['verb_forms'] // 100 * 100:,}+",
         "{{DECK_COUNT}}": str(len(decks)),
         "{{TOTAL_SIZE}}": f"{sum(d['bytes'] for d in decks.values()) / 1e6:,.0f} MB",
-        "{{SAMPLE}}": "\n".join(_sample_html(sample) for sample in data["samples"] if sample["deck"] in {"italian_cils_a1", "italian_verbs_learning_presente", "italian_noun_phrases"}),
+        # Only the first panel shows at load; the hidden ones fetch their picture when opened.
+        "{{SAMPLE}}": "\n".join(_sample_html(sample, lazy=i > 0) for i, sample in enumerate(
+            s for s in data["samples"]
+            if s["deck"] in {"italian_cils_a1", "italian_verbs_learning_presente", "italian_noun_phrases"})),
         "{{BUILT}}": datetime.date.today().strftime("%B %Y"),
     }
     for key, value in swaps.items():
@@ -314,21 +320,77 @@ def _stats(public: dict[str, Path]) -> dict:
     return {"words": len(words), "new_at": new_at, "fact_share": facts / total}
 
 
-def _preview(path: Path) -> list[dict]:
-    """Small, source-derived text preview for the public deck guide."""
+def _plain(value: str) -> str:
     import html
 
-    def plain(value):
-        return html.unescape(re.sub(r"<[^>]+>", "", value)).strip()
+    return html.unescape(re.sub(r"<[^>]+>", "", value)).strip()
 
+
+def _spread(rows: list, k: int) -> list:
+    """``k`` rows evenly spaced through ``rows`` (all of them if there are fewer)."""
+    if len(rows) <= k:
+        return list(rows)
+    return [rows[round(i * (len(rows) - 1) / (k - 1))] for i in range(k)]
+
+
+# Conjugations shown in full on each tense page, if the deck has them.
+_SHOWN_VERBS = ("vedere", "parlare")
+_PERSONS = ("I ", "you all ", "you ", "he/she ", "we ", "they ")
+_PERSON_ORDER = ("I ", "you ", "he/she ", "we ", "you all ", "they ")
+
+
+def _person(english: str) -> int:
+    for prefix in _PERSONS:
+        if english.startswith(prefix):
+            return _PERSON_ORDER.index(prefix)
+    return len(_PERSON_ORDER)
+
+
+def _preview(path: Path, stem: str | None = None) -> dict:
+    """Source-derived text for the public deck guide.
+
+    ``preview`` is a spread of the deck's words (for a CILS level, only the
+    words new at that level); verb decks add ``verbs`` (every infinitive, with
+    the form when the deck has one form per verb) and ``conjugations``.
+    """
+    stem = stem or path.stem
     with zipfile.ZipFile(path) as archive, tempfile.TemporaryDirectory() as folder:
         archive.extract("collection.anki2", folder)
         db = sqlite3.connect(Path(folder) / "collection.anki2")
         try:
-            rows = db.execute("SELECT flds FROM notes ORDER BY sfld LIMIT 12").fetchall()
-            return [{"italian": plain(f.split("\x1f")[0]), "english": plain(f.split("\x1f")[1])} for (f,) in rows]
+            rows = [(f.split("\x1f"), tags.split()) for f, tags in
+                    db.execute("SELECT flds, tags FROM notes ORDER BY sfld, id").fetchall()]
         finally:
             db.close()
+    out: dict = {}
+    if stem.startswith("italian_cils_"):
+        level = stem.rsplit("_", 1)[-1]
+        lower = {f"list::cils-{x}" for x in _CILS[: _CILS.index(level)]}
+        rows = [(f, tags) for f, tags in rows if not lower & set(tags)]
+    if not stem.startswith("italian_verbs_"):
+        out["preview"] = [{"italian": _plain(f[0]), "english": _plain(f[1])} for f, _t in _spread(rows, 40)]
+        return out
+    out["preview"] = [{"italian": _plain(f[0]), "english": _plain(f[1])} for f, _t in _spread(rows, 12)]
+    by_verb: dict[str, list] = {}
+    for f, tags in rows:
+        verb = next((t.removeprefix("verb::") for t in tags if t.startswith("verb::")), None)
+        if verb:
+            by_verb.setdefault(verb, []).append(f)
+    verbs = []
+    for verb in sorted(by_verb):
+        forms = by_verb[verb]
+        meaning = _plain(forms[0][4]).partition(" — ")[2]
+        entry = {"infinitive": verb, "english": meaning}
+        if len(forms) == 1:
+            entry |= {"form": _plain(forms[0][0]), "prompt": _plain(forms[0][1])}
+        verbs.append(entry)
+    out["verbs"] = verbs
+    out["conjugations"] = {
+        verb: [{"italian": _plain(f[0]), "english": _plain(f[1])}
+               for f in sorted(by_verb[verb], key=lambda f: (_person(_plain(f[1])), _plain(f[0])))]
+        for verb in _SHOWN_VERBS if len(by_verb.get(verb, [])) >= 5
+    }
+    return out
 
 
 def coverage(stems) -> tuple[list[str], list[str]]:
@@ -350,7 +412,8 @@ def main() -> int:
         counts = _sanitise(src, dst)
         if counts["tutto_left"]:
             raise SystemExit(f"{dst.name}: Tutto bene tag left after sanitising")
-        decks[dst.stem] = {"file": dst.name, "bytes": dst.stat().st_size, "sha256": sha256_file(dst), "preview": _preview(dst), **counts}
+        decks[dst.stem] = {"file": dst.name, "bytes": dst.stat().st_size, "sha256": sha256_file(dst),
+                           **_preview(dst), **counts}
         print(f"  ok     {dst.name:58} {counts['notes']:>5} notes  {dst.stat().st_size / 1e6:5.1f} MB")
     missing, unlisted = coverage(decks)
     if missing:

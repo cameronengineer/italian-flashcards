@@ -14,10 +14,6 @@
      "english": "110"
     },
     {
-     "italian": "centodue",
-     "english": "102"
-    },
-    {
      "italian": "centomila",
      "english": "100,000"
     },
@@ -30,10 +26,6 @@
      "english": "101"
     },
     {
-     "italian": "cinquanta",
-     "english": "50"
-    },
-    {
      "italian": "cinquantadue",
      "english": "52"
     },
@@ -42,16 +34,136 @@
      "english": "51"
     },
     {
-     "italian": "cinque",
-     "english": "5"
-    },
-    {
      "italian": "diciannove",
      "english": "19"
     },
     {
      "italian": "diciassette",
      "english": "17"
+    },
+    {
+     "italian": "diciotto",
+     "english": "18"
+    },
+    {
+     "italian": "diecimila",
+     "english": "10,000"
+    },
+    {
+     "italian": "dodici",
+     "english": "12"
+    },
+    {
+     "italian": "due",
+     "english": "2"
+    },
+    {
+     "italian": "milleuno",
+     "english": "1,001"
+    },
+    {
+     "italian": "novanta",
+     "english": "90"
+    },
+    {
+     "italian": "novantadue",
+     "english": "92"
+    },
+    {
+     "italian": "nove",
+     "english": "9"
+    },
+    {
+     "italian": "ottanta",
+     "english": "80"
+    },
+    {
+     "italian": "ottantadue",
+     "english": "82"
+    },
+    {
+     "italian": "otto",
+     "english": "8"
+    },
+    {
+     "italian": "quaranta",
+     "english": "40"
+    },
+    {
+     "italian": "quarantuno",
+     "english": "41"
+    },
+    {
+     "italian": "quattordici",
+     "english": "14"
+    },
+    {
+     "italian": "quattro",
+     "english": "4"
+    },
+    {
+     "italian": "sedici",
+     "english": "16"
+    },
+    {
+     "italian": "sei",
+     "english": "6"
+    },
+    {
+     "italian": "sessanta",
+     "english": "60"
+    },
+    {
+     "italian": "sessantuno",
+     "english": "61"
+    },
+    {
+     "italian": "settanta",
+     "english": "70"
+    },
+    {
+     "italian": "settantadue",
+     "english": "72"
+    },
+    {
+     "italian": "sette",
+     "english": "7"
+    },
+    {
+     "italian": "tre",
+     "english": "3"
+    },
+    {
+     "italian": "tredici",
+     "english": "13"
+    },
+    {
+     "italian": "trentadue",
+     "english": "32"
+    },
+    {
+     "italian": "trentuno",
+     "english": "31"
+    },
+    {
+     "italian": "undici",
+     "english": "11"
+    },
+    {
+     "italian": "uno",
+     "english": "1"
+    },
+    {
+     "italian": "venti",
+     "english": "20"
+    },
+    {
+     "italian": "ventuno",
+     "english": "21"
+    },
+    {
+     "italian": "zero",
+     "english": "0"
     }
    ],
    "notes": 54,
@@ -68,48 +180,160 @@
      "english": "to, at"
     },
     {
-     "italian": "abitare",
-     "english": "to live"
+     "italian": "aspettare",
+     "english": "to wait (for)"
     },
     {
-     "italian": "adesso",
-     "english": "now"
+     "italian": "buonasera",
+     "english": "good evening"
     },
     {
-     "italian": "aiuto",
-     "english": "Help! (cry for help)"
+     "italian": "che",
+     "english": "who, which, that"
     },
     {
-     "italian": "alto",
-     "english": "tall, high"
+     "italian": "costare",
+     "english": "to cost"
     },
     {
-     "italian": "amare",
-     "english": "to love"
+     "italian": "dove",
+     "english": "where"
     },
     {
-     "italian": "anche",
-     "english": "also, too"
+     "italian": "fumare",
+     "english": "to smoke"
     },
     {
-     "italian": "andare",
-     "english": "to go"
+     "italian": "guardare",
+     "english": "to look at, to watch"
     },
     {
-     "italian": "aprire",
-     "english": "to open"
+     "italian": "il caffè",
+     "english": "coffee"
     },
     {
-     "italian": "arrivare",
-     "english": "to arrive"
+     "italian": "il coltello",
+     "english": "knife"
     },
     {
-     "italian": "arrivederci",
-     "english": "goodbye"
+     "italian": "il favore",
+     "english": "favor"
     },
     {
-     "italian": "ascoltare",
-     "english": "to listen (to)"
+     "italian": "il giovedì",
+     "english": "Thursday"
+    },
+    {
+     "italian": "il martedì",
+     "english": "Tuesday"
+    },
+    {
+     "italian": "il negozio",
+     "english": "shop, store"
+    },
+    {
+     "italian": "il pesce",
+     "english": "fish"
+    },
+    {
+     "italian": "il riso",
+     "english": "rice"
+    },
+    {
+     "italian": "il tavolo",
+     "english": "table"
+    },
+    {
+     "italian": "importante",
+     "english": "important"
+    },
+    {
+     "italian": "l'acqua",
+     "english": "water"
+    },
+    {
+     "italian": "l'animale",
+     "english": "animal"
+    },
+    {
+     "italian": "l'hobby",
+     "english": "hobby"
+    },
+    {
+     "italian": "l'ufficio",
+     "english": "office"
+    },
+    {
+     "italian": "la camera",
+     "english": "room"
+    },
+    {
+     "italian": "la colazione",
+     "english": "breakfast"
+    },
+    {
+     "italian": "la farmacia",
+     "english": "pharmacy"
+    },
+    {
+     "italian": "la lezione",
+     "english": "lesson"
+    },
+    {
+     "italian": "la moto",
+     "english": "motorbike, motorcycle"
+    },
+    {
+     "italian": "la pizzeria",
+     "english": "pizzeria"
+    },
+    {
+     "italian": "la settimana",
+     "english": "week"
+    },
+    {
+     "italian": "largo",
+     "english": "wide"
+    },
+    {
+     "italian": "lo zaino",
+     "english": "backpack"
+    },
+    {
+     "italian": "mangiare",
+     "english": "to eat"
+    },
+    {
+     "italian": "no",
+     "english": "no"
+    },
+    {
+     "italian": "piano",
+     "english": "slowly"
+    },
+    {
+     "italian": "pulire",
+     "english": "to clean"
+    },
+    {
+     "italian": "rosso",
+     "english": "red"
+    },
+    {
+     "italian": "sotto",
+     "english": "under, underneath"
+    },
+    {
+     "italian": "svegliarsi",
+     "english": "to wake up"
+    },
+    {
+     "italian": "un",
+     "english": "a, an"
+    },
+    {
+     "italian": "volere",
+     "english": "to want"
     }
    ],
    "notes": 482,
@@ -126,48 +350,160 @@
      "english": "OK, okay"
     },
     {
-     "italian": "a",
-     "english": "to, at"
+     "italian": "altro",
+     "english": "other one; another"
     },
     {
-     "italian": "abbastanza",
-     "english": "enough"
+     "italian": "basso",
+     "english": "short"
     },
     {
-     "italian": "abbracciare",
-     "english": "to hug, to embrace"
+     "italian": "comodo",
+     "english": "comfortable"
     },
     {
-     "italian": "abitare",
-     "english": "to live"
+     "italian": "dispiacere",
+     "english": "to be sorry"
     },
     {
-     "italian": "accendere",
-     "english": "to turn on"
+     "italian": "fino",
+     "english": "until"
     },
     {
-     "italian": "accompagnare",
-     "english": "to take (someone)"
+     "italian": "guidare",
+     "english": "to drive"
     },
     {
-     "italian": "acquistare",
-     "english": "to purchase"
+     "italian": "il burro",
+     "english": "butter"
     },
     {
-     "italian": "addio",
-     "english": "farewell"
+     "italian": "il commesso",
+     "english": "shop assistant"
     },
     {
-     "italian": "addormentarsi",
-     "english": "to fall asleep"
+     "italian": "il dialogo",
+     "english": "dialogue"
     },
     {
-     "italian": "adesso",
-     "english": "now"
+     "italian": "il fornello",
+     "english": "stove"
     },
     {
-     "italian": "adulto",
-     "english": "grown-up"
+     "italian": "il giugno",
+     "english": "June"
+    },
+    {
+     "italian": "il monumento",
+     "english": "monument"
+    },
+    {
+     "italian": "il peccato",
+     "english": "sin"
+    },
+    {
+     "italian": "il resto",
+     "english": "change"
+    },
+    {
+     "italian": "il suocero",
+     "english": "father-in-law"
+    },
+    {
+     "italian": "il water",
+     "english": "toilet bowl"
+    },
+    {
+     "italian": "l'anello",
+     "english": "ring"
+    },
+    {
+     "italian": "l'aula",
+     "english": "classroom"
+    },
+    {
+     "italian": "l'impiegato",
+     "english": "employee"
+    },
+    {
+     "italian": "l'uccello",
+     "english": "bird"
+    },
+    {
+     "italian": "la cassa",
+     "english": "checkout, cash register"
+    },
+    {
+     "italian": "la fattoria",
+     "english": "farm"
+    },
+    {
+     "italian": "la lana",
+     "english": "wool"
+    },
+    {
+     "italian": "la merenda",
+     "english": "snack"
+    },
+    {
+     "italian": "la palestra",
+     "english": "gym"
+    },
+    {
+     "italian": "la pera",
+     "english": "pear"
+    },
+    {
+     "italian": "la seta",
+     "english": "silk"
+    },
+    {
+     "italian": "la torta",
+     "english": "cake"
+    },
+    {
+     "italian": "leggero",
+     "english": "light"
+    },
+    {
+     "italian": "lo stiro",
+     "english": "ironing"
+    },
+    {
+     "italian": "noleggiare",
+     "english": "to rent, to hire"
+    },
+    {
+     "italian": "pesante",
+     "english": "heavy"
+    },
+    {
+     "italian": "pronto",
+     "english": "ready"
+    },
+    {
+     "italian": "rimanere",
+     "english": "to remain"
+    },
+    {
+     "italian": "sedersi",
+     "english": "to sit down"
+    },
+    {
+     "italian": "spendere",
+     "english": "to spend"
+    },
+    {
+     "italian": "su",
+     "english": "on, onto"
+    },
+    {
+     "italian": "uguale",
+     "english": "equal"
+    },
+    {
+     "italian": "vuoto",
+     "english": "empty"
     }
    ],
    "notes": 1033,
@@ -180,52 +516,164 @@
    "sha256": "ba32b4409404ac9a8f4bbe55a72273efbcc8ff23568be4b3e9f385d1b0818dd7",
    "preview": [
     {
-     "italian": "OK",
-     "english": "OK, okay"
-    },
-    {
-     "italian": "a",
-     "english": "to, at"
-    },
-    {
-     "italian": "abbastanza",
-     "english": "enough"
-    },
-    {
-     "italian": "abbracciare",
-     "english": "to hug, to embrace"
-    },
-    {
      "italian": "abitante",
      "english": "inhabitant"
     },
     {
-     "italian": "abitare",
-     "english": "to live"
+     "italian": "aspro",
+     "english": "harsh"
     },
     {
-     "italian": "accanto",
-     "english": "next to, nearby"
+     "italian": "buttare",
+     "english": "to throw"
     },
     {
-     "italian": "accendere",
-     "english": "to turn on"
+     "italian": "complicare",
+     "english": "to complicate"
     },
     {
-     "italian": "accomodarsi",
-     "english": "to make oneself comfortable"
+     "italian": "cordialmente",
+     "english": "cordially, warmly"
     },
     {
-     "italian": "accompagnare",
-     "english": "to take (someone)"
+     "italian": "differente",
+     "english": "different"
     },
     {
-     "italian": "acido",
-     "english": "acidic"
+     "italian": "egoista",
+     "english": "selfish"
     },
     {
-     "italian": "acquistare",
-     "english": "to purchase"
+     "italian": "friggere",
+     "english": "to fry"
+    },
+    {
+     "italian": "il binario",
+     "english": "railway track"
+    },
+    {
+     "italian": "il collegio",
+     "english": "boarding school"
+    },
+    {
+     "italian": "il diario",
+     "english": "diary, journal"
+    },
+    {
+     "italian": "il grammo",
+     "english": "gram"
+    },
+    {
+     "italian": "il metallo",
+     "english": "metal"
+    },
+    {
+     "italian": "il pittore",
+     "english": "painter"
+    },
+    {
+     "italian": "il quotidiano",
+     "english": "newspaper (daily)"
+    },
+    {
+     "italian": "il soggetto",
+     "english": "subject"
+    },
+    {
+     "italian": "il trasloco",
+     "english": "house move"
+    },
+    {
+     "italian": "incominciare",
+     "english": "to begin"
+    },
+    {
+     "italian": "inventare",
+     "english": "to invent"
+    },
+    {
+     "italian": "l'ansia",
+     "english": "anxiety"
+    },
+    {
+     "italian": "l'incendio",
+     "english": "fire"
+    },
+    {
+     "italian": "la banconota",
+     "english": "banknote"
+    },
+    {
+     "italian": "la conoscenza",
+     "english": "knowledge"
+    },
+    {
+     "italian": "la fontana",
+     "english": "fountain"
+    },
+    {
+     "italian": "la moneta",
+     "english": "coin"
+    },
+    {
+     "italian": "la pronuncia",
+     "english": "pronunciation"
+    },
+    {
+     "italian": "la sfortuna",
+     "english": "bad luck"
+    },
+    {
+     "italian": "liquido",
+     "english": "liquid"
+    },
+    {
+     "italian": "lo stress",
+     "english": "stress"
+    },
+    {
+     "italian": "mite",
+     "english": "mild, gentle"
+    },
+    {
+     "italian": "odiare",
+     "english": "to hate"
+    },
+    {
+     "italian": "peggiore",
+     "english": "worse"
+    },
+    {
+     "italian": "pratico",
+     "english": "practical"
+    },
+    {
+     "italian": "pure",
+     "english": "even if, even though"
+    },
+    {
+     "italian": "ritirare",
+     "english": "to withdraw"
+    },
+    {
+     "italian": "sdraiare",
+     "english": "to lie down"
+    },
+    {
+     "italian": "sognare",
+     "english": "to dream"
+    },
+    {
+     "italian": "stressare",
+     "english": "to stress (someone) out"
+    },
+    {
+     "italian": "ubriacarsi",
+     "english": "to get drunk"
+    },
+    {
+     "italian": "volentieri",
+     "english": "gladly"
     }
    ],
    "notes": 1530,
@@ -238,52 +686,164 @@
    "sha256": "cd3b984551fc269096bd75e5620cec1d50bd5d38ff8ee7a28adf98340d98284d",
    "preview": [
     {
-     "italian": "OK",
-     "english": "OK, okay"
-    },
-    {
-     "italian": "a",
-     "english": "to, at"
-    },
-    {
      "italian": "abbandonare",
      "english": "to abandon"
     },
     {
-     "italian": "abbassare",
-     "english": "to lower"
+     "italian": "adolescente",
+     "english": "teenager"
     },
     {
-     "italian": "abbastanza",
-     "english": "enough"
+     "italian": "ampio",
+     "english": "wide, broad"
     },
     {
-     "italian": "abbondante",
-     "english": "plentiful"
+     "italian": "aumentare",
+     "english": "to increase"
     },
     {
-     "italian": "abbracciare",
-     "english": "to hug, to embrace"
+     "italian": "celibe",
+     "english": "unmarried"
     },
     {
-     "italian": "abile",
-     "english": "skilled, skillful"
+     "italian": "comprendere",
+     "english": "to understand"
     },
     {
-     "italian": "abitante",
-     "english": "inhabitant"
+     "italian": "convincere",
+     "english": "to convince"
     },
     {
-     "italian": "abitare",
-     "english": "to live"
+     "italian": "disabile",
+     "english": "disabled"
     },
     {
-     "italian": "abituarsi",
-     "english": "to get used to"
+     "italian": "esterno",
+     "english": "external, outside"
     },
     {
-     "italian": "accadere",
-     "english": "to happen"
+     "italian": "ganzo",
+     "english": "cool, great"
+    },
+    {
+     "italian": "il carattere",
+     "english": "character"
+    },
+    {
+     "italian": "il convivente",
+     "english": "live-in partner"
+    },
+    {
+     "italian": "il dottorato",
+     "english": "doctorate"
+    },
+    {
+     "italian": "il ministro",
+     "english": "minister"
+    },
+    {
+     "italian": "il prete",
+     "english": "priest"
+    },
+    {
+     "italian": "il sentimento",
+     "english": "feeling"
+    },
+    {
+     "italian": "il tribunale",
+     "english": "court"
+    },
+    {
+     "italian": "intanto",
+     "english": "meanwhile"
+    },
+    {
+     "italian": "l'agio",
+     "english": "ease, comfort"
+    },
+    {
+     "italian": "l'assenza",
+     "english": "absence"
+    },
+    {
+     "italian": "l'espressione",
+     "english": "expression"
+    },
+    {
+     "italian": "l'iscrizione",
+     "english": "registration, enrolment"
+    },
+    {
+     "italian": "la cittadinanza",
+     "english": "citizenship"
+    },
+    {
+     "italian": "la decisione",
+     "english": "decision"
+    },
+    {
+     "italian": "la fila",
+     "english": "line, row"
+    },
+    {
+     "italian": "la maternità",
+     "english": "motherhood"
+    },
+    {
+     "italian": "la pistola",
+     "english": "handgun"
+    },
+    {
+     "italian": "la rapina",
+     "english": "robbery"
+    },
+    {
+     "italian": "la scusa",
+     "english": "excuse, apology"
+    },
+    {
+     "italian": "la tensione",
+     "english": "tension"
+    },
+    {
+     "italian": "lassù",
+     "english": "up there"
+    },
+    {
+     "italian": "lo svantaggio",
+     "english": "disadvantage, drawback"
+    },
+    {
+     "italian": "muto",
+     "english": "mute, unable to speak"
+    },
+    {
+     "italian": "perdonare",
+     "english": "to forgive"
+    },
+    {
+     "italian": "privato",
+     "english": "private"
+    },
+    {
+     "italian": "realizzare",
+     "english": "to achieve, carry out"
+    },
+    {
+     "italian": "risolvere",
+     "english": "to solve"
+    },
+    {
+     "italian": "sollecito",
+     "english": "prompt"
+    },
+    {
+     "italian": "temere",
+     "english": "to fear"
+    },
+    {
+     "italian": "votare",
+     "english": "to vote"
     }
    ],
    "notes": 2068,
@@ -300,48 +860,160 @@
      "english": "abundant, plentiful"
     },
     {
-     "italian": "accelerare",
-     "english": "to accelerate"
-    },
-    {
-     "italian": "allergico",
-     "english": "allergic"
-    },
-    {
-     "italian": "ansioso",
-     "english": "anxious"
-    },
-    {
-     "italian": "artificiale",
-     "english": "artificial"
-    },
-    {
-     "italian": "artista",
-     "english": "artist"
-    },
-    {
      "italian": "assente",
      "english": "absent"
     },
     {
-     "italian": "autentico",
-     "english": "authentic, genuine"
+     "italian": "completamente",
+     "english": "completely"
     },
     {
-     "italian": "brillante",
-     "english": "brilliant"
+     "italian": "cordialmente",
+     "english": "cordially, warmly"
     },
     {
-     "italian": "calcolare",
-     "english": "to calculate"
+     "italian": "dimostrare",
+     "english": "to demonstrate"
     },
     {
-     "italian": "certamente",
-     "english": "certainly"
+     "italian": "fantastico",
+     "english": "fantastic"
     },
     {
-     "italian": "classico",
-     "english": "classic, classical"
+     "italian": "generoso",
+     "english": "generous"
+    },
+    {
+     "italian": "il diario",
+     "english": "diary, journal"
+    },
+    {
+     "italian": "il funerale",
+     "english": "funeral"
+    },
+    {
+     "italian": "il professore",
+     "english": "professor, teacher"
+    },
+    {
+     "italian": "il senatore",
+     "english": "senator"
+    },
+    {
+     "italian": "imitare",
+     "english": "to imitate"
+    },
+    {
+     "italian": "indifferente",
+     "english": "indifferent"
+    },
+    {
+     "italian": "l'abilità",
+     "english": "ability, skill"
+    },
+    {
+     "italian": "l'animale",
+     "english": "animal"
+    },
+    {
+     "italian": "l'autore",
+     "english": "author"
+    },
+    {
+     "italian": "l'esperienza",
+     "english": "experience"
+    },
+    {
+     "italian": "l'informazione",
+     "english": "information"
+    },
+    {
+     "italian": "l'onestà",
+     "english": "honesty"
+    },
+    {
+     "italian": "la città",
+     "english": "city, town"
+    },
+    {
+     "italian": "la conferenza",
+     "english": "conference"
+    },
+    {
+     "italian": "la corrente",
+     "english": "current"
+    },
+    {
+     "italian": "la destinazione",
+     "english": "destination"
+    },
+    {
+     "italian": "la divisione",
+     "english": "division"
+    },
+    {
+     "italian": "la gravità",
+     "english": "gravity, seriousness"
+    },
+    {
+     "italian": "la missione",
+     "english": "mission"
+    },
+    {
+     "italian": "la passione",
+     "english": "passion"
+    },
+    {
+     "italian": "la possibilità",
+     "english": "possibility"
+    },
+    {
+     "italian": "la probabilità",
+     "english": "probability"
+    },
+    {
+     "italian": "la reputazione",
+     "english": "reputation"
+    },
+    {
+     "italian": "la sensazione",
+     "english": "sensation, feeling"
+    },
+    {
+     "italian": "la stazione",
+     "english": "station"
+    },
+    {
+     "italian": "la tranquillità",
+     "english": "tranquillity, calm"
+    },
+    {
+     "italian": "minore",
+     "english": "minor, lesser"
+    },
+    {
+     "italian": "normale",
+     "english": "normal"
+    },
+    {
+     "italian": "personale",
+     "english": "personal, private"
+    },
+    {
+     "italian": "presente",
+     "english": "present"
+    },
+    {
+     "italian": "romantico",
+     "english": "romantic"
+    },
+    {
+     "italian": "superiore",
+     "english": "superior, higher"
+    },
+    {
+     "italian": "verticale",
+     "english": "vertical"
     }
    ],
    "notes": 244,
@@ -358,48 +1030,160 @@
      "english": "tall, high"
     },
     {
-     "italian": "amare",
-     "english": "to love"
+     "italian": "battere",
+     "english": "to beat, to hit"
     },
     {
-     "italian": "andare",
-     "english": "to go"
+     "italian": "centoundici",
+     "english": "111"
     },
     {
-     "italian": "anziano",
-     "english": "elderly"
+     "italian": "cucinare",
+     "english": "to cook"
     },
     {
-     "italian": "appendere",
-     "english": "to hang (up)"
+     "italian": "famoso",
+     "english": "famous"
     },
     {
-     "italian": "aprire",
-     "english": "to open"
+     "italian": "grande",
+     "english": "big"
     },
     {
-     "italian": "arancione",
-     "english": "orange"
+     "italian": "il camion",
+     "english": "truck"
     },
     {
-     "italian": "artista",
-     "english": "artist"
+     "italian": "il colore",
+     "english": "color"
     },
     {
-     "italian": "asciutto",
-     "english": "dry"
+     "italian": "il dollaro",
+     "english": "dollar"
     },
     {
-     "italian": "ascoltare",
-     "english": "to listen (to)"
+     "italian": "il ginocchio",
+     "english": "knee"
     },
     {
-     "italian": "assaggiare",
-     "english": "to taste, to try (food)"
+     "italian": "il libro",
+     "english": "book"
     },
     {
-     "italian": "baciare",
-     "english": "to kiss"
+     "italian": "il medico",
+     "english": "doctor"
+    },
+    {
+     "italian": "il nonno",
+     "english": "grandfather"
+    },
+    {
+     "italian": "il pollo",
+     "english": "chicken"
+    },
+    {
+     "italian": "il ristorante",
+     "english": "restaurant"
+    },
+    {
+     "italian": "il sostantivo",
+     "english": "noun"
+    },
+    {
+     "italian": "il tè",
+     "english": "tea"
+    },
+    {
+     "italian": "l'abbigliamento",
+     "english": "clothing"
+    },
+    {
+     "italian": "l'appartamento",
+     "english": "flat"
+    },
+    {
+     "italian": "l'energia",
+     "english": "energy"
+    },
+    {
+     "italian": "l'olio",
+     "english": "oil"
+    },
+    {
+     "italian": "l'uovo",
+     "english": "egg"
+    },
+    {
+     "italian": "la camicia",
+     "english": "shirt"
+    },
+    {
+     "italian": "la direzione",
+     "english": "direction"
+    },
+    {
+     "italian": "la gara",
+     "english": "competition, race"
+    },
+    {
+     "italian": "la malattia",
+     "english": "illness, disease"
+    },
+    {
+     "italian": "la neve",
+     "english": "snow"
+    },
+    {
+     "italian": "la polizia",
+     "english": "police"
+    },
+    {
+     "italian": "la sabbia",
+     "english": "sand"
+    },
+    {
+     "italian": "la stanza",
+     "english": "room"
+    },
+    {
+     "italian": "la vocale",
+     "english": "vowel"
+    },
+    {
+     "italian": "lo strumento",
+     "english": "tool"
+    },
+    {
+     "italian": "morbido",
+     "english": "soft"
+    },
+    {
+     "italian": "ottantuno",
+     "english": "81"
+    },
+    {
+     "italian": "prendere",
+     "english": "to take"
+    },
+    {
+     "italian": "rompere",
+     "english": "to break"
+    },
+    {
+     "italian": "seguire",
+     "english": "to follow"
+    },
+    {
+     "italian": "spingere",
+     "english": "to push"
+    },
+    {
+     "italian": "triste",
+     "english": "sad"
+    },
+    {
+     "italian": "volare",
+     "english": "to fly"
     }
    ],
    "notes": 597,
@@ -416,48 +1200,160 @@
      "english": "to abandon"
     },
     {
-     "italian": "abbassare",
-     "english": "to lower"
+     "italian": "aspettare",
+     "english": "to wait (for)"
     },
     {
-     "italian": "abitare",
-     "english": "to live"
+     "italian": "causare",
+     "english": "to cause"
     },
     {
-     "italian": "abituare",
-     "english": "to accustom"
+     "italian": "costringere",
+     "english": "to force"
     },
     {
-     "italian": "accadere",
-     "english": "to happen"
+     "italian": "esserci",
+     "english": "to be there; there to be"
     },
     {
-     "italian": "accendere",
-     "english": "to turn on"
+     "italian": "gli occhiali",
+     "english": "glasses"
     },
     {
-     "italian": "accettare",
-     "english": "to accept"
+     "italian": "il cadavere",
+     "english": "corpse"
     },
     {
-     "italian": "accomodare",
-     "english": "to fix, to repair"
+     "italian": "il coach",
+     "english": "sports trainer"
     },
     {
-     "italian": "accompagnare",
-     "english": "to take (someone)"
+     "italian": "il cugino",
+     "english": "cousin"
     },
     {
-     "italian": "accorgersi",
-     "english": "to notice"
+     "italian": "il favore",
+     "english": "favor"
     },
     {
-     "italian": "accusare",
-     "english": "to accuse"
+     "italian": "il giornale",
+     "english": "newspaper"
     },
     {
-     "italian": "adorare",
-     "english": "to adore"
+     "italian": "il mare",
+     "english": "sea"
+    },
+    {
+     "italian": "il negozio",
+     "english": "shop, store"
+    },
+    {
+     "italian": "il piano",
+     "english": "plan"
+    },
+    {
+     "italian": "il raggio",
+     "english": "ray, beam (of light)"
+    },
+    {
+     "italian": "il sentimento",
+     "english": "feeling"
+    },
+    {
+     "italian": "il termine",
+     "english": "term"
+    },
+    {
+     "italian": "imparare",
+     "english": "to learn"
+    },
+    {
+     "italian": "l'aiuto",
+     "english": "help, assistance"
+    },
+    {
+     "italian": "l'assegno",
+     "english": "cheque (bank check)"
+    },
+    {
+     "italian": "l'età",
+     "english": "age"
+    },
+    {
+     "italian": "l'offesa",
+     "english": "insult, offence"
+    },
+    {
+     "italian": "la bellezza",
+     "english": "beauty"
+    },
+    {
+     "italian": "la coda",
+     "english": "tail"
+    },
+    {
+     "italian": "la discussione",
+     "english": "discussion"
+    },
+    {
+     "italian": "la fronte",
+     "english": "forehead"
+    },
+    {
+     "italian": "la mancanza",
+     "english": "lack"
+    },
+    {
+     "italian": "la palestra",
+     "english": "gym"
+    },
+    {
+     "italian": "la prigione",
+     "english": "prison"
+    },
+    {
+     "italian": "la rosa",
+     "english": "rose"
+    },
+    {
+     "italian": "la spazzatura",
+     "english": "rubbish"
+    },
+    {
+     "italian": "la traccia",
+     "english": "trace, track"
+    },
+    {
+     "italian": "le tette",
+     "english": "boobs"
+    },
+    {
+     "italian": "mentire",
+     "english": "to lie"
+    },
+    {
+     "italian": "perdere",
+     "english": "to lose"
+    },
+    {
+     "italian": "rapire",
+     "english": "to kidnap"
+    },
+    {
+     "italian": "rispondere",
+     "english": "to answer, to reply"
+    },
+    {
+     "italian": "sentirsi",
+     "english": "to be in touch, hear from each other"
+    },
+    {
+     "italian": "svegliare",
+     "english": "to wake (someone) up"
+    },
+    {
+     "italian": "vomitare",
+     "english": "to throw up"
     }
    ],
    "notes": 1377,
@@ -474,48 +1370,160 @@
      "english": "OK, okay"
     },
     {
-     "italian": "a",
-     "english": "to, at"
+     "italian": "amare",
+     "english": "to love"
     },
     {
-     "italian": "abbassare",
-     "english": "to lower"
+     "italian": "avere",
+     "english": "to have"
     },
     {
-     "italian": "abituare",
-     "english": "to accustom"
+     "italian": "cercare",
+     "english": "to look for, to search"
     },
     {
-     "italian": "accanto",
-     "english": "next to, nearby"
+     "italian": "comprare",
+     "english": "to buy"
     },
     {
-     "italian": "accedere",
-     "english": "to access, to get into"
+     "italian": "delizioso",
+     "english": "delicious"
     },
     {
-     "italian": "accettare",
-     "english": "to accept"
+     "italian": "duro",
+     "english": "hard"
     },
     {
-     "italian": "accogliere",
-     "english": "to welcome"
+     "italian": "finire",
+     "english": "to finish"
     },
     {
-     "italian": "accompagnare",
-     "english": "to take (someone)"
+     "italian": "guidare",
+     "english": "to drive"
     },
     {
-     "italian": "ad",
-     "english": "to, at"
+     "italian": "il cappello",
+     "english": "hat"
     },
     {
-     "italian": "adesso",
-     "english": "now"
+     "italian": "il diavolo",
+     "english": "devil"
     },
     {
-     "italian": "adulto",
-     "english": "grown-up"
+     "italian": "il giro",
+     "english": "tour, trip around"
+    },
+    {
+     "italian": "il metro",
+     "english": "metre (meter)"
+    },
+    {
+     "italian": "il perdono",
+     "english": "forgiveness"
+    },
+    {
+     "italian": "il ragù",
+     "english": "meat sauce (for pasta)"
+    },
+    {
+     "italian": "il succo",
+     "english": "juice"
+    },
+    {
+     "italian": "importante",
+     "english": "important"
+    },
+    {
+     "italian": "l'aiuto",
+     "english": "help, assistance"
+    },
+    {
+     "italian": "l'eroe",
+     "english": "hero"
+    },
+    {
+     "italian": "l'organizzazione",
+     "english": "organization"
+    },
+    {
+     "italian": "la città",
+     "english": "city, town"
+    },
+    {
+     "italian": "la figlia",
+     "english": "daughter"
+    },
+    {
+     "italian": "la malattia",
+     "english": "illness, disease"
+    },
+    {
+     "italian": "la mucca",
+     "english": "cow"
+    },
+    {
+     "italian": "la posizione",
+     "english": "position"
+    },
+    {
+     "italian": "la schiena",
+     "english": "back"
+    },
+    {
+     "italian": "la velocità",
+     "english": "speed"
+    },
+    {
+     "italian": "licenziare",
+     "english": "to fire"
+    },
+    {
+     "italian": "mentire",
+     "english": "to lie"
+    },
+    {
+     "italian": "nemmeno",
+     "english": "not even / neither"
+    },
+    {
+     "italian": "oh",
+     "english": "oh!"
+    },
+    {
+     "italian": "personale",
+     "english": "personal, private"
+    },
+    {
+     "italian": "primo",
+     "english": "first"
+    },
+    {
+     "italian": "raggiungere",
+     "english": "to reach"
+    },
+    {
+     "italian": "saltare",
+     "english": "to jump"
+    },
+    {
+     "italian": "senza",
+     "english": "without"
+    },
+    {
+     "italian": "sporco",
+     "english": "dirty"
+    },
+    {
+     "italian": "te",
+     "english": "you (singular)"
+    },
+    {
+     "italian": "ulteriore",
+     "english": "further, additional"
+    },
+    {
+     "italian": "volgare",
+     "english": "vulgar, coarse"
     }
    ],
    "notes": 896,
@@ -532,48 +1540,160 @@
      "english": "OK, okay"
     },
     {
-     "italian": "a",
-     "english": "to, at"
+     "italian": "altrimenti",
+     "english": "otherwise"
     },
     {
-     "italian": "abbandonare",
-     "english": "to abandon"
+     "italian": "assurdo",
+     "english": "absurd"
     },
     {
-     "italian": "abbassare",
-     "english": "to lower"
+     "italian": "cantare",
+     "english": "to sing"
     },
     {
-     "italian": "abbastanza",
-     "english": "enough"
+     "italian": "colorare",
+     "english": "to color"
     },
     {
-     "italian": "abituare",
-     "english": "to accustom"
+     "italian": "credere",
+     "english": "to believe"
     },
     {
-     "italian": "accadere",
-     "english": "to happen"
+     "italian": "domani",
+     "english": "tomorrow"
     },
     {
-     "italian": "accettare",
-     "english": "to accept"
+     "italian": "esistere",
+     "english": "to exist"
     },
     {
-     "italian": "accidenti",
-     "english": "damn!"
+     "italian": "forse",
+     "english": "maybe, perhaps"
     },
     {
-     "italian": "acquistare",
-     "english": "to purchase"
+     "italian": "i capelli",
+     "english": "hair"
     },
     {
-     "italian": "ad",
-     "english": "to, at"
+     "italian": "il centro",
+     "english": "centre, center"
     },
     {
-     "italian": "adesso",
-     "english": "now"
+     "italian": "il fastidio",
+     "english": "annoyance"
+    },
+    {
+     "italian": "il legno",
+     "english": "wood"
+    },
+    {
+     "italian": "il mucchio",
+     "english": "heap"
+    },
+    {
+     "italian": "il pezzo",
+     "english": "piece"
+    },
+    {
+     "italian": "il riposo",
+     "english": "rest"
+    },
+    {
+     "italian": "il turno",
+     "english": "turn (as in 'your turn')"
+    },
+    {
+     "italian": "insegnare",
+     "english": "to teach"
+    },
+    {
+     "italian": "l'amico",
+     "english": "friend"
+    },
+    {
+     "italian": "l'impressione",
+     "english": "impression"
+    },
+    {
+     "italian": "la bestia",
+     "english": "beast"
+    },
+    {
+     "italian": "la cresta",
+     "english": "ridge (of wave/mountain)"
+    },
+    {
+     "italian": "la guardia",
+     "english": "guard"
+    },
+    {
+     "italian": "la montagna",
+     "english": "mountain"
+    },
+    {
+     "italian": "la primavera",
+     "english": "spring"
+    },
+    {
+     "italian": "la sorte",
+     "english": "fate, lot"
+    },
+    {
+     "italian": "legare",
+     "english": "to tie, to bind"
+    },
+    {
+     "italian": "male",
+     "english": "badly"
+    },
+    {
+     "italian": "mungere",
+     "english": "to milk"
+    },
+    {
+     "italian": "o",
+     "english": "or"
+    },
+    {
+     "italian": "per",
+     "english": "for"
+    },
+    {
+     "italian": "pregare",
+     "english": "to pray"
+    },
+    {
+     "italian": "qualcuno",
+     "english": "someone"
+    },
+    {
+     "italian": "rinnovare",
+     "english": "to renew"
+    },
+    {
+     "italian": "scivolare",
+     "english": "to slip, to slide"
+    },
+    {
+     "italian": "sfiorare",
+     "english": "to brush against"
+    },
+    {
+     "italian": "stabile",
+     "english": "steady"
+    },
+    {
+     "italian": "te",
+     "english": "you (singular)"
+    },
+    {
+     "italian": "ubriaco",
+     "english": "drunk"
+    },
+    {
+     "italian": "volgare",
+     "english": "vulgar, coarse"
     }
    ],
    "notes": 861,
@@ -590,48 +1710,160 @@
      "english": "to the employees"
     },
     {
-     "italian": "agli amministratori",
-     "english": "to the administrators"
+     "italian": "al marciapiede",
+     "english": "to the sidewalk"
     },
     {
-     "italian": "agli animali",
-     "english": "to the animals"
+     "italian": "alla tempesta",
+     "english": "to the storm"
     },
     {
-     "italian": "agli anni",
-     "english": "to the years"
+     "italian": "dai documenti",
+     "english": "from the documents"
     },
     {
-     "italian": "agli edifici",
-     "english": "to the buildings"
+     "italian": "dal ristorante",
+     "english": "from the restaurant"
     },
     {
-     "italian": "agli occhi",
-     "english": "to the eyes"
+     "italian": "dalle offerte",
+     "english": "from the offers"
     },
     {
-     "italian": "agli oggetti",
-     "english": "to the objects"
+     "italian": "dei monumenti",
+     "english": "of the monuments"
     },
     {
-     "italian": "agli stomaci",
-     "english": "to the stomachs"
+     "italian": "dell'indagine",
+     "english": "of the investigation"
     },
     {
-     "italian": "ai bastardi",
-     "english": "to the bastards"
+     "italian": "delle gole",
+     "english": "some throats"
     },
     {
-     "italian": "ai boschi",
-     "english": "to the woods"
+     "italian": "i loro disturbi",
+     "english": "their troubles"
     },
     {
-     "italian": "ai castelli",
-     "english": "to the castles"
+     "italian": "i miei esami",
+     "english": "my exams"
     },
     {
-     "italian": "ai climi",
-     "english": "to the climates"
+     "italian": "i nostri quotidiani",
+     "english": "our newspapers"
+    },
+    {
+     "italian": "i tuoi accessi",
+     "english": "your accesses"
+    },
+    {
+     "italian": "i vostri espressi",
+     "english": "your (pl.) small strong coffees"
+    },
+    {
+     "italian": "il loro regalo",
+     "english": "their gift"
+    },
+    {
+     "italian": "il mio reclamo",
+     "english": "my complaint"
+    },
+    {
+     "italian": "il nostro studio",
+     "english": "our study"
+    },
+    {
+     "italian": "il tuo affare",
+     "english": "your deal"
+    },
+    {
+     "italian": "il vostro coglione",
+     "english": "your (pl.) jerk"
+    },
+    {
+     "italian": "la loro nebbia",
+     "english": "their fog"
+    },
+    {
+     "italian": "la nostra agenzia",
+     "english": "our agency"
+    },
+    {
+     "italian": "la sua lavastoviglie",
+     "english": "his/her dishwasher"
+    },
+    {
+     "italian": "la tua troia",
+     "english": "your slut"
+    },
+    {
+     "italian": "le loro morti",
+     "english": "their deaths"
+    },
+    {
+     "italian": "le nostre docce",
+     "english": "our showers"
+    },
+    {
+     "italian": "le sue scuole",
+     "english": "his/her schools"
+    },
+    {
+     "italian": "le vostre ditte",
+     "english": "your (pl.) companies"
+    },
+    {
+     "italian": "nel collo",
+     "english": "in the neck"
+    },
+    {
+     "italian": "nella panetteria",
+     "english": "in the bakery"
+    },
+    {
+     "italian": "quegli alloggi",
+     "english": "those accommodations"
+    },
+    {
+     "italian": "quel mattone",
+     "english": "that brick"
+    },
+    {
+     "italian": "quelle biglietterie",
+     "english": "those ticket offices"
+    },
+    {
+     "italian": "questa firma",
+     "english": "this signature"
+    },
+    {
+     "italian": "queste valli",
+     "english": "these valleys"
+    },
+    {
+     "italian": "questo municipio",
+     "english": "this town hall"
+    },
+    {
+     "italian": "sui limiti",
+     "english": "on the limits"
+    },
+    {
+     "italian": "sul nord",
+     "english": "on the north"
+    },
+    {
+     "italian": "sulla sepoltura",
+     "english": "on the burial"
+    },
+    {
+     "italian": "un freddo",
+     "english": "a cold"
+    },
+    {
+     "italian": "una visione",
+     "english": "a vision"
     }
    ],
    "notes": 2902,
@@ -648,50 +1880,578 @@
      "english": "he/she would have turned on"
     },
     {
-     "italian": "avrebbe aggiunto",
-     "english": "he/she would have added"
+     "italian": "avrebbe scelto",
+     "english": "he/she would have chosen"
     },
     {
-     "italian": "avrebbe aiutato",
-     "english": "he/she would have helped"
+     "italian": "avrebbero offerto",
+     "english": "they would have offered"
     },
     {
-     "italian": "avrebbe amato",
-     "english": "he/she would have loved"
+     "italian": "avrei creduto",
+     "english": "I would have believed"
     },
     {
-     "italian": "avrebbe appeso",
-     "english": "he/she would have hung (up)"
+     "italian": "avrei tenuto",
+     "english": "I would have held"
     },
     {
-     "italian": "avrebbe ascoltato",
-     "english": "he/she would have listened"
+     "italian": "avremmo reso",
+     "english": "we would have rendered"
     },
     {
-     "italian": "avrebbe atteso",
-     "english": "he/she would have waited for"
+     "italian": "avreste incontrato",
+     "english": "you all would have met"
     },
     {
-     "italian": "avrebbe chiesto",
-     "english": "he/she would have asked"
+     "italian": "avresti chiesto",
+     "english": "you would have asked"
     },
     {
-     "italian": "avrebbe colpito",
-     "english": "he/she would have hit"
+     "italian": "avresti sorriso",
+     "english": "you would have smiled"
     },
     {
-     "italian": "avrebbe condotto",
-     "english": "he/she would have led"
+     "italian": "sarebbero esplosi/e",
+     "english": "they would have exploded"
     },
     {
-     "italian": "avrebbe continuato",
-     "english": "he/she would have continued"
+     "italian": "sareste diventati/e",
+     "english": "you all would have become"
     },
     {
-     "italian": "avrebbe corretto",
-     "english": "he/she would have corrected"
+     "italian": "vi sareste seduti/e",
+     "english": "you all would have sat down"
     }
    ],
+   "verbs": [
+    {
+     "infinitive": "accadere",
+     "english": "to happen"
+    },
+    {
+     "infinitive": "accendere",
+     "english": "to turn on"
+    },
+    {
+     "infinitive": "aggiungere",
+     "english": "to add"
+    },
+    {
+     "infinitive": "aiutare",
+     "english": "to help"
+    },
+    {
+     "infinitive": "amare",
+     "english": "to love"
+    },
+    {
+     "infinitive": "appendere",
+     "english": "to hang (up)"
+    },
+    {
+     "infinitive": "ascoltare",
+     "english": "to listen (to)"
+    },
+    {
+     "infinitive": "attendere",
+     "english": "to wait for, to await"
+    },
+    {
+     "infinitive": "cadere",
+     "english": "to fall"
+    },
+    {
+     "infinitive": "chiedere",
+     "english": "to ask"
+    },
+    {
+     "infinitive": "colpire",
+     "english": "to hit, to strike"
+    },
+    {
+     "infinitive": "condurre",
+     "english": "to lead, to guide"
+    },
+    {
+     "infinitive": "connettersi",
+     "english": "to connect (to a network)"
+    },
+    {
+     "infinitive": "continuare",
+     "english": "to continue"
+    },
+    {
+     "infinitive": "correggere",
+     "english": "to correct"
+    },
+    {
+     "infinitive": "correre",
+     "english": "to run"
+    },
+    {
+     "infinitive": "costruire",
+     "english": "to build"
+    },
+    {
+     "infinitive": "credere",
+     "english": "to believe · model for regular -ere verbs"
+    },
+    {
+     "infinitive": "crescere",
+     "english": "to grow, to grow up"
+    },
+    {
+     "infinitive": "cuocere",
+     "english": "to cook, to bake"
+    },
+    {
+     "infinitive": "dare",
+     "english": "to give"
+    },
+    {
+     "infinitive": "decidere",
+     "english": "to decide"
+    },
+    {
+     "infinitive": "deprimere",
+     "english": "to depress"
+    },
+    {
+     "infinitive": "descrivere",
+     "english": "to describe"
+    },
+    {
+     "infinitive": "dimenticare",
+     "english": "to forget"
+    },
+    {
+     "infinitive": "dipendere",
+     "english": "to depend"
+    },
+    {
+     "infinitive": "dipingere",
+     "english": "to paint"
+    },
+    {
+     "infinitive": "dire",
+     "english": "to say"
+    },
+    {
+     "infinitive": "discutere",
+     "english": "to discuss"
+    },
+    {
+     "infinitive": "dispiacere",
+     "english": "to be sorry"
+    },
+    {
+     "infinitive": "diventare",
+     "english": "to become"
+    },
+    {
+     "infinitive": "dormire",
+     "english": "to sleep · model for regular -ire verbs"
+    },
+    {
+     "infinitive": "entrare",
+     "english": "to enter, to go in"
+    },
+    {
+     "infinitive": "esistere",
+     "english": "to exist"
+    },
+    {
+     "infinitive": "esplodere",
+     "english": "to explode"
+    },
+    {
+     "infinitive": "esprimere",
+     "english": "to express"
+    },
+    {
+     "infinitive": "evolversi",
+     "english": "to evolve"
+    },
+    {
+     "infinitive": "fermare",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "fermarsi",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "finire",
+     "english": "to finish · model for regular -ire (isc) verbs"
+    },
+    {
+     "infinitive": "friggere",
+     "english": "to fry"
+    },
+    {
+     "infinitive": "giurare",
+     "english": "to swear"
+    },
+    {
+     "infinitive": "immaginare",
+     "english": "to imagine"
+    },
+    {
+     "infinitive": "importare",
+     "english": "to matter"
+    },
+    {
+     "infinitive": "incontrare",
+     "english": "to meet"
+    },
+    {
+     "infinitive": "insistere",
+     "english": "to insist"
+    },
+    {
+     "infinitive": "lasciare",
+     "english": "to leave"
+    },
+    {
+     "infinitive": "mancare",
+     "english": "to miss (someone)"
+    },
+    {
+     "infinitive": "mangiare",
+     "english": "to eat"
+    },
+    {
+     "infinitive": "mentire",
+     "english": "to lie"
+    },
+    {
+     "infinitive": "morire",
+     "english": "to die"
+    },
+    {
+     "infinitive": "muovere",
+     "english": "to move"
+    },
+    {
+     "infinitive": "nascondere",
+     "english": "to hide"
+    },
+    {
+     "infinitive": "odiare",
+     "english": "to hate"
+    },
+    {
+     "infinitive": "offrire",
+     "english": "to offer"
+    },
+    {
+     "infinitive": "parere",
+     "english": "to seem, to appear"
+    },
+    {
+     "infinitive": "parlare",
+     "english": "to speak, to talk · model for regular -are verbs"
+    },
+    {
+     "infinitive": "pensare",
+     "english": "to think"
+    },
+    {
+     "infinitive": "piacere",
+     "english": "to like (be pleasing to)"
+    },
+    {
+     "infinitive": "piangere",
+     "english": "to cry, to weep"
+    },
+    {
+     "infinitive": "porre",
+     "english": "to pose (a question)"
+    },
+    {
+     "infinitive": "portare",
+     "english": "to bring, to carry"
+    },
+    {
+     "infinitive": "pregare",
+     "english": "to pray"
+    },
+    {
+     "infinitive": "prendere",
+     "english": "to take"
+    },
+    {
+     "infinitive": "prendersi",
+     "english": "to take for oneself"
+    },
+    {
+     "infinitive": "preoccuparsi",
+     "english": "to worry"
+    },
+    {
+     "infinitive": "prevedere",
+     "english": "to plan (to do)"
+    },
+    {
+     "infinitive": "produrre",
+     "english": "to produce, to make"
+    },
+    {
+     "infinitive": "promettere",
+     "english": "to promise"
+    },
+    {
+     "infinitive": "promuovere",
+     "english": "to promote"
+    },
+    {
+     "infinitive": "proporre",
+     "english": "to propose, to suggest"
+    },
+    {
+     "infinitive": "provare",
+     "english": "to try"
+    },
+    {
+     "infinitive": "raccogliere",
+     "english": "to gather, collect"
+    },
+    {
+     "infinitive": "rendere",
+     "english": "to render, to make (+ adj.)"
+    },
+    {
+     "infinitive": "restare",
+     "english": "to stay, to remain"
+    },
+    {
+     "infinitive": "riassumere",
+     "english": "to summarize"
+    },
+    {
+     "infinitive": "ricordare",
+     "english": "to remember"
+    },
+    {
+     "infinitive": "ridere",
+     "english": "to laugh"
+    },
+    {
+     "infinitive": "rimanere",
+     "english": "to remain"
+    },
+    {
+     "infinitive": "risolvere",
+     "english": "to solve"
+    },
+    {
+     "infinitive": "riuscire",
+     "english": "to manage (to do)"
+    },
+    {
+     "infinitive": "rompere",
+     "english": "to break"
+    },
+    {
+     "infinitive": "salire",
+     "english": "to go up"
+    },
+    {
+     "infinitive": "sapere",
+     "english": "to know (a fact)"
+    },
+    {
+     "infinitive": "sbagliare",
+     "english": "to make a mistake"
+    },
+    {
+     "infinitive": "scegliere",
+     "english": "to choose"
+    },
+    {
+     "infinitive": "scendere",
+     "english": "to go down, to descend"
+    },
+    {
+     "infinitive": "scherzare",
+     "english": "to joke"
+    },
+    {
+     "infinitive": "sciogliere",
+     "english": "to melt"
+    },
+    {
+     "infinitive": "scomparire",
+     "english": "to disappear"
+    },
+    {
+     "infinitive": "scoprire",
+     "english": "to discover, to find out"
+    },
+    {
+     "infinitive": "scuotere",
+     "english": "to shake (something)"
+    },
+    {
+     "infinitive": "sedersi",
+     "english": "to sit down"
+    },
+    {
+     "infinitive": "sembrare",
+     "english": "to seem"
+    },
+    {
+     "infinitive": "sentire",
+     "english": "to hear"
+    },
+    {
+     "infinitive": "servire",
+     "english": "to serve"
+    },
+    {
+     "infinitive": "smettere",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "sorridere",
+     "english": "to smile"
+    },
+    {
+     "infinitive": "sparare",
+     "english": "to shoot, to fire"
+    },
+    {
+     "infinitive": "spegnere",
+     "english": "to turn off, switch off"
+    },
+    {
+     "infinitive": "spendere",
+     "english": "to spend"
+    },
+    {
+     "infinitive": "sperare",
+     "english": "to hope"
+    },
+    {
+     "infinitive": "spiacere",
+     "english": "to be sorry (lit. to displease)"
+    },
+    {
+     "infinitive": "spingere",
+     "english": "to push"
+    },
+    {
+     "infinitive": "stare",
+     "english": "to stay"
+    },
+    {
+     "infinitive": "stendere",
+     "english": "to spread, stretch out"
+    },
+    {
+     "infinitive": "succedere",
+     "english": "to happen"
+    },
+    {
+     "infinitive": "svolgere",
+     "english": "to carry out"
+    },
+    {
+     "infinitive": "tenere",
+     "english": "to hold"
+    },
+    {
+     "infinitive": "togliere",
+     "english": "to remove, take away"
+    },
+    {
+     "infinitive": "trascorrere",
+     "english": "to spend (time)"
+    },
+    {
+     "infinitive": "trattare",
+     "english": "to treat"
+    },
+    {
+     "infinitive": "usare",
+     "english": "to use"
+    },
+    {
+     "infinitive": "valere",
+     "english": "to be worth"
+    },
+    {
+     "infinitive": "vedere",
+     "english": "to see"
+    },
+    {
+     "infinitive": "venire",
+     "english": "to come"
+    },
+    {
+     "infinitive": "vincere",
+     "english": "to win"
+    },
+    {
+     "infinitive": "volere",
+     "english": "to want"
+    }
+   ],
+   "conjugations": {
+    "vedere": [
+     {
+      "italian": "avrei visto",
+      "english": "I would have seen"
+     },
+     {
+      "italian": "avresti visto",
+      "english": "you would have seen"
+     },
+     {
+      "italian": "avrebbe visto",
+      "english": "he/she would have seen"
+     },
+     {
+      "italian": "avremmo visto",
+      "english": "we would have seen"
+     },
+     {
+      "italian": "avreste visto",
+      "english": "you all would have seen"
+     },
+     {
+      "italian": "avrebbero visto",
+      "english": "they would have seen"
+     }
+    ],
+    "parlare": [
+     {
+      "italian": "avrei parlato",
+      "english": "I would have spoken"
+     },
+     {
+      "italian": "avresti parlato",
+      "english": "you would have spoken"
+     },
+     {
+      "italian": "avrebbe parlato",
+      "english": "he/she would have spoken"
+     },
+     {
+      "italian": "avremmo parlato",
+      "english": "we would have spoken"
+     },
+     {
+      "italian": "avreste parlato",
+      "english": "you all would have spoken"
+     },
+     {
+      "italian": "avrebbero parlato",
+      "english": "they would have spoken"
+     }
+    ]
+   },
    "notes": 688,
    "cards": 688,
    "tutto_left": 0
@@ -706,50 +2466,586 @@
      "english": "it would happen"
     },
     {
-     "italian": "accadrebbero",
-     "english": "they would happen"
+     "italian": "colpirebbero",
+     "english": "they would hit"
     },
     {
-     "italian": "accenderebbe",
-     "english": "he/she would turn on"
+     "italian": "decidereste",
+     "english": "you all would decide"
     },
     {
-     "italian": "accenderebbero",
-     "english": "they would turn on"
+     "italian": "esisterebbe",
+     "english": "he/she/it would exist"
     },
     {
-     "italian": "accenderei",
-     "english": "I would turn on"
+     "italian": "lascerebbero",
+     "english": "they would leave"
     },
     {
-     "italian": "accenderemmo",
-     "english": "we would turn on"
+     "italian": "parlereste",
+     "english": "you all would speak"
     },
     {
-     "italian": "accendereste",
-     "english": "you all would turn on"
+     "italian": "produrrebbero",
+     "english": "they would produce"
     },
     {
-     "italian": "accenderesti",
-     "english": "you would turn on"
+     "italian": "rideresti",
+     "english": "you would laugh"
     },
     {
-     "italian": "aggiungerebbe",
-     "english": "he/she would add"
+     "italian": "scioglierei",
+     "english": "I would melt it"
     },
     {
-     "italian": "aggiungerebbero",
-     "english": "they would add"
+     "italian": "sorridereste",
+     "english": "you all would smile"
     },
     {
-     "italian": "aggiungerei",
-     "english": "I would add"
+     "italian": "ti fermeresti",
+     "english": "you would stop"
     },
     {
-     "italian": "aggiungeremmo",
-     "english": "we would add"
+     "italian": "vorresti",
+     "english": "you would like / you would want"
     }
    ],
+   "verbs": [
+    {
+     "infinitive": "accadere",
+     "english": "to happen"
+    },
+    {
+     "infinitive": "accendere",
+     "english": "to turn on"
+    },
+    {
+     "infinitive": "aggiungere",
+     "english": "to add"
+    },
+    {
+     "infinitive": "aiutare",
+     "english": "to help"
+    },
+    {
+     "infinitive": "amare",
+     "english": "to love"
+    },
+    {
+     "infinitive": "andarsene",
+     "english": "to leave, to go away"
+    },
+    {
+     "infinitive": "appendere",
+     "english": "to hang (up)"
+    },
+    {
+     "infinitive": "ascoltare",
+     "english": "to listen (to)"
+    },
+    {
+     "infinitive": "attendere",
+     "english": "to wait for, to await"
+    },
+    {
+     "infinitive": "cadere",
+     "english": "to fall"
+    },
+    {
+     "infinitive": "chiedere",
+     "english": "to ask"
+    },
+    {
+     "infinitive": "colpire",
+     "english": "to hit, to strike"
+    },
+    {
+     "infinitive": "condurre",
+     "english": "to lead, to guide"
+    },
+    {
+     "infinitive": "connettersi",
+     "english": "to connect (to a network)"
+    },
+    {
+     "infinitive": "continuare",
+     "english": "to continue"
+    },
+    {
+     "infinitive": "correggere",
+     "english": "to correct"
+    },
+    {
+     "infinitive": "correre",
+     "english": "to run"
+    },
+    {
+     "infinitive": "costruire",
+     "english": "to build"
+    },
+    {
+     "infinitive": "credere",
+     "english": "to believe · model for regular -ere verbs"
+    },
+    {
+     "infinitive": "crescere",
+     "english": "to grow, to grow up"
+    },
+    {
+     "infinitive": "cuocere",
+     "english": "to cook, to bake"
+    },
+    {
+     "infinitive": "dare",
+     "english": "to give"
+    },
+    {
+     "infinitive": "decidere",
+     "english": "to decide"
+    },
+    {
+     "infinitive": "deprimere",
+     "english": "to depress"
+    },
+    {
+     "infinitive": "descrivere",
+     "english": "to describe"
+    },
+    {
+     "infinitive": "dimenticare",
+     "english": "to forget"
+    },
+    {
+     "infinitive": "dipendere",
+     "english": "to depend"
+    },
+    {
+     "infinitive": "dipingere",
+     "english": "to paint"
+    },
+    {
+     "infinitive": "dire",
+     "english": "to say"
+    },
+    {
+     "infinitive": "discutere",
+     "english": "to discuss"
+    },
+    {
+     "infinitive": "dispiacere",
+     "english": "to be sorry"
+    },
+    {
+     "infinitive": "diventare",
+     "english": "to become"
+    },
+    {
+     "infinitive": "dormire",
+     "english": "to sleep · model for regular -ire verbs"
+    },
+    {
+     "infinitive": "entrare",
+     "english": "to enter, to go in"
+    },
+    {
+     "infinitive": "esistere",
+     "english": "to exist"
+    },
+    {
+     "infinitive": "esplodere",
+     "english": "to explode"
+    },
+    {
+     "infinitive": "esprimere",
+     "english": "to express"
+    },
+    {
+     "infinitive": "evolversi",
+     "english": "to evolve"
+    },
+    {
+     "infinitive": "fermare",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "fermarsi",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "finire",
+     "english": "to finish · model for regular -ire (isc) verbs"
+    },
+    {
+     "infinitive": "friggere",
+     "english": "to fry"
+    },
+    {
+     "infinitive": "giurare",
+     "english": "to swear"
+    },
+    {
+     "infinitive": "immaginare",
+     "english": "to imagine"
+    },
+    {
+     "infinitive": "importare",
+     "english": "to matter"
+    },
+    {
+     "infinitive": "incontrare",
+     "english": "to meet"
+    },
+    {
+     "infinitive": "insistere",
+     "english": "to insist"
+    },
+    {
+     "infinitive": "lasciare",
+     "english": "to leave"
+    },
+    {
+     "infinitive": "mancare",
+     "english": "to miss (someone)"
+    },
+    {
+     "infinitive": "mangiare",
+     "english": "to eat"
+    },
+    {
+     "infinitive": "mentire",
+     "english": "to lie"
+    },
+    {
+     "infinitive": "morire",
+     "english": "to die"
+    },
+    {
+     "infinitive": "muovere",
+     "english": "to move"
+    },
+    {
+     "infinitive": "nascondere",
+     "english": "to hide"
+    },
+    {
+     "infinitive": "odiare",
+     "english": "to hate"
+    },
+    {
+     "infinitive": "offrire",
+     "english": "to offer"
+    },
+    {
+     "infinitive": "parere",
+     "english": "to seem, to appear"
+    },
+    {
+     "infinitive": "parlare",
+     "english": "to speak, to talk · model for regular -are verbs"
+    },
+    {
+     "infinitive": "passare",
+     "english": "to pass"
+    },
+    {
+     "infinitive": "pensare",
+     "english": "to think"
+    },
+    {
+     "infinitive": "piacere",
+     "english": "to like (be pleasing to)"
+    },
+    {
+     "infinitive": "piangere",
+     "english": "to cry, to weep"
+    },
+    {
+     "infinitive": "porre",
+     "english": "to pose (a question)"
+    },
+    {
+     "infinitive": "portare",
+     "english": "to bring, to carry"
+    },
+    {
+     "infinitive": "pregare",
+     "english": "to pray"
+    },
+    {
+     "infinitive": "prendere",
+     "english": "to take"
+    },
+    {
+     "infinitive": "prendersi",
+     "english": "to take for oneself"
+    },
+    {
+     "infinitive": "preoccuparsi",
+     "english": "to worry"
+    },
+    {
+     "infinitive": "prevedere",
+     "english": "to plan (to do)"
+    },
+    {
+     "infinitive": "produrre",
+     "english": "to produce, to make"
+    },
+    {
+     "infinitive": "promettere",
+     "english": "to promise"
+    },
+    {
+     "infinitive": "promuovere",
+     "english": "to promote"
+    },
+    {
+     "infinitive": "proporre",
+     "english": "to propose, to suggest"
+    },
+    {
+     "infinitive": "provare",
+     "english": "to try"
+    },
+    {
+     "infinitive": "raccogliere",
+     "english": "to gather, collect"
+    },
+    {
+     "infinitive": "rendere",
+     "english": "to render, to make (+ adj.)"
+    },
+    {
+     "infinitive": "restare",
+     "english": "to stay, to remain"
+    },
+    {
+     "infinitive": "riassumere",
+     "english": "to summarize"
+    },
+    {
+     "infinitive": "ricordare",
+     "english": "to remember"
+    },
+    {
+     "infinitive": "ridere",
+     "english": "to laugh"
+    },
+    {
+     "infinitive": "rimanere",
+     "english": "to remain"
+    },
+    {
+     "infinitive": "risolvere",
+     "english": "to solve"
+    },
+    {
+     "infinitive": "riuscire",
+     "english": "to manage (to do)"
+    },
+    {
+     "infinitive": "rompere",
+     "english": "to break"
+    },
+    {
+     "infinitive": "salire",
+     "english": "to go up"
+    },
+    {
+     "infinitive": "sapere",
+     "english": "to know (a fact)"
+    },
+    {
+     "infinitive": "sbagliare",
+     "english": "to make a mistake"
+    },
+    {
+     "infinitive": "scegliere",
+     "english": "to choose"
+    },
+    {
+     "infinitive": "scendere",
+     "english": "to go down, to descend"
+    },
+    {
+     "infinitive": "scherzare",
+     "english": "to joke"
+    },
+    {
+     "infinitive": "sciogliere",
+     "english": "to melt"
+    },
+    {
+     "infinitive": "scomparire",
+     "english": "to disappear"
+    },
+    {
+     "infinitive": "scoprire",
+     "english": "to discover, to find out"
+    },
+    {
+     "infinitive": "scuotere",
+     "english": "to shake (something)"
+    },
+    {
+     "infinitive": "sedersi",
+     "english": "to sit down"
+    },
+    {
+     "infinitive": "sembrare",
+     "english": "to seem"
+    },
+    {
+     "infinitive": "sentire",
+     "english": "to hear"
+    },
+    {
+     "infinitive": "servire",
+     "english": "to serve"
+    },
+    {
+     "infinitive": "smettere",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "sorridere",
+     "english": "to smile"
+    },
+    {
+     "infinitive": "sparare",
+     "english": "to shoot, to fire"
+    },
+    {
+     "infinitive": "spegnere",
+     "english": "to turn off, switch off"
+    },
+    {
+     "infinitive": "spendere",
+     "english": "to spend"
+    },
+    {
+     "infinitive": "sperare",
+     "english": "to hope"
+    },
+    {
+     "infinitive": "spiacere",
+     "english": "to be sorry (lit. to displease)"
+    },
+    {
+     "infinitive": "spingere",
+     "english": "to push"
+    },
+    {
+     "infinitive": "stare",
+     "english": "to stay"
+    },
+    {
+     "infinitive": "stendere",
+     "english": "to spread, stretch out"
+    },
+    {
+     "infinitive": "succedere",
+     "english": "to happen"
+    },
+    {
+     "infinitive": "svolgere",
+     "english": "to carry out"
+    },
+    {
+     "infinitive": "tenere",
+     "english": "to hold"
+    },
+    {
+     "infinitive": "togliere",
+     "english": "to remove, take away"
+    },
+    {
+     "infinitive": "trascorrere",
+     "english": "to spend (time)"
+    },
+    {
+     "infinitive": "trattare",
+     "english": "to treat"
+    },
+    {
+     "infinitive": "usare",
+     "english": "to use"
+    },
+    {
+     "infinitive": "valere",
+     "english": "to be worth"
+    },
+    {
+     "infinitive": "vedere",
+     "english": "to see"
+    },
+    {
+     "infinitive": "venire",
+     "english": "to come"
+    },
+    {
+     "infinitive": "vincere",
+     "english": "to win"
+    },
+    {
+     "infinitive": "volere",
+     "english": "to want"
+    }
+   ],
+   "conjugations": {
+    "vedere": [
+     {
+      "italian": "vedrei",
+      "english": "I would see"
+     },
+     {
+      "italian": "vedresti",
+      "english": "you would see"
+     },
+     {
+      "italian": "vedrebbe",
+      "english": "he/she would see"
+     },
+     {
+      "italian": "vedremmo",
+      "english": "we would see"
+     },
+     {
+      "italian": "vedreste",
+      "english": "you all would see"
+     },
+     {
+      "italian": "vedrebbero",
+      "english": "they would see"
+     }
+    ],
+    "parlare": [
+     {
+      "italian": "parlerei",
+      "english": "I would speak"
+     },
+     {
+      "italian": "parleresti",
+      "english": "you would speak"
+     },
+     {
+      "italian": "parlerebbe",
+      "english": "he/she would speak"
+     },
+     {
+      "italian": "parleremmo",
+      "english": "we would speak"
+     },
+     {
+      "italian": "parlereste",
+      "english": "you all would speak"
+     },
+     {
+      "italian": "parlerebbero",
+      "english": "they would speak"
+     }
+    ]
+   },
    "notes": 700,
    "cards": 700,
    "tutto_left": 0
@@ -764,50 +3060,641 @@
      "english": "Let's turn on!"
     },
     {
-     "italian": "aggiungiamo",
-     "english": "Let's add!"
-    },
-    {
-     "italian": "aiutiamo",
-     "english": "Let's help!"
-    },
-    {
-     "italian": "amiamo",
-     "english": "Let's love!"
-    },
-    {
-     "italian": "andiamocene",
-     "english": "Let's leave!"
-    },
-    {
-     "italian": "appendiamo",
-     "english": "Let's hang (it) up!"
-    },
-    {
-     "italian": "ascoltiamo",
-     "english": "Let's listen!"
-    },
-    {
-     "italian": "attendiamo",
-     "english": "Let's wait!"
-    },
-    {
-     "italian": "chiediamo",
-     "english": "Let's ask!"
-    },
-    {
      "italian": "colpiamo",
      "english": "Let's hit!"
     },
     {
-     "italian": "conduciamo",
-     "english": "Let's lead the way!"
+     "italian": "cuociamo",
+     "english": "Let's cook!"
     },
     {
-     "italian": "connettiamoci",
-     "english": "Let's connect!"
+     "italian": "diventiamo",
+     "english": "Let's become!"
+    },
+    {
+     "italian": "giuriamo",
+     "english": "Let's swear!"
+    },
+    {
+     "italian": "offriamo",
+     "english": "Let's offer!"
+    },
+    {
+     "italian": "prendiamoci",
+     "english": "Let's take it for ourselves!"
+    },
+    {
+     "italian": "restiamo",
+     "english": "Let's stay!"
+    },
+    {
+     "italian": "scendiamo",
+     "english": "Let's go down!"
+    },
+    {
+     "italian": "serviamo",
+     "english": "Let's serve!"
+    },
+    {
+     "italian": "stiamo",
+     "english": "Let's stay!"
+    },
+    {
+     "italian": "vinciamo",
+     "english": "Let's win!"
     }
    ],
+   "verbs": [
+    {
+     "infinitive": "accendere",
+     "english": "to turn on",
+     "form": "accendiamo",
+     "prompt": "Let's turn on!"
+    },
+    {
+     "infinitive": "aggiungere",
+     "english": "to add",
+     "form": "aggiungiamo",
+     "prompt": "Let's add!"
+    },
+    {
+     "infinitive": "aiutare",
+     "english": "to help",
+     "form": "aiutiamo",
+     "prompt": "Let's help!"
+    },
+    {
+     "infinitive": "amare",
+     "english": "to love",
+     "form": "amiamo",
+     "prompt": "Let's love!"
+    },
+    {
+     "infinitive": "andarsene",
+     "english": "to leave, to go away",
+     "form": "andiamocene",
+     "prompt": "Let's leave!"
+    },
+    {
+     "infinitive": "appendere",
+     "english": "to hang (up)",
+     "form": "appendiamo",
+     "prompt": "Let's hang (it) up!"
+    },
+    {
+     "infinitive": "ascoltare",
+     "english": "to listen (to)",
+     "form": "ascoltiamo",
+     "prompt": "Let's listen!"
+    },
+    {
+     "infinitive": "attendere",
+     "english": "to wait for, to await",
+     "form": "attendiamo",
+     "prompt": "Let's wait!"
+    },
+    {
+     "infinitive": "chiedere",
+     "english": "to ask",
+     "form": "chiediamo",
+     "prompt": "Let's ask!"
+    },
+    {
+     "infinitive": "colpire",
+     "english": "to hit, to strike",
+     "form": "colpiamo",
+     "prompt": "Let's hit!"
+    },
+    {
+     "infinitive": "condurre",
+     "english": "to lead, to guide",
+     "form": "conduciamo",
+     "prompt": "Let's lead the way!"
+    },
+    {
+     "infinitive": "connettersi",
+     "english": "to connect (to a network)",
+     "form": "connettiamoci",
+     "prompt": "Let's connect!"
+    },
+    {
+     "infinitive": "continuare",
+     "english": "to continue",
+     "form": "continuiamo",
+     "prompt": "Let's continue!"
+    },
+    {
+     "infinitive": "correggere",
+     "english": "to correct",
+     "form": "correggiamo",
+     "prompt": "Let's correct!"
+    },
+    {
+     "infinitive": "correre",
+     "english": "to run",
+     "form": "corriamo",
+     "prompt": "Let's run!"
+    },
+    {
+     "infinitive": "costruire",
+     "english": "to build",
+     "form": "costruiamo",
+     "prompt": "Let's build!"
+    },
+    {
+     "infinitive": "credere",
+     "english": "to believe · model for regular -ere verbs",
+     "form": "crediamo",
+     "prompt": "Let's believe!"
+    },
+    {
+     "infinitive": "crescere",
+     "english": "to grow, to grow up",
+     "form": "cresciamo",
+     "prompt": "Let's grow!"
+    },
+    {
+     "infinitive": "cuocere",
+     "english": "to cook, to bake",
+     "form": "cuociamo",
+     "prompt": "Let's cook!"
+    },
+    {
+     "infinitive": "dare",
+     "english": "to give",
+     "form": "diamo",
+     "prompt": "Let's give!"
+    },
+    {
+     "infinitive": "decidere",
+     "english": "to decide",
+     "form": "decidiamo",
+     "prompt": "Let's decide!"
+    },
+    {
+     "infinitive": "descrivere",
+     "english": "to describe",
+     "form": "descriviamo",
+     "prompt": "Let's describe!"
+    },
+    {
+     "infinitive": "dimenticare",
+     "english": "to forget",
+     "form": "dimentichiamo",
+     "prompt": "Let's forget!"
+    },
+    {
+     "infinitive": "dipingere",
+     "english": "to paint",
+     "form": "dipingiamo",
+     "prompt": "Let's paint!"
+    },
+    {
+     "infinitive": "dire",
+     "english": "to say",
+     "form": "diciamo",
+     "prompt": "Let's say!"
+    },
+    {
+     "infinitive": "discutere",
+     "english": "to discuss",
+     "form": "discutiamo",
+     "prompt": "Let's discuss it!"
+    },
+    {
+     "infinitive": "diventare",
+     "english": "to become",
+     "form": "diventiamo",
+     "prompt": "Let's become!"
+    },
+    {
+     "infinitive": "dormire",
+     "english": "to sleep · model for regular -ire verbs",
+     "form": "dormiamo",
+     "prompt": "Let's sleep!"
+    },
+    {
+     "infinitive": "entrare",
+     "english": "to enter, to go in",
+     "form": "entriamo",
+     "prompt": "Let's go in!"
+    },
+    {
+     "infinitive": "esprimere",
+     "english": "to express",
+     "form": "esprimiamo",
+     "prompt": "Let's express (something)!"
+    },
+    {
+     "infinitive": "evolversi",
+     "english": "to evolve",
+     "form": "evolviamoci",
+     "prompt": "Let's evolve!"
+    },
+    {
+     "infinitive": "fermare",
+     "english": "to stop",
+     "form": "fermiamo",
+     "prompt": "Let's stop him!"
+    },
+    {
+     "infinitive": "fermarsi",
+     "english": "to stop",
+     "form": "fermiamoci",
+     "prompt": "Let's stop!"
+    },
+    {
+     "infinitive": "finire",
+     "english": "to finish · model for regular -ire (isc) verbs",
+     "form": "finiamo",
+     "prompt": "Let's finish!"
+    },
+    {
+     "infinitive": "friggere",
+     "english": "to fry",
+     "form": "friggiamo",
+     "prompt": "Let's fry!"
+    },
+    {
+     "infinitive": "giurare",
+     "english": "to swear",
+     "form": "giuriamo",
+     "prompt": "Let's swear!"
+    },
+    {
+     "infinitive": "immaginare",
+     "english": "to imagine",
+     "form": "immaginiamo",
+     "prompt": "Let's imagine!"
+    },
+    {
+     "infinitive": "incontrare",
+     "english": "to meet",
+     "form": "incontriamo",
+     "prompt": "Let's meet (someone)!"
+    },
+    {
+     "infinitive": "insistere",
+     "english": "to insist",
+     "form": "insistiamo",
+     "prompt": "Let's insist!"
+    },
+    {
+     "infinitive": "lasciare",
+     "english": "to leave",
+     "form": "lasciamo",
+     "prompt": "Let's leave!"
+    },
+    {
+     "infinitive": "mangiare",
+     "english": "to eat",
+     "form": "mangiamo",
+     "prompt": "Let's eat!"
+    },
+    {
+     "infinitive": "mentire",
+     "english": "to lie",
+     "form": "mentiamo",
+     "prompt": "Let's lie!"
+    },
+    {
+     "infinitive": "muovere",
+     "english": "to move",
+     "form": "muoviamo",
+     "prompt": "Let's move it!"
+    },
+    {
+     "infinitive": "nascondere",
+     "english": "to hide",
+     "form": "nascondiamo",
+     "prompt": "Let's hide it!"
+    },
+    {
+     "infinitive": "offrire",
+     "english": "to offer",
+     "form": "offriamo",
+     "prompt": "Let's offer!"
+    },
+    {
+     "infinitive": "parlare",
+     "english": "to speak, to talk · model for regular -are verbs",
+     "form": "parliamo",
+     "prompt": "Let's speak!"
+    },
+    {
+     "infinitive": "passare",
+     "english": "to pass",
+     "form": "passiamo",
+     "prompt": "Let's pass!"
+    },
+    {
+     "infinitive": "pensare",
+     "english": "to think",
+     "form": "pensiamo",
+     "prompt": "Let's think!"
+    },
+    {
+     "infinitive": "piangere",
+     "english": "to cry, to weep",
+     "form": "piangiamo",
+     "prompt": "Let's cry!"
+    },
+    {
+     "infinitive": "porre",
+     "english": "to pose (a question)",
+     "form": "poniamo",
+     "prompt": "Let's pose (a question)!"
+    },
+    {
+     "infinitive": "portare",
+     "english": "to bring, to carry",
+     "form": "portiamo",
+     "prompt": "Let's bring!"
+    },
+    {
+     "infinitive": "pregare",
+     "english": "to pray",
+     "form": "preghiamo",
+     "prompt": "Let's pray!"
+    },
+    {
+     "infinitive": "prendere",
+     "english": "to take",
+     "form": "prendiamo",
+     "prompt": "Let's take!"
+    },
+    {
+     "infinitive": "prendersi",
+     "english": "to take for oneself",
+     "form": "prendiamoci",
+     "prompt": "Let's take it for ourselves!"
+    },
+    {
+     "infinitive": "preoccuparsi",
+     "english": "to worry",
+     "form": "preoccupiamoci",
+     "prompt": "Let's worry!"
+    },
+    {
+     "infinitive": "produrre",
+     "english": "to produce, to make",
+     "form": "produciamo",
+     "prompt": "Let's produce!"
+    },
+    {
+     "infinitive": "promettere",
+     "english": "to promise",
+     "form": "promettiamo",
+     "prompt": "Let's promise!"
+    },
+    {
+     "infinitive": "promuovere",
+     "english": "to promote",
+     "form": "promuoviamo",
+     "prompt": "Let's promote!"
+    },
+    {
+     "infinitive": "proporre",
+     "english": "to propose, to suggest",
+     "form": "proponiamo",
+     "prompt": "Let's propose!"
+    },
+    {
+     "infinitive": "provare",
+     "english": "to try",
+     "form": "proviamo",
+     "prompt": "Let's try!"
+    },
+    {
+     "infinitive": "raccogliere",
+     "english": "to gather, collect",
+     "form": "raccogliamo",
+     "prompt": "Let's gather!"
+    },
+    {
+     "infinitive": "rendere",
+     "english": "to render, to make (+ adj.)",
+     "form": "rendiamo",
+     "prompt": "Let's render it …!"
+    },
+    {
+     "infinitive": "restare",
+     "english": "to stay, to remain",
+     "form": "restiamo",
+     "prompt": "Let's stay!"
+    },
+    {
+     "infinitive": "riassumere",
+     "english": "to summarize",
+     "form": "riassumiamo",
+     "prompt": "Let's summarize!"
+    },
+    {
+     "infinitive": "ricordare",
+     "english": "to remember",
+     "form": "ricordiamo",
+     "prompt": "Let's remember!"
+    },
+    {
+     "infinitive": "ridere",
+     "english": "to laugh",
+     "form": "ridiamo",
+     "prompt": "Let's laugh!"
+    },
+    {
+     "infinitive": "rimanere",
+     "english": "to remain",
+     "form": "rimaniamo",
+     "prompt": "Let's remain!"
+    },
+    {
+     "infinitive": "risolvere",
+     "english": "to solve",
+     "form": "risolviamo",
+     "prompt": "Let's solve it!"
+    },
+    {
+     "infinitive": "rompere",
+     "english": "to break",
+     "form": "rompiamo",
+     "prompt": "Let's break!"
+    },
+    {
+     "infinitive": "salire",
+     "english": "to go up",
+     "form": "saliamo",
+     "prompt": "Let's go up!"
+    },
+    {
+     "infinitive": "scegliere",
+     "english": "to choose",
+     "form": "scegliamo",
+     "prompt": "Let's choose!"
+    },
+    {
+     "infinitive": "scendere",
+     "english": "to go down, to descend",
+     "form": "scendiamo",
+     "prompt": "Let's go down!"
+    },
+    {
+     "infinitive": "scherzare",
+     "english": "to joke",
+     "form": "scherziamo",
+     "prompt": "Let's joke!"
+    },
+    {
+     "infinitive": "sciogliere",
+     "english": "to melt",
+     "form": "sciogliamo",
+     "prompt": "Let's melt it!"
+    },
+    {
+     "infinitive": "scomparire",
+     "english": "to disappear",
+     "form": "scompariamo",
+     "prompt": "Let's disappear!"
+    },
+    {
+     "infinitive": "scoprire",
+     "english": "to discover, to find out",
+     "form": "scopriamo",
+     "prompt": "Let's discover! / Let's find out!"
+    },
+    {
+     "infinitive": "scuotere",
+     "english": "to shake (something)",
+     "form": "scuotiamo",
+     "prompt": "Let's shake!"
+    },
+    {
+     "infinitive": "sedersi",
+     "english": "to sit down",
+     "form": "sediamoci",
+     "prompt": "Let's sit down!"
+    },
+    {
+     "infinitive": "sentire",
+     "english": "to hear",
+     "form": "sentiamo",
+     "prompt": "Let's hear it!"
+    },
+    {
+     "infinitive": "servire",
+     "english": "to serve",
+     "form": "serviamo",
+     "prompt": "Let's serve!"
+    },
+    {
+     "infinitive": "smettere",
+     "english": "to stop",
+     "form": "smettiamo",
+     "prompt": "Let's stop!"
+    },
+    {
+     "infinitive": "sorridere",
+     "english": "to smile",
+     "form": "sorridiamo",
+     "prompt": "Let's smile!"
+    },
+    {
+     "infinitive": "sparare",
+     "english": "to shoot, to fire",
+     "form": "spariamo",
+     "prompt": "Let's shoot!"
+    },
+    {
+     "infinitive": "spegnere",
+     "english": "to turn off, switch off",
+     "form": "spegniamo",
+     "prompt": "Let's turn it off!"
+    },
+    {
+     "infinitive": "spendere",
+     "english": "to spend",
+     "form": "spendiamo",
+     "prompt": "Let's spend!"
+    },
+    {
+     "infinitive": "sperare",
+     "english": "to hope",
+     "form": "speriamo",
+     "prompt": "Let's hope!"
+    },
+    {
+     "infinitive": "spingere",
+     "english": "to push",
+     "form": "spingiamo",
+     "prompt": "Let's push!"
+    },
+    {
+     "infinitive": "stare",
+     "english": "to stay",
+     "form": "stiamo",
+     "prompt": "Let's stay!"
+    },
+    {
+     "infinitive": "stendere",
+     "english": "to spread, stretch out",
+     "form": "stendiamo",
+     "prompt": "Let's spread it out!"
+    },
+    {
+     "infinitive": "svolgere",
+     "english": "to carry out",
+     "form": "svolgiamo",
+     "prompt": "Let's carry it out!"
+    },
+    {
+     "infinitive": "tenere",
+     "english": "to hold",
+     "form": "teniamo",
+     "prompt": "Let's hold!"
+    },
+    {
+     "infinitive": "togliere",
+     "english": "to remove, take away",
+     "form": "togliamo",
+     "prompt": "Let's remove!"
+    },
+    {
+     "infinitive": "trascorrere",
+     "english": "to spend (time)",
+     "form": "trascorriamo",
+     "prompt": "Let's spend (time)!"
+    },
+    {
+     "infinitive": "trattare",
+     "english": "to treat",
+     "form": "trattiamo",
+     "prompt": "Let's treat!"
+    },
+    {
+     "infinitive": "usare",
+     "english": "to use",
+     "form": "usiamo",
+     "prompt": "Let's use it!"
+    },
+    {
+     "infinitive": "vedere",
+     "english": "to see",
+     "form": "vediamo",
+     "prompt": "Let's see!"
+    },
+    {
+     "infinitive": "venire",
+     "english": "to come",
+     "form": "veniamo",
+     "prompt": "Let's come!"
+    },
+    {
+     "infinitive": "vincere",
+     "english": "to win",
+     "form": "vinciamo",
+     "prompt": "Let's win!"
+    }
+   ],
+   "conjugations": {},
    "notes": 98,
    "cards": 98,
    "tutto_left": 0
@@ -822,50 +3709,653 @@
      "english": "Turn on! (you all)"
     },
     {
-     "italian": "aggiungete",
-     "english": "Add! (you all)"
-    },
-    {
-     "italian": "aiutate",
-     "english": "Help! (you all)"
-    },
-    {
-     "italian": "amate",
-     "english": "Love! (you all)"
-    },
-    {
-     "italian": "andatevene",
-     "english": "Go away, you all!"
-    },
-    {
-     "italian": "appendete",
-     "english": "Hang (it) up! (you all)"
-    },
-    {
-     "italian": "ascoltate",
-     "english": "Listen! (you all)"
-    },
-    {
-     "italian": "attendete",
-     "english": "Wait! (you all)"
-    },
-    {
-     "italian": "chiedete",
-     "english": "Ask! (you all)"
-    },
-    {
      "italian": "colpite",
      "english": "Hit! (you all)"
     },
     {
-     "italian": "conducete",
-     "english": "Lead the way, you all!"
+     "italian": "cuocete",
+     "english": "You all, cook!"
     },
     {
-     "italian": "connettetevi",
-     "english": "Connect! (you all)"
+     "italian": "dormite",
+     "english": "Sleep! (you all)"
+    },
+    {
+     "italian": "immaginate",
+     "english": "Imagine, all of you!"
+    },
+    {
+     "italian": "offrite",
+     "english": "Offer! (you all)"
+    },
+    {
+     "italian": "prendetevi",
+     "english": "Take it for yourselves! (you all)"
+    },
+    {
+     "italian": "restate",
+     "english": "Stay, you all!"
+    },
+    {
+     "italian": "scegliete",
+     "english": "Choose! (you all)"
+    },
+    {
+     "italian": "servite",
+     "english": "Serve! (you all)"
+    },
+    {
+     "italian": "stendete",
+     "english": "Spread it out, you all!"
+    },
+    {
+     "italian": "vincete",
+     "english": "Win, you all!"
     }
    ],
+   "verbs": [
+    {
+     "infinitive": "accendere",
+     "english": "to turn on",
+     "form": "accendete",
+     "prompt": "Turn on! (you all)"
+    },
+    {
+     "infinitive": "aggiungere",
+     "english": "to add",
+     "form": "aggiungete",
+     "prompt": "Add! (you all)"
+    },
+    {
+     "infinitive": "aiutare",
+     "english": "to help",
+     "form": "aiutate",
+     "prompt": "Help! (you all)"
+    },
+    {
+     "infinitive": "amare",
+     "english": "to love",
+     "form": "amate",
+     "prompt": "Love! (you all)"
+    },
+    {
+     "infinitive": "andarsene",
+     "english": "to leave, to go away",
+     "form": "andatevene",
+     "prompt": "Go away, you all!"
+    },
+    {
+     "infinitive": "appendere",
+     "english": "to hang (up)",
+     "form": "appendete",
+     "prompt": "Hang (it) up! (you all)"
+    },
+    {
+     "infinitive": "ascoltare",
+     "english": "to listen (to)",
+     "form": "ascoltate",
+     "prompt": "Listen! (you all)"
+    },
+    {
+     "infinitive": "attendere",
+     "english": "to wait for, to await",
+     "form": "attendete",
+     "prompt": "Wait! (you all)"
+    },
+    {
+     "infinitive": "chiedere",
+     "english": "to ask",
+     "form": "chiedete",
+     "prompt": "Ask! (you all)"
+    },
+    {
+     "infinitive": "colpire",
+     "english": "to hit, to strike",
+     "form": "colpite",
+     "prompt": "Hit! (you all)"
+    },
+    {
+     "infinitive": "condurre",
+     "english": "to lead, to guide",
+     "form": "conducete",
+     "prompt": "Lead the way, you all!"
+    },
+    {
+     "infinitive": "connettersi",
+     "english": "to connect (to a network)",
+     "form": "connettetevi",
+     "prompt": "Connect! (you all)"
+    },
+    {
+     "infinitive": "continuare",
+     "english": "to continue",
+     "form": "continuate",
+     "prompt": "Continue, you all!"
+    },
+    {
+     "infinitive": "correggere",
+     "english": "to correct",
+     "form": "correggete",
+     "prompt": "Correct! (you all)"
+    },
+    {
+     "infinitive": "correre",
+     "english": "to run",
+     "form": "correte",
+     "prompt": "Run, you all!"
+    },
+    {
+     "infinitive": "costruire",
+     "english": "to build",
+     "form": "costruite",
+     "prompt": "Build! (you all)"
+    },
+    {
+     "infinitive": "credere",
+     "english": "to believe · model for regular -ere verbs",
+     "form": "credete",
+     "prompt": "Believe! (you all)"
+    },
+    {
+     "infinitive": "crescere",
+     "english": "to grow, to grow up",
+     "form": "crescete",
+     "prompt": "Grow up, you all!"
+    },
+    {
+     "infinitive": "cuocere",
+     "english": "to cook, to bake",
+     "form": "cuocete",
+     "prompt": "You all, cook!"
+    },
+    {
+     "infinitive": "dare",
+     "english": "to give",
+     "form": "date",
+     "prompt": "Give! (you all)"
+    },
+    {
+     "infinitive": "decidere",
+     "english": "to decide",
+     "form": "decidete",
+     "prompt": "Decide, you all!"
+    },
+    {
+     "infinitive": "descrivere",
+     "english": "to describe",
+     "form": "descrivete",
+     "prompt": "Describe! (you all)"
+    },
+    {
+     "infinitive": "dimenticare",
+     "english": "to forget",
+     "form": "dimenticate",
+     "prompt": "Forget, you all!"
+    },
+    {
+     "infinitive": "dipingere",
+     "english": "to paint",
+     "form": "dipingete",
+     "prompt": "Paint! (you all)"
+    },
+    {
+     "infinitive": "dire",
+     "english": "to say",
+     "form": "dite",
+     "prompt": "Say! (you all)"
+    },
+    {
+     "infinitive": "discutere",
+     "english": "to discuss",
+     "form": "discutete",
+     "prompt": "Discuss it!"
+    },
+    {
+     "infinitive": "diventare",
+     "english": "to become",
+     "form": "diventate",
+     "prompt": "Become! (you all)"
+    },
+    {
+     "infinitive": "dormire",
+     "english": "to sleep · model for regular -ire verbs",
+     "form": "dormite",
+     "prompt": "Sleep! (you all)"
+    },
+    {
+     "infinitive": "entrare",
+     "english": "to enter, to go in",
+     "form": "entrate",
+     "prompt": "Come in, you all!"
+    },
+    {
+     "infinitive": "esprimere",
+     "english": "to express",
+     "form": "esprimete",
+     "prompt": "You all, express (something)!"
+    },
+    {
+     "infinitive": "evolversi",
+     "english": "to evolve",
+     "form": "evolvetevi",
+     "prompt": "Evolve, you all!"
+    },
+    {
+     "infinitive": "fermare",
+     "english": "to stop",
+     "form": "fermate",
+     "prompt": "Stop him, you all!"
+    },
+    {
+     "infinitive": "fermarsi",
+     "english": "to stop",
+     "form": "fermatevi",
+     "prompt": "Stop! (you all)"
+    },
+    {
+     "infinitive": "finire",
+     "english": "to finish · model for regular -ire (isc) verbs",
+     "form": "finite",
+     "prompt": "Finish! (you all)"
+    },
+    {
+     "infinitive": "friggere",
+     "english": "to fry",
+     "form": "friggete",
+     "prompt": "Fry! (you all)"
+    },
+    {
+     "infinitive": "giurare",
+     "english": "to swear",
+     "form": "giurate",
+     "prompt": "Swear! (you all)"
+    },
+    {
+     "infinitive": "immaginare",
+     "english": "to imagine",
+     "form": "immaginate",
+     "prompt": "Imagine, all of you!"
+    },
+    {
+     "infinitive": "incontrare",
+     "english": "to meet",
+     "form": "incontrate",
+     "prompt": "Meet! (you all)"
+    },
+    {
+     "infinitive": "insistere",
+     "english": "to insist",
+     "form": "insistete",
+     "prompt": "Insist! (you all)"
+    },
+    {
+     "infinitive": "lasciare",
+     "english": "to leave",
+     "form": "lasciate",
+     "prompt": "Leave! (you all)"
+    },
+    {
+     "infinitive": "mangiare",
+     "english": "to eat",
+     "form": "mangiate",
+     "prompt": "Eat! (you all)"
+    },
+    {
+     "infinitive": "mentire",
+     "english": "to lie",
+     "form": "mentite",
+     "prompt": "Lie! (you all)"
+    },
+    {
+     "infinitive": "morire",
+     "english": "to die",
+     "form": "morite",
+     "prompt": "Die! (you all)"
+    },
+    {
+     "infinitive": "muovere",
+     "english": "to move",
+     "form": "muovete",
+     "prompt": "Move it! (you all)"
+    },
+    {
+     "infinitive": "nascondere",
+     "english": "to hide",
+     "form": "nascondete",
+     "prompt": "Hide it! (you all)"
+    },
+    {
+     "infinitive": "offrire",
+     "english": "to offer",
+     "form": "offrite",
+     "prompt": "Offer! (you all)"
+    },
+    {
+     "infinitive": "parlare",
+     "english": "to speak, to talk · model for regular -are verbs",
+     "form": "parlate",
+     "prompt": "Speak! (you all)"
+    },
+    {
+     "infinitive": "passare",
+     "english": "to pass",
+     "form": "passate",
+     "prompt": "Pass! (you all)"
+    },
+    {
+     "infinitive": "pensare",
+     "english": "to think",
+     "form": "pensate",
+     "prompt": "Think! (you all)"
+    },
+    {
+     "infinitive": "piangere",
+     "english": "to cry, to weep",
+     "form": "piangete",
+     "prompt": "Cry! (you all)"
+    },
+    {
+     "infinitive": "porre",
+     "english": "to pose (a question)",
+     "form": "ponete",
+     "prompt": "Pose (a question)! (you all)"
+    },
+    {
+     "infinitive": "portare",
+     "english": "to bring, to carry",
+     "form": "portate",
+     "prompt": "Bring! (you all)"
+    },
+    {
+     "infinitive": "pregare",
+     "english": "to pray",
+     "form": "pregate",
+     "prompt": "Pray! (you all)"
+    },
+    {
+     "infinitive": "prendere",
+     "english": "to take",
+     "form": "prendete",
+     "prompt": "Take! (you all)"
+    },
+    {
+     "infinitive": "prendersi",
+     "english": "to take for oneself",
+     "form": "prendetevi",
+     "prompt": "Take it for yourselves! (you all)"
+    },
+    {
+     "infinitive": "preoccuparsi",
+     "english": "to worry",
+     "form": "preoccupatevi",
+     "prompt": "Worry, all of you!"
+    },
+    {
+     "infinitive": "produrre",
+     "english": "to produce, to make",
+     "form": "producete",
+     "prompt": "Produce! (you all)"
+    },
+    {
+     "infinitive": "promettere",
+     "english": "to promise",
+     "form": "promettete",
+     "prompt": "Promise! (you all)"
+    },
+    {
+     "infinitive": "promuovere",
+     "english": "to promote",
+     "form": "promuovete",
+     "prompt": "Promote! (you all)"
+    },
+    {
+     "infinitive": "proporre",
+     "english": "to propose, to suggest",
+     "form": "proponete",
+     "prompt": "Propose! (you all)"
+    },
+    {
+     "infinitive": "provare",
+     "english": "to try",
+     "form": "provate",
+     "prompt": "Try, all of you!"
+    },
+    {
+     "infinitive": "raccogliere",
+     "english": "to gather, collect",
+     "form": "raccogliete",
+     "prompt": "Gather, you all!"
+    },
+    {
+     "infinitive": "rendere",
+     "english": "to render, to make (+ adj.)",
+     "form": "rendete",
+     "prompt": "Render it …! (you all)"
+    },
+    {
+     "infinitive": "restare",
+     "english": "to stay, to remain",
+     "form": "restate",
+     "prompt": "Stay, you all!"
+    },
+    {
+     "infinitive": "riassumere",
+     "english": "to summarize",
+     "form": "riassumete",
+     "prompt": "Summarize! (you all)"
+    },
+    {
+     "infinitive": "ricordare",
+     "english": "to remember",
+     "form": "ricordate",
+     "prompt": "Remember! (you all)"
+    },
+    {
+     "infinitive": "ridere",
+     "english": "to laugh",
+     "form": "ridete",
+     "prompt": "Laugh, you all!"
+    },
+    {
+     "infinitive": "rimanere",
+     "english": "to remain",
+     "form": "rimanete",
+     "prompt": "Remain! (you all)"
+    },
+    {
+     "infinitive": "risolvere",
+     "english": "to solve",
+     "form": "risolvete",
+     "prompt": "Solve it, you all!"
+    },
+    {
+     "infinitive": "rompere",
+     "english": "to break",
+     "form": "rompete",
+     "prompt": "Break! (you all)"
+    },
+    {
+     "infinitive": "salire",
+     "english": "to go up",
+     "form": "salite",
+     "prompt": "Go up! (you all)"
+    },
+    {
+     "infinitive": "sapere",
+     "english": "to know (a fact)",
+     "form": "sappiate",
+     "prompt": "Know that...! (you all)"
+    },
+    {
+     "infinitive": "scegliere",
+     "english": "to choose",
+     "form": "scegliete",
+     "prompt": "Choose! (you all)"
+    },
+    {
+     "infinitive": "scendere",
+     "english": "to go down, to descend",
+     "form": "scendete",
+     "prompt": "Go down! (you all)"
+    },
+    {
+     "infinitive": "scherzare",
+     "english": "to joke",
+     "form": "scherzate",
+     "prompt": "Joke! (you all)"
+    },
+    {
+     "infinitive": "sciogliere",
+     "english": "to melt",
+     "form": "sciogliete",
+     "prompt": "Melt it! (you all)"
+    },
+    {
+     "infinitive": "scomparire",
+     "english": "to disappear",
+     "form": "scomparite",
+     "prompt": "Disappear! (you all)"
+    },
+    {
+     "infinitive": "scoprire",
+     "english": "to discover, to find out",
+     "form": "scoprite",
+     "prompt": "Discover, you all! / Find out!"
+    },
+    {
+     "infinitive": "scuotere",
+     "english": "to shake (something)",
+     "form": "scuotete",
+     "prompt": "Shake! (you all)"
+    },
+    {
+     "infinitive": "sedersi",
+     "english": "to sit down",
+     "form": "sedetevi",
+     "prompt": "Sit down, all of you!"
+    },
+    {
+     "infinitive": "sentire",
+     "english": "to hear",
+     "form": "sentite",
+     "prompt": "Listen! (you all)"
+    },
+    {
+     "infinitive": "servire",
+     "english": "to serve",
+     "form": "servite",
+     "prompt": "Serve! (you all)"
+    },
+    {
+     "infinitive": "smettere",
+     "english": "to stop",
+     "form": "smettete",
+     "prompt": "Stop! (you all)"
+    },
+    {
+     "infinitive": "sorridere",
+     "english": "to smile",
+     "form": "sorridete",
+     "prompt": "Smile! (you all)"
+    },
+    {
+     "infinitive": "sparare",
+     "english": "to shoot, to fire",
+     "form": "sparate",
+     "prompt": "Shoot! (you all)"
+    },
+    {
+     "infinitive": "spegnere",
+     "english": "to turn off, switch off",
+     "form": "spegnete",
+     "prompt": "Turn it off!"
+    },
+    {
+     "infinitive": "spendere",
+     "english": "to spend",
+     "form": "spendete",
+     "prompt": "Spend! (you all)"
+    },
+    {
+     "infinitive": "sperare",
+     "english": "to hope",
+     "form": "sperate",
+     "prompt": "Hope! (you all)"
+    },
+    {
+     "infinitive": "spingere",
+     "english": "to push",
+     "form": "spingete",
+     "prompt": "Push! (you all)"
+    },
+    {
+     "infinitive": "stare",
+     "english": "to stay",
+     "form": "state",
+     "prompt": "Stay, you all!"
+    },
+    {
+     "infinitive": "stendere",
+     "english": "to spread, stretch out",
+     "form": "stendete",
+     "prompt": "Spread it out, you all!"
+    },
+    {
+     "infinitive": "svolgere",
+     "english": "to carry out",
+     "form": "svolgete",
+     "prompt": "Carry it out! (you all)"
+    },
+    {
+     "infinitive": "tenere",
+     "english": "to hold",
+     "form": "tenete",
+     "prompt": "Hold! (you all)"
+    },
+    {
+     "infinitive": "togliere",
+     "english": "to remove, take away",
+     "form": "togliete",
+     "prompt": "Remove! (you all)"
+    },
+    {
+     "infinitive": "trascorrere",
+     "english": "to spend (time)",
+     "form": "trascorrete",
+     "prompt": "Spend (time)! (you all)"
+    },
+    {
+     "infinitive": "trattare",
+     "english": "to treat",
+     "form": "trattate",
+     "prompt": "Treat! (you all)"
+    },
+    {
+     "infinitive": "usare",
+     "english": "to use",
+     "form": "usate",
+     "prompt": "Use it! (you all)"
+    },
+    {
+     "infinitive": "vedere",
+     "english": "to see",
+     "form": "vedete",
+     "prompt": "See! (you all)"
+    },
+    {
+     "infinitive": "venire",
+     "english": "to come",
+     "form": "venite",
+     "prompt": "Come! (you all)"
+    },
+    {
+     "infinitive": "vincere",
+     "english": "to win",
+     "form": "vincete",
+     "prompt": "Win, you all!"
+    }
+   ],
+   "conjugations": {},
    "notes": 100,
    "cards": 100,
    "tutto_left": 0
@@ -880,50 +4370,586 @@
      "english": "they will happen"
     },
     {
-     "italian": "accadrà",
-     "english": "it will happen"
+     "italian": "colpiranno",
+     "english": "they will hit"
     },
     {
-     "italian": "accenderai",
-     "english": "you will turn on"
+     "italian": "deciderà",
+     "english": "he/she will decide"
     },
     {
-     "italian": "accenderanno",
-     "english": "they will turn on"
+     "italian": "esisterai",
+     "english": "you will exist"
     },
     {
-     "italian": "accenderemo",
-     "english": "we will turn on"
+     "italian": "lasceranno",
+     "english": "they will leave"
     },
     {
-     "italian": "accenderete",
-     "english": "you all will turn on"
+     "italian": "parlerà",
+     "english": "he/she will speak"
     },
     {
-     "italian": "accenderà",
-     "english": "he/she will turn on"
+     "italian": "produrranno",
+     "english": "they will produce"
     },
     {
-     "italian": "accenderò",
-     "english": "I will turn on"
+     "italian": "riderò",
+     "english": "I will laugh"
     },
     {
-     "italian": "aggiungerai",
-     "english": "you will add"
+     "italian": "scioglieremo",
+     "english": "we will melt it"
     },
     {
-     "italian": "aggiungeranno",
-     "english": "they will add"
+     "italian": "sorriderà",
+     "english": "he/she will smile"
     },
     {
-     "italian": "aggiungeremo",
-     "english": "we will add"
+     "italian": "ti fermerai",
+     "english": "you will stop"
     },
     {
-     "italian": "aggiungerete",
-     "english": "you all will add"
+     "italian": "vorrò",
+     "english": "I will want"
     }
    ],
+   "verbs": [
+    {
+     "infinitive": "accadere",
+     "english": "to happen"
+    },
+    {
+     "infinitive": "accendere",
+     "english": "to turn on"
+    },
+    {
+     "infinitive": "aggiungere",
+     "english": "to add"
+    },
+    {
+     "infinitive": "aiutare",
+     "english": "to help"
+    },
+    {
+     "infinitive": "amare",
+     "english": "to love"
+    },
+    {
+     "infinitive": "andarsene",
+     "english": "to leave, to go away"
+    },
+    {
+     "infinitive": "appendere",
+     "english": "to hang (up)"
+    },
+    {
+     "infinitive": "ascoltare",
+     "english": "to listen (to)"
+    },
+    {
+     "infinitive": "attendere",
+     "english": "to wait for, to await"
+    },
+    {
+     "infinitive": "cadere",
+     "english": "to fall"
+    },
+    {
+     "infinitive": "chiedere",
+     "english": "to ask"
+    },
+    {
+     "infinitive": "colpire",
+     "english": "to hit, to strike"
+    },
+    {
+     "infinitive": "condurre",
+     "english": "to lead, to guide"
+    },
+    {
+     "infinitive": "connettersi",
+     "english": "to connect (to a network)"
+    },
+    {
+     "infinitive": "continuare",
+     "english": "to continue"
+    },
+    {
+     "infinitive": "correggere",
+     "english": "to correct"
+    },
+    {
+     "infinitive": "correre",
+     "english": "to run"
+    },
+    {
+     "infinitive": "costruire",
+     "english": "to build"
+    },
+    {
+     "infinitive": "credere",
+     "english": "to believe · model for regular -ere verbs"
+    },
+    {
+     "infinitive": "crescere",
+     "english": "to grow, to grow up"
+    },
+    {
+     "infinitive": "cuocere",
+     "english": "to cook, to bake"
+    },
+    {
+     "infinitive": "dare",
+     "english": "to give"
+    },
+    {
+     "infinitive": "decidere",
+     "english": "to decide"
+    },
+    {
+     "infinitive": "deprimere",
+     "english": "to depress"
+    },
+    {
+     "infinitive": "descrivere",
+     "english": "to describe"
+    },
+    {
+     "infinitive": "dimenticare",
+     "english": "to forget"
+    },
+    {
+     "infinitive": "dipendere",
+     "english": "to depend"
+    },
+    {
+     "infinitive": "dipingere",
+     "english": "to paint"
+    },
+    {
+     "infinitive": "dire",
+     "english": "to say"
+    },
+    {
+     "infinitive": "discutere",
+     "english": "to discuss"
+    },
+    {
+     "infinitive": "dispiacere",
+     "english": "to be sorry"
+    },
+    {
+     "infinitive": "diventare",
+     "english": "to become"
+    },
+    {
+     "infinitive": "dormire",
+     "english": "to sleep · model for regular -ire verbs"
+    },
+    {
+     "infinitive": "entrare",
+     "english": "to enter, to go in"
+    },
+    {
+     "infinitive": "esistere",
+     "english": "to exist"
+    },
+    {
+     "infinitive": "esplodere",
+     "english": "to explode"
+    },
+    {
+     "infinitive": "esprimere",
+     "english": "to express"
+    },
+    {
+     "infinitive": "evolversi",
+     "english": "to evolve"
+    },
+    {
+     "infinitive": "fermare",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "fermarsi",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "finire",
+     "english": "to finish · model for regular -ire (isc) verbs"
+    },
+    {
+     "infinitive": "friggere",
+     "english": "to fry"
+    },
+    {
+     "infinitive": "giurare",
+     "english": "to swear"
+    },
+    {
+     "infinitive": "immaginare",
+     "english": "to imagine"
+    },
+    {
+     "infinitive": "importare",
+     "english": "to matter"
+    },
+    {
+     "infinitive": "incontrare",
+     "english": "to meet"
+    },
+    {
+     "infinitive": "insistere",
+     "english": "to insist"
+    },
+    {
+     "infinitive": "lasciare",
+     "english": "to leave"
+    },
+    {
+     "infinitive": "mancare",
+     "english": "to miss (someone)"
+    },
+    {
+     "infinitive": "mangiare",
+     "english": "to eat"
+    },
+    {
+     "infinitive": "mentire",
+     "english": "to lie"
+    },
+    {
+     "infinitive": "morire",
+     "english": "to die"
+    },
+    {
+     "infinitive": "muovere",
+     "english": "to move"
+    },
+    {
+     "infinitive": "nascondere",
+     "english": "to hide"
+    },
+    {
+     "infinitive": "odiare",
+     "english": "to hate"
+    },
+    {
+     "infinitive": "offrire",
+     "english": "to offer"
+    },
+    {
+     "infinitive": "parere",
+     "english": "to seem, to appear"
+    },
+    {
+     "infinitive": "parlare",
+     "english": "to speak, to talk · model for regular -are verbs"
+    },
+    {
+     "infinitive": "passare",
+     "english": "to pass"
+    },
+    {
+     "infinitive": "pensare",
+     "english": "to think"
+    },
+    {
+     "infinitive": "piacere",
+     "english": "to like (be pleasing to)"
+    },
+    {
+     "infinitive": "piangere",
+     "english": "to cry, to weep"
+    },
+    {
+     "infinitive": "porre",
+     "english": "to pose (a question)"
+    },
+    {
+     "infinitive": "portare",
+     "english": "to bring, to carry"
+    },
+    {
+     "infinitive": "pregare",
+     "english": "to pray"
+    },
+    {
+     "infinitive": "prendere",
+     "english": "to take"
+    },
+    {
+     "infinitive": "prendersi",
+     "english": "to take for oneself"
+    },
+    {
+     "infinitive": "preoccuparsi",
+     "english": "to worry"
+    },
+    {
+     "infinitive": "prevedere",
+     "english": "to plan (to do)"
+    },
+    {
+     "infinitive": "produrre",
+     "english": "to produce, to make"
+    },
+    {
+     "infinitive": "promettere",
+     "english": "to promise"
+    },
+    {
+     "infinitive": "promuovere",
+     "english": "to promote"
+    },
+    {
+     "infinitive": "proporre",
+     "english": "to propose, to suggest"
+    },
+    {
+     "infinitive": "provare",
+     "english": "to try"
+    },
+    {
+     "infinitive": "raccogliere",
+     "english": "to gather, collect"
+    },
+    {
+     "infinitive": "rendere",
+     "english": "to render, to make (+ adj.)"
+    },
+    {
+     "infinitive": "restare",
+     "english": "to stay, to remain"
+    },
+    {
+     "infinitive": "riassumere",
+     "english": "to summarize"
+    },
+    {
+     "infinitive": "ricordare",
+     "english": "to remember"
+    },
+    {
+     "infinitive": "ridere",
+     "english": "to laugh"
+    },
+    {
+     "infinitive": "rimanere",
+     "english": "to remain"
+    },
+    {
+     "infinitive": "risolvere",
+     "english": "to solve"
+    },
+    {
+     "infinitive": "riuscire",
+     "english": "to manage (to do)"
+    },
+    {
+     "infinitive": "rompere",
+     "english": "to break"
+    },
+    {
+     "infinitive": "salire",
+     "english": "to go up"
+    },
+    {
+     "infinitive": "sapere",
+     "english": "to know (a fact)"
+    },
+    {
+     "infinitive": "sbagliare",
+     "english": "to make a mistake"
+    },
+    {
+     "infinitive": "scegliere",
+     "english": "to choose"
+    },
+    {
+     "infinitive": "scendere",
+     "english": "to go down, to descend"
+    },
+    {
+     "infinitive": "scherzare",
+     "english": "to joke"
+    },
+    {
+     "infinitive": "sciogliere",
+     "english": "to melt"
+    },
+    {
+     "infinitive": "scomparire",
+     "english": "to disappear"
+    },
+    {
+     "infinitive": "scoprire",
+     "english": "to discover, to find out"
+    },
+    {
+     "infinitive": "scuotere",
+     "english": "to shake (something)"
+    },
+    {
+     "infinitive": "sedersi",
+     "english": "to sit down"
+    },
+    {
+     "infinitive": "sembrare",
+     "english": "to seem"
+    },
+    {
+     "infinitive": "sentire",
+     "english": "to hear"
+    },
+    {
+     "infinitive": "servire",
+     "english": "to serve"
+    },
+    {
+     "infinitive": "smettere",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "sorridere",
+     "english": "to smile"
+    },
+    {
+     "infinitive": "sparare",
+     "english": "to shoot, to fire"
+    },
+    {
+     "infinitive": "spegnere",
+     "english": "to turn off, switch off"
+    },
+    {
+     "infinitive": "spendere",
+     "english": "to spend"
+    },
+    {
+     "infinitive": "sperare",
+     "english": "to hope"
+    },
+    {
+     "infinitive": "spiacere",
+     "english": "to be sorry (lit. to displease)"
+    },
+    {
+     "infinitive": "spingere",
+     "english": "to push"
+    },
+    {
+     "infinitive": "stare",
+     "english": "to stay"
+    },
+    {
+     "infinitive": "stendere",
+     "english": "to spread, stretch out"
+    },
+    {
+     "infinitive": "succedere",
+     "english": "to happen"
+    },
+    {
+     "infinitive": "svolgere",
+     "english": "to carry out"
+    },
+    {
+     "infinitive": "tenere",
+     "english": "to hold"
+    },
+    {
+     "infinitive": "togliere",
+     "english": "to remove, take away"
+    },
+    {
+     "infinitive": "trascorrere",
+     "english": "to spend (time)"
+    },
+    {
+     "infinitive": "trattare",
+     "english": "to treat"
+    },
+    {
+     "infinitive": "usare",
+     "english": "to use"
+    },
+    {
+     "infinitive": "valere",
+     "english": "to be worth"
+    },
+    {
+     "infinitive": "vedere",
+     "english": "to see"
+    },
+    {
+     "infinitive": "venire",
+     "english": "to come"
+    },
+    {
+     "infinitive": "vincere",
+     "english": "to win"
+    },
+    {
+     "infinitive": "volere",
+     "english": "to want"
+    }
+   ],
+   "conjugations": {
+    "vedere": [
+     {
+      "italian": "vedrò",
+      "english": "I will see"
+     },
+     {
+      "italian": "vedrai",
+      "english": "you will see"
+     },
+     {
+      "italian": "vedrà",
+      "english": "he/she will see"
+     },
+     {
+      "italian": "vedremo",
+      "english": "we will see"
+     },
+     {
+      "italian": "vedrete",
+      "english": "you all will see"
+     },
+     {
+      "italian": "vedranno",
+      "english": "they will see"
+     }
+    ],
+    "parlare": [
+     {
+      "italian": "parlerò",
+      "english": "I will speak"
+     },
+     {
+      "italian": "parlerai",
+      "english": "you will speak"
+     },
+     {
+      "italian": "parlerà",
+      "english": "he/she will speak"
+     },
+     {
+      "italian": "parleremo",
+      "english": "we will speak"
+     },
+     {
+      "italian": "parlerete",
+      "english": "you all will speak"
+     },
+     {
+      "italian": "parleranno",
+      "english": "they will speak"
+     }
+    ]
+   },
    "notes": 700,
    "cards": 700,
    "tutto_left": 0
@@ -938,50 +4964,641 @@
      "english": "Turn on!"
     },
     {
-     "italian": "aggiunga",
-     "english": "Add!"
-    },
-    {
-     "italian": "aiuti",
-     "english": "Help!"
-    },
-    {
-     "italian": "ami",
-     "english": "Love!"
-    },
-    {
-     "italian": "appenda",
-     "english": "Hang (it) up!"
-    },
-    {
-     "italian": "ascolti",
-     "english": "Listen!"
-    },
-    {
-     "italian": "attenda",
-     "english": "Wait!"
-    },
-    {
-     "italian": "chieda",
-     "english": "Ask!"
-    },
-    {
-     "italian": "colpisca",
-     "english": "Hit!"
-    },
-    {
      "italian": "conduca",
      "english": "Lead the way!"
     },
     {
-     "italian": "continui",
-     "english": "Continue!"
+     "italian": "dia",
+     "english": "Give!"
     },
     {
-     "italian": "corra",
-     "english": "Run!"
+     "italian": "esprima",
+     "english": "Express (something)!"
+    },
+    {
+     "italian": "mangi",
+     "english": "Eat!"
+    },
+    {
+     "italian": "ponga",
+     "english": "Pose (a question)!"
+    },
+    {
+     "italian": "raccolga",
+     "english": "Gather!"
+    },
+    {
+     "italian": "salga",
+     "english": "Go up!"
+    },
+    {
+     "italian": "se ne vada",
+     "english": "Go away!"
+    },
+    {
+     "italian": "si sieda",
+     "english": "Sit down!"
+    },
+    {
+     "italian": "stia",
+     "english": "Stay!"
+    },
+    {
+     "italian": "vinca",
+     "english": "Win!"
     }
    ],
+   "verbs": [
+    {
+     "infinitive": "accendere",
+     "english": "to turn on",
+     "form": "accenda",
+     "prompt": "Turn on!"
+    },
+    {
+     "infinitive": "aggiungere",
+     "english": "to add",
+     "form": "aggiunga",
+     "prompt": "Add!"
+    },
+    {
+     "infinitive": "aiutare",
+     "english": "to help",
+     "form": "aiuti",
+     "prompt": "Help!"
+    },
+    {
+     "infinitive": "amare",
+     "english": "to love",
+     "form": "ami",
+     "prompt": "Love!"
+    },
+    {
+     "infinitive": "andarsene",
+     "english": "to leave, to go away",
+     "form": "se ne vada",
+     "prompt": "Go away!"
+    },
+    {
+     "infinitive": "appendere",
+     "english": "to hang (up)",
+     "form": "appenda",
+     "prompt": "Hang (it) up!"
+    },
+    {
+     "infinitive": "ascoltare",
+     "english": "to listen (to)",
+     "form": "ascolti",
+     "prompt": "Listen!"
+    },
+    {
+     "infinitive": "attendere",
+     "english": "to wait for, to await",
+     "form": "attenda",
+     "prompt": "Wait!"
+    },
+    {
+     "infinitive": "chiedere",
+     "english": "to ask",
+     "form": "chieda",
+     "prompt": "Ask!"
+    },
+    {
+     "infinitive": "colpire",
+     "english": "to hit, to strike",
+     "form": "colpisca",
+     "prompt": "Hit!"
+    },
+    {
+     "infinitive": "condurre",
+     "english": "to lead, to guide",
+     "form": "conduca",
+     "prompt": "Lead the way!"
+    },
+    {
+     "infinitive": "connettersi",
+     "english": "to connect (to a network)",
+     "form": "si connetta",
+     "prompt": "Connect!"
+    },
+    {
+     "infinitive": "continuare",
+     "english": "to continue",
+     "form": "continui",
+     "prompt": "Continue!"
+    },
+    {
+     "infinitive": "correggere",
+     "english": "to correct",
+     "form": "corregga",
+     "prompt": "Correct!"
+    },
+    {
+     "infinitive": "correre",
+     "english": "to run",
+     "form": "corra",
+     "prompt": "Run!"
+    },
+    {
+     "infinitive": "costruire",
+     "english": "to build",
+     "form": "costruisca",
+     "prompt": "Build!"
+    },
+    {
+     "infinitive": "credere",
+     "english": "to believe · model for regular -ere verbs",
+     "form": "creda",
+     "prompt": "Believe!"
+    },
+    {
+     "infinitive": "cuocere",
+     "english": "to cook, to bake",
+     "form": "cuocia",
+     "prompt": "Cook!"
+    },
+    {
+     "infinitive": "dare",
+     "english": "to give",
+     "form": "dia",
+     "prompt": "Give!"
+    },
+    {
+     "infinitive": "decidere",
+     "english": "to decide",
+     "form": "decida",
+     "prompt": "Decide!"
+    },
+    {
+     "infinitive": "descrivere",
+     "english": "to describe",
+     "form": "descriva",
+     "prompt": "Describe!"
+    },
+    {
+     "infinitive": "dimenticare",
+     "english": "to forget",
+     "form": "dimentichi",
+     "prompt": "Forget!"
+    },
+    {
+     "infinitive": "dipingere",
+     "english": "to paint",
+     "form": "dipinga",
+     "prompt": "Paint!"
+    },
+    {
+     "infinitive": "dire",
+     "english": "to say",
+     "form": "dica",
+     "prompt": "Say!"
+    },
+    {
+     "infinitive": "discutere",
+     "english": "to discuss",
+     "form": "discuta",
+     "prompt": "Discuss it!"
+    },
+    {
+     "infinitive": "diventare",
+     "english": "to become",
+     "form": "diventi",
+     "prompt": "Become!"
+    },
+    {
+     "infinitive": "dormire",
+     "english": "to sleep · model for regular -ire verbs",
+     "form": "dorma",
+     "prompt": "Sleep!"
+    },
+    {
+     "infinitive": "entrare",
+     "english": "to enter, to go in",
+     "form": "entri",
+     "prompt": "Come in!"
+    },
+    {
+     "infinitive": "esprimere",
+     "english": "to express",
+     "form": "esprima",
+     "prompt": "Express (something)!"
+    },
+    {
+     "infinitive": "evolversi",
+     "english": "to evolve",
+     "form": "si evolva",
+     "prompt": "Evolve!"
+    },
+    {
+     "infinitive": "fermare",
+     "english": "to stop",
+     "form": "fermi",
+     "prompt": "Stop him!"
+    },
+    {
+     "infinitive": "fermarsi",
+     "english": "to stop",
+     "form": "si fermi",
+     "prompt": "Stop!"
+    },
+    {
+     "infinitive": "finire",
+     "english": "to finish · model for regular -ire (isc) verbs",
+     "form": "finisca",
+     "prompt": "Finish!"
+    },
+    {
+     "infinitive": "friggere",
+     "english": "to fry",
+     "form": "frigga",
+     "prompt": "Fry!"
+    },
+    {
+     "infinitive": "giurare",
+     "english": "to swear",
+     "form": "giuri",
+     "prompt": "Swear!"
+    },
+    {
+     "infinitive": "immaginare",
+     "english": "to imagine",
+     "form": "immagini",
+     "prompt": "Imagine!"
+    },
+    {
+     "infinitive": "incontrare",
+     "english": "to meet",
+     "form": "incontri",
+     "prompt": "Meet!"
+    },
+    {
+     "infinitive": "insistere",
+     "english": "to insist",
+     "form": "insista",
+     "prompt": "Insist!"
+    },
+    {
+     "infinitive": "lasciare",
+     "english": "to leave",
+     "form": "lasci",
+     "prompt": "Leave!"
+    },
+    {
+     "infinitive": "mangiare",
+     "english": "to eat",
+     "form": "mangi",
+     "prompt": "Eat!"
+    },
+    {
+     "infinitive": "mentire",
+     "english": "to lie",
+     "form": "menta",
+     "prompt": "Lie!"
+    },
+    {
+     "infinitive": "muovere",
+     "english": "to move",
+     "form": "muova",
+     "prompt": "Move it!"
+    },
+    {
+     "infinitive": "nascondere",
+     "english": "to hide",
+     "form": "nasconda",
+     "prompt": "Hide it!"
+    },
+    {
+     "infinitive": "offrire",
+     "english": "to offer",
+     "form": "offra",
+     "prompt": "Offer!"
+    },
+    {
+     "infinitive": "parlare",
+     "english": "to speak, to talk · model for regular -are verbs",
+     "form": "parli",
+     "prompt": "Speak!"
+    },
+    {
+     "infinitive": "passare",
+     "english": "to pass",
+     "form": "passi",
+     "prompt": "Pass!"
+    },
+    {
+     "infinitive": "pensare",
+     "english": "to think",
+     "form": "pensi",
+     "prompt": "Think!"
+    },
+    {
+     "infinitive": "piangere",
+     "english": "to cry, to weep",
+     "form": "pianga",
+     "prompt": "Cry!"
+    },
+    {
+     "infinitive": "porre",
+     "english": "to pose (a question)",
+     "form": "ponga",
+     "prompt": "Pose (a question)!"
+    },
+    {
+     "infinitive": "portare",
+     "english": "to bring, to carry",
+     "form": "porti",
+     "prompt": "Bring!"
+    },
+    {
+     "infinitive": "pregare",
+     "english": "to pray",
+     "form": "preghi",
+     "prompt": "Pray!"
+    },
+    {
+     "infinitive": "prendere",
+     "english": "to take",
+     "form": "prenda",
+     "prompt": "Take!"
+    },
+    {
+     "infinitive": "prendersi",
+     "english": "to take for oneself",
+     "form": "si prenda",
+     "prompt": "Take it for yourself!"
+    },
+    {
+     "infinitive": "preoccuparsi",
+     "english": "to worry",
+     "form": "si preoccupi",
+     "prompt": "Worry!"
+    },
+    {
+     "infinitive": "produrre",
+     "english": "to produce, to make",
+     "form": "produca",
+     "prompt": "Produce!"
+    },
+    {
+     "infinitive": "promettere",
+     "english": "to promise",
+     "form": "prometta",
+     "prompt": "Promise!"
+    },
+    {
+     "infinitive": "promuovere",
+     "english": "to promote",
+     "form": "promuova",
+     "prompt": "Promote!"
+    },
+    {
+     "infinitive": "proporre",
+     "english": "to propose, to suggest",
+     "form": "proponga",
+     "prompt": "Propose!"
+    },
+    {
+     "infinitive": "provare",
+     "english": "to try",
+     "form": "provi",
+     "prompt": "Try!"
+    },
+    {
+     "infinitive": "raccogliere",
+     "english": "to gather, collect",
+     "form": "raccolga",
+     "prompt": "Gather!"
+    },
+    {
+     "infinitive": "rendere",
+     "english": "to render, to make (+ adj.)",
+     "form": "renda",
+     "prompt": "Render it …!"
+    },
+    {
+     "infinitive": "restare",
+     "english": "to stay, to remain",
+     "form": "resti",
+     "prompt": "Stay!"
+    },
+    {
+     "infinitive": "riassumere",
+     "english": "to summarize",
+     "form": "riassuma",
+     "prompt": "Summarize!"
+    },
+    {
+     "infinitive": "ricordare",
+     "english": "to remember",
+     "form": "ricordi",
+     "prompt": "Remember!"
+    },
+    {
+     "infinitive": "ridere",
+     "english": "to laugh",
+     "form": "rida",
+     "prompt": "Laugh!"
+    },
+    {
+     "infinitive": "rimanere",
+     "english": "to remain",
+     "form": "rimanga",
+     "prompt": "Remain!"
+    },
+    {
+     "infinitive": "risolvere",
+     "english": "to solve",
+     "form": "risolva",
+     "prompt": "Solve it!"
+    },
+    {
+     "infinitive": "rompere",
+     "english": "to break",
+     "form": "rompa",
+     "prompt": "Break!"
+    },
+    {
+     "infinitive": "salire",
+     "english": "to go up",
+     "form": "salga",
+     "prompt": "Go up!"
+    },
+    {
+     "infinitive": "sapere",
+     "english": "to know (a fact)",
+     "form": "sappia",
+     "prompt": "Know that...!"
+    },
+    {
+     "infinitive": "scegliere",
+     "english": "to choose",
+     "form": "scelga",
+     "prompt": "Choose!"
+    },
+    {
+     "infinitive": "scendere",
+     "english": "to go down, to descend",
+     "form": "scenda",
+     "prompt": "Go down!"
+    },
+    {
+     "infinitive": "scherzare",
+     "english": "to joke",
+     "form": "scherzi",
+     "prompt": "Joke!"
+    },
+    {
+     "infinitive": "sciogliere",
+     "english": "to melt",
+     "form": "sciolga",
+     "prompt": "Melt it!"
+    },
+    {
+     "infinitive": "scomparire",
+     "english": "to disappear",
+     "form": "scompaia",
+     "prompt": "Disappear!"
+    },
+    {
+     "infinitive": "scoprire",
+     "english": "to discover, to find out",
+     "form": "scopra",
+     "prompt": "Discover! / Find out!"
+    },
+    {
+     "infinitive": "scuotere",
+     "english": "to shake (something)",
+     "form": "scuota",
+     "prompt": "Shake!"
+    },
+    {
+     "infinitive": "sedersi",
+     "english": "to sit down",
+     "form": "si sieda",
+     "prompt": "Sit down!"
+    },
+    {
+     "infinitive": "sentire",
+     "english": "to hear",
+     "form": "senta",
+     "prompt": "Listen!"
+    },
+    {
+     "infinitive": "servire",
+     "english": "to serve",
+     "form": "serva",
+     "prompt": "Serve!"
+    },
+    {
+     "infinitive": "smettere",
+     "english": "to stop",
+     "form": "smetta",
+     "prompt": "Stop!"
+    },
+    {
+     "infinitive": "sorridere",
+     "english": "to smile",
+     "form": "sorrida",
+     "prompt": "Smile!"
+    },
+    {
+     "infinitive": "sparare",
+     "english": "to shoot, to fire",
+     "form": "spari",
+     "prompt": "Shoot!"
+    },
+    {
+     "infinitive": "spegnere",
+     "english": "to turn off, switch off",
+     "form": "spenga",
+     "prompt": "Turn it off!"
+    },
+    {
+     "infinitive": "spendere",
+     "english": "to spend",
+     "form": "spenda",
+     "prompt": "Spend!"
+    },
+    {
+     "infinitive": "sperare",
+     "english": "to hope",
+     "form": "speri",
+     "prompt": "Hope!"
+    },
+    {
+     "infinitive": "spingere",
+     "english": "to push",
+     "form": "spinga",
+     "prompt": "Push!"
+    },
+    {
+     "infinitive": "stare",
+     "english": "to stay",
+     "form": "stia",
+     "prompt": "Stay!"
+    },
+    {
+     "infinitive": "stendere",
+     "english": "to spread, stretch out",
+     "form": "stenda",
+     "prompt": "Spread it out!"
+    },
+    {
+     "infinitive": "svolgere",
+     "english": "to carry out",
+     "form": "svolga",
+     "prompt": "Carry it out!"
+    },
+    {
+     "infinitive": "tenere",
+     "english": "to hold",
+     "form": "tenga",
+     "prompt": "Hold!"
+    },
+    {
+     "infinitive": "togliere",
+     "english": "to remove, take away",
+     "form": "tolga",
+     "prompt": "Remove!"
+    },
+    {
+     "infinitive": "trascorrere",
+     "english": "to spend (time)",
+     "form": "trascorra",
+     "prompt": "Spend (time)!"
+    },
+    {
+     "infinitive": "trattare",
+     "english": "to treat",
+     "form": "tratti",
+     "prompt": "Treat!"
+    },
+    {
+     "infinitive": "usare",
+     "english": "to use",
+     "form": "usi",
+     "prompt": "Use it!"
+    },
+    {
+     "infinitive": "vedere",
+     "english": "to see",
+     "form": "veda",
+     "prompt": "See!"
+    },
+    {
+     "infinitive": "venire",
+     "english": "to come",
+     "form": "venga",
+     "prompt": "Come!"
+    },
+    {
+     "infinitive": "vincere",
+     "english": "to win",
+     "form": "vinca",
+     "prompt": "Win!"
+    }
+   ],
+   "conjugations": {},
    "notes": 98,
    "cards": 98,
    "tutto_left": 0
@@ -996,50 +5613,653 @@
      "english": "Turn on!"
     },
     {
-     "italian": "aggiungi",
-     "english": "Add!"
-    },
-    {
-     "italian": "aiuta",
-     "english": "Help!"
-    },
-    {
-     "italian": "ama",
-     "english": "Love! (you)"
-    },
-    {
-     "italian": "appendi",
-     "english": "Hang (it) up!"
-    },
-    {
-     "italian": "ascolta",
-     "english": "Listen!"
-    },
-    {
-     "italian": "attendi",
-     "english": "Wait!"
-    },
-    {
-     "italian": "chiedi",
-     "english": "Ask!"
-    },
-    {
-     "italian": "colpisci",
-     "english": "Hit!"
-    },
-    {
      "italian": "conduci",
      "english": "Lead the way!"
     },
     {
-     "italian": "connettiti",
-     "english": "Connect!"
+     "italian": "dai",
+     "english": "Give!"
     },
     {
-     "italian": "continua",
-     "english": "Continue!"
+     "italian": "entra",
+     "english": "Come in!"
+    },
+    {
+     "italian": "incontra",
+     "english": "Meet!"
+    },
+    {
+     "italian": "parla",
+     "english": "Speak!"
+    },
+    {
+     "italian": "preoccupati",
+     "english": "Worry!"
+    },
+    {
+     "italian": "riassumi",
+     "english": "Summarize! (you)"
+    },
+    {
+     "italian": "scendi",
+     "english": "Go down!"
+    },
+    {
+     "italian": "smetti",
+     "english": "Stop!"
+    },
+    {
+     "italian": "svolgi",
+     "english": "Carry it out!"
+    },
+    {
+     "italian": "vinci",
+     "english": "Win!"
     }
    ],
+   "verbs": [
+    {
+     "infinitive": "accendere",
+     "english": "to turn on",
+     "form": "accendi",
+     "prompt": "Turn on!"
+    },
+    {
+     "infinitive": "aggiungere",
+     "english": "to add",
+     "form": "aggiungi",
+     "prompt": "Add!"
+    },
+    {
+     "infinitive": "aiutare",
+     "english": "to help",
+     "form": "aiuta",
+     "prompt": "Help!"
+    },
+    {
+     "infinitive": "amare",
+     "english": "to love",
+     "form": "ama",
+     "prompt": "Love! (you)"
+    },
+    {
+     "infinitive": "andarsene",
+     "english": "to leave, to go away",
+     "form": "vattene",
+     "prompt": "Go away!"
+    },
+    {
+     "infinitive": "appendere",
+     "english": "to hang (up)",
+     "form": "appendi",
+     "prompt": "Hang (it) up!"
+    },
+    {
+     "infinitive": "ascoltare",
+     "english": "to listen (to)",
+     "form": "ascolta",
+     "prompt": "Listen!"
+    },
+    {
+     "infinitive": "attendere",
+     "english": "to wait for, to await",
+     "form": "attendi",
+     "prompt": "Wait!"
+    },
+    {
+     "infinitive": "chiedere",
+     "english": "to ask",
+     "form": "chiedi",
+     "prompt": "Ask!"
+    },
+    {
+     "infinitive": "colpire",
+     "english": "to hit, to strike",
+     "form": "colpisci",
+     "prompt": "Hit!"
+    },
+    {
+     "infinitive": "condurre",
+     "english": "to lead, to guide",
+     "form": "conduci",
+     "prompt": "Lead the way!"
+    },
+    {
+     "infinitive": "connettersi",
+     "english": "to connect (to a network)",
+     "form": "connettiti",
+     "prompt": "Connect!"
+    },
+    {
+     "infinitive": "continuare",
+     "english": "to continue",
+     "form": "continua",
+     "prompt": "Continue!"
+    },
+    {
+     "infinitive": "correggere",
+     "english": "to correct",
+     "form": "correggi",
+     "prompt": "Correct!"
+    },
+    {
+     "infinitive": "correre",
+     "english": "to run",
+     "form": "corri",
+     "prompt": "Run!"
+    },
+    {
+     "infinitive": "costruire",
+     "english": "to build",
+     "form": "costruisci",
+     "prompt": "Build!"
+    },
+    {
+     "infinitive": "credere",
+     "english": "to believe · model for regular -ere verbs",
+     "form": "credi",
+     "prompt": "Believe!"
+    },
+    {
+     "infinitive": "crescere",
+     "english": "to grow, to grow up",
+     "form": "cresci",
+     "prompt": "Grow up!"
+    },
+    {
+     "infinitive": "cuocere",
+     "english": "to cook, to bake",
+     "form": "cuoci",
+     "prompt": "Cook!"
+    },
+    {
+     "infinitive": "dare",
+     "english": "to give",
+     "form": "dai",
+     "prompt": "Give!"
+    },
+    {
+     "infinitive": "decidere",
+     "english": "to decide",
+     "form": "decidi",
+     "prompt": "Decide!"
+    },
+    {
+     "infinitive": "descrivere",
+     "english": "to describe",
+     "form": "descrivi",
+     "prompt": "Describe!"
+    },
+    {
+     "infinitive": "dimenticare",
+     "english": "to forget",
+     "form": "dimentica",
+     "prompt": "Forget!"
+    },
+    {
+     "infinitive": "dipingere",
+     "english": "to paint",
+     "form": "dipingi",
+     "prompt": "Paint!"
+    },
+    {
+     "infinitive": "dire",
+     "english": "to say",
+     "form": "dì'",
+     "prompt": "Say!"
+    },
+    {
+     "infinitive": "discutere",
+     "english": "to discuss",
+     "form": "discuti",
+     "prompt": "Discuss it!"
+    },
+    {
+     "infinitive": "diventare",
+     "english": "to become",
+     "form": "diventa",
+     "prompt": "Become!"
+    },
+    {
+     "infinitive": "dormire",
+     "english": "to sleep · model for regular -ire verbs",
+     "form": "dormi",
+     "prompt": "Sleep! (you)"
+    },
+    {
+     "infinitive": "entrare",
+     "english": "to enter, to go in",
+     "form": "entra",
+     "prompt": "Come in!"
+    },
+    {
+     "infinitive": "esprimere",
+     "english": "to express",
+     "form": "esprimi",
+     "prompt": "Express (something)!"
+    },
+    {
+     "infinitive": "evolversi",
+     "english": "to evolve",
+     "form": "evolviti",
+     "prompt": "Evolve!"
+    },
+    {
+     "infinitive": "fermare",
+     "english": "to stop",
+     "form": "ferma",
+     "prompt": "Stop him!"
+    },
+    {
+     "infinitive": "fermarsi",
+     "english": "to stop",
+     "form": "fermati",
+     "prompt": "Stop!"
+    },
+    {
+     "infinitive": "finire",
+     "english": "to finish · model for regular -ire (isc) verbs",
+     "form": "finisci",
+     "prompt": "Finish!"
+    },
+    {
+     "infinitive": "friggere",
+     "english": "to fry",
+     "form": "friggi",
+     "prompt": "Fry!"
+    },
+    {
+     "infinitive": "giurare",
+     "english": "to swear",
+     "form": "giura",
+     "prompt": "Swear!"
+    },
+    {
+     "infinitive": "immaginare",
+     "english": "to imagine",
+     "form": "immagina",
+     "prompt": "Imagine!"
+    },
+    {
+     "infinitive": "incontrare",
+     "english": "to meet",
+     "form": "incontra",
+     "prompt": "Meet!"
+    },
+    {
+     "infinitive": "insistere",
+     "english": "to insist",
+     "form": "insisti",
+     "prompt": "Insist!"
+    },
+    {
+     "infinitive": "lasciare",
+     "english": "to leave",
+     "form": "lascia",
+     "prompt": "Leave!"
+    },
+    {
+     "infinitive": "mangiare",
+     "english": "to eat",
+     "form": "mangia",
+     "prompt": "Eat!"
+    },
+    {
+     "infinitive": "mentire",
+     "english": "to lie",
+     "form": "menti",
+     "prompt": "Lie!"
+    },
+    {
+     "infinitive": "morire",
+     "english": "to die",
+     "form": "muori",
+     "prompt": "Die!"
+    },
+    {
+     "infinitive": "muovere",
+     "english": "to move",
+     "form": "muovi",
+     "prompt": "Move it!"
+    },
+    {
+     "infinitive": "nascondere",
+     "english": "to hide",
+     "form": "nascondi",
+     "prompt": "Hide it!"
+    },
+    {
+     "infinitive": "offrire",
+     "english": "to offer",
+     "form": "offri",
+     "prompt": "Offer!"
+    },
+    {
+     "infinitive": "parlare",
+     "english": "to speak, to talk · model for regular -are verbs",
+     "form": "parla",
+     "prompt": "Speak!"
+    },
+    {
+     "infinitive": "passare",
+     "english": "to pass",
+     "form": "passa",
+     "prompt": "Pass!"
+    },
+    {
+     "infinitive": "pensare",
+     "english": "to think",
+     "form": "pensa",
+     "prompt": "Think!"
+    },
+    {
+     "infinitive": "piangere",
+     "english": "to cry, to weep",
+     "form": "piangi",
+     "prompt": "Cry!"
+    },
+    {
+     "infinitive": "porre",
+     "english": "to pose (a question)",
+     "form": "poni",
+     "prompt": "Pose (a question)!"
+    },
+    {
+     "infinitive": "portare",
+     "english": "to bring, to carry",
+     "form": "porta",
+     "prompt": "Bring!"
+    },
+    {
+     "infinitive": "pregare",
+     "english": "to pray",
+     "form": "prega",
+     "prompt": "Pray!"
+    },
+    {
+     "infinitive": "prendere",
+     "english": "to take",
+     "form": "prendi",
+     "prompt": "Take!"
+    },
+    {
+     "infinitive": "prendersi",
+     "english": "to take for oneself",
+     "form": "prenditi",
+     "prompt": "Take it for yourself!"
+    },
+    {
+     "infinitive": "preoccuparsi",
+     "english": "to worry",
+     "form": "preoccupati",
+     "prompt": "Worry!"
+    },
+    {
+     "infinitive": "produrre",
+     "english": "to produce, to make",
+     "form": "produci",
+     "prompt": "Produce!"
+    },
+    {
+     "infinitive": "promettere",
+     "english": "to promise",
+     "form": "prometti",
+     "prompt": "Promise!"
+    },
+    {
+     "infinitive": "promuovere",
+     "english": "to promote",
+     "form": "promuovi",
+     "prompt": "Promote!"
+    },
+    {
+     "infinitive": "proporre",
+     "english": "to propose, to suggest",
+     "form": "proponi",
+     "prompt": "Propose!"
+    },
+    {
+     "infinitive": "provare",
+     "english": "to try",
+     "form": "prova",
+     "prompt": "Try!"
+    },
+    {
+     "infinitive": "raccogliere",
+     "english": "to gather, collect",
+     "form": "raccogli",
+     "prompt": "Gather!"
+    },
+    {
+     "infinitive": "rendere",
+     "english": "to render, to make (+ adj.)",
+     "form": "rendi",
+     "prompt": "Render it …!"
+    },
+    {
+     "infinitive": "restare",
+     "english": "to stay, to remain",
+     "form": "resta",
+     "prompt": "Stay!"
+    },
+    {
+     "infinitive": "riassumere",
+     "english": "to summarize",
+     "form": "riassumi",
+     "prompt": "Summarize! (you)"
+    },
+    {
+     "infinitive": "ricordare",
+     "english": "to remember",
+     "form": "ricorda",
+     "prompt": "Remember!"
+    },
+    {
+     "infinitive": "ridere",
+     "english": "to laugh",
+     "form": "ridi",
+     "prompt": "Laugh!"
+    },
+    {
+     "infinitive": "rimanere",
+     "english": "to remain",
+     "form": "rimani",
+     "prompt": "Remain! (you)"
+    },
+    {
+     "infinitive": "risolvere",
+     "english": "to solve",
+     "form": "risolvi",
+     "prompt": "Solve it!"
+    },
+    {
+     "infinitive": "rompere",
+     "english": "to break",
+     "form": "rompi",
+     "prompt": "Break!"
+    },
+    {
+     "infinitive": "salire",
+     "english": "to go up",
+     "form": "sali",
+     "prompt": "Go up!"
+    },
+    {
+     "infinitive": "sapere",
+     "english": "to know (a fact)",
+     "form": "sappi",
+     "prompt": "Know that...!"
+    },
+    {
+     "infinitive": "scegliere",
+     "english": "to choose",
+     "form": "scegli",
+     "prompt": "Choose!"
+    },
+    {
+     "infinitive": "scendere",
+     "english": "to go down, to descend",
+     "form": "scendi",
+     "prompt": "Go down!"
+    },
+    {
+     "infinitive": "scherzare",
+     "english": "to joke",
+     "form": "scherza",
+     "prompt": "Joke!"
+    },
+    {
+     "infinitive": "sciogliere",
+     "english": "to melt",
+     "form": "sciogli",
+     "prompt": "Melt it!"
+    },
+    {
+     "infinitive": "scomparire",
+     "english": "to disappear",
+     "form": "scompari",
+     "prompt": "Disappear!"
+    },
+    {
+     "infinitive": "scoprire",
+     "english": "to discover, to find out",
+     "form": "scopri",
+     "prompt": "Discover! / Find out!"
+    },
+    {
+     "infinitive": "scuotere",
+     "english": "to shake (something)",
+     "form": "scuoti",
+     "prompt": "Shake!"
+    },
+    {
+     "infinitive": "sedersi",
+     "english": "to sit down",
+     "form": "siediti",
+     "prompt": "Sit down!"
+    },
+    {
+     "infinitive": "sentire",
+     "english": "to hear",
+     "form": "senti",
+     "prompt": "Listen!"
+    },
+    {
+     "infinitive": "servire",
+     "english": "to serve",
+     "form": "servi",
+     "prompt": "Serve!"
+    },
+    {
+     "infinitive": "smettere",
+     "english": "to stop",
+     "form": "smetti",
+     "prompt": "Stop!"
+    },
+    {
+     "infinitive": "sorridere",
+     "english": "to smile",
+     "form": "sorridi",
+     "prompt": "Smile!"
+    },
+    {
+     "infinitive": "sparare",
+     "english": "to shoot, to fire",
+     "form": "spara",
+     "prompt": "Shoot!"
+    },
+    {
+     "infinitive": "spegnere",
+     "english": "to turn off, switch off",
+     "form": "spegni",
+     "prompt": "Turn it off!"
+    },
+    {
+     "infinitive": "spendere",
+     "english": "to spend",
+     "form": "spendi",
+     "prompt": "Spend!"
+    },
+    {
+     "infinitive": "sperare",
+     "english": "to hope",
+     "form": "spera",
+     "prompt": "Hope!"
+    },
+    {
+     "infinitive": "spingere",
+     "english": "to push",
+     "form": "spingi",
+     "prompt": "Push!"
+    },
+    {
+     "infinitive": "stare",
+     "english": "to stay",
+     "form": "stai",
+     "prompt": "Stay!"
+    },
+    {
+     "infinitive": "stendere",
+     "english": "to spread, stretch out",
+     "form": "stendi",
+     "prompt": "Spread it out!"
+    },
+    {
+     "infinitive": "svolgere",
+     "english": "to carry out",
+     "form": "svolgi",
+     "prompt": "Carry it out!"
+    },
+    {
+     "infinitive": "tenere",
+     "english": "to hold",
+     "form": "tieni",
+     "prompt": "Hold!"
+    },
+    {
+     "infinitive": "togliere",
+     "english": "to remove, take away",
+     "form": "togli",
+     "prompt": "Remove!"
+    },
+    {
+     "infinitive": "trascorrere",
+     "english": "to spend (time)",
+     "form": "trascorri",
+     "prompt": "Spend (time)!"
+    },
+    {
+     "infinitive": "trattare",
+     "english": "to treat",
+     "form": "tratta",
+     "prompt": "Treat!"
+    },
+    {
+     "infinitive": "usare",
+     "english": "to use",
+     "form": "usa",
+     "prompt": "Use it!"
+    },
+    {
+     "infinitive": "vedere",
+     "english": "to see",
+     "form": "vedi",
+     "prompt": "See!"
+    },
+    {
+     "infinitive": "venire",
+     "english": "to come",
+     "form": "vieni",
+     "prompt": "Come!"
+    },
+    {
+     "infinitive": "vincere",
+     "english": "to win",
+     "form": "vinci",
+     "prompt": "Win!"
+    }
+   ],
+   "conjugations": {},
    "notes": 100,
    "cards": 100,
    "tutto_left": 0
@@ -1054,50 +6274,586 @@
      "english": "it used to happen / it was happening"
     },
     {
-     "italian": "accadevano",
-     "english": "they used to happen / they were happening"
+     "italian": "colpivamo",
+     "english": "we used to hit / we were hitting"
     },
     {
-     "italian": "accendeva",
-     "english": "he/she used to turn on / he/she was turning on"
+     "italian": "decidevi",
+     "english": "you used to decide / you were deciding"
     },
     {
-     "italian": "accendevamo",
-     "english": "we used to turn on / we were turning on"
+     "italian": "esisteva",
+     "english": "he/she/it used to exist / existed"
     },
     {
-     "italian": "accendevano",
-     "english": "they used to turn on / they were turning on"
+     "italian": "lasciavamo",
+     "english": "we used to leave / we were leaving"
     },
     {
-     "italian": "accendevate",
-     "english": "you all used to turn on / you all were turning on"
+     "italian": "parevi",
+     "english": "you used to seem / you seemed"
     },
     {
-     "italian": "accendevi",
-     "english": "you used to turn on / you were turning on"
+     "italian": "producevamo",
+     "english": "we used to produce / we were producing"
     },
     {
-     "italian": "accendevo",
-     "english": "I used to turn on / I was turning on"
+     "italian": "ridevo",
+     "english": "I used to laugh / I was laughing"
     },
     {
-     "italian": "aggiungeva",
-     "english": "he/she used to add / he/she was adding"
+     "italian": "scioglievano",
+     "english": "they used to melt it / were melting it"
     },
     {
-     "italian": "aggiungevamo",
-     "english": "we used to add / we were adding"
+     "italian": "sorridevi",
+     "english": "you used to smile / you were smiling"
     },
     {
-     "italian": "aggiungevano",
-     "english": "they used to add / they were adding"
+     "italian": "ti fermavi",
+     "english": "you used to stop / you were stopping"
     },
     {
-     "italian": "aggiungevate",
-     "english": "you all used to add / you all were adding"
+     "italian": "volevo",
+     "english": "I used to want / I wanted"
     }
    ],
+   "verbs": [
+    {
+     "infinitive": "accadere",
+     "english": "to happen"
+    },
+    {
+     "infinitive": "accendere",
+     "english": "to turn on"
+    },
+    {
+     "infinitive": "aggiungere",
+     "english": "to add"
+    },
+    {
+     "infinitive": "aiutare",
+     "english": "to help"
+    },
+    {
+     "infinitive": "amare",
+     "english": "to love"
+    },
+    {
+     "infinitive": "andarsene",
+     "english": "to leave, to go away"
+    },
+    {
+     "infinitive": "appendere",
+     "english": "to hang (up)"
+    },
+    {
+     "infinitive": "ascoltare",
+     "english": "to listen (to)"
+    },
+    {
+     "infinitive": "attendere",
+     "english": "to wait for, to await"
+    },
+    {
+     "infinitive": "cadere",
+     "english": "to fall"
+    },
+    {
+     "infinitive": "chiedere",
+     "english": "to ask"
+    },
+    {
+     "infinitive": "colpire",
+     "english": "to hit, to strike"
+    },
+    {
+     "infinitive": "condurre",
+     "english": "to lead, to guide"
+    },
+    {
+     "infinitive": "connettersi",
+     "english": "to connect (to a network)"
+    },
+    {
+     "infinitive": "continuare",
+     "english": "to continue"
+    },
+    {
+     "infinitive": "correggere",
+     "english": "to correct"
+    },
+    {
+     "infinitive": "correre",
+     "english": "to run"
+    },
+    {
+     "infinitive": "costruire",
+     "english": "to build"
+    },
+    {
+     "infinitive": "credere",
+     "english": "to believe · model for regular -ere verbs"
+    },
+    {
+     "infinitive": "crescere",
+     "english": "to grow, to grow up"
+    },
+    {
+     "infinitive": "cuocere",
+     "english": "to cook, to bake"
+    },
+    {
+     "infinitive": "dare",
+     "english": "to give"
+    },
+    {
+     "infinitive": "decidere",
+     "english": "to decide"
+    },
+    {
+     "infinitive": "deprimere",
+     "english": "to depress"
+    },
+    {
+     "infinitive": "descrivere",
+     "english": "to describe"
+    },
+    {
+     "infinitive": "dimenticare",
+     "english": "to forget"
+    },
+    {
+     "infinitive": "dipendere",
+     "english": "to depend"
+    },
+    {
+     "infinitive": "dipingere",
+     "english": "to paint"
+    },
+    {
+     "infinitive": "dire",
+     "english": "to say"
+    },
+    {
+     "infinitive": "discutere",
+     "english": "to discuss"
+    },
+    {
+     "infinitive": "dispiacere",
+     "english": "to be sorry"
+    },
+    {
+     "infinitive": "diventare",
+     "english": "to become"
+    },
+    {
+     "infinitive": "dormire",
+     "english": "to sleep · model for regular -ire verbs"
+    },
+    {
+     "infinitive": "entrare",
+     "english": "to enter, to go in"
+    },
+    {
+     "infinitive": "esistere",
+     "english": "to exist"
+    },
+    {
+     "infinitive": "esplodere",
+     "english": "to explode"
+    },
+    {
+     "infinitive": "esprimere",
+     "english": "to express"
+    },
+    {
+     "infinitive": "evolversi",
+     "english": "to evolve"
+    },
+    {
+     "infinitive": "fermare",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "fermarsi",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "finire",
+     "english": "to finish · model for regular -ire (isc) verbs"
+    },
+    {
+     "infinitive": "friggere",
+     "english": "to fry"
+    },
+    {
+     "infinitive": "giurare",
+     "english": "to swear"
+    },
+    {
+     "infinitive": "immaginare",
+     "english": "to imagine"
+    },
+    {
+     "infinitive": "importare",
+     "english": "to matter"
+    },
+    {
+     "infinitive": "incontrare",
+     "english": "to meet"
+    },
+    {
+     "infinitive": "insistere",
+     "english": "to insist"
+    },
+    {
+     "infinitive": "lasciare",
+     "english": "to leave"
+    },
+    {
+     "infinitive": "mancare",
+     "english": "to miss (someone)"
+    },
+    {
+     "infinitive": "mangiare",
+     "english": "to eat"
+    },
+    {
+     "infinitive": "mentire",
+     "english": "to lie"
+    },
+    {
+     "infinitive": "morire",
+     "english": "to die"
+    },
+    {
+     "infinitive": "muovere",
+     "english": "to move"
+    },
+    {
+     "infinitive": "nascondere",
+     "english": "to hide"
+    },
+    {
+     "infinitive": "odiare",
+     "english": "to hate"
+    },
+    {
+     "infinitive": "offrire",
+     "english": "to offer"
+    },
+    {
+     "infinitive": "parere",
+     "english": "to seem, to appear"
+    },
+    {
+     "infinitive": "parlare",
+     "english": "to speak, to talk · model for regular -are verbs"
+    },
+    {
+     "infinitive": "passare",
+     "english": "to pass"
+    },
+    {
+     "infinitive": "pensare",
+     "english": "to think"
+    },
+    {
+     "infinitive": "piacere",
+     "english": "to like (be pleasing to)"
+    },
+    {
+     "infinitive": "piangere",
+     "english": "to cry, to weep"
+    },
+    {
+     "infinitive": "porre",
+     "english": "to pose (a question)"
+    },
+    {
+     "infinitive": "portare",
+     "english": "to bring, to carry"
+    },
+    {
+     "infinitive": "pregare",
+     "english": "to pray"
+    },
+    {
+     "infinitive": "prendere",
+     "english": "to take"
+    },
+    {
+     "infinitive": "prendersi",
+     "english": "to take for oneself"
+    },
+    {
+     "infinitive": "preoccuparsi",
+     "english": "to worry"
+    },
+    {
+     "infinitive": "prevedere",
+     "english": "to plan (to do)"
+    },
+    {
+     "infinitive": "produrre",
+     "english": "to produce, to make"
+    },
+    {
+     "infinitive": "promettere",
+     "english": "to promise"
+    },
+    {
+     "infinitive": "promuovere",
+     "english": "to promote"
+    },
+    {
+     "infinitive": "proporre",
+     "english": "to propose, to suggest"
+    },
+    {
+     "infinitive": "provare",
+     "english": "to try"
+    },
+    {
+     "infinitive": "raccogliere",
+     "english": "to gather, collect"
+    },
+    {
+     "infinitive": "rendere",
+     "english": "to render, to make (+ adj.)"
+    },
+    {
+     "infinitive": "restare",
+     "english": "to stay, to remain"
+    },
+    {
+     "infinitive": "riassumere",
+     "english": "to summarize"
+    },
+    {
+     "infinitive": "ricordare",
+     "english": "to remember"
+    },
+    {
+     "infinitive": "ridere",
+     "english": "to laugh"
+    },
+    {
+     "infinitive": "rimanere",
+     "english": "to remain"
+    },
+    {
+     "infinitive": "risolvere",
+     "english": "to solve"
+    },
+    {
+     "infinitive": "riuscire",
+     "english": "to manage (to do)"
+    },
+    {
+     "infinitive": "rompere",
+     "english": "to break"
+    },
+    {
+     "infinitive": "salire",
+     "english": "to go up"
+    },
+    {
+     "infinitive": "sapere",
+     "english": "to know (a fact)"
+    },
+    {
+     "infinitive": "sbagliare",
+     "english": "to make a mistake"
+    },
+    {
+     "infinitive": "scegliere",
+     "english": "to choose"
+    },
+    {
+     "infinitive": "scendere",
+     "english": "to go down, to descend"
+    },
+    {
+     "infinitive": "scherzare",
+     "english": "to joke"
+    },
+    {
+     "infinitive": "sciogliere",
+     "english": "to melt"
+    },
+    {
+     "infinitive": "scomparire",
+     "english": "to disappear"
+    },
+    {
+     "infinitive": "scoprire",
+     "english": "to discover, to find out"
+    },
+    {
+     "infinitive": "scuotere",
+     "english": "to shake (something)"
+    },
+    {
+     "infinitive": "sedersi",
+     "english": "to sit down"
+    },
+    {
+     "infinitive": "sembrare",
+     "english": "to seem"
+    },
+    {
+     "infinitive": "sentire",
+     "english": "to hear"
+    },
+    {
+     "infinitive": "servire",
+     "english": "to serve"
+    },
+    {
+     "infinitive": "smettere",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "sorridere",
+     "english": "to smile"
+    },
+    {
+     "infinitive": "sparare",
+     "english": "to shoot, to fire"
+    },
+    {
+     "infinitive": "spegnere",
+     "english": "to turn off, switch off"
+    },
+    {
+     "infinitive": "spendere",
+     "english": "to spend"
+    },
+    {
+     "infinitive": "sperare",
+     "english": "to hope"
+    },
+    {
+     "infinitive": "spiacere",
+     "english": "to be sorry (lit. to displease)"
+    },
+    {
+     "infinitive": "spingere",
+     "english": "to push"
+    },
+    {
+     "infinitive": "stare",
+     "english": "to stay"
+    },
+    {
+     "infinitive": "stendere",
+     "english": "to spread, stretch out"
+    },
+    {
+     "infinitive": "succedere",
+     "english": "to happen"
+    },
+    {
+     "infinitive": "svolgere",
+     "english": "to carry out"
+    },
+    {
+     "infinitive": "tenere",
+     "english": "to hold"
+    },
+    {
+     "infinitive": "togliere",
+     "english": "to remove, take away"
+    },
+    {
+     "infinitive": "trascorrere",
+     "english": "to spend (time)"
+    },
+    {
+     "infinitive": "trattare",
+     "english": "to treat"
+    },
+    {
+     "infinitive": "usare",
+     "english": "to use"
+    },
+    {
+     "infinitive": "valere",
+     "english": "to be worth"
+    },
+    {
+     "infinitive": "vedere",
+     "english": "to see"
+    },
+    {
+     "infinitive": "venire",
+     "english": "to come"
+    },
+    {
+     "infinitive": "vincere",
+     "english": "to win"
+    },
+    {
+     "infinitive": "volere",
+     "english": "to want"
+    }
+   ],
+   "conjugations": {
+    "vedere": [
+     {
+      "italian": "vedevo",
+      "english": "I used to see / I was seeing"
+     },
+     {
+      "italian": "vedevi",
+      "english": "you used to see / you were seeing"
+     },
+     {
+      "italian": "vedeva",
+      "english": "he/she used to see / was seeing"
+     },
+     {
+      "italian": "vedevamo",
+      "english": "we used to see / we were seeing"
+     },
+     {
+      "italian": "vedevate",
+      "english": "you all used to see / were seeing"
+     },
+     {
+      "italian": "vedevano",
+      "english": "they used to see / they were seeing"
+     }
+    ],
+    "parlare": [
+     {
+      "italian": "parlavo",
+      "english": "I used to speak / I was speaking"
+     },
+     {
+      "italian": "parlavi",
+      "english": "you used to speak / you were speaking"
+     },
+     {
+      "italian": "parlava",
+      "english": "he/she used to speak / he/she was speaking"
+     },
+     {
+      "italian": "parlavamo",
+      "english": "we used to speak / we were speaking"
+     },
+     {
+      "italian": "parlavate",
+      "english": "you all used to speak / you all were speaking"
+     },
+     {
+      "italian": "parlavano",
+      "english": "they used to speak / they were speaking"
+     }
+    ]
+   },
    "notes": 700,
    "cards": 700,
    "tutto_left": 0
@@ -1112,50 +6868,578 @@
      "english": "we turned on / we have turned on"
     },
     {
-     "italian": "abbiamo aggiunto",
-     "english": "we added / we have added"
+     "italian": "abbiamo scelto",
+     "english": "we chose / we have chosen"
     },
     {
-     "italian": "abbiamo aiutato",
-     "english": "we helped / we have helped"
+     "italian": "avete offerto",
+     "english": "you all offered / you all have offered"
     },
     {
-     "italian": "abbiamo amato",
-     "english": "we loved / we have loved"
+     "italian": "ha condotto",
+     "english": "he/she led / he/she has led"
     },
     {
-     "italian": "abbiamo appeso",
-     "english": "we hung (up) / we have hung (up)"
+     "italian": "ha spento",
+     "english": "he/she turned off / he/she has turned off"
     },
     {
-     "italian": "abbiamo ascoltato",
-     "english": "we listened / we have listened"
+     "italian": "hai prodotto",
+     "english": "you produced / you have produced"
     },
     {
-     "italian": "abbiamo atteso",
-     "english": "we waited for / we have waited for"
+     "italian": "hanno espresso",
+     "english": "they expressed / they have expressed"
     },
     {
-     "italian": "abbiamo chiesto",
-     "english": "we asked / we have asked"
+     "italian": "ho aggiunto",
+     "english": "I added / I have added"
     },
     {
-     "italian": "abbiamo colpito",
-     "english": "we hit / we have hit"
+     "italian": "ho sciolto",
+     "english": "I melted it / I have melted it"
     },
     {
-     "italian": "abbiamo condotto",
-     "english": "we led / we have led"
+     "italian": "siamo cresciuti/e",
+     "english": "we grew up / we have grown up"
     },
     {
-     "italian": "abbiamo continuato",
-     "english": "we continued / we have continued"
+     "italian": "sono parso/a",
+     "english": "I seemed / I have seemed"
     },
     {
-     "italian": "abbiamo corretto",
-     "english": "we corrected / we have corrected"
+     "italian": "è venuto/a",
+     "english": "he/she came / he/she has come"
     }
    ],
+   "verbs": [
+    {
+     "infinitive": "accadere",
+     "english": "to happen"
+    },
+    {
+     "infinitive": "accendere",
+     "english": "to turn on"
+    },
+    {
+     "infinitive": "aggiungere",
+     "english": "to add"
+    },
+    {
+     "infinitive": "aiutare",
+     "english": "to help"
+    },
+    {
+     "infinitive": "amare",
+     "english": "to love"
+    },
+    {
+     "infinitive": "appendere",
+     "english": "to hang (up)"
+    },
+    {
+     "infinitive": "ascoltare",
+     "english": "to listen (to)"
+    },
+    {
+     "infinitive": "attendere",
+     "english": "to wait for, to await"
+    },
+    {
+     "infinitive": "cadere",
+     "english": "to fall"
+    },
+    {
+     "infinitive": "chiedere",
+     "english": "to ask"
+    },
+    {
+     "infinitive": "colpire",
+     "english": "to hit, to strike"
+    },
+    {
+     "infinitive": "condurre",
+     "english": "to lead, to guide"
+    },
+    {
+     "infinitive": "connettersi",
+     "english": "to connect (to a network)"
+    },
+    {
+     "infinitive": "continuare",
+     "english": "to continue"
+    },
+    {
+     "infinitive": "correggere",
+     "english": "to correct"
+    },
+    {
+     "infinitive": "correre",
+     "english": "to run"
+    },
+    {
+     "infinitive": "costruire",
+     "english": "to build"
+    },
+    {
+     "infinitive": "credere",
+     "english": "to believe · model for regular -ere verbs"
+    },
+    {
+     "infinitive": "crescere",
+     "english": "to grow, to grow up"
+    },
+    {
+     "infinitive": "cuocere",
+     "english": "to cook, to bake"
+    },
+    {
+     "infinitive": "dare",
+     "english": "to give"
+    },
+    {
+     "infinitive": "decidere",
+     "english": "to decide"
+    },
+    {
+     "infinitive": "deprimere",
+     "english": "to depress"
+    },
+    {
+     "infinitive": "descrivere",
+     "english": "to describe"
+    },
+    {
+     "infinitive": "dimenticare",
+     "english": "to forget"
+    },
+    {
+     "infinitive": "dipendere",
+     "english": "to depend"
+    },
+    {
+     "infinitive": "dipingere",
+     "english": "to paint"
+    },
+    {
+     "infinitive": "dire",
+     "english": "to say"
+    },
+    {
+     "infinitive": "discutere",
+     "english": "to discuss"
+    },
+    {
+     "infinitive": "dispiacere",
+     "english": "to be sorry"
+    },
+    {
+     "infinitive": "diventare",
+     "english": "to become"
+    },
+    {
+     "infinitive": "dormire",
+     "english": "to sleep · model for regular -ire verbs"
+    },
+    {
+     "infinitive": "entrare",
+     "english": "to enter, to go in"
+    },
+    {
+     "infinitive": "esistere",
+     "english": "to exist"
+    },
+    {
+     "infinitive": "esplodere",
+     "english": "to explode"
+    },
+    {
+     "infinitive": "esprimere",
+     "english": "to express"
+    },
+    {
+     "infinitive": "evolversi",
+     "english": "to evolve"
+    },
+    {
+     "infinitive": "fermare",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "fermarsi",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "finire",
+     "english": "to finish · model for regular -ire (isc) verbs"
+    },
+    {
+     "infinitive": "friggere",
+     "english": "to fry"
+    },
+    {
+     "infinitive": "giurare",
+     "english": "to swear"
+    },
+    {
+     "infinitive": "immaginare",
+     "english": "to imagine"
+    },
+    {
+     "infinitive": "importare",
+     "english": "to matter"
+    },
+    {
+     "infinitive": "incontrare",
+     "english": "to meet"
+    },
+    {
+     "infinitive": "insistere",
+     "english": "to insist"
+    },
+    {
+     "infinitive": "lasciare",
+     "english": "to leave"
+    },
+    {
+     "infinitive": "mancare",
+     "english": "to miss (someone)"
+    },
+    {
+     "infinitive": "mangiare",
+     "english": "to eat"
+    },
+    {
+     "infinitive": "mentire",
+     "english": "to lie"
+    },
+    {
+     "infinitive": "morire",
+     "english": "to die"
+    },
+    {
+     "infinitive": "muovere",
+     "english": "to move"
+    },
+    {
+     "infinitive": "nascondere",
+     "english": "to hide"
+    },
+    {
+     "infinitive": "odiare",
+     "english": "to hate"
+    },
+    {
+     "infinitive": "offrire",
+     "english": "to offer"
+    },
+    {
+     "infinitive": "parere",
+     "english": "to seem, to appear"
+    },
+    {
+     "infinitive": "parlare",
+     "english": "to speak, to talk · model for regular -are verbs"
+    },
+    {
+     "infinitive": "pensare",
+     "english": "to think"
+    },
+    {
+     "infinitive": "piacere",
+     "english": "to like (be pleasing to)"
+    },
+    {
+     "infinitive": "piangere",
+     "english": "to cry, to weep"
+    },
+    {
+     "infinitive": "porre",
+     "english": "to pose (a question)"
+    },
+    {
+     "infinitive": "portare",
+     "english": "to bring, to carry"
+    },
+    {
+     "infinitive": "pregare",
+     "english": "to pray"
+    },
+    {
+     "infinitive": "prendere",
+     "english": "to take"
+    },
+    {
+     "infinitive": "prendersi",
+     "english": "to take for oneself"
+    },
+    {
+     "infinitive": "preoccuparsi",
+     "english": "to worry"
+    },
+    {
+     "infinitive": "prevedere",
+     "english": "to plan (to do)"
+    },
+    {
+     "infinitive": "produrre",
+     "english": "to produce, to make"
+    },
+    {
+     "infinitive": "promettere",
+     "english": "to promise"
+    },
+    {
+     "infinitive": "promuovere",
+     "english": "to promote"
+    },
+    {
+     "infinitive": "proporre",
+     "english": "to propose, to suggest"
+    },
+    {
+     "infinitive": "provare",
+     "english": "to try"
+    },
+    {
+     "infinitive": "raccogliere",
+     "english": "to gather, collect"
+    },
+    {
+     "infinitive": "rendere",
+     "english": "to render, to make (+ adj.)"
+    },
+    {
+     "infinitive": "restare",
+     "english": "to stay, to remain"
+    },
+    {
+     "infinitive": "riassumere",
+     "english": "to summarize"
+    },
+    {
+     "infinitive": "ricordare",
+     "english": "to remember"
+    },
+    {
+     "infinitive": "ridere",
+     "english": "to laugh"
+    },
+    {
+     "infinitive": "rimanere",
+     "english": "to remain"
+    },
+    {
+     "infinitive": "risolvere",
+     "english": "to solve"
+    },
+    {
+     "infinitive": "riuscire",
+     "english": "to manage (to do)"
+    },
+    {
+     "infinitive": "rompere",
+     "english": "to break"
+    },
+    {
+     "infinitive": "salire",
+     "english": "to go up"
+    },
+    {
+     "infinitive": "sapere",
+     "english": "to know (a fact)"
+    },
+    {
+     "infinitive": "sbagliare",
+     "english": "to make a mistake"
+    },
+    {
+     "infinitive": "scegliere",
+     "english": "to choose"
+    },
+    {
+     "infinitive": "scendere",
+     "english": "to go down, to descend"
+    },
+    {
+     "infinitive": "scherzare",
+     "english": "to joke"
+    },
+    {
+     "infinitive": "sciogliere",
+     "english": "to melt"
+    },
+    {
+     "infinitive": "scomparire",
+     "english": "to disappear"
+    },
+    {
+     "infinitive": "scoprire",
+     "english": "to discover, to find out"
+    },
+    {
+     "infinitive": "scuotere",
+     "english": "to shake (something)"
+    },
+    {
+     "infinitive": "sedersi",
+     "english": "to sit down"
+    },
+    {
+     "infinitive": "sembrare",
+     "english": "to seem"
+    },
+    {
+     "infinitive": "sentire",
+     "english": "to hear"
+    },
+    {
+     "infinitive": "servire",
+     "english": "to serve"
+    },
+    {
+     "infinitive": "smettere",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "sorridere",
+     "english": "to smile"
+    },
+    {
+     "infinitive": "sparare",
+     "english": "to shoot, to fire"
+    },
+    {
+     "infinitive": "spegnere",
+     "english": "to turn off, switch off"
+    },
+    {
+     "infinitive": "spendere",
+     "english": "to spend"
+    },
+    {
+     "infinitive": "sperare",
+     "english": "to hope"
+    },
+    {
+     "infinitive": "spiacere",
+     "english": "to be sorry (lit. to displease)"
+    },
+    {
+     "infinitive": "spingere",
+     "english": "to push"
+    },
+    {
+     "infinitive": "stare",
+     "english": "to stay"
+    },
+    {
+     "infinitive": "stendere",
+     "english": "to spread, stretch out"
+    },
+    {
+     "infinitive": "succedere",
+     "english": "to happen"
+    },
+    {
+     "infinitive": "svolgere",
+     "english": "to carry out"
+    },
+    {
+     "infinitive": "tenere",
+     "english": "to hold"
+    },
+    {
+     "infinitive": "togliere",
+     "english": "to remove, take away"
+    },
+    {
+     "infinitive": "trascorrere",
+     "english": "to spend (time)"
+    },
+    {
+     "infinitive": "trattare",
+     "english": "to treat"
+    },
+    {
+     "infinitive": "usare",
+     "english": "to use"
+    },
+    {
+     "infinitive": "valere",
+     "english": "to be worth"
+    },
+    {
+     "infinitive": "vedere",
+     "english": "to see"
+    },
+    {
+     "infinitive": "venire",
+     "english": "to come"
+    },
+    {
+     "infinitive": "vincere",
+     "english": "to win"
+    },
+    {
+     "infinitive": "volere",
+     "english": "to want"
+    }
+   ],
+   "conjugations": {
+    "vedere": [
+     {
+      "italian": "ho visto",
+      "english": "I saw / I have seen"
+     },
+     {
+      "italian": "hai visto",
+      "english": "you saw / you have seen"
+     },
+     {
+      "italian": "ha visto",
+      "english": "he/she saw / he/she has seen"
+     },
+     {
+      "italian": "abbiamo visto",
+      "english": "we saw / we have seen"
+     },
+     {
+      "italian": "avete visto",
+      "english": "you all saw / you all have seen"
+     },
+     {
+      "italian": "hanno visto",
+      "english": "they saw / they have seen"
+     }
+    ],
+    "parlare": [
+     {
+      "italian": "ho parlato",
+      "english": "I spoke / I have spoken"
+     },
+     {
+      "italian": "hai parlato",
+      "english": "you spoke / you have spoken"
+     },
+     {
+      "italian": "ha parlato",
+      "english": "he/she spoke / he/she has spoken"
+     },
+     {
+      "italian": "abbiamo parlato",
+      "english": "we spoke / we have spoken"
+     },
+     {
+      "italian": "avete parlato",
+      "english": "you all spoke / you all have spoken"
+     },
+     {
+      "italian": "hanno parlato",
+      "english": "they spoke / they have spoken"
+     }
+    ]
+   },
    "notes": 688,
    "cards": 688,
    "tutto_left": 0
@@ -1170,50 +7454,586 @@
      "english": "it happens / it is happening"
     },
     {
-     "italian": "accadono",
-     "english": "they happen / they are happening"
+     "italian": "colpisce",
+     "english": "he/she hits / he/she is hitting"
     },
     {
-     "italian": "accende",
-     "english": "he/she turns on / he/she is turning on"
+     "italian": "deprimete",
+     "english": "you all depress / you all are depressing"
     },
     {
-     "italian": "accendete",
-     "english": "you all turn on / you all are turning on"
+     "italian": "esiste",
+     "english": "he/she/it exists"
     },
     {
-     "italian": "accendi",
-     "english": "you turn on / you are turning on"
+     "italian": "lascia",
+     "english": "he/she leaves / he/she is leaving"
     },
     {
-     "italian": "accendiamo",
-     "english": "we turn on / we are turning on"
+     "italian": "parete",
+     "english": "you all seem"
     },
     {
-     "italian": "accendo",
-     "english": "I turn on / I am turning on"
+     "italian": "producete",
+     "english": "you all produce / you all are producing"
     },
     {
-     "italian": "accendono",
-     "english": "they turn on / they are turning on"
+     "italian": "ridono",
+     "english": "they laugh / they are laughing"
     },
     {
-     "italian": "aggiunge",
-     "english": "he/she adds / he/she is adding"
+     "italian": "sciogliete",
+     "english": "you all melt it / are melting it"
     },
     {
-     "italian": "aggiungete",
-     "english": "you all add / you all are adding"
+     "italian": "sorrido",
+     "english": "I smile / I am smiling"
     },
     {
-     "italian": "aggiungi",
-     "english": "you add / you are adding"
+     "italian": "ti preoccupi",
+     "english": "you worry / you are worrying"
     },
     {
-     "italian": "aggiungiamo",
-     "english": "we add / we are adding"
+     "italian": "vuole",
+     "english": "he/she wants"
     }
    ],
+   "verbs": [
+    {
+     "infinitive": "accadere",
+     "english": "to happen"
+    },
+    {
+     "infinitive": "accendere",
+     "english": "to turn on"
+    },
+    {
+     "infinitive": "aggiungere",
+     "english": "to add"
+    },
+    {
+     "infinitive": "aiutare",
+     "english": "to help"
+    },
+    {
+     "infinitive": "amare",
+     "english": "to love"
+    },
+    {
+     "infinitive": "andarsene",
+     "english": "to leave, to go away"
+    },
+    {
+     "infinitive": "appendere",
+     "english": "to hang (up)"
+    },
+    {
+     "infinitive": "ascoltare",
+     "english": "to listen (to)"
+    },
+    {
+     "infinitive": "attendere",
+     "english": "to wait for, to await"
+    },
+    {
+     "infinitive": "cadere",
+     "english": "to fall"
+    },
+    {
+     "infinitive": "chiedere",
+     "english": "to ask"
+    },
+    {
+     "infinitive": "colpire",
+     "english": "to hit, to strike"
+    },
+    {
+     "infinitive": "condurre",
+     "english": "to lead, to guide"
+    },
+    {
+     "infinitive": "connettersi",
+     "english": "to connect (to a network)"
+    },
+    {
+     "infinitive": "continuare",
+     "english": "to continue"
+    },
+    {
+     "infinitive": "correggere",
+     "english": "to correct"
+    },
+    {
+     "infinitive": "correre",
+     "english": "to run"
+    },
+    {
+     "infinitive": "costruire",
+     "english": "to build"
+    },
+    {
+     "infinitive": "credere",
+     "english": "to believe · model for regular -ere verbs"
+    },
+    {
+     "infinitive": "crescere",
+     "english": "to grow, to grow up"
+    },
+    {
+     "infinitive": "cuocere",
+     "english": "to cook, to bake"
+    },
+    {
+     "infinitive": "dare",
+     "english": "to give"
+    },
+    {
+     "infinitive": "decidere",
+     "english": "to decide"
+    },
+    {
+     "infinitive": "deprimere",
+     "english": "to depress"
+    },
+    {
+     "infinitive": "descrivere",
+     "english": "to describe"
+    },
+    {
+     "infinitive": "dimenticare",
+     "english": "to forget"
+    },
+    {
+     "infinitive": "dipendere",
+     "english": "to depend"
+    },
+    {
+     "infinitive": "dipingere",
+     "english": "to paint"
+    },
+    {
+     "infinitive": "dire",
+     "english": "to say"
+    },
+    {
+     "infinitive": "discutere",
+     "english": "to discuss"
+    },
+    {
+     "infinitive": "dispiacere",
+     "english": "to be sorry"
+    },
+    {
+     "infinitive": "diventare",
+     "english": "to become"
+    },
+    {
+     "infinitive": "dormire",
+     "english": "to sleep · model for regular -ire verbs"
+    },
+    {
+     "infinitive": "entrare",
+     "english": "to enter, to go in"
+    },
+    {
+     "infinitive": "esistere",
+     "english": "to exist"
+    },
+    {
+     "infinitive": "esplodere",
+     "english": "to explode"
+    },
+    {
+     "infinitive": "esprimere",
+     "english": "to express"
+    },
+    {
+     "infinitive": "evolversi",
+     "english": "to evolve"
+    },
+    {
+     "infinitive": "fermare",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "fermarsi",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "finire",
+     "english": "to finish · model for regular -ire (isc) verbs"
+    },
+    {
+     "infinitive": "friggere",
+     "english": "to fry"
+    },
+    {
+     "infinitive": "giurare",
+     "english": "to swear"
+    },
+    {
+     "infinitive": "immaginare",
+     "english": "to imagine"
+    },
+    {
+     "infinitive": "importare",
+     "english": "to matter"
+    },
+    {
+     "infinitive": "incontrare",
+     "english": "to meet"
+    },
+    {
+     "infinitive": "insistere",
+     "english": "to insist"
+    },
+    {
+     "infinitive": "lasciare",
+     "english": "to leave"
+    },
+    {
+     "infinitive": "mancare",
+     "english": "to miss (someone)"
+    },
+    {
+     "infinitive": "mangiare",
+     "english": "to eat"
+    },
+    {
+     "infinitive": "mentire",
+     "english": "to lie"
+    },
+    {
+     "infinitive": "morire",
+     "english": "to die"
+    },
+    {
+     "infinitive": "muovere",
+     "english": "to move"
+    },
+    {
+     "infinitive": "nascondere",
+     "english": "to hide"
+    },
+    {
+     "infinitive": "odiare",
+     "english": "to hate"
+    },
+    {
+     "infinitive": "offrire",
+     "english": "to offer"
+    },
+    {
+     "infinitive": "parere",
+     "english": "to seem, to appear"
+    },
+    {
+     "infinitive": "parlare",
+     "english": "to speak, to talk · model for regular -are verbs"
+    },
+    {
+     "infinitive": "passare",
+     "english": "to pass"
+    },
+    {
+     "infinitive": "pensare",
+     "english": "to think"
+    },
+    {
+     "infinitive": "piacere",
+     "english": "to like (be pleasing to)"
+    },
+    {
+     "infinitive": "piangere",
+     "english": "to cry, to weep"
+    },
+    {
+     "infinitive": "porre",
+     "english": "to pose (a question)"
+    },
+    {
+     "infinitive": "portare",
+     "english": "to bring, to carry"
+    },
+    {
+     "infinitive": "pregare",
+     "english": "to pray"
+    },
+    {
+     "infinitive": "prendere",
+     "english": "to take"
+    },
+    {
+     "infinitive": "prendersi",
+     "english": "to take for oneself"
+    },
+    {
+     "infinitive": "preoccuparsi",
+     "english": "to worry"
+    },
+    {
+     "infinitive": "prevedere",
+     "english": "to plan (to do)"
+    },
+    {
+     "infinitive": "produrre",
+     "english": "to produce, to make"
+    },
+    {
+     "infinitive": "promettere",
+     "english": "to promise"
+    },
+    {
+     "infinitive": "promuovere",
+     "english": "to promote"
+    },
+    {
+     "infinitive": "proporre",
+     "english": "to propose, to suggest"
+    },
+    {
+     "infinitive": "provare",
+     "english": "to try"
+    },
+    {
+     "infinitive": "raccogliere",
+     "english": "to gather, collect"
+    },
+    {
+     "infinitive": "rendere",
+     "english": "to render, to make (+ adj.)"
+    },
+    {
+     "infinitive": "restare",
+     "english": "to stay, to remain"
+    },
+    {
+     "infinitive": "riassumere",
+     "english": "to summarize"
+    },
+    {
+     "infinitive": "ricordare",
+     "english": "to remember"
+    },
+    {
+     "infinitive": "ridere",
+     "english": "to laugh"
+    },
+    {
+     "infinitive": "rimanere",
+     "english": "to remain"
+    },
+    {
+     "infinitive": "risolvere",
+     "english": "to solve"
+    },
+    {
+     "infinitive": "riuscire",
+     "english": "to manage (to do)"
+    },
+    {
+     "infinitive": "rompere",
+     "english": "to break"
+    },
+    {
+     "infinitive": "salire",
+     "english": "to go up"
+    },
+    {
+     "infinitive": "sapere",
+     "english": "to know (a fact)"
+    },
+    {
+     "infinitive": "sbagliare",
+     "english": "to make a mistake"
+    },
+    {
+     "infinitive": "scegliere",
+     "english": "to choose"
+    },
+    {
+     "infinitive": "scendere",
+     "english": "to go down, to descend"
+    },
+    {
+     "infinitive": "scherzare",
+     "english": "to joke"
+    },
+    {
+     "infinitive": "sciogliere",
+     "english": "to melt"
+    },
+    {
+     "infinitive": "scomparire",
+     "english": "to disappear"
+    },
+    {
+     "infinitive": "scoprire",
+     "english": "to discover, to find out"
+    },
+    {
+     "infinitive": "scuotere",
+     "english": "to shake (something)"
+    },
+    {
+     "infinitive": "sedersi",
+     "english": "to sit down"
+    },
+    {
+     "infinitive": "sembrare",
+     "english": "to seem"
+    },
+    {
+     "infinitive": "sentire",
+     "english": "to hear"
+    },
+    {
+     "infinitive": "servire",
+     "english": "to serve"
+    },
+    {
+     "infinitive": "smettere",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "sorridere",
+     "english": "to smile"
+    },
+    {
+     "infinitive": "sparare",
+     "english": "to shoot, to fire"
+    },
+    {
+     "infinitive": "spegnere",
+     "english": "to turn off, switch off"
+    },
+    {
+     "infinitive": "spendere",
+     "english": "to spend"
+    },
+    {
+     "infinitive": "sperare",
+     "english": "to hope"
+    },
+    {
+     "infinitive": "spiacere",
+     "english": "to be sorry (lit. to displease)"
+    },
+    {
+     "infinitive": "spingere",
+     "english": "to push"
+    },
+    {
+     "infinitive": "stare",
+     "english": "to stay"
+    },
+    {
+     "infinitive": "stendere",
+     "english": "to spread, stretch out"
+    },
+    {
+     "infinitive": "succedere",
+     "english": "to happen"
+    },
+    {
+     "infinitive": "svolgere",
+     "english": "to carry out"
+    },
+    {
+     "infinitive": "tenere",
+     "english": "to hold"
+    },
+    {
+     "infinitive": "togliere",
+     "english": "to remove, take away"
+    },
+    {
+     "infinitive": "trascorrere",
+     "english": "to spend (time)"
+    },
+    {
+     "infinitive": "trattare",
+     "english": "to treat"
+    },
+    {
+     "infinitive": "usare",
+     "english": "to use"
+    },
+    {
+     "infinitive": "valere",
+     "english": "to be worth"
+    },
+    {
+     "infinitive": "vedere",
+     "english": "to see"
+    },
+    {
+     "infinitive": "venire",
+     "english": "to come"
+    },
+    {
+     "infinitive": "vincere",
+     "english": "to win"
+    },
+    {
+     "infinitive": "volere",
+     "english": "to want"
+    }
+   ],
+   "conjugations": {
+    "vedere": [
+     {
+      "italian": "vedo",
+      "english": "I see"
+     },
+     {
+      "italian": "vedi",
+      "english": "you see"
+     },
+     {
+      "italian": "vede",
+      "english": "he/she sees"
+     },
+     {
+      "italian": "vediamo",
+      "english": "we see"
+     },
+     {
+      "italian": "vedete",
+      "english": "you all see"
+     },
+     {
+      "italian": "vedono",
+      "english": "they see"
+     }
+    ],
+    "parlare": [
+     {
+      "italian": "parlo",
+      "english": "I speak / I am speaking"
+     },
+     {
+      "italian": "parli",
+      "english": "you speak / you are speaking"
+     },
+     {
+      "italian": "parla",
+      "english": "he/she speaks / he/she is speaking"
+     },
+     {
+      "italian": "parliamo",
+      "english": "we speak / we are speaking"
+     },
+     {
+      "italian": "parlate",
+      "english": "you all speak / you all are speaking"
+     },
+     {
+      "italian": "parlano",
+      "english": "they speak / they are speaking"
+     }
+    ]
+   },
    "notes": 700,
    "cards": 700,
    "tutto_left": 0
@@ -1228,50 +8048,542 @@
      "english": "we are connecting"
     },
     {
-     "italian": "ci stiamo evolvendo",
-     "english": "we are evolving"
+     "italian": "sta finendo",
+     "english": "he/she is finishing"
     },
     {
-     "italian": "ci stiamo fermando",
-     "english": "we are stopping"
+     "italian": "sta spingendo",
+     "english": "he/she is pushing"
     },
     {
-     "italian": "ci stiamo prendendo",
-     "english": "we are taking for ourselves"
+     "italian": "stai parlando",
+     "english": "you are speaking"
     },
     {
-     "italian": "ci stiamo preoccupando",
-     "english": "we are worrying"
+     "italian": "stanno andandosene",
+     "english": "they are leaving"
     },
     {
-     "italian": "ci stiamo sedendo",
-     "english": "we are sitting down"
+     "italian": "stanno provando",
+     "english": "they are trying"
     },
     {
-     "italian": "mi sto connettendo",
-     "english": "I am connecting"
+     "italian": "state dando",
+     "english": "you all are giving"
     },
     {
-     "italian": "mi sto evolvendo",
-     "english": "I am evolving"
+     "italian": "state sciogliendo",
+     "english": "you all are melting it"
     },
     {
-     "italian": "mi sto fermando",
-     "english": "I am stopping"
+     "italian": "stiamo immaginando",
+     "english": "we are imagining"
     },
     {
-     "italian": "mi sto prendendo",
-     "english": "I am taking for myself"
+     "italian": "stiamo trascorrendo",
+     "english": "we are spending (time)"
     },
     {
-     "italian": "mi sto preoccupando",
-     "english": "I am worrying"
+     "italian": "sto portando",
+     "english": "I am bringing"
     },
     {
-     "italian": "mi sto sedendo",
-     "english": "I am sitting down"
+     "italian": "vi state sedendo",
+     "english": "you all are sitting down"
     }
    ],
+   "verbs": [
+    {
+     "infinitive": "accadere",
+     "english": "to happen"
+    },
+    {
+     "infinitive": "accendere",
+     "english": "to turn on"
+    },
+    {
+     "infinitive": "aggiungere",
+     "english": "to add"
+    },
+    {
+     "infinitive": "aiutare",
+     "english": "to help"
+    },
+    {
+     "infinitive": "amare",
+     "english": "to love"
+    },
+    {
+     "infinitive": "andarsene",
+     "english": "to leave, to go away"
+    },
+    {
+     "infinitive": "appendere",
+     "english": "to hang (up)"
+    },
+    {
+     "infinitive": "ascoltare",
+     "english": "to listen (to)"
+    },
+    {
+     "infinitive": "attendere",
+     "english": "to wait for, to await"
+    },
+    {
+     "infinitive": "cadere",
+     "english": "to fall"
+    },
+    {
+     "infinitive": "chiedere",
+     "english": "to ask"
+    },
+    {
+     "infinitive": "colpire",
+     "english": "to hit, to strike"
+    },
+    {
+     "infinitive": "condurre",
+     "english": "to lead, to guide"
+    },
+    {
+     "infinitive": "connettersi",
+     "english": "to connect (to a network)"
+    },
+    {
+     "infinitive": "continuare",
+     "english": "to continue"
+    },
+    {
+     "infinitive": "correggere",
+     "english": "to correct"
+    },
+    {
+     "infinitive": "correre",
+     "english": "to run"
+    },
+    {
+     "infinitive": "costruire",
+     "english": "to build"
+    },
+    {
+     "infinitive": "crescere",
+     "english": "to grow, to grow up"
+    },
+    {
+     "infinitive": "cuocere",
+     "english": "to cook, to bake"
+    },
+    {
+     "infinitive": "dare",
+     "english": "to give"
+    },
+    {
+     "infinitive": "decidere",
+     "english": "to decide"
+    },
+    {
+     "infinitive": "deprimere",
+     "english": "to depress"
+    },
+    {
+     "infinitive": "descrivere",
+     "english": "to describe"
+    },
+    {
+     "infinitive": "dimenticare",
+     "english": "to forget"
+    },
+    {
+     "infinitive": "dipingere",
+     "english": "to paint"
+    },
+    {
+     "infinitive": "dire",
+     "english": "to say"
+    },
+    {
+     "infinitive": "discutere",
+     "english": "to discuss"
+    },
+    {
+     "infinitive": "dispiacere",
+     "english": "to be sorry"
+    },
+    {
+     "infinitive": "diventare",
+     "english": "to become"
+    },
+    {
+     "infinitive": "dormire",
+     "english": "to sleep · model for regular -ire verbs"
+    },
+    {
+     "infinitive": "entrare",
+     "english": "to enter, to go in"
+    },
+    {
+     "infinitive": "esplodere",
+     "english": "to explode"
+    },
+    {
+     "infinitive": "esprimere",
+     "english": "to express"
+    },
+    {
+     "infinitive": "evolversi",
+     "english": "to evolve"
+    },
+    {
+     "infinitive": "fermare",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "fermarsi",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "finire",
+     "english": "to finish · model for regular -ire (isc) verbs"
+    },
+    {
+     "infinitive": "friggere",
+     "english": "to fry"
+    },
+    {
+     "infinitive": "giurare",
+     "english": "to swear"
+    },
+    {
+     "infinitive": "immaginare",
+     "english": "to imagine"
+    },
+    {
+     "infinitive": "incontrare",
+     "english": "to meet"
+    },
+    {
+     "infinitive": "insistere",
+     "english": "to insist"
+    },
+    {
+     "infinitive": "lasciare",
+     "english": "to leave"
+    },
+    {
+     "infinitive": "mancare",
+     "english": "to miss (someone)"
+    },
+    {
+     "infinitive": "mangiare",
+     "english": "to eat"
+    },
+    {
+     "infinitive": "mentire",
+     "english": "to lie"
+    },
+    {
+     "infinitive": "morire",
+     "english": "to die"
+    },
+    {
+     "infinitive": "muovere",
+     "english": "to move"
+    },
+    {
+     "infinitive": "nascondere",
+     "english": "to hide"
+    },
+    {
+     "infinitive": "odiare",
+     "english": "to hate"
+    },
+    {
+     "infinitive": "offrire",
+     "english": "to offer"
+    },
+    {
+     "infinitive": "parlare",
+     "english": "to speak, to talk · model for regular -are verbs"
+    },
+    {
+     "infinitive": "passare",
+     "english": "to pass"
+    },
+    {
+     "infinitive": "pensare",
+     "english": "to think"
+    },
+    {
+     "infinitive": "piacere",
+     "english": "to like (be pleasing to)"
+    },
+    {
+     "infinitive": "piangere",
+     "english": "to cry, to weep"
+    },
+    {
+     "infinitive": "porre",
+     "english": "to pose (a question)"
+    },
+    {
+     "infinitive": "portare",
+     "english": "to bring, to carry"
+    },
+    {
+     "infinitive": "pregare",
+     "english": "to pray"
+    },
+    {
+     "infinitive": "prendere",
+     "english": "to take"
+    },
+    {
+     "infinitive": "prendersi",
+     "english": "to take for oneself"
+    },
+    {
+     "infinitive": "preoccuparsi",
+     "english": "to worry"
+    },
+    {
+     "infinitive": "prevedere",
+     "english": "to plan (to do)"
+    },
+    {
+     "infinitive": "produrre",
+     "english": "to produce, to make"
+    },
+    {
+     "infinitive": "promettere",
+     "english": "to promise"
+    },
+    {
+     "infinitive": "promuovere",
+     "english": "to promote"
+    },
+    {
+     "infinitive": "proporre",
+     "english": "to propose, to suggest"
+    },
+    {
+     "infinitive": "provare",
+     "english": "to try"
+    },
+    {
+     "infinitive": "raccogliere",
+     "english": "to gather, collect"
+    },
+    {
+     "infinitive": "rendere",
+     "english": "to render, to make (+ adj.)"
+    },
+    {
+     "infinitive": "restare",
+     "english": "to stay, to remain"
+    },
+    {
+     "infinitive": "riassumere",
+     "english": "to summarize"
+    },
+    {
+     "infinitive": "ricordare",
+     "english": "to remember"
+    },
+    {
+     "infinitive": "ridere",
+     "english": "to laugh"
+    },
+    {
+     "infinitive": "rimanere",
+     "english": "to remain"
+    },
+    {
+     "infinitive": "risolvere",
+     "english": "to solve"
+    },
+    {
+     "infinitive": "riuscire",
+     "english": "to manage (to do)"
+    },
+    {
+     "infinitive": "rompere",
+     "english": "to break"
+    },
+    {
+     "infinitive": "salire",
+     "english": "to go up"
+    },
+    {
+     "infinitive": "sbagliare",
+     "english": "to make a mistake"
+    },
+    {
+     "infinitive": "scegliere",
+     "english": "to choose"
+    },
+    {
+     "infinitive": "scendere",
+     "english": "to go down, to descend"
+    },
+    {
+     "infinitive": "scherzare",
+     "english": "to joke"
+    },
+    {
+     "infinitive": "sciogliere",
+     "english": "to melt"
+    },
+    {
+     "infinitive": "scomparire",
+     "english": "to disappear"
+    },
+    {
+     "infinitive": "scoprire",
+     "english": "to discover, to find out"
+    },
+    {
+     "infinitive": "scuotere",
+     "english": "to shake (something)"
+    },
+    {
+     "infinitive": "sedersi",
+     "english": "to sit down"
+    },
+    {
+     "infinitive": "sentire",
+     "english": "to hear"
+    },
+    {
+     "infinitive": "servire",
+     "english": "to serve"
+    },
+    {
+     "infinitive": "smettere",
+     "english": "to stop"
+    },
+    {
+     "infinitive": "sorridere",
+     "english": "to smile"
+    },
+    {
+     "infinitive": "sparare",
+     "english": "to shoot, to fire"
+    },
+    {
+     "infinitive": "spegnere",
+     "english": "to turn off, switch off"
+    },
+    {
+     "infinitive": "spendere",
+     "english": "to spend"
+    },
+    {
+     "infinitive": "sperare",
+     "english": "to hope"
+    },
+    {
+     "infinitive": "spingere",
+     "english": "to push"
+    },
+    {
+     "infinitive": "stendere",
+     "english": "to spread, stretch out"
+    },
+    {
+     "infinitive": "succedere",
+     "english": "to happen"
+    },
+    {
+     "infinitive": "svolgere",
+     "english": "to carry out"
+    },
+    {
+     "infinitive": "tenere",
+     "english": "to hold"
+    },
+    {
+     "infinitive": "togliere",
+     "english": "to remove, take away"
+    },
+    {
+     "infinitive": "trascorrere",
+     "english": "to spend (time)"
+    },
+    {
+     "infinitive": "trattare",
+     "english": "to treat"
+    },
+    {
+     "infinitive": "usare",
+     "english": "to use"
+    },
+    {
+     "infinitive": "vedere",
+     "english": "to see"
+    },
+    {
+     "infinitive": "venire",
+     "english": "to come"
+    },
+    {
+     "infinitive": "vincere",
+     "english": "to win"
+    }
+   ],
+   "conjugations": {
+    "vedere": [
+     {
+      "italian": "sto vedendo",
+      "english": "I am seeing"
+     },
+     {
+      "italian": "stai vedendo",
+      "english": "you are seeing"
+     },
+     {
+      "italian": "sta vedendo",
+      "english": "he/she is seeing"
+     },
+     {
+      "italian": "stiamo vedendo",
+      "english": "we are seeing"
+     },
+     {
+      "italian": "state vedendo",
+      "english": "you all are seeing"
+     },
+     {
+      "italian": "stanno vedendo",
+      "english": "they are seeing"
+     }
+    ],
+    "parlare": [
+     {
+      "italian": "sto parlando",
+      "english": "I am speaking"
+     },
+     {
+      "italian": "stai parlando",
+      "english": "you are speaking"
+     },
+     {
+      "italian": "sta parlando",
+      "english": "he/she is speaking"
+     },
+     {
+      "italian": "stiamo parlando",
+      "english": "we are speaking"
+     },
+     {
+      "italian": "state parlando",
+      "english": "you all are speaking"
+     },
+     {
+      "italian": "stanno parlando",
+      "english": "they are speaking"
+     }
+    ]
+   },
    "notes": 634,
    "cards": 634,
    "tutto_left": 0
