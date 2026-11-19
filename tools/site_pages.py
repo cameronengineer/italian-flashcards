@@ -33,6 +33,11 @@ TENSES = {
  'condizionale_presente': 'Conditional',
  'condizionale_passato': 'Past Conditional',
 }
+# Film decks: (Italian title, English release title, year).
+FILMS = {
+ 'italian_movies_benvenuti_al_sud': ('Benvenuti al Sud', 'Welcome to the South', '2010'),
+ 'italian_movies_le_otto_montagne': ('Le otto montagne', 'The Eight Mountains', '2022'),
+}
 LEVELS = {'a1': 'beginner', 'a2': 'elementary', 'b1': 'intermediate', 'b2': 'upper-intermediate'}
 # Hand-written search text for the other decks: (h1, <title>, description, what it teaches).
 OTHER = {
@@ -133,9 +138,29 @@ def seo(stem, name, info, new_at):
     if stem in OTHER:
         h1, title, desc, teaches = OTHER[stem]
         return h1, title, desc.format(notes=f'{notes:,}', cards=f'{cards:,}'), teaches, None
-    # Film decks keep the wording they were published with.
+    if stem in FILMS:
+        film, english, year = FILMS[stem]
+        h1 = f'{film} Italian Vocabulary Anki Deck'
+        desc = fit(f'Free Anki deck of the Italian words in {film} ({english}, {year}), each with its subtitle line and a word-for-word English translation.',
+                   'With audio and pictures.')
+        return h1, f'{film} Anki Deck · Italian Film Vocabulary', desc, f'Italian vocabulary from the film {film}', None
+    # A deck added to GROUPS without its own search text.
     h1 = f'Italian {name} Anki Deck'
-    return h1, h1, None, f'Italian vocabulary from {name}', None
+    return h1, h1, None, f'Italian {name.lower()}', None
+
+
+def related_to(stem):
+    """Stems a deck page lists under "Related decks" (the page's own stem is dropped later)."""
+    if stem.startswith('italian_cils_'):
+        return {f'italian_cils_{level}' for level in LEVELS}
+    if stem.startswith('italian_verbs_'):
+        return {f'{prefix}{t}' for t in TENSES for prefix in ('italian_verbs_learning_', 'italian_verbs_more_tenses_')}
+    # Film decks and the subtitle-frequency deck point at each other.
+    if stem in FILMS:
+        return set(FILMS) | {'italian_frequency'}
+    if stem == 'italian_frequency':
+        return set(FILMS) | {'italian_core_fluent_forever_625'}
+    return {'italian_basics_numbers', 'italian_core_fluent_forever_625'}
 
 
 def faq_html():
@@ -310,7 +335,7 @@ footer nav { flex-wrap:wrap; margin-bottom:24px; }
             explanation = 'These cards practise connections between Italian and English words. Similar spelling can help recall, but the card’s meaning still matters.'
         if stem.startswith('italian_movies_'):
             explanation = 'These recognition cards ask for the English meaning of Italian vocabulary from the film. Example subtitle lines include a word-for-word translation; they are study notes, not a substitute for watching the film.'
-        related = [(other, label) for other, label, _ in entries if other != stem and (other.startswith('italian_cils_') if stem.startswith('italian_cils_') else other.startswith('italian_verbs_') if stem.startswith('italian_verbs_') else other in ('italian_basics_numbers', 'italian_core_fluent_forever_625'))]
+        related = [(other, label) for other, label, _ in entries if other != stem and other in related_to(stem)]
         crumbs = ([parent] if parent else []) + [(name, deck_path(stem))]
         download = api.DOWNLOAD_BASE + info['file']
         body = crumbs_html(crumbs) + f'<h1>{e(h1)}</h1><p>{e(desc)}</p><h2>What this deck covers</h2><p>{e(explanation)}</p><p>{info["notes"]:,} notes · {info["cards"]:,} study cards · {api._size(info["bytes"])} · Anki .apkg file</p>'
@@ -369,7 +394,9 @@ footer nav { flex-wrap:wrap; margin-bottom:24px; }
         image = sample['slug'] if sample else 'il-caffe'
         resource = {
             '@type': 'LearningResource', '@id': ORIGIN + deck_path(stem) + '#deck', 'name': h1, 'description': description,
-            'url': ORIGIN + deck_path(stem), 'inLanguage': 'en', 'about': {'@type': 'Language', 'name': 'Italian'},
+            'url': ORIGIN + deck_path(stem), 'inLanguage': 'en', 'about': [{'@type': 'Language', 'name': 'Italian'}] + (
+                [{'@type': 'Movie', 'name': FILMS[stem][0], 'alternateName': FILMS[stem][1], 'dateCreated': FILMS[stem][2]}]
+                if stem in FILMS else []),
             'teaches': teaches, 'learningResourceType': 'Flashcards', 'isAccessibleForFree': True,
             'author': {'@id': ORIGIN + '/#creator'}, 'image': f'{ORIGIN}/samples/{image}.jpg',
             'encoding': {'@type': 'MediaObject', 'name': info['file'], 'contentUrl': download,

@@ -188,6 +188,22 @@ class SiteSEOTests(unittest.TestCase):
             self.assertEqual(len(verbs_hub.graph("ItemList")[0]["itemListElement"]),
                              sum(stem.startswith("italian_verbs_") for stem in data["decks"]))
 
+            # Film decks are published like the others: their own search text, the film as an
+            # entity, and links between the two films and the subtitle-frequency deck.
+            films = {"benvenuti-al-sud": "Benvenuti al Sud", "le-otto-montagne": "Le otto montagne"}
+            for slug, film in films.items():
+                page = pages[f"{ORIGIN}/decks/italian-movies-{slug}-anki-deck/"]
+                self.assertTrue(html.unescape(page.title).startswith(f"{film} Anki Deck"))
+                self.assertIn(film, page.meta["description"])
+                (deck,) = page.graph("LearningResource")
+                self.assertIn(film, [a["name"] for a in deck["about"] if a["@type"] == "Movie"])
+                other = next(s for s in films if s != slug)
+                self.assertIn(f"/decks/italian-movies-{other}-anki-deck/", page.links)
+                self.assertIn("/decks/italian-frequency-anki-deck/", page.links)
+            frequency = pages[f"{ORIGIN}/decks/italian-frequency-anki-deck/"]
+            for slug in films:
+                self.assertIn(f"/decks/italian-movies-{slug}-anki-deck/", frequency.links)
+
             # Only the first homepage sample loads its picture eagerly; the others are hidden.
             loading = [img.get("loading") for img in pages[ORIGIN + "/"].images]
             self.assertEqual(loading[0], None)
