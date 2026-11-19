@@ -207,6 +207,388 @@ english,italian
 1000000 / one million,un milione
 2000000 / two million,due milioni
 1500000 / one million five hundred thousand,un milione cinquecentomila
+211 / two hundred and eleven,duecentoundici
+212 / two hundred and twelve,duecentododici
+213 / two hundred and thirteen,duecentotredici
+214 / two hundred and fourteen,duecentoquattordici
+215 / two hundred and fifteen,duecentoquindici
+216 / two hundred and sixteen,duecentosedici
+217 / two hundred and seventeen,duecentodiciassette
+219 / two hundred and nineteen,duecentodiciannove
+240 / two hundred and forty,duecentoquaranta
+315 / three hundred and fifteen,trecentoquindici
+350 / three hundred and fifty,trecentocinquanta
+416 / four hundred and sixteen,quattrocentosedici
+460 / four hundred and sixty,quattrocentosessanta
+517 / five hundred and seventeen,cinquecentodiciassette
+570 / five hundred and seventy,cinquecentosettanta
+613 / six hundred and thirteen,seicentotredici
+630 / six hundred and thirty,seicentotrenta
+718 / seven hundred and eighteen,settecentodiciotto
+780 / seven hundred and eighty,settecentottanta
+819 / eight hundred and nineteen,ottocentodiciannove
+890 / eight hundred and ninety,ottocentonovanta
+912 / nine hundred and twelve,novecentododici
+920 / nine hundred and twenty,novecentoventi
+311 / three hundred and eleven,trecentoundici
+312 / three hundred and twelve,trecentododici
+314 / three hundred and fourteen,trecentoquattordici
+411 / four hundred and eleven,quattrocentoundici
+413 / four hundred and thirteen,quattrocentotredici
+414 / four hundred and fourteen,quattrocentoquattordici
+511 / five hundred and eleven,cinquecentoundici
+515 / five hundred and fifteen,cinquecentoquindici
+516 / five hundred and sixteen,cinquecentosedici
+611 / six hundred and eleven,seicentoundici
+612 / six hundred and twelve,seicentododici
+615 / six hundred and fifteen,seicentoquindici
+711 / seven hundred and eleven,settecentoundici
+714 / seven hundred and fourteen,settecentoquattordici
+716 / seven hundred and sixteen,settecentosedici
+811 / eight hundred and eleven,ottocentoundici
+813 / eight hundred and thirteen,ottocentotredici
+911 / nine hundred and eleven,novecentoundici
+916 / nine hundred and sixteen,novecentosedici
+917 / nine hundred and seventeen,novecentodiciassette
+606 / six hundred and six,seicentosei
+607 / six hundred and seven,seicentosette
+616 / six hundred and sixteen,seicentosedici
+617 / six hundred and seventeen,seicentodiciassette
+660 / six hundred and sixty,seicentosessanta
+670 / six hundred and seventy,seicentosettanta
+666 / six hundred and sixty-six,seicentosessantasei
+667 / six hundred and sixty-seven,seicentosessantasette
+676 / six hundred and seventy-six,seicentosettantasei
+677 / six hundred and seventy-seven,seicentosettantasette
+706 / seven hundred and six,settecentosei
+707 / seven hundred and seven,settecentosette
+717 / seven hundred and seventeen,settecentodiciassette
+760 / seven hundred and sixty,settecentosessanta
+770 / seven hundred and seventy,settecentosettanta
+777 / seven hundred and seventy-seven,settecentosettantasette
+6000 / six thousand,seimila
+7000 / seven thousand,settemila
+6600 / six thousand six hundred,seimilaseicento
+7700 / seven thousand seven hundred,settemilasettecento
+6060 / six thousand and sixty,seimilasessanta
+7070 / seven thousand and seventy,settemilasettanta
+6016 / six thousand and sixteen,seimilasedici
+7017 / seven thousand and seventeen,settemiladiciassette
+60000 / sixty thousand,sessantamila
+70000 / seventy thousand,settantamila
+66000 / sixty-six thousand,sessantaseimila
+77000 / seventy-seven thousand,settantasettemila
+66666 / sixty-six thousand six hundred and sixty-six,sessantaseimilaseicentosessantasei
+77777 / seventy-seven thousand seven hundred and seventy-seven,settantasettemilasettecentosettantasette
+600000 / six hundred thousand,seicentomila
+700000 / seven hundred thousand,settecentomila
+616000 / six hundred and sixteen thousand,seicentosedicimila
+717000 / seven hundred and seventeen thousand,settecentodiciassettemila
+143 / one hundred and forty-three,centoquarantatré
+153 / one hundred and fifty-three,centocinquantatré
+163 / one hundred and sixty-three,centosessantatré
+173 / one hundred and seventy-three,centosettantatré
+193 / one hundred and ninety-three,centonovantatré
+233 / two hundred and thirty-three,duecentotrentatré
+303 / three hundred and three,trecentotré
+313 / three hundred and thirteen,trecentotredici
+323 / three hundred and twenty-three,trecentoventitré
+333 / three hundred and thirty-three,trecentotrentatré
+343 / three hundred and forty-three,trecentoquarantatré
+403 / four hundred and three,quattrocentotré
+503 / five hundred and three,cinquecentotré
+603 / six hundred and three,seicentotré
+703 / seven hundred and three,settecentotré
+803 / eight hundred and three,ottocentotré
+903 / nine hundred and three,novecentotré
+923 / nine hundred and twenty-three,novecentoventitré
+1003 / one thousand and three,milletré
+1103 / one thousand one hundred and three,millecentotré
+1333 / one thousand three hundred and thirty-three,milletrecentotrentatré
+2003 / two thousand and three,duemilatré
+2033 / two thousand and thirty-three,duemilatrentatré
+3003 / three thousand and three,tremilatré
+3333 / three thousand three hundred and thirty-three,tremilatrecentotrentatré
+23000 / twenty-three thousand,ventitremila
+33000 / thirty-three thousand,trentatremila
+43000 / forty-three thousand,quarantatremila
+53000 / fifty-three thousand,cinquantatremila
+63000 / sixty-three thousand,sessantatremila
+103000 / one hundred and three thousand,centotremila
+123000 / one hundred and twenty-three thousand,centoventitremila
+133000 / one hundred and thirty-three thousand,centotrentatremila
+303000 / three hundred and three thousand,trecentotremila
+333333 / three hundred and thirty-three thousand three hundred and thirty-three,trecentotrentatremilatrecentotrentatré
+141 / one hundred and forty-one,centoquarantuno
+148 / one hundred and forty-eight,centoquarantotto
+151 / one hundred and fifty-one,centocinquantuno
+158 / one hundred and fifty-eight,centocinquantotto
+161 / one hundred and sixty-one,centosessantuno
+168 / one hundred and sixty-eight,centosessantotto
+171 / one hundred and seventy-one,centosettantuno
+178 / one hundred and seventy-eight,centosettantotto
+191 / one hundred and ninety-one,centonovantuno
+231 / two hundred and thirty-one,duecentotrentuno
+238 / two hundred and thirty-eight,duecentotrentotto
+241 / two hundred and forty-one,duecentoquarantuno
+248 / two hundred and forty-eight,duecentoquarantotto
+251 / two hundred and fifty-one,duecentocinquantuno
+258 / two hundred and fifty-eight,duecentocinquantotto
+271 / two hundred and seventy-one,duecentosettantuno
+278 / two hundred and seventy-eight,duecentosettantotto
+291 / two hundred and ninety-one,duecentonovantuno
+298 / two hundred and ninety-eight,duecentonovantotto
+308 / three hundred and eight,trecentotto
+380 / three hundred and eighty,trecentottanta
+381 / three hundred and eighty-one,trecentottantuno
+388 / three hundred and eighty-eight,trecentottantotto
+408 / four hundred and eight,quattrocentotto
+480 / four hundred and eighty,quattrocentottanta
+481 / four hundred and eighty-one,quattrocentottantuno
+488 / four hundred and eighty-eight,quattrocentottantotto
+508 / five hundred and eight,cinquecentotto
+580 / five hundred and eighty,cinquecentottanta
+581 / five hundred and eighty-one,cinquecentottantuno
+608 / six hundred and eight,seicentotto
+680 / six hundred and eighty,seicentottanta
+681 / six hundred and eighty-one,seicentottantuno
+708 / seven hundred and eight,settecentotto
+781 / seven hundred and eighty-one,settecentottantuno
+808 / eight hundred and eight,ottocentotto
+880 / eight hundred and eighty,ottocentottanta
+881 / eight hundred and eighty-one,ottocentottantuno
+888 / eight hundred and eighty-eight,ottocentottantotto
+908 / nine hundred and eight,novecentotto
+980 / nine hundred and eighty,novecentottanta
+981 / nine hundred and eighty-one,novecentottantuno
+988 / nine hundred and eighty-eight,novecentottantotto
+1008 / one thousand and eight,milleotto
+1080 / one thousand and eighty,milleottanta
+1081 / one thousand and eighty-one,milleottantuno
+1088 / one thousand and eighty-eight,milleottantotto
+1180 / one thousand one hundred and eighty,millecentottanta
+1188 / one thousand one hundred and eighty-eight,millecentottantotto
+1888 / one thousand eight hundred and eighty-eight,milleottocentottantotto
+2008 / two thousand and eight,duemilaotto
+2080 / two thousand and eighty,duemilaottanta
+8008 / eight thousand and eight,ottomilaotto
+8080 / eight thousand and eighty,ottomilaottanta
+8088 / eight thousand and eighty-eight,ottomilaottantotto
+8800 / eight thousand eight hundred,ottomilaottocento
+8888 / eight thousand eight hundred and eighty-eight,ottomilaottocentottantotto
+41000 / forty-one thousand,quarantunomila
+48000 / forty-eight thousand,quarantottomila
+51000 / fifty-one thousand,cinquantunomila
+61000 / sixty-one thousand,sessantunomila
+68000 / sixty-eight thousand,sessantottomila
+71000 / seventy-one thousand,settantunomila
+81000 / eighty-one thousand,ottantunomila
+88000 / eighty-eight thousand,ottantottomila
+91000 / ninety-one thousand,novantunomila
+98000 / ninety-eight thousand,novantottomila
+101000 / one hundred and one thousand,centounomila
+108000 / one hundred and eight thousand,centottomila
+180000 / one hundred and eighty thousand,centottantamila
+181000 / one hundred and eighty-one thousand,centottantunomila
+188000 / one hundred and eighty-eight thousand,centottantottomila
+201000 / two hundred and one thousand,duecentounomila
+888888 / eight hundred and eighty-eight thousand eight hundred and eighty-eight,ottocentottantottomilaottocentottantotto
+2011 / two thousand and eleven,duemilaundici
+2012 / two thousand and twelve,duemiladodici
+2014 / two thousand and fourteen,duemilaquattordici
+2015 / two thousand and fifteen,duemilaquindici
+2016 / two thousand and sixteen,duemilasedici
+2017 / two thousand and seventeen,duemiladiciassette
+2018 / two thousand and eighteen,duemiladiciotto
+2019 / two thousand and nineteen,duemiladiciannove
+3012 / three thousand and twelve,tremiladodici
+4013 / four thousand and thirteen,quattromilatredici
+5014 / five thousand and fourteen,cinquemilaquattordici
+6015 / six thousand and fifteen,seimilaquindici
+7016 / seven thousand and sixteen,settemilasedici
+8017 / eight thousand and seventeen,ottomiladiciassette
+9018 / nine thousand and eighteen,novemiladiciotto
+1114 / one thousand one hundred and fourteen,millecentoquattordici
+1115 / one thousand one hundred and fifteen,millecentoquindici
+1116 / one thousand one hundred and sixteen,millecentosedici
+1214 / one thousand two hundred and fourteen,milleduecentoquattordici
+1415 / one thousand four hundred and fifteen,millequattrocentoquindici
+1516 / one thousand five hundred and sixteen,millecinquecentosedici
+40000 / forty thousand,quarantamila
+113000 / one hundred and thirteen thousand,centotredicimila
+130000 / one hundred and thirty thousand,centotrentamila
+114000 / one hundred and fourteen thousand,centoquattordicimila
+140000 / one hundred and forty thousand,centoquarantamila
+115000 / one hundred and fifteen thousand,centoquindicimila
+150000 / one hundred and fifty thousand,centocinquantamila
+116000 / one hundred and sixteen thousand,centosedicimila
+160000 / one hundred and sixty thousand,centosessantamila
+117000 / one hundred and seventeen thousand,centodiciassettemila
+170000 / one hundred and seventy thousand,centosettantamila
+118000 / one hundred and eighteen thousand,centodiciottomila
+119000 / one hundred and nineteen thousand,centodiciannovemila
+205 / two hundred and five,duecentocinque
+306 / three hundred and six,trecentosei
+407 / four hundred and seven,quattrocentosette
+509 / five hundred and nine,cinquecentonove
+602 / six hundred and two,seicentodue
+704 / seven hundred and four,settecentoquattro
+806 / eight hundred and six,ottocentosei
+909 / nine hundred and nine,novecentonove
+1006 / one thousand and six,millesei
+2009 / two thousand and nine,duemilanove
+3001 / three thousand and one,tremilauno
+4002 / four thousand and two,quattromiladue
+4004 / four thousand and four,quattromilaquattro
+5005 / five thousand and five,cinquemilacinque
+6006 / six thousand and six,seimilasei
+7007 / seven thousand and seven,settemilasette
+9009 / nine thousand and nine,novemilanove
+10002 / ten thousand and two,diecimiladue
+20020 / twenty thousand and twenty,ventimilaventi
+30003 / thirty thousand and three,trentamilatré
+40040 / forty thousand and forty,quarantamilaquaranta
+50005 / fifty thousand and five,cinquantamilacinque
+60006 / sixty thousand and six,sessantamilasei
+70070 / seventy thousand and seventy,settantamilasettanta
+80008 / eighty thousand and eight,ottantamilaotto
+90009 / ninety thousand and nine,novantamilanove
+100002 / one hundred thousand and two,centomiladue
+200020 / two hundred thousand and twenty,duecentomilaventi
+300003 / three hundred thousand and three,trecentomilatré
+400004 / four hundred thousand and four,quattrocentomilaquattro
+500050 / five hundred thousand and fifty,cinquecentomilacinquanta
+600006 / six hundred thousand and six,seicentomilasei
+700007 / seven hundred thousand and seven,settecentomilasette
+800080 / eight hundred thousand and eighty,ottocentomilaottanta
+900009 / nine hundred thousand and nine,novecentomilanove
+1002 / one thousand and two,milledue
+1005 / one thousand and five,millecinque
+1009 / one thousand and nine,millenove
+1050 / one thousand and fifty,millecinquanta
+1099 / one thousand and ninety-nine,millenovantanove
+1101 / one thousand one hundred and one,millecentouno
+1222 / one thousand two hundred and twenty-two,milleduecentoventidue
+1900 / one thousand nine hundred,millenovecento
+2002 / two thousand and two,duemiladue
+2100 / two thousand one hundred,duemilacento
+2222 / two thousand two hundred and twenty-two,duemiladuecentoventidue
+4000 / four thousand,quattromila
+8000 / eight thousand,ottomila
+9000 / nine thousand,novemila
+9999 / nine thousand nine hundred and ninety-nine,novemilanovecentonovantanove
+10001 / ten thousand and one,diecimilauno
+10010 / ten thousand and ten,diecimiladieci
+10100 / ten thousand one hundred,diecimilacento
+11111 / eleven thousand one hundred and eleven,undicimilacentoundici
+20002 / twenty thousand and two,ventimiladue
+99999 / ninety-nine thousand nine hundred and ninety-nine,novantanovemilanovecentonovantanove
+100001 / one hundred thousand and one,centomilauno
+100100 / one hundred thousand one hundred,centomilacento
+110000 / one hundred and ten thousand,centodiecimila
+111000 / one hundred and eleven thousand,centoundicimila
+111111 / one hundred and eleven thousand one hundred and eleven,centoundicimilacentoundici
+101101 / one hundred and one thousand one hundred and one,centounomilacentouno
+999999 / nine hundred and ninety-nine thousand nine hundred and ninety-nine,novecentonovantanovemilanovecentonovantanove
+1066 / one thousand and sixty-six,millesessantasei
+1265 / one thousand two hundred and sixty-five,milleduecentosessantacinque
+1348 / one thousand three hundred and forty-eight,milletrecentoquarantotto
+1453 / one thousand four hundred and fifty-three,millequattrocentocinquantatré
+1492 / one thousand four hundred and ninety-two,millequattrocentonovantadue
+1504 / one thousand five hundred and four,millecinquecentoquattro
+1564 / one thousand five hundred and sixty-four,millecinquecentosessantaquattro
+1600 / one thousand six hundred,milleseicento
+1700 / one thousand seven hundred,millesettecento
+1789 / one thousand seven hundred and eighty-nine,millesettecentottantanove
+1800 / one thousand eight hundred,milleottocento
+1815 / one thousand eight hundred and fifteen,milleottocentoquindici
+1848 / one thousand eight hundred and forty-eight,milleottocentoquarantotto
+1861 / one thousand eight hundred and sixty-one,milleottocentosessantuno
+1871 / one thousand eight hundred and seventy-one,milleottocentosettantuno
+1914 / one thousand nine hundred and fourteen,millenovecentoquattordici
+1918 / one thousand nine hundred and eighteen,millenovecentodiciotto
+1922 / one thousand nine hundred and twenty-two,millenovecentoventidue
+1939 / one thousand nine hundred and thirty-nine,millenovecentotrentanove
+1943 / one thousand nine hundred and forty-three,millenovecentoquarantatré
+1945 / one thousand nine hundred and forty-five,millenovecentoquarantacinque
+1946 / one thousand nine hundred and forty-six,millenovecentoquarantasei
+1950 / one thousand nine hundred and fifty,millenovecentocinquanta
+1960 / one thousand nine hundred and sixty,millenovecentosessanta
+1966 / one thousand nine hundred and sixty-six,millenovecentosessantasei
+1969 / one thousand nine hundred and sixty-nine,millenovecentosessantanove
+1970 / one thousand nine hundred and seventy,millenovecentosettanta
+1975 / one thousand nine hundred and seventy-five,millenovecentosettantacinque
+1980 / one thousand nine hundred and eighty,millenovecentottanta
+1982 / one thousand nine hundred and eighty-two,millenovecentottantadue
+1985 / one thousand nine hundred and eighty-five,millenovecentottantacinque
+1989 / one thousand nine hundred and eighty-nine,millenovecentottantanove
+1990 / one thousand nine hundred and ninety,millenovecentonovanta
+1994 / one thousand nine hundred and ninety-four,millenovecentonovantaquattro
+1995 / one thousand nine hundred and ninety-five,millenovecentonovantacinque
+1998 / one thousand nine hundred and ninety-eight,millenovecentonovantotto
+2004 / two thousand and four,duemilaquattro
+2005 / two thousand and five,duemilacinque
+2006 / two thousand and six,duemilasei
+2007 / two thousand and seven,duemilasette
+2010 / two thousand and ten,duemiladieci
+2020 / two thousand and twenty,duemilaventi
+2021 / two thousand and twenty-one,duemilaventuno
+2022 / two thousand and twenty-two,duemilaventidue
+2024 / two thousand and twenty-four,duemilaventiquattro
+2025 / two thousand and twenty-five,duemilaventicinque
+2027 / two thousand and twenty-seven,duemilaventisette
+2028 / two thousand and twenty-eight,duemilaventotto
+2030 / two thousand and thirty,duemilatrenta
+2040 / two thousand and forty,duemilaquaranta
+2050 / two thousand and fifty,duemilacinquanta
+123456 / one hundred and twenty-three thousand four hundred and fifty-six,centoventitremilaquattrocentocinquantasei
+234567 / two hundred and thirty-four thousand five hundred and sixty-seven,duecentotrentaquattromilacinquecentosessantasette
+345678 / three hundred and forty-five thousand six hundred and seventy-eight,trecentoquarantacinquemilaseicentosettantotto
+456789 / four hundred and fifty-six thousand seven hundred and eighty-nine,quattrocentocinquantaseimilasettecentottantanove
+567890 / five hundred and sixty-seven thousand eight hundred and ninety,cinquecentosessantasettemilaottocentonovanta
+654321 / six hundred and fifty-four thousand three hundred and twenty-one,seicentocinquantaquattromilatrecentoventuno
+765432 / seven hundred and sixty-five thousand four hundred and thirty-two,settecentosessantacinquemilaquattrocentotrentadue
+876543 / eight hundred and seventy-six thousand five hundred and forty-three,ottocentosettantaseimilacinquecentoquarantatré
+987654 / nine hundred and eighty-seven thousand six hundred and fifty-four,novecentottantasettemilaseicentocinquantaquattro
+222222 / two hundred and twenty-two thousand two hundred and twenty-two,duecentoventiduemiladuecentoventidue
+444444 / four hundred and forty-four thousand four hundred and forty-four,quattrocentoquarantaquattromilaquattrocentoquarantaquattro
+555555 / five hundred and fifty-five thousand five hundred and fifty-five,cinquecentocinquantacinquemilacinquecentocinquantacinque
+777777 / seven hundred and seventy-seven thousand seven hundred and seventy-seven,settecentosettantasettemilasettecentosettantasette
+121212 / one hundred and twenty-one thousand two hundred and twelve,centoventunomiladuecentododici
+181818 / one hundred and eighty-one thousand eight hundred and eighteen,centottantunomilaottocentodiciotto
+616161 / six hundred and sixteen thousand one hundred and sixty-one,seicentosedicimilacentosessantuno
+717171 / seven hundred and seventeen thousand one hundred and seventy-one,settecentodiciassettemilacentosettantuno
+818181 / eight hundred and eighteen thousand one hundred and eighty-one,ottocentodiciottomilacentottantuno
+909090 / nine hundred and nine thousand and ninety,novecentonovemilanovanta
+3000000 / three million,tre milioni
+4000000 / four million,quattro milioni
+5000000 / five million,cinque milioni
+8000000 / eight million,otto milioni
+10000000 / ten million,dieci milioni
+11000000 / eleven million,undici milioni
+16000000 / sixteen million,sedici milioni
+17000000 / seventeen million,diciassette milioni
+20000000 / twenty million,venti milioni
+50000000 / fifty million,cinquanta milioni
+60000000 / sixty million,sessanta milioni
+70000000 / seventy million,settanta milioni
+100000000 / one hundred million,cento milioni
+500000000 / five hundred million,cinquecento milioni
+1200000 / one million two hundred thousand,un milione duecentomila
+1250000 / one million two hundred and fifty thousand,un milione duecentocinquantamila
+1800000 / one million eight hundred thousand,un milione ottocentomila
+2300000 / two million three hundred thousand,due milioni trecentomila
+2500000 / two million five hundred thousand,due milioni cinquecentomila
+3700000 / three million seven hundred thousand,tre milioni settecentomila
+6600000 / six million six hundred thousand,sei milioni seicentomila
+7700000 / seven million seven hundred thousand,sette milioni settecentomila
+1234567 / one million two hundred and thirty-four thousand five hundred and sixty-seven,un milione duecentotrentaquattromilacinquecentosessantasette
+7654321 / seven million six hundred and fifty-four thousand three hundred and twenty-one,sette milioni seicentocinquantaquattromilatrecentoventuno
+9876543 / nine million eight hundred and seventy-six thousand five hundred and forty-three,nove milioni ottocentosettantaseimilacinquecentoquarantatré
+1000000000 / one billion,un miliardo
+2000000000 / two billion,due miliardi
+8000000000 / eight billion,otto miliardi
+1500000000 / one billion five hundred million,un miliardo cinquecento milioni
 175 / one hundred and seventy-five,centosettantacinque
 197 / one hundred and ninety-seven,centonovantasette
 255 / two hundred and fifty-five,duecentocinquantacinque

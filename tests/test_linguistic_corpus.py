@@ -34,6 +34,19 @@ class LinguisticCorpusTests(unittest.TestCase):
     def test_number_and_plural_forms(self):
         for value, word in CASES["numbers"]:
             self.assertEqual(italian.number_words(value), word)
+        for value, word in (
+            (3, "tre"),
+            (103, "centotré"),
+            (23000, "ventitremila"),  # the accent only falls at the very end
+            (1_000_003, "un milione tre"),  # a separate tre takes none
+            (23_000_000, "ventitré milioni"),
+            (1_000_000_000, "un miliardo"),
+            (2_500_000_000, "due miliardi cinquecento milioni"),
+            (180, "centottanta"),
+            (21000, "ventunomila"),
+        ):
+            with self.subTest(value=value):
+                self.assertEqual(italian.number_words(value), word)
         for word, gender, article in CASES["plural_articles"]:
             self.assertEqual(italian.definite_article(word, gender, True), article)
 

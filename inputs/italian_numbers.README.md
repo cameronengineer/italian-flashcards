@@ -31,12 +31,24 @@ speaker, rather than a measured ranking of difficulty for all learners.
 | 137–163 | Hundred boundaries and spelling patterns: 101, 103, 108, 181, 188, 208, 218, 280 and round hundreds |
 | 164–202 | Thousands and place value: 1,001/1,010/1,100, teens inside thousands, and 20,000/30,000 |
 | 203–208 | Hundreds of thousands and millions |
-| 209–251 | Remaining numbers from the previous active generated list, retained for later practice |
+| 209–251 | Teens inside the hundreds (211–219, 214/240, 315/350 …) — the 114 / 115 kind |
+| 252–285 | Six or seven? `sedici` / `sessanta` / `settanta` / `diciassette` in hundreds and thousands |
+| 286–320 | Final `-tré` (`centotré`, `trecentotrentatré`) against `tremila`, `ventitremila` |
+| 321–394 | The vowel that drops before 1 and 8: `centottantuno`, `milleottanta`, `ventunomila`, `ottocentottantotto` |
+| 395–428 | Teens inside the thousands (2011–2019, 114,000/140,000 …) |
+| 429–463 | Zeros in the middle: 205, 4,004, 20,020, 300,003 |
+| 464–491 | `mille` or `mila`: 1,002, 2,222, 9,999, 100,001, 111,111 |
+| 492–542 | Years, from 1066 to 2050 |
+| 543–561 | Long numbers with every part: 123,456, 888,888, 909,090 |
+| 562–590 | Millions and billions: `un milione`, `due milioni`, `un miliardo`, `otto miliardi` |
+| 591–633 | Remaining numbers from the previous active generated list, retained for later practice |
 
 Every number appears once. Duplicating a row would not produce useful spaced
 practice in this word-first pipeline; Anki handles repetition. All 178 numbers
 from the previous active generated list are included, with 73 additional values
-chosen to reinforce the contrasts. The old, previously unused CSV had 400 rows.
+chosen to reinforce the contrasts, and 382 more (rows 209–590, November 2026)
+aimed at the numbers that break the pattern. The old, previously unused CSV had
+400 rows.
 
 ## Patterns to notice
 
@@ -52,6 +64,13 @@ chosen to reinforce the contrasts. The old, previously unused CSV had 400 rows.
 - **Hundreds and thousands:** practise the full Italian word without inserting
   English's “and” or spaces into compounds such as `centoventitré`. Contrast
   singular `mille` with plural compounds such as `duemila`.
+- **The accent only falls at the very end:** `ventitré` but `ventitremila`;
+  `centotré` but `centotremila`. A separate `tre` never takes one (`un milione tre`).
+- **Hundreds lose their o before otto/ottanta:** `centotto`, `centottanta`,
+  `novecentottanta`; `mille` keeps its e (`milleotto`, `milleottanta`).
+- **One before mila:** `ventunomila`, `centottantunomila` (no `ventunmila`).
+- **Millions and billions are separate words:** `un milione`, `due milioni`,
+  `un miliardo`, `otto miliardi`, `un miliardo cinquecento milioni`.
 
 These spelling patterns were checked against
 [Treccani's guide to numerals](https://www.treccani.it/enciclopedia/numerali-prontuario_%28Enciclopedia-dell%27Italiano%29/).

@@ -302,12 +302,17 @@ def number_words(n: int) -> str:
         thousands, rest = divmod(n, 1000)
         head = "mille" if thousands == 1 else _below_1000(thousands) + "mila"
         words = head + (_below_1000(rest) if rest else "")
-    else:
+    elif n < 1_000_000_000:
         millions, rest = divmod(n, 1_000_000)
         head = "un milione" if millions == 1 else number_words(millions) + " milioni"
         words = head + (" " + number_words(rest) if rest else "")
-    if n > 3 and words.endswith("tre"):
-        words = words[:-1] + "é"  # ventitré, centotré
+    else:
+        billions, rest = divmod(n, 1_000_000_000)
+        head = "un miliardo" if billions == 1 else number_words(billions) + " miliardi"
+        words = head + (" " + number_words(rest) if rest else "")
+    last = words.rsplit(" ", 1)[-1]
+    if len(last) > 3 and last.endswith("tre"):
+        words = words[:-1] + "é"  # ventitré, centotré; but tre, un milione tre, ventitremila
     return words
 
 

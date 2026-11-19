@@ -70,6 +70,8 @@ path = "italian_numbers.csv"
 deck = "Italian::Basics::Numbers"
 type = "number"
 facts = false
+# Number cards go into Anki without waiting for their picture; it's added once drawn.
+image_policy = "optional"
 
 [[list]]
 id = "fluent-forever"
