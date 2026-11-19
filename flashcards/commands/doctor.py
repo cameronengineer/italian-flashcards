@@ -94,6 +94,13 @@ def run(out=None, *, database=None, check_media=True, anki=False):
         from ..anki import capabilities
 
         result["anki"] = capabilities()
+        if result["anki"].get("reachable"):
+            from ..anki import new_card_queue
+
+            try:
+                result["anki"]["new_cards"] = new_card_queue()
+            except RuntimeError as exc:
+                result["anki"]["new_cards"] = {"error": str(exc)}
     if database is not None or paths.DB_PATH.exists():
         result["data"] = data_review.collect(database, check_media=check_media)
     print(json.dumps(result, ensure_ascii=False, indent=2))

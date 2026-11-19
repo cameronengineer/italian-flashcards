@@ -45,6 +45,68 @@ def invoke(action: str, *, timeout: int = 60, **params: Any) -> Any:
     return result["result"]
 
 
+#: Anki's deck options (``newGatherPriority`` / ``newSortOrder``) as the options screen names them.
+GATHER = {
+    0: "Deck",
+    1: "Ascending position",
+    2: "Descending position",
+    3: "Random notes",
+    4: "Random cards",
+    5: "Deck, then random notes",
+}
+SORT = {
+    0: "Card type, then order gathered",
+    1: "Order gathered",
+    2: "Card type, then random",
+    3: "Random note, then card type",
+    4: "Random",
+}
+DIRECTIONS = {"Recognition": "Italian → English", "Production": "English → Italian"}
+
+
+def new_card_queue(sample: int = 100) -> dict:
+    """How Anki will introduce the pipeline's new cards (read-only).
+
+    New cards waiting in each direction, per deck; the next ``sample`` by
+    position (the order "Ascending position" gathers them in); and the display
+    order and sibling burying of the ``Italian`` deck, which decide what you
+    actually see first.
+    """
+    from .notes import MODEL_NAME
+
+    base = f"{quote('note:' + MODEL_NAME)} is:new -is:suspended"
+    waiting, cards = {}, []
+    for template, label in DIRECTIONS.items():
+        ids = invoke("findCards", query=f"{base} card:{template}")
+        waiting[label] = len(ids)
+        # Card ids follow the order cards were added, so the earliest few hold the next positions.
+        for group in chunks(sorted(ids)[: sample * 3]):
+            cards += [
+                (c.get("due", 0), c.get("deckName", ""), label) for c in invoke("cardsInfo", cards=group)
+            ]
+    upcoming = sorted(cards)[:sample]
+    decks: dict[str, dict[str, int]] = {}
+    for _due, deck, label in upcoming:
+        decks.setdefault(deck, dict.fromkeys(DIRECTIONS.values(), 0))[label] += 1
+    config = invoke("getDeckConfig", deck="Italian") or {}
+    return {
+        "waiting": waiting,
+        f"next_{sample}_by_position": {
+            label: sum(1 for *_x, lab in upcoming if lab == label) for label in DIRECTIONS.values()
+        },
+        "next_by_deck": dict(sorted(decks.items(), key=lambda kv: -sum(kv[1].values()))),
+        "italian_deck_options": {
+            "preset": config.get("name"),
+            "new_card_gather_order": GATHER.get(
+                config.get("newGatherPriority"), config.get("newGatherPriority")
+            ),
+            "new_card_sort_order": SORT.get(config.get("newSortOrder"), config.get("newSortOrder")),
+            "bury_new_siblings": config.get("new", {}).get("bury"),
+            "bury_review_siblings": config.get("rev", {}).get("bury"),
+        },
+    }
+
+
 def capabilities() -> dict:
     """Is AnkiConnect reachable, and does it still offer every action used here?
 
