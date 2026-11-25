@@ -10,6 +10,7 @@
 <meta property="og:image" content="https://italianflashcards.cameronengineer.com/samples/il-caffe.jpg">
 <meta name="theme-color" content="#f7f4ec">
 <link rel="icon" href="/favicon.ico" sizes="32x32 48x48 96x96">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
 :root { color-scheme: light; --bg:#f7f4ec; --paper:#fffefa; --ink:#243d32; --text:#39483f; --muted:#626c62; --line:#d9ded2; --green:#2f5948; --tint:#e9eee5; --gold:#946a2f; --serif:Georgia,'Times New Roman',serif; }
 * { box-sizing:border-box; }
@@ -21,6 +22,7 @@ a:hover { text-decoration-thickness:2px; }
 .wrap { width:min(1080px, calc(100% - 64px)); margin-inline:auto; }
 .skip { position:absolute; top:-100px; padding:10px; background:var(--paper); z-index:5; }
 .skip:focus { top:10px; }
+.vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 header { display:flex; align-items:center; justify-content:space-between; padding-block:27px; border-bottom:1px solid var(--line); gap:20px; }
 .brand { font:30px var(--serif); color:var(--ink); text-decoration:none; letter-spacing:-1px; }
 .brand span { color:var(--muted); font:12px system-ui,sans-serif; letter-spacing:.08em; margin-left:14px; text-transform:uppercase; }
@@ -29,6 +31,7 @@ nav a { text-decoration:none; }
 nav a:hover { text-decoration:underline; }
 h1,h2,h3 { font-family:var(--serif); color:var(--ink); font-weight:400; line-height:1.15; }
 h1 { font-size:clamp(44px,6.3vw,76px); letter-spacing:-2.6px; margin:14px 0 25px; }
+h1 .h1-sub { display:block; margin-top:16px; font:500 clamp(16px,1.7vw,19px)/1.4 system-ui,-apple-system,'Segoe UI',sans-serif; letter-spacing:0; color:var(--muted); }
 h2 { font-size:clamp(32px,4vw,44px); letter-spacing:-1.2px; margin:0; }
 h3 { font-size:26px; margin:0 0 10px; }
 p { margin:0 0 14px; }
@@ -82,7 +85,7 @@ input { border:1px solid #a5afa2; border-radius:6px; padding:11px 14px; backgrou
 .decks li { display:flex; justify-content:space-between; align-items:center; gap:22px; padding:18px 0; border-bottom:1px solid var(--line); font-size:13px; }
 .decks li:first-child { padding-top:0; }
 .decks li:last-child { border-bottom:0; padding-bottom:0; }
-.decks b { font-size:16px; color:var(--ink); font-weight:600; }
+.decks .deck-name { font-size:16px; color:var(--ink); font-weight:600; }
 .decks small { color:var(--muted); font-size:12px; }
 .decks a { flex:none; font-size:13px; text-decoration:none; border:1px solid #a5afa2; border-radius:6px; padding:8px 13px; }
 .decks a:hover { background:var(--tint); border-color:var(--green); }
@@ -159,7 +162,7 @@ if (location.hostname === 'italian-flashcards-lyh2.onrender.com') {
  <div class="intro">
   <div>
    <p class="eyebrow">A personal study collection</p>
-   <h1>Free Italian flashcards<br>for Anki.</h1>
+   <h1>Free Italian Anki decks with audio &amp; pictures.<span class="h1-sub">A1–B2 vocabulary, verbs, numbers and more</span></h1>
    <p class="lead">Free Italian Anki flashcards for English speakers, made for my own Italian study. They cover everyday vocabulary and verb forms, with pictures, recordings and notes along the way.</p>
    <p class="byline">Made by <a href="https://blog.cameronengineer.com/">Cameron</a>. Shared freely for use in <a href="https://apps.ankiweb.net/">Anki</a>. Browse and download the decks below.</p>
   </div>
@@ -174,7 +177,7 @@ if (location.hostname === 'italian-flashcards-lyh2.onrender.com') {
   <div class="sample-panel" id="sample-il-caffe" aria-labelledby="label-il-caffe">
   <h3 id="label-il-caffe" class="sample-label">Vocabulary · Italian → English</h3>
   <div class="sample">
-    <div class="side"><small>Front</small><div class="word" lang="it">il caffè</div><div class="ipa">/kafˈfɛ/</div><audio controls preload="none" aria-label="Pronunciation of il caffè" src="samples/il-caffe.mp3">Your browser does not support audio. <a href="samples/il-caffe.mp3">Download the recording</a>.</audio></div>
+    <div class="side"><small>Front</small><div class="word" lang="it">il caffè</div><div class="ipa">/kafˈfɛ/</div><audio controls preload="none" aria-label="Pronunciation of il caffè" src="samples/il-caffe.mp3">Your browser does not support audio. <a href="samples/il-caffe.mp3">Download the recording of il caffè</a>.</audio></div>
     <div class="side"><small>Back</small><div class="word">coffee</div><img src="samples/il-caffe.jpg" alt="Illustration for coffee" width="512" height="384" decoding="async"><p class="det">masculine · plural: i caffè</p><p>Invariable: due caffè. Also means a café.</p><p class="ex"><span lang="it">“Gradiresti un caffè? - Non a quest&#x27;ora.”</span><br><small>word for word: Would-you-like a coffee? - Not at this-hour.<br>— Benvenuti al Sud (2010), 0:26:14</small></p><p class="fact"><b>Did you know?</b> Order &#x27;un caffè&#x27; in Italy and you get an espresso. Ask for a long milky coffee with a caffè latte. The word came via Ottoman Turkish kahve from Arabic qahwa.</p></div>
   </div>
 </div>
@@ -182,14 +185,14 @@ if (location.hostname === 'italian-flashcards-lyh2.onrender.com') {
   <h3 id="label-vedo" class="sample-label">Verb form · English → Italian</h3>
   <div class="sample">
     <div class="side"><small>Front</small><img src="samples/vedo.jpg" alt="Illustration for I see" width="512" height="384" decoding="async" loading="lazy"><div class="word">I see</div></div>
-    <div class="side"><small>Back</small><div class="word" lang="it">vedo</div><div class="ipa"></div><audio controls preload="none" aria-label="Pronunciation of vedo" src="samples/vedo.mp3">Your browser does not support audio. <a href="samples/vedo.mp3">Download the recording</a>.</audio><p class="det">vedere — to see</p><p></p></div>
+    <div class="side"><small>Back</small><div class="word" lang="it">vedo</div><div class="ipa"></div><audio controls preload="none" aria-label="Pronunciation of vedo" src="samples/vedo.mp3">Your browser does not support audio. <a href="samples/vedo.mp3">Download the recording of vedo</a>.</audio><p class="det">vedere — to see</p><p></p></div>
   </div>
 </div>
 <div class="sample-panel" id="sample-il-loro-mondo" aria-labelledby="label-il-loro-mondo">
   <h3 id="label-il-loro-mondo" class="sample-label">Noun phrase · English → Italian</h3>
   <div class="sample">
     <div class="side"><small>Front</small><img src="samples/il-loro-mondo.jpg" alt="Illustration for their world" width="512" height="384" decoding="async" loading="lazy"><div class="word">their world</div></div>
-    <div class="side"><small>Back</small><div class="word" lang="it">il loro mondo</div><div class="ipa"></div><audio controls preload="none" aria-label="Pronunciation of il loro mondo" src="samples/il-loro-mondo.mp3">Your browser does not support audio. <a href="samples/il-loro-mondo.mp3">Download the recording</a>.</audio><p class="det">il mondo · masculine</p><p></p></div>
+    <div class="side"><small>Back</small><div class="word" lang="it">il loro mondo</div><div class="ipa"></div><audio controls preload="none" aria-label="Pronunciation of il loro mondo" src="samples/il-loro-mondo.mp3">Your browser does not support audio. <a href="samples/il-loro-mondo.mp3">Download the recording of il loro mondo</a>.</audio><p class="det">il mondo · masculine</p><p></p></div>
   </div>
 </div>
   <p class="caption">Use the audio controls to hear the recordings. Vocabulary cards practise both directions; verb and noun-phrase cards ask for the Italian.</p>
@@ -207,92 +210,92 @@ if (location.hostname === 'italian-flashcards-lyh2.onrender.com') {
   <p class="download-note">The level decks overlap: each includes the levels below it, so choose one level. Words also recur across the other vocabulary decks.</p>
   <div class="filter" hidden><label for="deck-search">Find a deck</label><input id="deck-search" type="search" placeholder="Try A1, numbers or past…" autocomplete="off"><span id="results" role="status" aria-live="polite"></span></div>
   <div class="deck-group" id="deck-start"><div class="group-intro"><h3>Everyday vocabulary</h3><p>Two collections of everyday words and numbers.</p></div><ul class="decks"><li>
-  <div><b><a class="deck-title" href="/decks/italian-core-fluent-forever-625-anki-deck/">Fluent Forever 625</a></b><br>Family, food, home, body and time.<br><small>1,194 cards · 9.7 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_core_fluent_forever_625.apkg" aria-label="Download Fluent Forever 625 deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-core-fluent-forever-625-anki-deck/">Fluent Forever 625</a></span><br>Family, food, home, body and time.<br><small>1,194 cards · 9.7 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_core_fluent_forever_625.apkg" aria-label="Download Fluent Forever 625 deck">Download<span class="vh"> the Fluent Forever 625 deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-basics-numbers-anki-deck/">Numbers</a></b><br>Practice with easily confused numbers, including the teens and tens.<br><small>108 cards · 967 KB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_basics_numbers.apkg" aria-label="Download Numbers deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-basics-numbers-anki-deck/">Numbers</a></span><br>Practice with easily confused numbers, including the teens and tens.<br><small>108 cards · 967 KB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_basics_numbers.apkg" aria-label="Download Numbers deck">Download<span class="vh"> the Numbers deck</span> <span aria-hidden="true">↓</span></a>
 </li></ul></div>
 <div class="deck-group" id="deck-levels"><div class="group-intro"><h3><a href="/italian-cils-anki-decks/">CILS vocabulary by level</a></h3><p>Based on the CILS exam levels. Each level includes the levels below it, so you only need one.</p></div><ul class="decks"><li>
-  <div><b><a class="deck-title" href="/decks/italian-cils-a1-anki-deck/">Level A1 · Beginner</a></b><br>482 words for shopping, family, food and getting around.<br><small>960 cards · 7.7 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_cils_a1.apkg" aria-label="Download Level A1 · Beginner deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-cils-a1-anki-deck/">Level A1 · Beginner</a></span><br>482 words for shopping, family, food and getting around.<br><small>960 cards · 7.7 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_cils_a1.apkg" aria-label="Download Level A1 · Beginner deck">Download<span class="vh"> the Level A1 · Beginner deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-cils-a2-anki-deck/">Level A2 · Elementary</a></b><br>Everyday conversation: work, travel, health, plans. 563 new words, plus all of A1.<br><small>2,062 cards · 16.7 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_cils_a2.apkg" aria-label="Download Level A2 · Elementary deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-cils-a2-anki-deck/">Level A2 · Elementary</a></span><br>Everyday conversation: work, travel, health, plans. 563 new words, plus all of A1.<br><small>2,062 cards · 16.7 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_cils_a2.apkg" aria-label="Download Level A2 · Elementary deck">Download<span class="vh"> the Level A2 · Elementary deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-cils-b1-anki-deck/">Level B1 · Intermediate</a></b><br>Situations, stories and opinions. 502 new words, plus A1 and A2.<br><small>3,056 cards · 25.2 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_cils_b1.apkg" aria-label="Download Level B1 · Intermediate deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-cils-b1-anki-deck/">Level B1 · Intermediate</a></span><br>Situations, stories and opinions. 502 new words, plus A1 and A2.<br><small>3,056 cards · 25.2 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_cils_b1.apkg" aria-label="Download Level B1 · Intermediate deck">Download<span class="vh"> the Level B1 · Intermediate deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-cils-b2-anki-deck/">Level B2 · Upper-intermediate</a></b><br>Vocabulary for films, news and discussion. 541 new words, plus A1 to B1.<br><small>4,131 cards · 34.6 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_cils_b2.apkg" aria-label="Download Level B2 · Upper-intermediate deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-cils-b2-anki-deck/">Level B2 · Upper-intermediate</a></span><br>Vocabulary for films, news and discussion. 541 new words, plus A1 to B1.<br><small>4,131 cards · 34.6 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_cils_b2.apkg" aria-label="Download Level B2 · Upper-intermediate deck">Download<span class="vh"> the Level B2 · Upper-intermediate deck</span> <span aria-hidden="true">↓</span></a>
 </li></ul></div>
 <div class="deck-group" id="deck-films"><div class="group-intro"><h3>Film vocabulary</h3><p>The words of a film, each with the line where it’s spoken and a word-for-word translation.</p></div><ul class="decks"><li>
-  <div><b><a class="deck-title" href="/decks/italian-movies-le-otto-montagne-anki-deck/">Le otto montagne (2022)</a></b><br>A drama. Italian to English.<br><small>1,545 cards · 14.5 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_movies_le_otto_montagne.apkg" aria-label="Download Le otto montagne (2022) deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-movies-le-otto-montagne-anki-deck/">Le otto montagne (2022)</a></span><br>A drama. Italian to English.<br><small>1,545 cards · 14.5 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_movies_le_otto_montagne.apkg" aria-label="Download Le otto montagne (2022) deck">Download<span class="vh"> the Le otto montagne (2022) deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-movies-benvenuti-al-sud-anki-deck/">Benvenuti al Sud (2010)</a></b><br>A comedy. Italian to English.<br><small>896 cards · 14.6 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_movies_benvenuti_al_sud.apkg" aria-label="Download Benvenuti al Sud (2010) deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-movies-benvenuti-al-sud-anki-deck/">Benvenuti al Sud (2010)</a></span><br>A comedy. Italian to English.<br><small>896 cards · 14.6 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_movies_benvenuti_al_sud.apkg" aria-label="Download Benvenuti al Sud (2010) deck">Download<span class="vh"> the Benvenuti al Sud (2010) deck</span> <span aria-hidden="true">↓</span></a>
 </li></ul></div>
 <div class="deck-group" id="deck-common"><div class="group-intro"><h3>Frequent words</h3><p>Ranked by how often they appear in film and TV dialogue.</p></div><ul class="decks"><li>
-  <div><b><a class="deck-title" href="/decks/italian-frequency-anki-deck/">Most common verbs &amp; nouns</a></b><br>Verbs and nouns from the SUBTLEX-IT frequency list.<br><small>2,749 cards · 24.1 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_frequency.apkg" aria-label="Download Most common verbs &amp; nouns deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-frequency-anki-deck/">Most common verbs &amp; nouns</a></span><br>Verbs and nouns from the SUBTLEX-IT frequency list.<br><small>2,749 cards · 24.1 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_frequency.apkg" aria-label="Download Most common verbs &amp; nouns deck">Download<span class="vh"> the Most common verbs &amp; nouns deck</span> <span aria-hidden="true">↓</span></a>
 </li></ul></div>
 <div class="deck-group" id="deck-verbs"><div class="group-intro"><h3><a href="/italian-verb-conjugation-flashcards/">Italian verb conjugation</a></h3><p>Each card is one verb form, like “we will eat” → mangeremo.</p></div><ul class="decks"><li>
-  <div><b><a class="deck-title" href="/decks/italian-verbs-learning-presente-anki-deck/">Presente</a></b><br>Present indicative: mangio (I eat).<br><small>700 cards · 6.8 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_learning_presente.apkg" aria-label="Download Presente deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-verbs-learning-presente-anki-deck/">Presente</a></span><br>Present indicative: mangio (I eat).<br><small>700 cards · 6.8 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_learning_presente.apkg" aria-label="Download Presente deck">Download<span class="vh"> the Presente deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-verbs-learning-passato-prossimo-anki-deck/">Passato prossimo</a></b><br>Compound past: ho mangiato (I ate / I have eaten).<br><small>688 cards · 7.9 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_learning_passato_prossimo.apkg" aria-label="Download Passato prossimo deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-verbs-learning-passato-prossimo-anki-deck/">Passato prossimo</a></span><br>Compound past: ho mangiato (I ate / I have eaten).<br><small>688 cards · 7.9 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_learning_passato_prossimo.apkg" aria-label="Download Passato prossimo deck">Download<span class="vh"> the Passato prossimo deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-verbs-learning-imperfetto-anki-deck/">Imperfetto</a></b><br>Imperfect: mangiavo (I used to eat / I was eating).<br><small>700 cards · 7.3 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_learning_imperfetto.apkg" aria-label="Download Imperfetto deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-verbs-learning-imperfetto-anki-deck/">Imperfetto</a></span><br>Imperfect: mangiavo (I used to eat / I was eating).<br><small>700 cards · 7.3 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_learning_imperfetto.apkg" aria-label="Download Imperfetto deck">Download<span class="vh"> the Imperfetto deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-verbs-learning-futuro-semplice-anki-deck/">Futuro semplice</a></b><br>Simple future: mangerò (I will eat).<br><small>700 cards · 7.4 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_learning_futuro_semplice.apkg" aria-label="Download Futuro semplice deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-verbs-learning-futuro-semplice-anki-deck/">Futuro semplice</a></span><br>Simple future: mangerò (I will eat).<br><small>700 cards · 7.4 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_learning_futuro_semplice.apkg" aria-label="Download Futuro semplice deck">Download<span class="vh"> the Futuro semplice deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-verbs-learning-presente-progressivo-anki-deck/">Presente progressivo</a></b><br>Present progressive: sto mangiando (I am eating).<br><small>634 cards · 8.2 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_learning_presente_progressivo.apkg" aria-label="Download Presente progressivo deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-verbs-learning-presente-progressivo-anki-deck/">Presente progressivo</a></span><br>Present progressive: sto mangiando (I am eating).<br><small>634 cards · 8.2 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_learning_presente_progressivo.apkg" aria-label="Download Presente progressivo deck">Download<span class="vh"> the Presente progressivo deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-verbs-learning-imperativo-con-tu-anki-deck/">Imperativo · tu</a></b><br>Informal singular imperative: mangia! (eat!).<br><small>100 cards · 1.5 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_learning_imperativo_con_tu.apkg" aria-label="Download Imperativo · tu deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-verbs-learning-imperativo-con-tu-anki-deck/">Imperativo · tu</a></span><br>Informal singular imperative: mangia! (eat!).<br><small>100 cards · 1.5 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_learning_imperativo_con_tu.apkg" aria-label="Download Imperativo · tu deck">Download<span class="vh"> the Imperativo · tu deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-verbs-learning-imperativo-con-lei-anki-deck/">Imperativo · Lei</a></b><br>Formal singular imperative: si sieda (please sit down).<br><small>98 cards · 1.5 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_learning_imperativo_con_lei.apkg" aria-label="Download Imperativo · Lei deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-verbs-learning-imperativo-con-lei-anki-deck/">Imperativo · Lei</a></span><br>Formal singular imperative: si sieda (please sit down).<br><small>98 cards · 1.5 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_learning_imperativo_con_lei.apkg" aria-label="Download Imperativo · Lei deck">Download<span class="vh"> the Imperativo · Lei deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-verbs-more-tenses-condizionale-presente-anki-deck/">Condizionale presente</a></b><br>Present conditional: mangerei (I would eat).<br><small>700 cards · 7.8 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_more_tenses_condizionale_presente.apkg" aria-label="Download Condizionale presente deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-verbs-more-tenses-condizionale-presente-anki-deck/">Condizionale presente</a></span><br>Present conditional: mangerei (I would eat).<br><small>700 cards · 7.8 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_more_tenses_condizionale_presente.apkg" aria-label="Download Condizionale presente deck">Download<span class="vh"> the Condizionale presente deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-verbs-more-tenses-condizionale-passato-anki-deck/">Condizionale passato</a></b><br>Past conditional: avrei mangiato (I would have eaten).<br><small>688 cards · 8.9 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_more_tenses_condizionale_passato.apkg" aria-label="Download Condizionale passato deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-verbs-more-tenses-condizionale-passato-anki-deck/">Condizionale passato</a></span><br>Past conditional: avrei mangiato (I would have eaten).<br><small>688 cards · 8.9 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_more_tenses_condizionale_passato.apkg" aria-label="Download Condizionale passato deck">Download<span class="vh"> the Condizionale passato deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-verbs-more-tenses-imperativo-con-noi-anki-deck/">Imperativo · noi</a></b><br>First-person plural imperative: mangiamo! (let’s eat!).<br><small>98 cards · 1.6 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_more_tenses_imperativo_con_noi.apkg" aria-label="Download Imperativo · noi deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-verbs-more-tenses-imperativo-con-noi-anki-deck/">Imperativo · noi</a></span><br>First-person plural imperative: mangiamo! (let’s eat!).<br><small>98 cards · 1.6 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_more_tenses_imperativo_con_noi.apkg" aria-label="Download Imperativo · noi deck">Download<span class="vh"> the Imperativo · noi deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-verbs-more-tenses-imperativo-con-voi-anki-deck/">Imperativo · voi</a></b><br>Plural imperative: mangiate! (eat!).<br><small>100 cards · 1.6 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_more_tenses_imperativo_con_voi.apkg" aria-label="Download Imperativo · voi deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-verbs-more-tenses-imperativo-con-voi-anki-deck/">Imperativo · voi</a></span><br>Plural imperative: mangiate! (eat!).<br><small>100 cards · 1.6 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_verbs_more_tenses_imperativo_con_voi.apkg" aria-label="Download Imperativo · voi deck">Download<span class="vh"> the Imperativo · voi deck</span> <span aria-hidden="true">↓</span></a>
 </li></ul></div>
 <div class="deck-group" id="deck-extras"><div class="group-intro"><h3>Extra practice</h3><p>Small decks for common stumbling blocks.</p></div><ul class="decks"><li>
-  <div><b><a class="deck-title" href="/decks/italian-noun-phrases-anki-deck/">Noun phrases</a></b><br>Articles, prepositions and possessives with Italian nouns: il, la, un, del, nel, mio… English → Italian.<br><small>2,902 cards · 44.4 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_noun_phrases.apkg" aria-label="Download Noun phrases deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-noun-phrases-anki-deck/">Noun phrases</a></span><br>Articles, prepositions and possessives with Italian nouns: il, la, un, del, nel, mio… English → Italian.<br><small>2,902 cards · 44.4 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_noun_phrases.apkg" aria-label="Download Noun phrases deck">Download<span class="vh"> the Noun phrases deck</span> <span aria-hidden="true">↓</span></a>
 </li>
 <li>
-  <div><b><a class="deck-title" href="/decks/italian-cognates-anki-deck/">Cognates</a></b><br>Related Italian and English words: generoso = generous.<br><small>244 cards · 4.5 MB</small></div>
-  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_cognates.apkg" aria-label="Download Cognates deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name"><a class="deck-title" href="/decks/italian-cognates-anki-deck/">Cognates</a></span><br>Related Italian and English words: generoso = generous.<br><small>244 cards · 4.5 MB</small></div>
+  <a href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_cognates.apkg" aria-label="Download Cognates deck">Download<span class="vh"> the Cognates deck</span> <span aria-hidden="true">↓</span></a>
 </li></ul></div>
   <p id="empty" hidden>No matching decks. Try a level, topic or tense, or clear the search.</p>
  </section>

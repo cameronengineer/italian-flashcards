@@ -10,6 +10,7 @@
 <meta property="og:image" content="https://italianflashcards.cameronengineer.com/samples/possibile.jpg">
 <meta name="theme-color" content="#f7f4ec">
 <link rel="icon" href="/favicon.ico" sizes="32x32 48x48 96x96">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
 :root { color-scheme: light; --bg:#f7f4ec; --paper:#fffefa; --ink:#243d32; --text:#39483f; --muted:#626c62; --line:#d9ded2; --green:#2f5948; --tint:#e9eee5; --gold:#946a2f; --serif:Georgia,'Times New Roman',serif; }
 * { box-sizing:border-box; }
@@ -21,6 +22,7 @@ a:hover { text-decoration-thickness:2px; }
 .wrap { width:min(1080px, calc(100% - 64px)); margin-inline:auto; }
 .skip { position:absolute; top:-100px; padding:10px; background:var(--paper); z-index:5; }
 .skip:focus { top:10px; }
+.vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 header { display:flex; align-items:center; justify-content:space-between; padding-block:27px; border-bottom:1px solid var(--line); gap:20px; }
 .brand { font:30px var(--serif); color:var(--ink); text-decoration:none; letter-spacing:-1px; }
 .brand span { color:var(--muted); font:12px system-ui,sans-serif; letter-spacing:.08em; margin-left:14px; text-transform:uppercase; }
@@ -29,6 +31,7 @@ nav a { text-decoration:none; }
 nav a:hover { text-decoration:underline; }
 h1,h2,h3 { font-family:var(--serif); color:var(--ink); font-weight:400; line-height:1.15; }
 h1 { font-size:clamp(44px,6.3vw,76px); letter-spacing:-2.6px; margin:14px 0 25px; }
+h1 .h1-sub { display:block; margin-top:16px; font:500 clamp(16px,1.7vw,19px)/1.4 system-ui,-apple-system,'Segoe UI',sans-serif; letter-spacing:0; color:var(--muted); }
 h2 { font-size:clamp(32px,4vw,44px); letter-spacing:-1.2px; margin:0; }
 h3 { font-size:26px; margin:0 0 10px; }
 p { margin:0 0 14px; }
@@ -82,7 +85,7 @@ input { border:1px solid #a5afa2; border-radius:6px; padding:11px 14px; backgrou
 .decks li { display:flex; justify-content:space-between; align-items:center; gap:22px; padding:18px 0; border-bottom:1px solid var(--line); font-size:13px; }
 .decks li:first-child { padding-top:0; }
 .decks li:last-child { border-bottom:0; padding-bottom:0; }
-.decks b { font-size:16px; color:var(--ink); font-weight:600; }
+.decks .deck-name { font-size:16px; color:var(--ink); font-weight:600; }
 .decks small { color:var(--muted); font-size:12px; }
 .decks a { flex:none; font-size:13px; text-decoration:none; border:1px solid #a5afa2; border-radius:6px; padding:8px 13px; }
 .decks a:hover { background:var(--tint); border-color:var(--green); }
@@ -159,7 +162,7 @@ if (location.hostname === 'italian-flashcards-lyh2.onrender.com') {
   <h3 id="label-possibile" class="sample-label">Vocabulary · English → Italian</h3>
   <div class="sample">
     <div class="side"><small>Front</small><img src="/samples/possibile.jpg" alt="Illustration for possible" width="512" height="384" decoding="async"><div class="word">possible</div></div>
-    <div class="side"><small>Back</small><div class="word" lang="it">possibile</div><div class="ipa"></div><audio controls preload="none" aria-label="Pronunciation of possibile" src="/samples/possibile.mp3">Your browser does not support audio. <a href="/samples/possibile.mp3">Download the recording</a>.</audio><p class="det">-bile = -ble · like stabile, orribile, incredibile</p><p></p></div>
+    <div class="side"><small>Back</small><div class="word" lang="it">possibile</div><div class="ipa"></div><audio controls preload="none" aria-label="Pronunciation of possibile" src="/samples/possibile.mp3">Your browser does not support audio. <a href="/samples/possibile.mp3">Download the recording of possibile</a>.</audio><p class="det">-bile = -ble · like stabile, orribile, incredibile</p><p></p></div>
   </div>
 </div><h2>Similar words still need context</h2><p>Connections between English and Italian can make a word easier to recall, but similar spelling does not guarantee the same meaning in every context. Use the prompt and any sense note on the card. Keep checking unfamiliar uses when reading rather than treating a cognate as an automatic word-for-word substitution.</p><h2>Examples from the deck</h2><p>40 of the 244 entries in the deck, spread from A to Z. These are individual prompts, not a lesson order.</p><table class="preview-table"><thead><tr><th scope="col">Italian</th><th scope="col">English prompt or meaning</th></tr></thead><tbody><tr><td lang="it">abbondante</td><td>abundant, plentiful</td></tr><tr><td lang="it">assente</td><td>absent</td></tr><tr><td lang="it">completamente</td><td>completely</td></tr><tr><td lang="it">cordialmente</td><td>cordially, warmly</td></tr><tr><td lang="it">dimostrare</td><td>to demonstrate</td></tr><tr><td lang="it">fantastico</td><td>fantastic</td></tr><tr><td lang="it">generoso</td><td>generous</td></tr><tr><td lang="it">il diario</td><td>diary, journal</td></tr><tr><td lang="it">il funerale</td><td>funeral</td></tr><tr><td lang="it">il professore</td><td>professor, teacher</td></tr><tr><td lang="it">il senatore</td><td>senator</td></tr><tr><td lang="it">imitare</td><td>to imitate</td></tr><tr><td lang="it">indifferente</td><td>indifferent</td></tr><tr><td lang="it">l&#x27;abilità</td><td>ability, skill</td></tr><tr><td lang="it">l&#x27;animale</td><td>animal</td></tr><tr><td lang="it">l&#x27;autore</td><td>author</td></tr><tr><td lang="it">l&#x27;esperienza</td><td>experience</td></tr><tr><td lang="it">l&#x27;informazione</td><td>information</td></tr><tr><td lang="it">l&#x27;onestà</td><td>honesty</td></tr><tr><td lang="it">la città</td><td>city, town</td></tr><tr><td lang="it">la conferenza</td><td>conference</td></tr><tr><td lang="it">la corrente</td><td>current</td></tr><tr><td lang="it">la destinazione</td><td>destination</td></tr><tr><td lang="it">la divisione</td><td>division</td></tr><tr><td lang="it">la gravità</td><td>gravity, seriousness</td></tr><tr><td lang="it">la missione</td><td>mission</td></tr><tr><td lang="it">la passione</td><td>passion</td></tr><tr><td lang="it">la possibilità</td><td>possibility</td></tr><tr><td lang="it">la probabilità</td><td>probability</td></tr><tr><td lang="it">la reputazione</td><td>reputation</td></tr><tr><td lang="it">la sensazione</td><td>sensation, feeling</td></tr><tr><td lang="it">la stazione</td><td>station</td></tr><tr><td lang="it">la tranquillità</td><td>tranquillity, calm</td></tr><tr><td lang="it">minore</td><td>minor, lesser</td></tr><tr><td lang="it">normale</td><td>normal</td></tr><tr><td lang="it">personale</td><td>personal, private</td></tr><tr><td lang="it">presente</td><td>present</td></tr><tr><td lang="it">romantico</td><td>romantic</td></tr><tr><td lang="it">superiore</td><td>superior, higher</td></tr><tr><td lang="it">verticale</td><td>vertical</td></tr></tbody></table><p>For help choosing material, see <a href="/italian-anki-decks-for-beginners/">Italian Anki decks for beginners</a>. For review and import advice, see <a href="/how-to-study-italian-with-anki/">how to study Italian with Anki</a>.</p><h2>How to use this deck</h2><ol><li>Install <a href="https://apps.ankiweb.net/">Anki</a> for your device.</li><li>Download the .apkg file above. Pictures and recordings are included.</li><li>Open the file with Anki, or choose File → Import on a computer. Check the import summary if you already have related decks.</li><li>Choose this deck in Anki and set a daily new-card limit that suits your study.</li></ol><h2>Sources and limitations</h2><p>I made these cards for my own Italian study. Dictionary data comes from Wiktionary via Kaikki; the frequency deck uses SUBTLEX-IT. Text, pictures and voices use AI and may contain mistakes. Keep source credits when sharing and use the decks non-commercially. <a href="/#about">Read about the material</a>.</p><h2>Related decks</h2><ul><li><a href="/decks/italian-core-fluent-forever-625-anki-deck/">Fluent Forever 625</a></li><li><a href="/decks/italian-basics-numbers-anki-deck/">Numbers</a></li></ul></main><footer>
  <nav aria-label="Footer navigation"><a href="/">All decks</a><a href="/italian-cils-anki-decks/">CILS levels</a><a href="/italian-verb-conjugation-flashcards/">Verb conjugation</a><a href="/italian-anki-decks-for-beginners/">Choosing a deck</a><a href="/how-to-study-italian-with-anki/">Study guide</a></nav>

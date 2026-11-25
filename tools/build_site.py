@@ -212,8 +212,8 @@ def _deck_groups(decks: dict, new_at: dict) -> str:
             d = decks[stem]
             rows.append(
                 f'''<li>
-  <div><b>{e(name)}</b><br>{e(desc.format(**fill))}<br><small>{d["cards"]:,} cards · {_size(d["bytes"])}</small></div>
-  <a href="{DOWNLOAD_BASE}{e(d["file"])}" aria-label="Download {e(name)} deck">Download <span aria-hidden="true">↓</span></a>
+  <div><span class="deck-name">{e(name)}</span><br>{e(desc.format(**fill))}<br><small>{d["cards"]:,} cards · {_size(d["bytes"])}</small></div>
+  <a href="{DOWNLOAD_BASE}{e(d["file"])}" aria-label="Download {e(name)} deck">Download<span class="vh"> the {e(name)} deck</span> <span aria-hidden="true">↓</span></a>
 </li>'''
             )
         out.append(f'<div class="deck-group" id="deck-{gid}"><div class="group-intro"><h3>{e(title)}</h3><p>{e(blurb)}</p></div><ul class="decks">{chr(10).join(rows)}</ul></div>')
@@ -229,7 +229,7 @@ def _sample_html(s: dict, lazy: bool = False) -> str:
     # The alt text is the English only: on an English → Italian card the picture is the prompt.
     picture = (f'<img src="samples/{slug}.jpg" alt="Illustration for {e(s["english"])}"'
                f' width="512" height="384" decoding="async"{loading}>')
-    audio = f'<audio controls preload="none" aria-label="Pronunciation of {e(s["italian"])}" src="samples/{slug}.mp3">Your browser does not support audio. <a href="samples/{slug}.mp3">Download the recording</a>.</audio>'
+    audio = f'<audio controls preload="none" aria-label="Pronunciation of {e(s["italian"])}" src="samples/{slug}.mp3">Your browser does not support audio. <a href="samples/{slug}.mp3">Download the recording of {e(s["italian"])}</a>.</audio>'
     italian = f'<div class="word" lang="it">{e(s["italian"])}</div><div class="ipa">{e(s["ipa"])}</div>'
     english = f'<div class="word">{e(s["english"])}</div>'
     hint = f'<p class="det">{e(s["hint"])}</p>' if s["hint"] else ""

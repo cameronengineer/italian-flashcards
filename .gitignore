@@ -78,3 +78,4 @@ site/downloads/
 
 # Shared site favicon
 !site/favicon.png
+!site/apple-touch-icon.png

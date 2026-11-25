@@ -61,6 +61,26 @@ class Page(HTMLParser):
 
 
 class SiteSEOTests(unittest.TestCase):
+    def test_home_page_passes_on_page_checks(self):
+        """What an on-page SEO checker (Seobility) looks at on the home page."""
+        import re
+
+        data = json.loads((build_site.TOOLS_DIR / "site_data.json").read_text())
+        with tempfile.TemporaryDirectory() as folder, patch.object(build_site, "SITE_DIR", Path(folder)):
+            build_site.render_page(data)
+            text = (Path(folder) / "index.html").read_text()
+        title = html.unescape(re.search(r"<title>(.*?)</title>", text).group(1)).lower()
+        h1 = html.unescape(re.sub(r"<[^>]+>", " ", re.search(r"<h1>(.*?)</h1>", text, re.S).group(1))).lower()
+        self.assertEqual([w for w in re.findall(r"[\w–-]+", title) if w not in h1], [])
+        self.assertLessEqual(len(re.findall(r"<(?:b|strong)>", text)), 24)
+        self.assertIn('<link rel="apple-touch-icon" href="/apple-touch-icon.png">', text)
+        # No link text is shared by two different addresses.
+        targets = {}
+        for href, inner in re.findall(r'<a [^>]*href="([^"]+)"[^>]*>(.*?)</a>', text, re.S):
+            label = " ".join(html.unescape(re.sub(r"<[^>]+>", "", inner)).split())
+            targets.setdefault(label, set()).add(href)
+        self.assertEqual({label: n for label, hrefs in targets.items() if (n := len(hrefs)) > 1}, {})
+
     def test_guides_canonicals_sitemap_and_repeat_build(self):
         data = json.loads((build_site.TOOLS_DIR / "site_data.json").read_text())
         with tempfile.TemporaryDirectory() as folder, patch.object(build_site, "SITE_DIR", Path(folder)):

@@ -10,6 +10,7 @@
 <meta property="og:image" content="https://italianflashcards.cameronengineer.com/samples/il-caffe.jpg">
 <meta name="theme-color" content="#f7f4ec">
 <link rel="icon" href="/favicon.ico" sizes="32x32 48x48 96x96">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
 :root { color-scheme: light; --bg:#f7f4ec; --paper:#fffefa; --ink:#243d32; --text:#39483f; --muted:#626c62; --line:#d9ded2; --green:#2f5948; --tint:#e9eee5; --gold:#946a2f; --serif:Georgia,'Times New Roman',serif; }
 * { box-sizing:border-box; }
@@ -21,6 +22,7 @@ a:hover { text-decoration-thickness:2px; }
 .wrap { width:min(1080px, calc(100% - 64px)); margin-inline:auto; }
 .skip { position:absolute; top:-100px; padding:10px; background:var(--paper); z-index:5; }
 .skip:focus { top:10px; }
+.vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 header { display:flex; align-items:center; justify-content:space-between; padding-block:27px; border-bottom:1px solid var(--line); gap:20px; }
 .brand { font:30px var(--serif); color:var(--ink); text-decoration:none; letter-spacing:-1px; }
 .brand span { color:var(--muted); font:12px system-ui,sans-serif; letter-spacing:.08em; margin-left:14px; text-transform:uppercase; }
@@ -29,6 +31,7 @@ nav a { text-decoration:none; }
 nav a:hover { text-decoration:underline; }
 h1,h2,h3 { font-family:var(--serif); color:var(--ink); font-weight:400; line-height:1.15; }
 h1 { font-size:clamp(44px,6.3vw,76px); letter-spacing:-2.6px; margin:14px 0 25px; }
+h1 .h1-sub { display:block; margin-top:16px; font:500 clamp(16px,1.7vw,19px)/1.4 system-ui,-apple-system,'Segoe UI',sans-serif; letter-spacing:0; color:var(--muted); }
 h2 { font-size:clamp(32px,4vw,44px); letter-spacing:-1.2px; margin:0; }
 h3 { font-size:26px; margin:0 0 10px; }
 p { margin:0 0 14px; }
@@ -82,7 +85,7 @@ input { border:1px solid #a5afa2; border-radius:6px; padding:11px 14px; backgrou
 .decks li { display:flex; justify-content:space-between; align-items:center; gap:22px; padding:18px 0; border-bottom:1px solid var(--line); font-size:13px; }
 .decks li:first-child { padding-top:0; }
 .decks li:last-child { border-bottom:0; padding-bottom:0; }
-.decks b { font-size:16px; color:var(--ink); font-weight:600; }
+.decks .deck-name { font-size:16px; color:var(--ink); font-weight:600; }
 .decks small { color:var(--muted); font-size:12px; }
 .decks a { flex:none; font-size:13px; text-decoration:none; border:1px solid #a5afa2; border-radius:6px; padding:8px 13px; }
 .decks a:hover { background:var(--tint); border-color:var(--green); }

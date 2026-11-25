@@ -10,6 +10,7 @@
 <meta property="og:image" content="https://italianflashcards.cameronengineer.com/samples/undici.jpg">
 <meta name="theme-color" content="#f7f4ec">
 <link rel="icon" href="/favicon.ico" sizes="32x32 48x48 96x96">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
 :root { color-scheme: light; --bg:#f7f4ec; --paper:#fffefa; --ink:#243d32; --text:#39483f; --muted:#626c62; --line:#d9ded2; --green:#2f5948; --tint:#e9eee5; --gold:#946a2f; --serif:Georgia,'Times New Roman',serif; }
 * { box-sizing:border-box; }
@@ -21,6 +22,7 @@ a:hover { text-decoration-thickness:2px; }
 .wrap { width:min(1080px, calc(100% - 64px)); margin-inline:auto; }
 .skip { position:absolute; top:-100px; padding:10px; background:var(--paper); z-index:5; }
 .skip:focus { top:10px; }
+.vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 header { display:flex; align-items:center; justify-content:space-between; padding-block:27px; border-bottom:1px solid var(--line); gap:20px; }
 .brand { font:30px var(--serif); color:var(--ink); text-decoration:none; letter-spacing:-1px; }
 .brand span { color:var(--muted); font:12px system-ui,sans-serif; letter-spacing:.08em; margin-left:14px; text-transform:uppercase; }
@@ -29,6 +31,7 @@ nav a { text-decoration:none; }
 nav a:hover { text-decoration:underline; }
 h1,h2,h3 { font-family:var(--serif); color:var(--ink); font-weight:400; line-height:1.15; }
 h1 { font-size:clamp(44px,6.3vw,76px); letter-spacing:-2.6px; margin:14px 0 25px; }
+h1 .h1-sub { display:block; margin-top:16px; font:500 clamp(16px,1.7vw,19px)/1.4 system-ui,-apple-system,'Segoe UI',sans-serif; letter-spacing:0; color:var(--muted); }
 h2 { font-size:clamp(32px,4vw,44px); letter-spacing:-1.2px; margin:0; }
 h3 { font-size:26px; margin:0 0 10px; }
 p { margin:0 0 14px; }
@@ -82,7 +85,7 @@ input { border:1px solid #a5afa2; border-radius:6px; padding:11px 14px; backgrou
 .decks li { display:flex; justify-content:space-between; align-items:center; gap:22px; padding:18px 0; border-bottom:1px solid var(--line); font-size:13px; }
 .decks li:first-child { padding-top:0; }
 .decks li:last-child { border-bottom:0; padding-bottom:0; }
-.decks b { font-size:16px; color:var(--ink); font-weight:600; }
+.decks .deck-name { font-size:16px; color:var(--ink); font-weight:600; }
 .decks small { color:var(--muted); font-size:12px; }
 .decks a { flex:none; font-size:13px; text-decoration:none; border:1px solid #a5afa2; border-radius:6px; padding:8px 13px; }
 .decks a:hover { background:var(--tint); border-color:var(--green); }
@@ -158,7 +161,7 @@ if (location.hostname === 'italian-flashcards-lyh2.onrender.com') {
 <main id="main" class="guide"><p class="crumbs"><a href="/">Italian flashcards</a> / Numbers</p><h1>Italian Numbers Anki Deck</h1><p>Practice with easily confused numbers, including the teens and tens.</p><h2>What this deck covers</h2><p>Vocabulary cards practise recognition and recall. Related meanings may share a word, and some vocabulary repeats across the collection.</p><p>54 notes · 108 study cards · 967 KB · Anki .apkg file</p><a class="download" href="https://github.com/cameronengineer/italian-flashcards/releases/download/decks/italian_basics_numbers.apkg">Download Numbers (967 KB)</a><h2>A card from this deck</h2><div class="sample-panel" id="sample-undici" aria-labelledby="label-undici">
   <h3 id="label-undici" class="sample-label">Vocabulary · Italian → English</h3>
   <div class="sample">
-    <div class="side"><small>Front</small><div class="word" lang="it">undici</div><div class="ipa">/ˈun.di.t͡ʃi/</div><audio controls preload="none" aria-label="Pronunciation of undici" src="/samples/undici.mp3">Your browser does not support audio. <a href="/samples/undici.mp3">Download the recording</a>.</audio></div>
+    <div class="side"><small>Front</small><div class="word" lang="it">undici</div><div class="ipa">/ˈun.di.t͡ʃi/</div><audio controls preload="none" aria-label="Pronunciation of undici" src="/samples/undici.mp3">Your browser does not support audio. <a href="/samples/undici.mp3">Download the recording of undici</a>.</audio></div>
     <div class="side"><small>Back</small><div class="word">11</div><img src="/samples/undici.jpg" alt="Illustration for 11" width="512" height="384" decoding="async"><p class="det"></p><p></p></div>
   </div>
 </div><h2>Working on easily confused numbers</h2><p>The deck gives particular attention to teens and tens, including forms such as undici. Try recalling a number in both directions and saying it aloud. A written answer can feel easier than recognising a number in speech; use the recording and practise in contexts such as prices or times alongside the cards.</p><h2>Examples from the deck</h2><p>40 of the 54 entries in the deck, spread from A to Z. These are individual prompts, not a lesson order.</p><table class="preview-table"><thead><tr><th scope="col">Italian</th><th scope="col">English prompt or meaning</th></tr></thead><tbody><tr><td lang="it">cento</td><td>100</td></tr><tr><td lang="it">centodieci</td><td>110</td></tr><tr><td lang="it">centomila</td><td>100,000</td></tr><tr><td lang="it">centoundici</td><td>111</td></tr><tr><td lang="it">centouno</td><td>101</td></tr><tr><td lang="it">cinquantadue</td><td>52</td></tr><tr><td lang="it">cinquantuno</td><td>51</td></tr><tr><td lang="it">diciannove</td><td>19</td></tr><tr><td lang="it">diciassette</td><td>17</td></tr><tr><td lang="it">diciotto</td><td>18</td></tr><tr><td lang="it">diecimila</td><td>10,000</td></tr><tr><td lang="it">dodici</td><td>12</td></tr><tr><td lang="it">due</td><td>2</td></tr><tr><td lang="it">milleuno</td><td>1,001</td></tr><tr><td lang="it">novanta</td><td>90</td></tr><tr><td lang="it">novantadue</td><td>92</td></tr><tr><td lang="it">nove</td><td>9</td></tr><tr><td lang="it">ottanta</td><td>80</td></tr><tr><td lang="it">ottantadue</td><td>82</td></tr><tr><td lang="it">otto</td><td>8</td></tr><tr><td lang="it">quaranta</td><td>40</td></tr><tr><td lang="it">quarantuno</td><td>41</td></tr><tr><td lang="it">quattordici</td><td>14</td></tr><tr><td lang="it">quattro</td><td>4</td></tr><tr><td lang="it">sedici</td><td>16</td></tr><tr><td lang="it">sei</td><td>6</td></tr><tr><td lang="it">sessanta</td><td>60</td></tr><tr><td lang="it">sessantuno</td><td>61</td></tr><tr><td lang="it">settanta</td><td>70</td></tr><tr><td lang="it">settantadue</td><td>72</td></tr><tr><td lang="it">sette</td><td>7</td></tr><tr><td lang="it">tre</td><td>3</td></tr><tr><td lang="it">tredici</td><td>13</td></tr><tr><td lang="it">trentadue</td><td>32</td></tr><tr><td lang="it">trentuno</td><td>31</td></tr><tr><td lang="it">undici</td><td>11</td></tr><tr><td lang="it">uno</td><td>1</td></tr><tr><td lang="it">venti</td><td>20</td></tr><tr><td lang="it">ventuno</td><td>21</td></tr><tr><td lang="it">zero</td><td>0</td></tr></tbody></table><p>For help choosing material, see <a href="/italian-anki-decks-for-beginners/">Italian Anki decks for beginners</a>. For review and import advice, see <a href="/how-to-study-italian-with-anki/">how to study Italian with Anki</a>.</p><h2>How to use this deck</h2><ol><li>Install <a href="https://apps.ankiweb.net/">Anki</a> for your device.</li><li>Download the .apkg file above. Pictures and recordings are included.</li><li>Open the file with Anki, or choose File → Import on a computer. Check the import summary if you already have related decks.</li><li>Choose this deck in Anki and set a daily new-card limit that suits your study.</li></ol><h2>Sources and limitations</h2><p>I made these cards for my own Italian study. Dictionary data comes from Wiktionary via Kaikki; the frequency deck uses SUBTLEX-IT. Text, pictures and voices use AI and may contain mistakes. Keep source credits when sharing and use the decks non-commercially. <a href="/#about">Read about the material</a>.</p><h2>Related decks</h2><ul><li><a href="/decks/italian-core-fluent-forever-625-anki-deck/">Fluent Forever 625</a></li></ul></main><footer>

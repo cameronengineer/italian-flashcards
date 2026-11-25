@@ -262,8 +262,9 @@ def build(data, api):
                for _gid, _title, _blurb, rows in api.GROUPS for stem, name, desc in rows]
     # All guide links are ordinary HTML links and remain available without JS.
     for stem, name, _desc in entries:
-        homepage = homepage.replace(f'<b>{e(name)}</b>', f'<b><a class="deck-title" href="{deck_path(stem)}">{e(name)}</a></b>')
-    homepage = homepage.replace('Italian, a little<br>at a time.', 'Free Italian flashcards<br>for Anki.')
+        homepage = homepage.replace(f'<span class="deck-name">{e(name)}</span>', f'<span class="deck-name"><a class="deck-title" href="{deck_path(stem)}">{e(name)}</a></span>')
+    # Every word of the page title also appears in the H1 (search tools compare them).
+    homepage = homepage.replace('Italian, a little<br>at a time.', 'Free Italian Anki decks with audio &amp; pictures.<span class="h1-sub">A1–B2 vocabulary, verbs, numbers and more</span>')
     homepage = homepage.replace('These are the flashcards I made for studying Italian.', 'Free Italian Anki flashcards for English speakers, made for my own Italian study.')
     homepage = homepage.replace('Shared freely for use in', 'Made by <a href="https://blog.cameronengineer.com/">Cameron</a>. Shared freely for use in')
     homepage = homepage.replace('\n</main>', '<section id="study-guides"><h2>Choosing and using Italian flashcards</h2><p>New to the collection? These guides explain the differences between the decks and how to use them alongside your other Italian study.</p><ul>'
